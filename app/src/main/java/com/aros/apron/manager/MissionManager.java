@@ -95,7 +95,6 @@ public class MissionManager extends BaseManager {
                             case NOT_SUPPORTED:
                                 Movement.getInstance().setAirlineFlight(false);
                                 sendMissionExecuteEvents(client,"任务状态:此机型不支持航线任务3.0");
-//                                IText
                                 break;
                             case READY:
                                 Movement.getInstance().setAirlineFlight(false);
