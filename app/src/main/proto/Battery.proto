@@ -1,0 +1,38 @@
+//apron/product/tingyuan/batteryA
+//apron/product/tingyuan/batteryB
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoBattery";
+message Battery {
+  //电压(mV)
+  int32 voltage = 1;
+
+  //以百分比形式返回电池的剩余寿命，范围为 [0, 100]。
+  int32 lifetimeRemaining = 3;
+
+  //返回范围为 [0, 100] 的电池剩余电量百分比。
+  int32 chargeRemainingInPercent = 4;
+
+  //电池温度
+  double temperature = 5;
+
+  //返回电池在其生命周期内经历的总放电次数。
+  int32 numberOfDischarges = 6;
+
+  //获取电池的子电池电压。电池中的每个子电池都有一个电压。
+  string cellVoltage =2;
+
+
+  //电池连接状态。0 表示正常，1 表示无效，2 表示通信中的异常。
+  enum ConnectionState {
+    NORMAL = 0;
+    INVALID = 1;
+    EXCEPTION = 2;
+    UNKNOWN = 255;
+  }
+  ConnectionState connectionState = 7;
+
+  //电芯信息
+  int32 numberOfCells=8;
+
+}

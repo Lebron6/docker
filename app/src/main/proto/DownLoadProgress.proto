@@ -1,0 +1,8 @@
+//uav/product/" + SERIAL_NUMBER + "/media_download_progress
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoMediaDownLoadProgress";
+//回调下载进度
+message MediaDownLoadProgress {
+  string msg =1;
+}

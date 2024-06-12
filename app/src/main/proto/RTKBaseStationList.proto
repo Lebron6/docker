@@ -1,0 +1,8 @@
+//apron/product/tingyuan/rtk_list_info
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoBaseStationList";
+//返回搜索到的D-RTK基站列表
+message RTKBaseStationList {
+  string rtkBaseStationInformations =1;
+}

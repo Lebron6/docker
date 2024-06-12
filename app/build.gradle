@@ -1,0 +1,221 @@
+plugins {
+    id 'com.android.application'
+//    id 'com.google.protobuf'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.aros.apron"
+        minSdk 23
+        targetSdk 32
+        versionCode 15
+        versionName "v1.3.5"
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64', 'mips', 'mips64'
+        }
+    }
+
+//    buildTypes {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+//    }
+
+    buildTypes {
+        release {
+            minifyEnabled false      // 是否进行混淆
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // 混淆文件的位置
+        }
+
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    signingConfigs {
+        debug {
+            storeFile file('apron.jks')
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+        }
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+    // 默认 proto 文件目录为 src/main/proto
+    // 若不需要自定义目录，则可不加 sourceSets
+    sourceSets {
+//        main {
+//            proto {
+//                srcDir 'src/main/proto'
+//            }
+//        }
+    }
+
+//    protobuf {
+//        protoc {
+//            artifact = 'com.google.protobuf:protoc:3.17.3'
+//        }
+//
+//        // 默认路径为 build/generated/source/proto
+//        // 该目录下会按 buildType 生成 debug / release 目录
+//        generatedFilesBaseDir = "$projectDir/src/proto"
+//
+//        generateProtoTasks {
+//            all().each { task ->
+//                task.builtins {
+//                    java {
+//                        option "lite"
+////                    outputSubDir = "../" // 能通过该参数将生成文件从 debug / release 目录中移出
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    clean {
+//        delete protobuf.generatedFilesBaseDir
+//    }
+
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+
+    }
+    packagingOptions {
+        // 因为mrtc库内部使用了NDK的c++_shared的编译参数
+        // 与其他库重复引用了，因此选其中一个即可
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+    }
+
+    packagingOptions {
+        doNotStrip "*/*/libconstants.so"
+        doNotStrip "*/*/libdji_innertools.so"
+        doNotStrip "*/*/libdjibase.so"
+        doNotStrip "*/*/libDJICSDKCommon.so"
+        doNotStrip "*/*/libDJIFlySafeCore-CSDK.so"
+        doNotStrip "*/*/libdjifs_jni-CSDK.so"
+        doNotStrip "*/*/libDJIRegister.so"
+        doNotStrip "*/*/libdjisdk_jni.so"
+        doNotStrip "*/*/libDJIUpgradeCore.so"
+        doNotStrip "*/*/libDJIUpgradeJNI.so"
+        doNotStrip "*/*/libDJIWaypointV2Core-CSDK.so"
+        doNotStrip "*/*/libdjiwpv2-CSDK.so"
+        doNotStrip "*/*/libffmpeg.so"
+        doNotStrip "*/*/libFlightRecordEngine.so"
+        doNotStrip "*/*/libvideo-framing.so"
+        doNotStrip "*/*/libwaes.so"
+        doNotStrip "*/*/libagora-rtsa-sdk.so"
+        doNotStrip "*/*/libc++.so"
+        doNotStrip "*/*/libc++_shared.so"
+        doNotStrip "*/*/libmrtc_28181.so"
+        doNotStrip "*/*/libmrtc_agora.so"
+        doNotStrip "*/*/libmrtc_core.so"
+        doNotStrip "*/*/libmrtc_core_jni.so"
+        doNotStrip "*/*/libmrtc_data.so"
+        doNotStrip "*/*/libmrtc_log.so"
+        doNotStrip "*/*/libmrtc_onvif.so"
+        doNotStrip "*/*/libmrtc_rtmp.so"
+        doNotStrip "*/*/libmrtc_rtsp.so"
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    configurations {
+        cleanedAnnotations
+        implementation.exclude group: 'org.jetbrains', module: 'annotations'
+    }
+    namespace 'com.aros.apron'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation "androidx.fragment:fragment-ktx:1.3.3"
+
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation files('libs\\dom4j-2.1.4.jar')
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    implementation 'com.yanzhenjie:permission:2.0.3'
+    implementation 'com.commonsware.cwac:saferoom.x:1.3.0'
+
+
+    implementation 'com.dji:dji-sdk-v5-aircraft:5.8.0'
+    compileOnly  'com.dji:dji-sdk-v5-aircraft-provided:5.8.0'
+    implementation 'com.dji:dji-sdk-v5-networkImp:5.8.0'
+
+    implementation 'com.shd:dji-uxsdk:5.8.0'
+
+    implementation 'com.squareup.okio:okio:1.15.0'
+    implementation 'com.squareup.wire:wire-runtime:2.2.0'
+    implementation 'com.airbnb.android:lottie:3.3.1'
+    implementation 'com.iqiyi.xcrash:xcrash-android-lib:3.1.0'
+
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'com.orhanobut:logger:2.1.1'
+    api 'com.squareup.retrofit2:retrofit:2.9.0'
+    api 'com.squareup.retrofit2:converter-gson:2.9.0'
+    api 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.9'
+
+    implementation 'com.google.protobuf:protobuf-javalite:4.0.0-rc-2'
+//    implementation 'com.thoughtworks.xstream:xstream:1.4.20'
+    implementation 'com.tencent.bugly:crashreport:4.0.4'
+    //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如4.0.3
+
+    implementation 'com.amap.api:3dmap:7.3.0'
+    implementation 'com.amap.api:search:7.3.0'
+
+    implementation 'io.reactivex.rxjava3:rxkotlin:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+
+    //H264推流
+//    implementation 'com.github.pedroSG94.RootEncoder:library:2.3.3'
+
+    //amazonaws
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.72.0'
+    implementation 'com.amazonaws:aws-android-sdk-mobile-client:2.72.0'
+
+//    implementation 'io.minio:minio:8.3.7'
+//// 串口
+//    implementation 'com.github.licheedev:Android-SerialPort-API:2.0.0'
+//    // modbus4j
+//    implementation 'com.github.licheedev:modbus4j:v3.0.6-alpha1'
+//    implementation 'com.github.licheedev:Modbus4Android:2.0.2'
+//    implementation 'com.quickbirdstudios:opencv-contrib:4.5.3.0'
+
+    implementation 'com.quickbirdstudios:opencv-contrib:3.4.5'
+}

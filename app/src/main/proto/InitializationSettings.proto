@@ -1,0 +1,93 @@
+//apron/product/tingyuan/downlink_signal_quality
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoInitializationSettings";
+message InitializationSettings {
+  //云台模式
+  int32 gimbalMode =1;
+  //RTK开关
+  int32 rtkSwitch=2;
+  //RTK状态保持
+  int32 rtkMaintainPositioningAccuracy=3;
+  //ISO
+  int32 ISO=4;
+  //曝光补偿
+  int32 exposureCompensation=5;
+  //曝光模式
+  int32 exposureMode=6;
+  //Shutter
+  float shutter=7;
+  //相机模式
+  int32 cameraMode=8;
+  //变焦焦距
+  int32 hybridZoom=9;
+  //获取当前是哪个镜头
+  string currentLens=10;
+  //获取对焦模式
+  string focusMode=11;
+  //获取是否曝光锁定
+  string lockExposure=12;
+  //获取红外的焦距
+  string thermalDigitalZoom=13;
+  //获取四个灯光
+  string beacons=14;
+  string front=15;
+  string rear=16;
+  string statusIndicator=17;
+  //红外分屏
+  string hyDisplayMode=18;
+  //当前流是不是fpv
+  string currentVideoSource=19;
+  //低电量
+  string lowBatteryWarning=20;
+  //严重低电量
+  string seriousLowBatteryWarning=21;
+  //智能返航
+  bool smartReturnToHomeEnabled=22;
+  //视觉定位
+  bool visionAssistedPosition=23;
+  //精准着陆
+  bool precisionLand=24;
+  //障碍物检测
+  bool collisionAvoidance=25;
+  //上避障
+  bool upwardsAvoidance=26;
+  //下避障
+  bool landingProtection=27;
+  //    上避障安全距离范围为[1.0，10]
+  string avoidanceDistanceUpward=28;
+  //    下避障安全距离范围为[0.1，3]
+  string avoidanceDistanceDownward=29;
+  //水平避障安全距离范围为[1.0，5]
+  string avoidanceDistanceHorizontal=30;
+  //上避障感知距离5m〜45m
+  string maxPerceptionDistanceUpward=31;
+  //下避障感知距离5m〜45m
+  string maxPerceptionDistanceDownward=32;
+  //水平障感知距离5m〜45m
+  string maxPerceptionDistanceHorizontal=33;
+  //避障刹车功能
+  bool activeObstacleAvoidance=34;
+  //云台俯仰速度1——100
+  string gimbal_pitch_speed=35;
+  //云台偏航速度1——100
+  string gimbal_yaw_speed=36;
+  //带宽
+  string channelBandwidth=37;
+  //工作频段 2.4g 5.8g 双频
+  string frequencyBand=38;
+  //图传码率
+  string transcodingDataRate=39;
+  //干扰功率范围为[-60，-100] dBm。较小的负值表示干扰较小，通信质量较好。所有中文自己根据值写一下
+  string interferencePower=40;
+  //云台俯仰限位扩展
+  bool pitchRangeExtension=41;
+  //返航高度
+  string goHomeHeightInMeters =42;
+  //限高
+  string maxFlightHeight =43;
+  //限远
+  string maxFlightRadius =44;
+  //限远开关
+  bool maxFlightRadiusLimitationEnabled=45;
+}

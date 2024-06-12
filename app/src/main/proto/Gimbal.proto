@@ -1,0 +1,22 @@
+//apron/product/tingyuan/gimbalA
+//apron/product/tingyuan/gimbalB
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoGimbal";
+message Gimbal {
+  //云台相对于飞机的姿态，以度数表示。(平台上表示云台角度)
+  float pitch = 1;//俯仰
+  float roll = 2;//横滚
+  float yaw = 3;//偏航
+
+  //云台的工作模式
+  enum GimbalMode {
+    FREE = 0;//云台可以独立于飞机的偏航而移动。在这种模式下，即使飞机偏航角发生变化，相机也会继续指向同一个世界方向。
+    FPV = 1;//云台工作模式为FPV模式。在该模式下，云台偏航会跟随飞行器的航向，云台滚动会跟随 RC 的滚动通道值。
+    YAW_FOLLOW = 2;//云台的工作模式是跟随偏航。此模式下，云台偏航固定，俯仰和横滚可以移动。
+    UNKNOWN = 255;
+  }
+  GimbalMode gimBalMode = 15;
+
+
+}

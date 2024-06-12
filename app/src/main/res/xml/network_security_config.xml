@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <domain-config cleartextTrafficPermitted="true">
+        <!--        这里必须配置，否则不会上传到bugly日志-->
+        <domain includeSubdomains="true">android.bugly.qq.com</domain>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="true"
+        tools:ignore="MissingPrefix" />
+</network-security-config>

@@ -1,0 +1,577 @@
+package com.aros.apron.manager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.Movement;
+import com.aros.apron.tools.LogUtil;
+import com.google.gson.Gson;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+
+import dji.sdk.keyvalue.key.CameraKey;
+import dji.sdk.keyvalue.key.DJIKey;
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraExposureCompensation;
+import dji.sdk.keyvalue.value.camera.CameraExposureMode;
+import dji.sdk.keyvalue.value.camera.CameraMode;
+import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
+import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
+import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
+import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
+import dji.sdk.keyvalue.value.common.CameraLensType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
+import dji.sdk.keyvalue.value.common.EmptyMsg;
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.common.error.IDJIError;
+import dji.v5.manager.KeyManager;
+
+public class CameraManager extends BaseManager {
+
+    private MqttAndroidClient client;
+
+    private CameraManager() {
+    }
+
+    private static class CameraHolder {
+        private static final CameraManager INSTANCE = new CameraManager();
+    }
+
+    public static CameraManager getInstance() {
+        return CameraHolder.INSTANCE;
+    }
+
+    public void initCameraInfo(MqttAndroidClient client) {
+        this.client = client;
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, 0));
+        if (isConnect != null && isConnect) {
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyCameraMode, 0), this, new CommonCallbacks.KeyListener<CameraMode>() {
+                @Override
+                public void onValueChange(@Nullable CameraMode oldValue, @Nullable CameraMode newValue) {
+                    if (newValue != null) {
+                        Movement.getInstance().setCameraMode(newValue.value());
+                    }
+                }
+            });
+
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyIsShootingPhoto, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
+                    if (newValue != null) {
+                        Movement.getInstance().setIsShootingPhoto(newValue ? 1 : 0);
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyIsRecording, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
+                    if (newValue != null) {
+                        Movement.getInstance().setIsRecording(newValue ? 1 : 0);
+
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyRecordingTime, 0), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
+                    if (newValue != null) {
+                        Movement.getInstance().setRecordingTime(newValue);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Double>() {
+                @Override
+                public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setCameraZoomRatios(t1);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
+                @Override
+                public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setThermalZoomRatios(t1);
+                    }
+                }
+            });
+
+            //默认视频源
+            CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                    KeyCameraVideoStreamSource));
+            if (value!=null){
+                Movement.getInstance().setCameraVideoStreamSource(value.value());
+            }
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyCameraVideoStreamSource, 0), this, new CommonCallbacks.KeyListener<CameraVideoStreamSourceType>() {
+                @Override
+                public void onValueChange(@Nullable CameraVideoStreamSourceType cameraVideoStreamSourceType, @Nullable CameraVideoStreamSourceType t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setCameraVideoStreamSource(t1.value());
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyThermalDisplayMode, 0), this, new CommonCallbacks.KeyListener<ThermalDisplayMode>() {
+                @Override
+                public void onValueChange(@Nullable ThermalDisplayMode thermalDisplayMode, @Nullable ThermalDisplayMode t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setThermalDisplayMode(t1.value());
+                    }
+                }
+            });
+            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraZoomRatiosRange), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+                @Override
+                public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
+                    if (zoomRatiosRange != null) {
+                        Movement.getInstance().setContinuous(zoomRatiosRange.isContinuous());
+                        Movement.getInstance().setGears(zoomRatiosRange.getGears());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+
+                }
+            });
+
+            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyThermalZoomRatiosRange), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+                @Override
+                public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
+                    if (zoomRatiosRange != null) {
+                        Movement.getInstance().setThermalContinuous(zoomRatiosRange.isContinuous());
+                        Movement.getInstance().setThermalGears(zoomRatiosRange.getGears());
+                    }
+
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+
+                }
+            });
+        }
+    }
+
+//    private void publishCamera2Server() {
+//        if (isFlyClickTime()) {
+//            MqttMessage flightMessage = null;
+//            try {
+//                CameraStateEntity.getInstance().setTimeStamp(String.valueOf(System.currentTimeMillis()));
+//                flightMessage = new MqttMessage(new Gson().toJson(CameraStateEntity.getInstance()).getBytes("UTF-8"));
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//            flightMessage.setQos(1);
+//            publish(client, MqttConfig.MQTT_CAMERA_TOPIC, flightMessage);
+//        }
+//    }
+
+
+    //切换相机拍照录像模式
+    public void setCameraMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            if (message != null) {
+                int cameraMode = message.getCameraMode();
+                KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraMode), CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendMsg2Server(mqttAndroidClient, message, "切换失败:" + error.description());
+                    }
+                });
+
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //开始拍照
+    public void startShootPhoto(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendMsg2Server(mqttAndroidClient, message, "拍照失败:" + error.description());
+                }
+            });
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //
+//    //结束拍照
+//    public void stopShootPhoto(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection));
+//        if (isConnect != null && isConnect) {
+//            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//                @Override
+//                public void onSuccess(EmptyMsg emptyMsg) {
+//                    sendMsg2Server(mqttAndroidClient, message);
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull IDJIError error) {
+//                    sendMsg2Server(mqttAndroidClient, message, "停止拍照失败:" + error.description());
+//                }
+//            });
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+//        }
+//    }
+//
+    //开始录像
+    public void startRecordVideo(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendMsg2Server(mqttAndroidClient, message, "开始录像失败:" + new Gson().toJson(error));
+                    LogUtil.log(TAG, "开始录像失败:" + new Gson().toJson(error));
+                }
+            });
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //
+    //停止录像
+    public void stopRecordVideo(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + error.description());
+                    LogUtil.log(TAG, "停止录像失败:" + error.description());
+                }
+            });
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //设置变焦倍率
+    public void setCameraZoomRatios(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            if (message != null) {
+                int cameraZoomRatios = message.getCameraZoomRatios();
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendMsg2Server(mqttAndroidClient, message, "设置变焦倍率失败:" + error.description());
+                    }
+                });
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //设置红外变焦倍率(支持1x、2x、4x、8x变焦倍率)
+    public void setThermalZoomRatios(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            if (message != null) {
+                int type = message.getThermalZoomRatios();
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendMsg2Server(mqttAndroidClient, message, "设置红外变焦倍率失败:" + error.description());
+                    }
+                });
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //切换广角变焦红外
+    public void setCameraVideoStreamSource(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            if (message != null) {
+                int type = message.getCameraVideoStreamSource();
+
+                KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.find(type), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendMsg2Server(mqttAndroidClient, message, "切换失败:" + error.description());
+                    }
+                });
+                if (type == 3) {
+                    KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
+                                    ComponentIndexType.LEFT_OR_MAIN,
+                                    CameraLensType.CAMERA_LENS_THERMAL),
+                            ThermalDisplayMode.THERMAL_ONLY, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+//                                    setThermalPIPPosition(mqttAndroidClient, message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendMsg2Server(mqttAndroidClient, message, "红外镜头的显示模式模式设置失败:" + error.description());
+                                }
+                            });
+                }
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+
+    }
+
+    //设置红外镜头的显示模式
+    public void setThermalDisplayMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
+                            ComponentIndexType.LEFT_OR_MAIN,
+                            CameraLensType.CAMERA_LENS_THERMAL),
+                    ThermalDisplayMode.PIP, new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            setThermalPIPPosition(mqttAndroidClient, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "红外镜头的显示模式模式设置失败:" + error.description());
+                        }
+                    });
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+    //设置红外镜头分屏显示位置
+    public void setThermalPIPPosition(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalPIPPosition,
+                            ComponentIndexType.LEFT_OR_MAIN,
+                            CameraLensType.CAMERA_LENS_THERMAL),
+                    ThermalPIPPosition.SIDE_BY_SIDE,
+                    new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "分屏的显示位置设置失败:" + error.description());
+                        }
+                    });
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
+
+//
+//
+//    //设置对焦模式
+//    public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection));
+//        if (isConnect != null && isConnect) {
+//            if (message != null) {
+//                String type = message.getData().getCameraFocusMode();
+//                if (TextUtils.isEmpty(type)) {
+//                    sendMsg2Server(mqttAndroidClient, message, "对焦模式设置参数有误");
+//                } else {
+//                    KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), CameraFocusMode.find(Integer.valueOf(type)), new CommonCallbacks.CompletionCallback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            sendMsg2Server(mqttAndroidClient, message);
+//                        }
+//
+//                        @Override
+//                        public void onFailure(@NonNull IDJIError error) {
+//                            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式设置失败:" + error.description());
+//                        }
+//                    });
+//                }
+//            }
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+//        }
+//    }
+//
+//    //格式化SD卡
+//    public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection));
+//        if (isConnect != null && isConnect) {
+//
+//            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
+//                @Override
+//                public void onSuccess() {
+//                    sendMsg2Server(mqttAndroidClient, message);
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull IDJIError error) {
+//                    sendMsg2Server(mqttAndroidClient, message, "格式化失败:" + error.description());
+//                }
+//            });
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+//        }
+//    }
+//
+//    //重置相机参数
+//    public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection));
+//        if (isConnect != null && isConnect) {
+//            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyResetCameraSetting), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//                @Override
+//                public void onSuccess(EmptyMsg emptyMsg) {
+//                    sendMsg2Server(mqttAndroidClient, message);
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull IDJIError error) {
+//                    sendMsg2Server(mqttAndroidClient, message, "重置相机参数失败:" + error.description());
+//                }
+//            });
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+//        }
+//    }
+//
+
+
+    //切换为广角镜头，降低曝光率
+    /**
+     * 御3T曝光ISO范围是 100-25600
+     * 配合调整快门速度
+     * 设置镜头曝光补偿
+     */
+    public void resumeLensToWideISOManual() {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            //切换成广角镜头
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.WIDE_CAMERA, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "降落时将镜头切为广角");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "降落切换广角失败：" + new Gson().toJson(error));
+                }
+            });
+
+        } else {
+            LogUtil.log(TAG, "降落切换广角失败：相机未连接");
+        }
+
+    }
+
+    //切换为广角镜头，恢复曝光
+    public void resumeLensToWideISOProgram() {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.PROGRAM, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "降落后切换曝光模式为自动成功");
+
+                    KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.POS_1P0EV, new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "降落后设置曝光补偿数值成功");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError idjiError) {
+                            LogUtil.log(TAG, "降落后设置曝光补偿数值失败");
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "降落后切换曝光模式为自动失败:" + new Gson().toJson(idjiError));
+                }
+            });
+
+
+        } else {
+            LogUtil.log(TAG, "降落后降落完成切换曝光失败：相机未连接");
+        }
+
+    }
+}

@@ -1,0 +1,8 @@
+//apron/product/tingyuan/uplink_signal_quality
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoH264";
+message H264 {
+  int32 size =1;
+  bytes h264=2;
+}

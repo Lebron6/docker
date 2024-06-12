@@ -1,0 +1,8 @@
+//apron/product/tingyuan/uplink_signal_quality
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoUplink";
+message Uplink {
+  //无线链路的信号质量百分比。(平台目前使用此参数作为遥控器信号质量)
+  int32 quality =1;
+}

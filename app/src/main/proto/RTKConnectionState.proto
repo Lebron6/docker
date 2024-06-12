@@ -1,0 +1,18 @@
+//apron/product/tingyuan/rtk_connection_state
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoRTKConnectionState";
+message RTKConnectionState {
+  //飞机与D-RTK的连接状态(仅支持M300 RTK)
+  enum RTKConnectionStateWithBaseStationReferenceSource{
+    IDLE = 0;//飞机 RTK 处于空闲状态。
+    SCANNING = 1;//飞机正在扫描所有可能连接的基站。
+    CONNECTING = 2;//飞行器正在与基站连接。
+    CONNECTED = 3;//	飞行器与基站连接。
+    DISCONNECTED = 4;//	飞机与基站断开连接。
+    UNKNOWN = 255;//未知基站位置连接状态。
+  }
+  RTKConnectionStateWithBaseStationReferenceSource rtkConnectionStateWithBaseStationReferenceSource = 1;
+
+
+}

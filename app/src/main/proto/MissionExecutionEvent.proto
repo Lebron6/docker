@@ -1,0 +1,37 @@
+//apron/product/tingyuan/mission_execute_state
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoMissionExecution";
+message MissionExecution {
+
+  //飞机将执行的下一个任务的航路点索引。(平台取此值表示已过航点)
+  int32 targetWaypointIndex = 1;
+
+  //飞机当前航线的总航点数(航线开始-结束)
+  int32 targetMissionWaypointSize = 3;
+
+  //航线任务执行的状态
+  enum WaypointV2MissionExecuteState{
+    //航点任务正在初始化，这意味着任务已经开始。
+    INITIALIZING = 0;
+    //飞机目前正前往第一个航路点。
+    GO_TO_FIRST_WAYPOINT = 1;
+    //飞机目前正在移动。
+    MOVING = 2;
+    // 飞机目前正在暂停。
+    PAUSED = 3;
+    //飞机当前被用户中断。
+    INTERRUPTED = 4;
+    // 飞机完成航路点任务，从最后一个航路点起飞。
+    FINISHED = 5;
+    //飞机已返回原点。当航线执行完成动作设置为GO_HOME时会发生这种情况。
+    GO_HOME = 6;
+    //飞机已降落。当航线执行完成动作设置为AUTO_LAND时会发生这种情况。
+    LANDING = 7;
+    //飞机已返回第一个航点。当航线执行完成动作设置为GO_FIRST_WAYPOINT时会发生这种情况。
+    RETURN_TO_FIRST_WAYPOINT = 8;
+    //未知
+    UNKNOWN = 255;
+  }
+  WaypointV2MissionExecuteState waypointV2MissionExecuteState = 2;
+}

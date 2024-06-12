@@ -1,0 +1,25 @@
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoMessage";
+
+
+message Message  {
+
+  //请求id
+  string requestId = 1;
+  //设备id
+  string equipmentId = 2;
+  //区别你是调用了我什么方法，比如控制起飞，控制航线，控制云台等等
+  string method = 3;
+  //传给我参数，比如航线的经纬度，各种参数
+  map<string, string> para = 4;
+  //我返回你失败或者成功-1或者200
+  sint32 code = 5;
+  //失败或成功我返回你失败原因或者调用成功
+  string result = 6;
+  //请求时间传给我
+  string requestTime = 7;
+  //我返回你响应时间
+  string responseTime = 8;
+}
+

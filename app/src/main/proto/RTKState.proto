@@ -1,0 +1,49 @@
+//apron/product/tingyuan/rtk_state
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoRTKState";
+message RTKState {
+
+  //当 isRTKBeingUsed 为 true 时，飞控将使用 RTK 数据。
+  //(平台可使用此参数确认当前RTK是否正在使用)
+  bool isRTKBeingUsed = 1;
+
+  //Gps 或 RTK 卫星计数。仅 Phantom 4 RTK 支持。
+  int32 satelliteCount = 2;
+
+  //起飞高度。仅 Phantom 4 RTK 支持。
+  float takeOffAltitude = 3;
+
+  //返航距离。仅 Phantom 4 RTK 支持。
+  float distanceToHomePoint = 4;
+
+  //椭球体高度。从 GPS 读取的绝对海拔高度。仅 Matrice 300 RTK 支持。
+  float ellipsoidHeight = 5;
+
+  //飞机高度。飞机的绝对海拔高度。当 RTK 使用且有效时，该值将是融合 RTK 高度。否则，它是一个融合气压计高度。
+  // 由 Matrice 300 RTK、Phantom 4 RTK 和 P4 Multispectral 支持。
+  float aircraftAltitude = 6;
+
+  //基站海拔高度，以米为单位。
+  float bsAltitude = 8;
+
+  //相对于真北的航向，由移动台上从天线 2 到天线 1 形成的矢量定义。单位是度。
+  float heading = 9;
+
+  //如果true表示航向值有效。未获得卫星定位时，航向无效。
+  bool isHeadingValid = 7;
+
+
+  //航向解决方案描述了用于确定航向的方法。解决方案的准确性各不相同，从NONE（无航向）到FIXED_POINT. 它由 Matrice 200 系列 V2 和 Phantom 4 RTK 支持。
+  enum HeadingSolution {
+    NONE = 0;
+    SINGLE_POINT = 16;
+    FLOAT = 34;
+    FIXED_POINT = 50;
+    UNKNOWN = 51;
+  }
+
+  HeadingSolution headingSolution = 15;
+
+
+}

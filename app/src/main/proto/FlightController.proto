@@ -1,0 +1,148 @@
+//apron/product/tingyuan/flight_state
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoFlightController";
+message FlightController {
+
+  //电机是否启动
+  bool areMotorsOn = 1;
+
+  //是否处于飞行状态
+  bool isFlying = 2;
+
+  //飞行器当前经纬度(WGS84精准坐标系,平台可以转换为GCJ02坐标系使用)
+  double latitude = 3;
+  double longitude = 4;
+
+  //飞行器当前高度
+  double altitude = 5;
+
+  //飞机原地位置相对于海平面的相对高度，以米为单位。
+  double takeoffLocationAltitude = 6;
+
+  //俯仰、横滚和偏航值将在 [-180, 180] 度范围内的飞机姿态。
+  double pitch = 7;
+  double roll = 8;
+  double yaw = 9;
+
+  //飞机在 x，y，z，方向上的当前速度，以米/秒为单位，使用 NED（North-East-Down）坐标系。
+  //平台取(velocityX²+velocityY²)开根值作为水平速度
+  double velocityX = 10;
+  double velocityY = 11;
+
+  //平台取此值做为垂直速度
+  double velocityZ = 12;
+
+  //返回 GPS 卫星计数。
+  int32 satelliteCount = 14;
+
+  //返航点经纬度
+  double homeLocationLatitude = 21;
+  double homeLocationLongitude = 22;
+
+  //返航高度
+  int32 goHomeHeight = 23;
+
+  //风速(分米)
+  int32 windSpeed = 26;
+
+  //表示航向，以度为单位。正北为 0 度，正航向为北东，负航向为北西。范围为 [-180, 180]。
+  double compassHeading = 28;
+
+  //飞机系统诊断状态(平台可作为飞机状态展示)
+  string systemStatus = 34;
+
+  //用于测量信号质量
+  enum GPSSignalLevel {
+    LEVEL_0 = 0;
+    LEVEL_1 = 1;
+    LEVEL_2 = 2;
+    LEVEL_3 = 3;
+    LEVEL_4 = 4;
+    LEVEL_5 = 5;
+    LEVEL_6 = 6;
+    LEVEL_7 = 7;
+    LEVEL_8 = 8;
+    LEVEL_9 = 9;
+    LEVEL_10 = 10;
+    NONE = 255;
+  }
+  GPSSignalLevel GPSsignalLevel = 15;
+
+  //飞行器当前的定向模式。(待测试)
+  enum OrientationMode {
+    UNKNOWN_MODE = 0;
+    AIRCRAFT_HEADING = 255;
+    COURSE_LOCK = 1;
+    HOME_LOCK = 2;
+  }
+  OrientationMode  orientationMode = 17;
+
+  //强风引起的警告。
+  enum FlightWindWarning {
+    WIND_LEVEL_0 = 0;//无风
+    WIND_LEVEL_1 = 1;//风速大
+    WIND_LEVEL_2 = 2;//风速极大
+    WIND_UNKNOWN = 3;//未知
+  }
+  FlightWindWarning flightWindWarning = 18;
+
+  //风向
+  enum WindDirection {
+    WINDLESS = 0;//无风
+    NORTH = 1;//北风
+    NORTH_EAST = 2;//东北风
+    EAST = 3;//东风
+    SOUTH_EAST = 4;//东南风
+    SOUTH = 5;//南风
+    SOUTH_WEST = 6;//西南风
+    WEST = 7;//西风
+    NORTH_WEST = 8;//西北风
+  }
+  WindDirection windDirection = 25;
+
+
+
+  //智能返航状态。
+  enum GoHomeExecutionState {
+    IDLE = 0;//	未触发智能返航。飞行器返航着陆后也会把状态重置为这个状态。。
+    RETURNING_TO_HOME = 1;//返航中。
+    LANDING = 2;//返航下降中。
+    COMPLETED = 3;//返航完成。
+  }
+  GoHomeExecutionState goHomeExecutionState = 35;
+
+//飞行器的飞行模式。(V5暂时使用此参数作为飞行状态)
+  enum FlightModeString {
+      MANUAL=0;
+      ATTI=1;
+      GPS_NORMAL=2;
+      POI=3;
+      TAKE_OFF_READY=4;
+      AUTO_TAKE_OFF=5;
+      AUTO_LANDING=6;
+      WAYPOINT=7;
+      GO_HOME=8;
+      VIRTUAL_STICK=9;
+      SMART_FLIGHT=10;
+      PANO=11;
+      GPS_SPORT=12;
+      GPS_TRIPOD=13;
+      AUTO_AVOIDANCE=14;
+      SMART_FLY=15;
+      FORCE_LANDING=16;
+      ATTI_LANDING=17;
+      CLICK_GO=18;
+      CINEMATIC=19;
+      DRAW=20;
+      FOLLOW_ME=21;
+      GPS_NOVICE=22;
+      QUICK_MOVIE=23;
+      TAP_FLY=24;
+      MASTER_SHOT=26;
+      APAS=27;
+      TIME_LAPSE=28;
+      MOTOR_START=29;
+  }
+  FlightModeString flightModeString = 36;
+}

@@ -1,0 +1,5 @@
+// uxsdk模块
+//project(':uxsdk').projectDir = new File(rootProject.projectDir, '../android-sdk-v5-uxsdk')
+rootProject.name = "ApronV5"
+include ':app'
+include ':OpenCV'

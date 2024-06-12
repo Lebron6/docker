@@ -1,0 +1,8 @@
+//apron/product/tingyuan/diagnostics
+syntax = "proto3";
+option java_package = "com.caelus.framework.iot.gateway.server.entity";
+option java_outer_classname = "ProtoDiagnostics";
+//回调飞机异常信息
+message Diagnostics {
+  string msg =1;
+}
