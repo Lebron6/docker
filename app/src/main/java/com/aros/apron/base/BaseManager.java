@@ -107,7 +107,7 @@ public abstract class BaseManager {
                 LogUtil.log(TAG, "流程发送:"+event);
 
             } else {
-                LogUtil.log(TAG, "流程发送失败：mqtt 未连接");
+                LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "流程发送异常：mqtt 未连接");
