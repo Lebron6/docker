@@ -80,7 +80,7 @@ public class StickManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"控制权设置失败:"+error.description());
-                    sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + error.description());
+                    sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + new Gson().toJson(error));
                 }
             });
             VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);

@@ -1,14 +1,12 @@
 package com.aros.apron.base;
 
 import android.os.Handler;
-
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -27,13 +25,11 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
                 mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
-
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "回复异常：" + e.toString());
-
             throw new RuntimeException(e);
         }
     }

@@ -6,9 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MQMessage;
@@ -17,16 +15,13 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
@@ -47,7 +42,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
 
 public class MissionManager extends BaseManager {
 
