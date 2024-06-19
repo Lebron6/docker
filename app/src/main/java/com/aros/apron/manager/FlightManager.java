@@ -493,7 +493,6 @@ public class FlightManager extends BaseManager {
             startVisionLanding();
             // 检查是否满足降落条件
             checkLandingConditions();
-            sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始视觉识别降落");
 
         }
     }
@@ -541,6 +540,8 @@ public class FlightManager extends BaseManager {
         isSendDetect = true;
         PreferenceUtils.getInstance().setNeedTriggerArucoLand(true);
         LogUtil.log(TAG, "开始识别,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
+        sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始视觉识别降落");
+
     }
 
     // 定义常量用于EventBus事件总线
