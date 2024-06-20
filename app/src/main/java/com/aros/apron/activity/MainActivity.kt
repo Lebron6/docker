@@ -222,6 +222,9 @@ class MainActivity : BaseActivity() {
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             LogUtil.log(TAG, "取消降落,开始识别降落")
+                            if (startAruco){
+                                return
+                            }
                             startAruco = true
                             ArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
@@ -229,6 +232,9 @@ class MainActivity : BaseActivity() {
                         }
 
                         override fun onFailure(error: IDJIError) {
+                            if (startAruco){
+                                return
+                            }
                             LogUtil.log(TAG, "取消降落失败" + Gson().toJson(error))
                             startAruco = true
                             ArucoDetect.getInstance().setDetectedBigMarkers()
