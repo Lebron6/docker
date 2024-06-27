@@ -10,6 +10,15 @@ public class FileUploadResult {
     private String sortiesId;
     private String url;
     private Long fileSize;
+    private String flightId;
+
+    public String getFlightId() {
+        return flightId;
+    }
+
+    public void setFlightId(String flightId) {
+        this.flightId = flightId;
+    }
 
     public Long getFileSize() {
         return fileSize;

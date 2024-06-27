@@ -30,6 +30,33 @@ public class MQMessage {
     private int megaphoneVolume;//喊话器音量
     private int megaphonePlayMode;//喊话器播放模式
     private String megaphoneWord;//喊话器文字内容
+    private int cameraExposureMode;//曝光模式
+    private int cameraExposureCompensation;//曝光补偿数值
+    private int AELockEnabled;//曝光锁定
+
+    public int getAELockEnabled() {
+        return AELockEnabled;
+    }
+
+    public void setAELockEnabled(int AELockEnabled) {
+        this.AELockEnabled = AELockEnabled;
+    }
+
+    public int getCameraExposureMode() {
+        return cameraExposureMode;
+    }
+
+    public void setCameraExposureMode(int cameraExposureMode) {
+        this.cameraExposureMode = cameraExposureMode;
+    }
+
+    public int getCameraExposureCompensation() {
+        return cameraExposureCompensation;
+    }
+
+    public void setCameraExposureCompensation(int cameraExposureCompensation) {
+        this.cameraExposureCompensation = cameraExposureCompensation;
+    }
 
     public String getMegaphoneWord() {
         return megaphoneWord;

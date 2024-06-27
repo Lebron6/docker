@@ -338,6 +338,7 @@ object MediaManager : BaseManager() {
                         this.sortiesId = PreferenceUtils.getInstance().sortiesId
                         this.url = PreferenceUtils.getInstance().uploadUrl
                         this.offIndex = downLoadMediaFileIndex
+                        this.flightId = PreferenceUtils.getInstance().flightId
                     }
                     sendFileUploadCallback(mqttAndroidClient, fileUploadResult)
                 }

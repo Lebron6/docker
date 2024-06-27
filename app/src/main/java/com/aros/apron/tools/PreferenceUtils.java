@@ -26,6 +26,7 @@ public class PreferenceUtils extends BasePreference {
     private String FLIGHT_NAME = "flight_name";
     private String KEY = "key";
     private String SORTIES_ID = "sortiesId";
+    private String FLIGHT_ID = "flightId";
     private String NEED_TRIGGER_ARUCO_LAND = "need_trigger_aruco_land";//是否需要触发crash后继续降落
     private String TRIGGER_TO_ALTERNATE_POINT = "trigger_to_alternate_point";//是否需要触发crash后继续降落
 
@@ -64,12 +65,15 @@ public class PreferenceUtils extends BasePreference {
                 setString(BUCKET_NAME, split1[1]);
                 setString(KEY, split1[2]);
                 setString(SORTIES_ID, split1[3]);
+                setString(SORTIES_ID, split1[3]);
             } else {
                 LogUtil.log(TAG, "minio参数有误");
             }
             setString(ACCESS_KEY, message.getAccess_key());
             setString(SECRET_KEY, message.getSecret_key());
             setString(FLIGHT_NAME, message.getFlight_name());
+            setString(FLIGHT_ID, message.getFlightId());
+
         } else {
             LogUtil.log(TAG, "minio参数有误:地址为空");
         }
@@ -81,6 +85,9 @@ public class PreferenceUtils extends BasePreference {
 
     public String getSortiesId() {
         return getString(SORTIES_ID);
+    }
+    public String getFlightId() {
+        return getString(FLIGHT_ID);
     }
 
     public String getBucketName() {
