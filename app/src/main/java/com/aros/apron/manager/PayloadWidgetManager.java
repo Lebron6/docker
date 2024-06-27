@@ -29,22 +29,22 @@ public class PayloadWidgetManager extends BaseManager {
         return PayloadWidgetHolder.INSTANCE;
     }
 
-    public void setPayloadWidgetValue(){
-        Map<PayloadIndexType, IPayloadManager> payloadManagerMap = PayloadCenter.getInstance().getPayloadManager();
-        WidgetValue widgetValue=new WidgetValue();
+//    public void setPayloadWidgetValue(){
+//        Map<PayloadIndexType, IPayloadManager> payloadManagerMap = PayloadCenter.getInstance().getPayloadManager();
+//        WidgetValue widgetValue=new WidgetValue();
 //        widgetValue.setValue();
 //        widgetValue.setIndex();
 //        widgetValue.setType();
-        payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError idjiError) {
-
-            }
-        });
-    }
+//        payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+//            @Override
+//            public void onSuccess() {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull IDJIError idjiError) {
+//
+//            }
+//        });
+//    }
 }
