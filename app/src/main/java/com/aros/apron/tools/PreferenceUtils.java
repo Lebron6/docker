@@ -65,7 +65,6 @@ public class PreferenceUtils extends BasePreference {
                 setString(BUCKET_NAME, split1[1]);
                 setString(KEY, split1[2]);
                 setString(SORTIES_ID, split1[3]);
-                setString(SORTIES_ID, split1[3]);
             } else {
                 LogUtil.log(TAG, "minio参数有误");
             }
@@ -86,6 +85,7 @@ public class PreferenceUtils extends BasePreference {
     public String getSortiesId() {
         return getString(SORTIES_ID);
     }
+
     public String getFlightId() {
         return getString(FLIGHT_ID);
     }
