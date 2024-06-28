@@ -190,7 +190,7 @@ public class ArucoDetect {
 
 
 
-                        if (Movement.getInstance().getFlyingHeight() > 1.2&&mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+                        if (Movement.getInstance().getFlyingHeight() > 0.8&&mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
                                         || detectedBigMarkerId == 1
                                         || detectedBigMarkerId == 2
@@ -206,7 +206,7 @@ public class ArucoDetect {
                         }
 
                         //如果识别到小Aruco,则不再触发识别大Aruco
-                        if (Movement.getInstance().getFlyingHeight() > 1.2&&mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+                        if (Movement.getInstance().getFlyingHeight() > 0.8&&mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
                                         || detectedBigMarkerId == 1
                                         || detectedBigMarkerId == 2
@@ -221,7 +221,7 @@ public class ArucoDetect {
                             }
                         }
 
-                        if (Movement.getInstance().getFlyingHeight() > 2 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 1)) {
+                        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 1)) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 1) {
                                     detectedBigMarkerId = 1;
@@ -230,7 +230,7 @@ public class ArucoDetect {
                                 }
                             }
                         }
-                        if (Movement.getInstance().getFlyingHeight() > 2 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 2)) {
+                        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 2)) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 2) {
                                     detectedBigMarkerId = 2;
@@ -239,7 +239,7 @@ public class ArucoDetect {
                                 }
                             }
                         }
-                        if (Movement.getInstance().getFlyingHeight() > 3 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
+                        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 3) {
                                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
@@ -247,7 +247,7 @@ public class ArucoDetect {
                                 }
                             }
                         }
-                        if (Movement.getInstance().getFlyingHeight() > 3 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
+                        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 4) {
                                     detectedBigMarkerId = 4;
