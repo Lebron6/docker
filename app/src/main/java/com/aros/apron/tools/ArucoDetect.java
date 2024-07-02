@@ -99,7 +99,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 12) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 12;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -109,7 +109,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 13) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 13;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -120,7 +120,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 15) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 15;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -131,7 +131,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 16) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 16;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -141,7 +141,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 11) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 11;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -151,7 +151,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 18) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 18;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -161,7 +161,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 14) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 14;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -171,7 +171,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 17) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 17;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -181,7 +181,7 @@ public class ArucoDetect {
                                 if (idArray[i] == 19) {
                                     detectedSmallMarkers = true;
                                     detectedSmallMarkerId = 19;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -197,7 +197,7 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 5) {
                                     detectedBigMarkerId = 5;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -213,7 +213,7 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 6) {
                                     detectedBigMarkerId = 6;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
 
                                     break;
                                 }
@@ -224,7 +224,7 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 1) {
                                     detectedBigMarkerId = 1;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
 
                                     break;
                                 }
@@ -234,7 +234,7 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 2) {
                                     detectedBigMarkerId = 2;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
 
                                     break;
                                 }
@@ -243,7 +243,7 @@ public class ArucoDetect {
                         if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 3) {
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
 
                                     break;
                                 }
@@ -253,7 +253,7 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 4) {
                                     detectedBigMarkerId = 4;
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), mArucoCornerList.get(i).width(), mArucoCornerList.get(i).height()));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
                                     break;
                                 }
                             }
@@ -422,7 +422,7 @@ public class ArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-//            Log.e(TAG, "识别到的二维码:" + arucoMarkers.get(0).getId() + "--偏移量:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
+            Log.e(TAG, "识别到的二维码:" + arucoMarkers.get(0).getId() + "--偏移量:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
             outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
                     : updateOutXYSpeed(Math.abs(imageVector.val[0]));
             outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
@@ -430,7 +430,6 @@ public class ArucoDetect {
             outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
                     && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
                     ? updateOutDownSpeed() : 0f;
-//            LogUtil.log(TAG,"id:"+arucoMarkers.get(0).getId()+"--宽："+arucoMarkers.get(0).getWidth()+"--高："+arucoMarkers.get(0).getHeight());
 
         }
 
