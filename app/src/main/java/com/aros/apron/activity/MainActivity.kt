@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
@@ -31,6 +32,7 @@ import com.aros.apron.tools.ArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.ToastUtil
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
@@ -38,11 +40,17 @@ import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
+import dji.sdk.keyvalue.value.payload.WidgetType
+import dji.sdk.keyvalue.value.payload.WidgetValue
 import dji.v5.common.callback.CommonCallbacks
+import dji.v5.common.callback.CommonCallbacks.CompletionCallback
 import dji.v5.common.error.IDJIError
 import dji.v5.manager.KeyManager
+import dji.v5.manager.aircraft.payload.PayloadCenter
+import dji.v5.manager.aircraft.payload.PayloadIndexType
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
+import dji.v5.manager.interfaces.IPayloadManager
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -126,6 +134,80 @@ class MainActivity : BaseActivity() {
             } else {
                 LogUtil.log(TAG, "返航模式,无法上传航线")
             }
+        }
+
+        mainBinding?.btnLock?.setOnClickListener {
+            val widgetValue = WidgetValue()
+            widgetValue.setValue(0)
+            widgetValue.setIndex(0)
+            widgetValue.setType(WidgetType.SWITCH)
+            val payloadManagerMap = PayloadCenter.getInstance().payloadManager
+            payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
+                widgetValue,
+                object : CompletionCallback {
+                    override fun onSuccess() {
+                        ToastUtil.showToast("setWidgetValue success")
+                    }
+
+                    override fun onFailure(idjiError: IDJIError) {
+                        Log.e(TAG, "错误:${Gson().toJson(idjiError)}")
+                    }
+                })
+        }
+        mainBinding?.btnUnlock?.setOnClickListener {
+            val widgetValue = WidgetValue()
+            widgetValue.setValue(0)
+            widgetValue.setIndex(0)
+            widgetValue.setType(WidgetType.SWITCH)
+            val payloadManagerMap = PayloadCenter.getInstance().payloadManager
+            payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
+                widgetValue,
+                object : CompletionCallback {
+                    override fun onSuccess() {
+                        ToastUtil.showToast("setWidgetValue success")
+                    }
+
+                    override fun onFailure(idjiError: IDJIError) {
+                        Log.e(TAG, "错误:${Gson().toJson(idjiError)}")
+                    }
+                })
+        }
+        mainBinding?.btnRoll?.setOnClickListener {
+            val widgetValue = WidgetValue()
+            widgetValue.setValue(0)
+            widgetValue.setIndex(1)
+            widgetValue.setType(WidgetType.BUTTON)
+            val payloadManagerMap = PayloadCenter.getInstance().payloadManager
+            payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
+                widgetValue,
+                object : CompletionCallback {
+                    override fun onSuccess() {
+                        ToastUtil.showToast("setWidgetValue success")
+                    }
+
+                    override fun onFailure(idjiError: IDJIError) {
+                        Log.e(TAG, "错误:${Gson().toJson(idjiError)}")
+                    }
+                })
+
+        }
+        mainBinding?.btnRollall?.setOnClickListener {
+            val widgetValue = WidgetValue()
+            widgetValue.setValue(0)
+            widgetValue.setIndex(2)
+            widgetValue.setType(WidgetType.BUTTON)
+            val payloadManagerMap = PayloadCenter.getInstance().payloadManager
+            payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
+                widgetValue,
+                object : CompletionCallback {
+                    override fun onSuccess() {
+                        ToastUtil.showToast("setWidgetValue success")
+                    }
+
+                    override fun onFailure(idjiError: IDJIError) {
+                        Log.e(TAG, "错误:${Gson().toJson(idjiError)}")
+                    }
+                })
         }
     }
 

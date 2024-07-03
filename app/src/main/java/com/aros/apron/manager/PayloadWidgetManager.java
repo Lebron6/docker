@@ -12,6 +12,7 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
+import dji.v5.manager.aircraft.payload.widget.PayloadWidget;
 import dji.v5.manager.interfaces.IPayloadManager;
 
 
@@ -30,7 +31,8 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
 //    public void setPayloadWidgetValue(){
-//        Map<PayloadIndexType, IPayloadManager> payloadManagerMap = PayloadCenter.getInstance().getPayloadManager();
+//        Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+//        Map<PayloadIndexType, IPayloadManager> payloadManagerMap = payloadManager;
 //        WidgetValue widgetValue=new WidgetValue();
 //        widgetValue.setValue();
 //        widgetValue.setIndex();
