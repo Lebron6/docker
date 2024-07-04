@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityMainBinding
@@ -50,7 +51,6 @@ import dji.v5.manager.aircraft.payload.PayloadCenter
 import dji.v5.manager.aircraft.payload.PayloadIndexType
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
-import dji.v5.manager.interfaces.IPayloadManager
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -138,9 +138,9 @@ class MainActivity : BaseActivity() {
 
         mainBinding?.btnLock?.setOnClickListener {
             val widgetValue = WidgetValue()
-            widgetValue.setValue(0)
-            widgetValue.setIndex(0)
-            widgetValue.setType(WidgetType.SWITCH)
+            widgetValue.value = 1
+            widgetValue.index = 0
+            widgetValue.type = WidgetType.SWITCH
             val payloadManagerMap = PayloadCenter.getInstance().payloadManager
             payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
                 widgetValue,
@@ -156,9 +156,9 @@ class MainActivity : BaseActivity() {
         }
         mainBinding?.btnUnlock?.setOnClickListener {
             val widgetValue = WidgetValue()
-            widgetValue.setValue(0)
-            widgetValue.setIndex(0)
-            widgetValue.setType(WidgetType.SWITCH)
+            widgetValue.value = 0
+            widgetValue.index = 0
+            widgetValue.type = WidgetType.SWITCH
             val payloadManagerMap = PayloadCenter.getInstance().payloadManager
             payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
                 widgetValue,
@@ -174,9 +174,9 @@ class MainActivity : BaseActivity() {
         }
         mainBinding?.btnRoll?.setOnClickListener {
             val widgetValue = WidgetValue()
-            widgetValue.setValue(0)
-            widgetValue.setIndex(1)
-            widgetValue.setType(WidgetType.BUTTON)
+            widgetValue.value = 1
+            widgetValue.index = 1
+            widgetValue.type = WidgetType.BUTTON
             val payloadManagerMap = PayloadCenter.getInstance().payloadManager
             payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
                 widgetValue,
@@ -193,11 +193,11 @@ class MainActivity : BaseActivity() {
         }
         mainBinding?.btnRollall?.setOnClickListener {
             val widgetValue = WidgetValue()
-            widgetValue.setValue(0)
-            widgetValue.setIndex(2)
-            widgetValue.setType(WidgetType.BUTTON)
-            val payloadManagerMap = PayloadCenter.getInstance().payloadManager
-            payloadManagerMap[PayloadIndexType.RIGHT]!!.setWidgetValue(
+            widgetValue.value = 1
+            widgetValue.index = 2
+            widgetValue.type = WidgetType.BUTTON
+            val payloadManager=PayloadCenter.getInstance().payloadManager[PayloadIndexType.RIGHT]
+            payloadManager?.setWidgetValue(
                 widgetValue,
                 object : CompletionCallback {
                     override fun onSuccess() {
@@ -208,6 +208,8 @@ class MainActivity : BaseActivity() {
                         Log.e(TAG, "错误:${Gson().toJson(idjiError)}")
                     }
                 })
+
+
         }
     }
 

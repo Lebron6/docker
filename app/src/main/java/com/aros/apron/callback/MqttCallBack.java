@@ -13,6 +13,7 @@ import com.aros.apron.manager.FlightManager;
 import com.aros.apron.manager.GimbalManager;
 import com.aros.apron.manager.MegaphoneManager;
 import com.aros.apron.manager.MissionManager;
+import com.aros.apron.manager.PayloadWidgetManager;
 import com.aros.apron.manager.PerceptionManager;
 import com.aros.apron.manager.StickManager;
 import com.aros.apron.manager.StreamManager;
@@ -277,6 +278,22 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：取消降落" + jsonString);
                 FlightManager.getInstance().stopAutoLanding(mqttClient,message);
                 break;
+            //解锁抛投器
+            case 60115:
+                LogUtil.log(TAG, "收到命令：解锁" + jsonString);
+                PayloadWidgetManager.getInstance().unlock(mqttClient,message); break;
+            //锁定抛投器
+            case 60116:
+                LogUtil.log(TAG, "收到命令：锁定" + jsonString);
+                PayloadWidgetManager.getInstance().lock(mqttClient,message); break;
+            //抛投
+            case 60117:
+                LogUtil.log(TAG, "收到命令：抛投" + jsonString);
+                PayloadWidgetManager.getInstance().throwOne(mqttClient,message); break;
+            //一键全抛
+            case 60118:
+                LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
+                PayloadWidgetManager.getInstance().throwAll(mqttClient,message); break;
         }
     }
 
