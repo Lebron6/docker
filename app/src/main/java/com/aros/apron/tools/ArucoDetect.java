@@ -276,7 +276,7 @@ public class ArucoDetect {
                             arucoNotFoundTag = true;
                         }
                         endTime = System.currentTimeMillis();
-                        //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
+                        //记录第一次识别不到二维码的时间,如果小于12s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 1000 && endTime - startTime <= 12000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别

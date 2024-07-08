@@ -47,8 +47,11 @@ public class PreferenceUtils extends BasePreference {
     private String AIRPORT_TYPE = "airport_type";
     private String LANDING_TYPE = "land_type"; //1RTK优先 2视觉优先
     private String RTK_TYPE = "rtk_type"; //1自定义网络RTK 2DJI赠送RTK
-    private String ALTERNATE_POINT_LAT = "alternate_point_lat"; //备降点经纬度
+    private String DOCKER_LON = "docker_lon"; //机库经纬度
+    private String DOCKER_LAT = "docker_lat"; //机库经纬度
+    private String AIRCRAFT_HEADING = "aircraft_heading"; //记录无人机在机库的起飞朝向
     private String ALTERNATE_POINT_LON = "alternate_point_lon"; //备降点经纬度
+    private String ALTERNATE_POINT_LAT = "alternate_point_lat"; //备降点经纬度
     private String ALTERNATE_POINT_SECURITY_HEIGHT = "alternate_point_security_height"; //备降点安全起飞高度
     private String ALTERNATE_POINT_HEIGHT = "alternate_point_height"; //备降点安全起飞高度
     private String ALTERNATE_POINT_TIMES = "alternate_point_times"; //允许复降次数
@@ -256,6 +259,30 @@ public class PreferenceUtils extends BasePreference {
 
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
+    }
+
+    public String getDockerLat() {
+        return getString(DOCKER_LAT);
+    }
+
+    public void setDockerLat(String dockerLat) {
+        setString(DOCKER_LAT, dockerLat);
+    }
+
+    public String getDockerLon() {
+        return getString(DOCKER_LON);
+    }
+
+    public void setDockerLon(String dockerLon) {
+        setString(DOCKER_LON, dockerLon);
+    }
+
+    public String getAircraftHeading() {
+        return getString(AIRCRAFT_HEADING);
+    }
+
+    public void setAircraftHeading(String dockerLon) {
+        setString(AIRCRAFT_HEADING, dockerLon);
     }
 
     public String getAlternatePointLat() {

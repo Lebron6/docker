@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tl="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,7 +35,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="0.6"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -121,6 +120,7 @@
 
                         <EditText
                             android:id="@+id/et_ntrip"
+                            android:textSize="10sp"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
@@ -152,6 +152,8 @@
                         <EditText
                             android:id="@+id/et_ntr_port"
                             android:layout_width="0dp"
+                            android:textSize="10sp"
+
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -184,6 +186,8 @@
                         <EditText
                             android:id="@+id/et_ntr_account"
                             android:layout_width="0dp"
+                            android:textSize="10sp"
+
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -215,6 +219,8 @@
                         <EditText
                             android:id="@+id/et_ntr_password"
                             android:layout_width="0dp"
+                            android:textSize="10sp"
+
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -245,6 +251,8 @@
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/et_ntr_mountpoint"
                             android:layout_width="0dp"
+                            android:textSize="10sp"
+
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -280,6 +288,8 @@
                     <EditText
                         android:id="@+id/et_mqtt_server_uri"
                         android:layout_width="0dp"
+                        android:textSize="10sp"
+
                         android:layout_height="match_parent"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
@@ -311,6 +321,8 @@
                     <EditText
                         android:id="@+id/et_mqtt_username"
                         android:layout_width="0dp"
+                        android:textSize="10sp"
+
                         android:layout_height="match_parent"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
@@ -345,6 +357,8 @@
                     <EditText
                         android:id="@+id/et_mqtt_password"
                         android:layout_width="0dp"
+                        android:textSize="10sp"
+
                         android:layout_height="match_parent"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
@@ -378,6 +392,8 @@
                     <EditText
                         android:id="@+id/et_mqtt_sn"
                         android:layout_width="0dp"
+                        android:textSize="10sp"
+
                         android:layout_height="match_parent"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
@@ -519,7 +535,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="是否自定义推流地址" />
+                        android:text="固定推流地址" />
 
                     <CheckBox
                         android:id="@+id/cb_custom_stream"
@@ -528,6 +544,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true" />
                 </RelativeLayout>
+
                 <LinearLayout
                     android:id="@+id/layout_stream"
                     android:layout_width="match_parent"
@@ -569,7 +586,77 @@
                     android:paddingRight="10dp">
 
                     <TextView
+                        android:id="@+id/txt_aircraft_loc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="标定起飞朝向"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/tv_set_aircraft_loc"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:gravity="center"
+                        android:text="⭕" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toLeftOf="@+id/tv_set_aircraft_loc"
+                        android:layout_toRightOf="@+id/txt_aircraft_loc"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/et_docker_lat"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textColor="@color/white"
+                            android:textSize="8sp" />
+
+                        <EditText
+                            android:id="@+id/et_docker_lon"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textColor="@color/white"
+                            android:textSize="8sp" />
+                        <EditText
+                            android:id="@+id/et_aircraft_heading"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.7"
+                            android:background="@null"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textColor="@color/white"
+                            android:textSize="8sp" />
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
                         android:id="@+id/txt_alternate"
+                        android:textSize="10sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -602,7 +689,7 @@
                             android:singleLine="true"
                             android:text=""
                             android:textColor="@color/white"
-                            android:textSize="13sp" />
+                            android:textSize="8sp" />
 
                         <EditText
                             android:id="@+id/et_alternate_lon"
@@ -614,7 +701,7 @@
                             android:singleLine="true"
                             android:text=""
                             android:textColor="@color/white"
-                            android:textSize="13sp" />
+                            android:textSize="8sp" />
                     </LinearLayout>
 
                 </RelativeLayout>
@@ -631,7 +718,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="备降点安全起飞高度" />
+                        android:text="备降点起飞高度" />
 
                     <EditText
                         android:id="@+id/et_set_alternate_security_height"
@@ -642,7 +729,9 @@
                         android:background="@null"
                         android:gravity="center"
                         android:inputType="number"
-                       />
+                        android:textSize="10sp"
+
+                        />
 
                 </RelativeLayout>
 
@@ -669,7 +758,9 @@
                         android:background="@null"
                         android:gravity="center"
                         android:inputType="number"
-                         />
+                        android:textSize="10sp"
+
+                        />
 
                 </RelativeLayout>
 
@@ -696,9 +787,12 @@
                         android:background="@null"
                         android:gravity="center"
                         android:inputType="number"
+                        android:textSize="10sp"
+
                         />
 
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="35dp"
@@ -731,7 +825,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/uxsdk_green"
                         android:text="测试模式" />
 
                     <CheckBox
