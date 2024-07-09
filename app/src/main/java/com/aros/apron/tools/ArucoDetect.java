@@ -422,13 +422,13 @@ public class ArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-            Log.e(TAG, "识别到的二维码:" + arucoMarkers.get(0).getId() + "--偏移量:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
+            LogUtil.log(TAG, "识别到:" + arucoMarkers.get(0).getId() + "-偏移:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
             outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
                     : updateOutXYSpeed(Math.abs(imageVector.val[0]));
             outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
                     : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
-            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
-                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
+            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 220))
+                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 220))
                     ? updateOutDownSpeed() : 0f;
 
         }
@@ -443,7 +443,6 @@ public class ArucoDetect {
         if (Math.abs(imageVector.val[0]) <= 80
                 && Math.abs(imageVector.val[1]) <= 80) {
             canLanding = true;
-            Log.e(TAG, "可以降落");
         } else {
             canLanding = false;
         }
@@ -457,6 +456,9 @@ public class ArucoDetect {
 
     public void setCanLanding(boolean canLanding) {
         this.canLanding = canLanding;
+        //测试重置未识别和识别时间,避免刚触发识别就飞向备降点
+        startTime=0;
+        endTime=0;
     }
 
 
@@ -580,15 +582,15 @@ public class ArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.475f;
+            return -0.575f;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.455f;
+            return -0.475f;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.435f;
+            return -0.425f;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.415f;
+            return -0.375f;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.275f;
+            return -0.325f;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.235f;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {

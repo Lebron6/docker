@@ -595,7 +595,7 @@ public class FlightManager extends BaseManager {
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
             ArucoDetect.getInstance().setCanLanding(false);
-            // 设置偏好设置，避免在下次起飞时触发视觉识别（待测试）
+            // 避免在下次起飞时触发视觉识别（待测试）
             PreferenceUtils.getInstance().setNeedTriggerArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             // 发布事件，通知其他组件停止Aruco检测

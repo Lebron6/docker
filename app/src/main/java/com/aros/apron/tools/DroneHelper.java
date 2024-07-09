@@ -12,6 +12,7 @@ import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.RollPitchControlMode;
 import dji.sdk.keyvalue.value.flightcontroller.VerticalControlMode;
 import dji.sdk.keyvalue.value.flightcontroller.VirtualStickFlightControlParam;
@@ -64,39 +65,47 @@ public class DroneHelper {
     private boolean virtualStickEnable;
 
     public void setVerticalModeToVelocity() {
-        virtualStickFlightControlParam = new VirtualStickFlightControlParam();
-        virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
-        virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
-        virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
-        virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
-        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
-                virtualStickEnable = true;
-                enableVirtualStickTimes = 0;
 
-            }
+        RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
+        if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
+            virtualStickFlightControlParam = new VirtualStickFlightControlParam();
+            virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
+            virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
+            virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
+            virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+            VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+            VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
+                    virtualStickEnable = true;
+                    enableVirtualStickTimes = 0;
 
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                if (!virtualStickEnable) {
-                    if (enableVirtualStickTimes < 5) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权失败" + new Gson().toJson(error));
-                                enableVirtualStickTimes++;
-                                setVerticalModeToVelocity();
-                            }
-                        }, 1000);
-                    }
-                } else {
-                    LogUtil.log(TAG, "视觉降落获取控制权失败" + new Gson().toJson(error));
                 }
-            }
-        });
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    if (!virtualStickEnable) {
+                        if (enableVirtualStickTimes < 5) {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权失败" + new Gson().toJson(error));
+                                    enableVirtualStickTimes++;
+                                    setVerticalModeToVelocity();
+                                }
+                            }, 1000);
+                        }
+                    } else {
+                        LogUtil.log(TAG, "视觉降落获取控制权失败" + new Gson().toJson(error));
+                    }
+                }
+            });
+        } else {
+            LogUtil.log(TAG, "视觉降落控制权获取失败:不在P挡");
+        }
+
+
     }
 
 
