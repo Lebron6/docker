@@ -113,7 +113,7 @@ public class DroneHelper {
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect) {
+        if (isConnect!=null&&isConnect) {
             GimbalAngleRotation rotation = new GimbalAngleRotation();
             rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
             rotation.setYaw(0.0);

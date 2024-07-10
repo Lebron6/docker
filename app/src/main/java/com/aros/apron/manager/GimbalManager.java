@@ -39,7 +39,7 @@ public class GimbalManager extends BaseManager {
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect) {
+        if (isConnect != null && isConnect) {
             if (message.getX() == 0 && message.getY() == 0) {
                 gimbalReset();
             } else {
@@ -73,17 +73,17 @@ public class GimbalManager extends BaseManager {
     public void gimbalReset() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect) {
+        if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                        @Override
-                        public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "云台复位成功");
-                        }
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    LogUtil.log(TAG, "云台复位成功");
+                }
 
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "云台复位失败:" + error.description());
-                        }
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "云台复位失败:" + error.description());
+                }
                     }
             );
 //                }
