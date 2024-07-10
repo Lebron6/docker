@@ -429,7 +429,7 @@ public class ArucoDetect {
                     ? updateOutDownSpeed() : 0f;
 
         }
-        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId()+"  杆量x="+outX+"  偏移:x=" + imageVector.val[0] +"    杆量y="+outY+"  偏移:y="+imageVector.val[1]);
+//        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId()+"  杆量x="+outX+"  偏移:x=" + imageVector.val[0] +"    杆量y="+outY+"  偏移:y="+imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
