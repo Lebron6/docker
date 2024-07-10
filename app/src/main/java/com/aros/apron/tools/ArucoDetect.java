@@ -225,7 +225,6 @@ public class ArucoDetect {
                                 if (idArray[i] == 1) {
                                     detectedBigMarkerId = 1;
                                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
-
                                     break;
                                 }
                             }
@@ -235,7 +234,6 @@ public class ArucoDetect {
                                 if (idArray[i] == 2) {
                                     detectedBigMarkerId = 2;
                                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
-
                                     break;
                                 }
                             }
@@ -244,7 +242,6 @@ public class ArucoDetect {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 3) {
                                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i)));
-
                                     break;
                                 }
                             }
@@ -422,7 +419,7 @@ public class ArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-            LogUtil.log(TAG, "识别到:" + arucoMarkers.get(0).getId() + "-偏移:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
+//            LogUtil.log(TAG, "识别到:" + arucoMarkers.get(0).getId() + "-偏移:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
             outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
                     : updateOutXYSpeed(Math.abs(imageVector.val[0]));
             outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
@@ -432,6 +429,7 @@ public class ArucoDetect {
                     ? updateOutDownSpeed() : 0f;
 
         }
+        LogUtil.log(TAG, "aruco:" + arucoMarkers.get(0).getId()+"--x="+outX+"--y="+outY+"--z="+outZ);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
