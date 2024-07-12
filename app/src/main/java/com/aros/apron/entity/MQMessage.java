@@ -3,7 +3,6 @@ package com.aros.apron.entity;
 public class MQMessage {
 
     private int result;
-    private int msg_type;
     private String kmz_url;
     private String rtmp_push_url;
     private String upload_url;
@@ -33,6 +32,54 @@ public class MQMessage {
     private int cameraExposureMode;//曝光模式
     private int cameraExposureCompensation;//曝光补偿数值
     private int AELockEnabled;//曝光锁定
+
+
+    private int msg_type;
+    private String alternatePointLat;//设置备降点经纬度
+    private String alternatePointLon;
+    private String alternatePointSecurityHeight; //备降点安全起飞高度
+    private String alternatePointHeight; //备降点高度
+    private String alternatePointTimes; //允许复降次数
+
+    public String getAlternatePointSecurityHeight() {
+        return alternatePointSecurityHeight;
+    }
+
+    public void setAlternatePointSecurityHeight(String alternatePointSecurityHeight) {
+        this.alternatePointSecurityHeight = alternatePointSecurityHeight;
+    }
+
+    public String getAlternatePointHeight() {
+        return alternatePointHeight;
+    }
+
+    public void setAlternatePointHeight(String alternatePointHeight) {
+        this.alternatePointHeight = alternatePointHeight;
+    }
+
+    public String getAlternatePointTimes() {
+        return alternatePointTimes;
+    }
+
+    public void setAlternatePointTimes(String alternatePointTimes) {
+        this.alternatePointTimes = alternatePointTimes;
+    }
+
+    public String getAlternatePointLat() {
+        return alternatePointLat;
+    }
+
+    public void setAlternatePointLat(String alternatePointLat) {
+        this.alternatePointLat = alternatePointLat;
+    }
+
+    public String getAlternatePointLon() {
+        return alternatePointLon;
+    }
+
+    public void setAlternatePointLon(String alternatePointLon) {
+        this.alternatePointLon = alternatePointLon;
+    }
 
     public int getAELockEnabled() {
         return AELockEnabled;

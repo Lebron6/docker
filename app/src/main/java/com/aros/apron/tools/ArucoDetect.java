@@ -1,9 +1,5 @@
 package com.aros.apron.tools;
 
-import static dji.sdk.keyvalue.value.product.ProductType.DJI_MAVIC_3_ENTERPRISE_SERIES;
-
-import android.util.Log;
-
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
@@ -11,7 +7,6 @@ import com.aros.apron.manager.AlternateLandingManager;
 
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.Dictionary;
-import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -343,103 +338,23 @@ public class ArucoDetect {
 //        Scalar imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
         Scalar imageVector = new Scalar(centerX, centerY);
 
-        double outX;
-        double outY;
-        double outZ;
-        //御三T机型因为脚架较低，容易受机库磁场影响导致起飞时偏航角记录不正确，
-        //需要进行姿态预估旋转机身,这里判断只有在识别到大二维码时才会进行姿态预估
-        if ((arucoMarkers.size() == 1) && (
-                arucoMarkers.get(0).getId() == 1
-                        || arucoMarkers.get(0).getId() == 2
-                        || arucoMarkers.get(0).getId() == 3
-                        || arucoMarkers.get(0).getId() == 4
-                        || arucoMarkers.get(0).getId() == 5)
-                && productType.equals(DJI_MAVIC_3_ENTERPRISE_SERIES.name())) {
-            //相机内参
-            Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-            cameraMatrix.put(0, 0, 1035.501071149292);
-            cameraMatrix.put(1, 1, 1035.4725889980984);
-            cameraMatrix.put(0, 2, 713.2867513159875);
-            cameraMatrix.put(1, 2, 542.4491896129153);
-            cameraMatrix.put(2, 2, 1.0);
-            //相机畸变
-            Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
-            distCoeffs.put(0, 0, 0.3519238102526651);
-            distCoeffs.put(1, 0, -1.4538841685400365);
-            distCoeffs.put(2, 0, 0.00022919790876455443);
-            distCoeffs.put(3, 0, 0.0012223205821680879);
-            distCoeffs.put(4, 0, 2.0070528327672754);
-            //旋转矩阵
-            Mat rvecs = new Mat();
-            //位移矩阵
-            Mat tvecs = new Mat();
-            //姿态预估
-            List<Mat> conners = new ArrayList<>();
-            conners.add(arucoMarkers.get(0).getConner());
-            Aruco.estimatePoseSingleMarkers(conners, 0.15f, cameraMatrix, distCoeffs, rvecs, tvecs);
-            //罗德里变换
-            Mat R = new Mat(3, 3, CvType.CV_32FC1);
-            Mat rvec = rvecs.row(0);
-            Calib3d.Rodrigues(rvec, R);
-            Mat camR = R.t();
-            //左乘
-            Mat _camR = new Mat();
-            Scalar _1 = new Scalar(-1.0);
-            Core.multiply(camR, _1, _camR);
-            //旋转向量转欧拉角
-            List<Double> eulerAngles = RotationConversion.INSTANCE.rotationMatrixToEulerAngles(camR);
-            //欧拉角转飞机偏航角度
-            Double yawCamera = MathUtils.toDegree(eulerAngles.get(2));
-            if (yawCamera < 0) {
-                if (yawCamera < -15) {
-                    resultYaw = -30.0;
-                } else {
-                    resultYaw = 0.0;
-                }
-            } else {
-                if (yawCamera >= 15) {
-                    resultYaw = 30.0;
-                } else {
-                    resultYaw = 0.0;
-                }
-            }
-            rvecs.release();
-            tvecs.release();
-            rvec.release();
-            camR.release();
-            _camR.release();
-            R.release();
-        } else {
-            resultYaw = 0.0;
-        }
+        double outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
+                : updateOutXYSpeed(Math.abs(imageVector.val[0]));
+        double outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
+                : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
+        double outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
+                && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 100))
+                ? updateOutDownSpeed() : 0f;
 
-        //先旋转,再平移或降落
-        if (resultYaw != 0.0) {
-            outX = 0.0f;
-            outY = 0.0f;
-            outZ = 0.0f;
-        } else {
-//            LogUtil.log(TAG, "识别到:" + arucoMarkers.get(0).getId() + "-偏移:x=" + imageVector.val[0] + "y=" + imageVector.val[1]);
-            outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
-                    : updateOutXYSpeed(Math.abs(imageVector.val[0]));
-            outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
-                    : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
-            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 220))
-                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 220))
-                    ? updateOutDownSpeed() : 0f;
-
-        }
-//        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId()+"  杆量x="+outX+"  偏移:x=" + imageVector.val[0] +"    杆量y="+outY+"  偏移:y="+imageVector.val[1]);
+        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);
-//        if (Math.abs(imageVector.val[0]) <= 80
-//                && Math.abs(imageVector.val[1]) <= 80
-//                && (arucoMarkers.size() > 1 || arucoMarkers.get(0).getId() == 19)) {
 
-        if (Math.abs(imageVector.val[0]) <= 80
-                && Math.abs(imageVector.val[1]) <= 80) {
+
+        if (Math.abs(imageVector.val[0]) <= 150
+                && Math.abs(imageVector.val[1]) <= 100) {
             canLanding = true;
         } else {
             canLanding = false;
@@ -465,17 +380,17 @@ public class ArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
             if (ultrasonicHeight > 6) {
-                return 0.275;
+                return 0.575;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255;
+                return 0.535;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235;
+                return 0.495;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
+                return 0.375;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
+                return 0.295;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175;
+                return 0.195;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
                 return 0.145;
             } else {
@@ -483,93 +398,93 @@ public class ArucoDetect {
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 6) {
-                return 0.275;
+                return 0.545;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255;
+                return 0.525;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235;
+                return 0.475;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
+                return 0.375;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
+                return 0.295;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175;
+                return 0.195;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135;
+                return 0.145;
             } else {
-                return 0.125;
+                return 0.135;
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 6) {
-                return 0.275;
+                return 0.435;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255;
+                return 0.395;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235;
+                return 0.375;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
+                return 0.345;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
+                return 0.275;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175;
+                return 0.185;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135;
+                return 0.145;
             } else {
-                return 0.125;
+                return 0.135;
             }
         } else if (d <= 300 && d > 200) {
             if (ultrasonicHeight > 6) {
-                return 0.265;
+                return 0.395;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215;
+                return 0.375;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
+                return 0.365;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
+                return 0.325;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175;
+                return 0.265;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165;
+                return 0.175;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135;
+                return 0.145;
             } else {
-                return 0.125;
+                return 0.135;
             }
         } else if (d <= 200 && d > 150) {
             if (ultrasonicHeight > 6) {
-                return 0.255;
+                return 0.275;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.245;
+                return 0.265;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235;
+                return 0.255;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195;
+                return 0.235;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175;
+                return 0.195;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
                 return 0.165;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.125;
+                return 0.145;
             } else {
-                return 0.125;
+                return 0.135;
             }
         } else if (d <= 150 && d > 79) {
             if (ultrasonicHeight > 6) {
-                return 0.195;
+                return 0.235;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195;
+                return 0.225;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
+                return 0.215;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
+                return 0.195;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175;
+                return 0.185;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
                 return 0.165;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.125;
+                return 0.145;
             } else {
-                return 0.125;
+                return 0.135;
             }
         } else {
             return 0.0;
@@ -580,19 +495,19 @@ public class ArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.575;
-        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.475;
-        } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.425;
-        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
             return -0.375;
-        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
+        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
             return -0.325;
+        } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
+            return -0.305;
+        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
+            return -0.275;
+        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
+            return -0.255;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.235;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
-            return -0.175;
+            return -0.195;
         } else {
             return 0.0;
         }

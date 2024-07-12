@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.FlightMission;
+import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MissionPoint;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.DomParserKML;
@@ -313,12 +314,12 @@ public class AlternateLandingManager extends BaseManager {
                 getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz");
         if (!file1.exists()) {
             if (file1.mkdirs()) {
-                LogUtil.log(TAG, "生成备降路线文件成功");
+                LogUtil.log(TAG, "生成备降航线成功");
                 sendMissionExecuteEvents(mqttClient, "生成备降路线文件成功");
 
             } else {
-                LogUtil.log(TAG, "生成备降路线文件失败");
-                sendMissionExecuteEvents(mqttClient, "生成备降路线文件失败");
+                LogUtil.log(TAG, "生成备降航线失败");
+                sendMissionExecuteEvents(mqttClient, "生成备降航线失败");
 
             }
         }
@@ -386,5 +387,13 @@ public class AlternateLandingManager extends BaseManager {
 
             }
         });
+    }
+
+    public void setAlternatePoint(MqttAndroidClient client, MQMessage message){
+        if (message!=null&&!TextUtils.isEmpty(message.getAlternatePointLat())&&!TextUtils.isEmpty(message.getAlternatePointLon())){
+            PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternatePointLat());
+            PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
+            PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
+        }
     }
 }
