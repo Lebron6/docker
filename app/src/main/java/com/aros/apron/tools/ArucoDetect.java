@@ -346,6 +346,8 @@ public class ArucoDetect {
                 && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 100))
                 ? updateOutDownSpeed() : 0f;
 
+//        double outZ = updateOutDownSpeed(Math.abs(imageVector.val[0]),Math.abs(imageVector.val[1])) ;
+
         LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
@@ -503,11 +505,11 @@ public class ArucoDetect {
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
             return -0.275;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.255;
-        } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.235;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
+        } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
+        } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
+                return -0.175;
         } else {
             return 0.0;
         }
