@@ -285,8 +285,8 @@ public class CameraManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + error.description());
-                    LogUtil.log(TAG, "停止录像失败:" + error.description());
+                    sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + new Gson().toJson(error));
+                    LogUtil.log(TAG, "停止录像失败:" +  new Gson().toJson(error));
                 }
             });
         } else {
