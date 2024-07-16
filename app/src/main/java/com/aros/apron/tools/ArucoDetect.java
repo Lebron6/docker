@@ -382,114 +382,114 @@ public class ArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
             if (ultrasonicHeight > 6) {
-                return 0.275f;
+                return 0.275;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255f;
+                return 0.255;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235f;
+                return 0.235;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215f;
+                return 0.215;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.145f;
+                return 0.145;
             } else {
-                return 0.135f;
+                return 0.135;
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 6) {
-                return 0.275f;
+                return 0.275;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255f;
+                return 0.255;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235f;
+                return 0.235;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215f;
+                return 0.215;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135f;
+                return 0.135;
             } else {
-                return 0.125f;
+                return 0.125;
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 6) {
-                return 0.275f;
+                return 0.275;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.255f;
+                return 0.255;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235f;
+                return 0.235;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215f;
+                return 0.215;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135f;
+                return 0.135;
             } else {
-                return 0.125f;
+                return 0.125;
             }
         } else if (d <= 300 && d > 200) {
             if (ultrasonicHeight > 6) {
-                return 0.265f;
+                return 0.265;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215f;
+                return 0.215;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185f;
+                return 0.185;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165f;
+                return 0.165;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.135f;
+                return 0.135;
             } else {
-                return 0.125f;
+                return 0.125;
             }
         } else if (d <= 200 && d > 150) {
             if (ultrasonicHeight > 6) {
-                return 0.255f;
+                return 0.255;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.245f;
+                return 0.245;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.235f;
+                return 0.235;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165f;
+                return 0.165;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.125f;
+                return 0.125;
             } else {
-                return 0.125f;
+                return 0.125;
             }
         } else if (d <= 150 && d > 79) {
             if (ultrasonicHeight > 6) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195f;
+                return 0.195;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185f;
+                return 0.185;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175f;
+                return 0.175;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165f;
+                return 0.165;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 1) {
-                return 0.125f;
+                return 0.125;
             } else {
-                return 0.125f;
+                return 0.125;
             }
         } else {
-            return 0.0f;
+            return 0.0;
         }
     }
 
