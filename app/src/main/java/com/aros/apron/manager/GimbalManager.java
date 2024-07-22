@@ -52,12 +52,14 @@ public class GimbalManager extends BaseManager {
                 KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
+                                sendMsg2Server(mqttAndroidClient, message);
                                 LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "云台控制失败:" + error.description());
+                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + new Gson().toJson(error));
+                                LogUtil.log(TAG, "云台控制失败:" + new Gson().toJson(error));
                             }
                         }
                 );
@@ -143,7 +145,7 @@ public class GimbalManager extends BaseManager {
                     }
             );
         } else {
-            LogUtil.log(TAG, "云台未连接");
+            sendMsg2Server(client, message, "云台重置失败:设备未连接");
         }
     }
 

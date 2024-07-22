@@ -1,7 +1,5 @@
 package com.aros.apron.manager;
 
-import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -466,30 +464,30 @@ public class CameraManager extends BaseManager {
 
 //
 //
-    //设置对焦模式
-    public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-
-                    KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), CameraFocusMode.find(message.getCameraFocusMode())), new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式设置失败:" + error.description());
-                        }
-                    });
+//设置对焦模式
+public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+            KeyConnection));
+    if (isConnect != null && isConnect) {
+        if (message != null) {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    sendMsg2Server(mqttAndroidClient, message);
                 }
 
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" +new Gson().toJson(error));
+                }
+            });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:参数有误");
         }
+    } else {
+        sendMsg2Server(mqttAndroidClient, message, "相机未连接");
     }
+}
 //
 //    //格式化SD卡
 //    public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {

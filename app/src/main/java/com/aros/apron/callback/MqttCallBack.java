@@ -299,25 +299,34 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
                 AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
             //设置定时拍照参数
-            case 60200:
+            case 60120:
                 LogUtil.log(TAG, "收到命令：设置定时拍照参数" + jsonString);
                 CameraManager.getInstance().setPhotoIntervalShootSettings(mqttClient,message); break;
             //结束拍照
-            case 60201:
+            case 60121:
                 LogUtil.log(TAG, "收到命令：结束拍照" + jsonString);
-                CameraManager.getInstance().stopShootPhoto(mqttClient,message); break;
-                //重置相机
-            case 60202:
+                CameraManager.getInstance().stopShootPhoto(mqttClient, message);
+                break;
+            //重置相机
+            case 60122:
                 LogUtil.log(TAG, "收到命令：重置相机设置" + jsonString);
-                CameraManager.getInstance().resetCameraSetting(mqttClient,message); break;
+                CameraManager.getInstance().resetCameraSetting(mqttClient, message);
+                break;
             //重置云台
-            case 60203:
+            case 60123:
                 LogUtil.log(TAG, "收到命令：重置云台" + jsonString);
-                GimbalManager.getInstance().gimbalReset(mqttClient,message); break;
+                GimbalManager.getInstance().gimbalReset(mqttClient, message);
+                break;
+            //设置对焦模式
+            case 60124:
+                LogUtil.log(TAG, "收到命令：设置对焦模式" + jsonString);
+                CameraManager.getInstance().setCameraFocusMode(mqttClient, message);
+                break;
             //指点对焦
-            case 60204:
+            case 60125:
                 LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
-                CameraManager.getInstance().tapZoomAtTarget(mqttClient,message); break;
+                CameraManager.getInstance().tapZoomAtTarget(mqttClient, message);
+                break;
         }
     }
 
