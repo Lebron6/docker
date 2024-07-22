@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
+import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
@@ -34,9 +35,8 @@ public class GimbalManager extends BaseManager {
     }
 
 
-    //用角度模式旋转云台
-    public void gimbalRotateByAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-
+    //用相对角度模式旋转云台
+    public void gimbalRotateByRelativeAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect) {
@@ -69,31 +69,85 @@ public class GimbalManager extends BaseManager {
 
     }
 
+//    //用绝对角度模式旋转云台
+//    public void gimbalRotateByAbsoluteAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+//                KeyConnection, 0));
+//        if (isConnect != null && isConnect) {
+//            if (message.getX() == 0 && message.getY() == 0) {
+//                gimbalReset();
+//            } else {
+//                int yaw = message.getX();
+//                int pitch = message.getY();
+//                GimbalAngleRotation rotation = new GimbalAngleRotation();
+//                rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+//                rotation.setYaw(Double.valueOf(yaw * 10));
+//                rotation.setPitch(Double.valueOf(pitch * 10));
+//                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//                            @Override
+//                            public void onSuccess(EmptyMsg emptyMsg) {
+//                                LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(@NonNull IDJIError error) {
+//                                LogUtil.log(TAG, "云台控制失败:" + error.description());
+//                            }
+//                        }
+//                );
+//            }
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//        }
+//
+//
+//    }
+
     //云台重置
     public void gimbalReset() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    LogUtil.log(TAG, "云台复位成功");
-                }
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            LogUtil.log(TAG, "云台复位成功");
+                        }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "云台复位失败:" + error.description());
-                }
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "云台复位失败:" + error.description());
+                        }
                     }
             );
-//                }
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
-
-
     }
-//
+
+    //云台重置
+    public void gimbalReset(MqttAndroidClient client, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, 0));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(client, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(client, message, "云台重置失败:" + new Gson().toJson(error));
+                        }
+                    }
+            );
+        } else {
+            LogUtil.log(TAG, "云台未连接");
+        }
+    }
+
+    //
 //    //设置云台控制的最大速度[1,100]
 //    public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
 //            message) {

@@ -153,7 +153,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //云台角度控制
             case 60009:
                 LogUtil.log(TAG, "收到命令：云台角度控制" + jsonString);
-                GimbalManager.getInstance().gimbalRotateByAngle(mqttClient, message);
+                GimbalManager.getInstance().gimbalRotateByRelativeAngle(mqttClient, message);
                 break;
             //收到此指令表示舱门已关闭，等待归中60012后可调用60011关机
             case 60010:
@@ -298,6 +298,26 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60119:
                 LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
                 AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
+            //设置定时拍照参数
+            case 60200:
+                LogUtil.log(TAG, "收到命令：设置定时拍照参数" + jsonString);
+                CameraManager.getInstance().setPhotoIntervalShootSettings(mqttClient,message); break;
+            //结束拍照
+            case 60201:
+                LogUtil.log(TAG, "收到命令：结束拍照" + jsonString);
+                CameraManager.getInstance().stopShootPhoto(mqttClient,message); break;
+                //重置相机
+            case 60202:
+                LogUtil.log(TAG, "收到命令：重置相机设置" + jsonString);
+                CameraManager.getInstance().resetCameraSetting(mqttClient,message); break;
+            //重置云台
+            case 60203:
+                LogUtil.log(TAG, "收到命令：重置云台" + jsonString);
+                GimbalManager.getInstance().gimbalReset(mqttClient,message); break;
+            //指点对焦
+            case 60204:
+                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
+                CameraManager.getInstance().tapZoomAtTarget(mqttClient,message); break;
         }
     }
 

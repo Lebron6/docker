@@ -32,14 +32,56 @@ public class MQMessage {
     private int cameraExposureMode;//曝光模式
     private int cameraExposureCompensation;//曝光补偿数值
     private int AELockEnabled;//曝光锁定
-
-
+    private double shootInterval;//拍照间隔时间
+    private int shootCount;//拍照的张数
     private int msg_type;
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
     private String alternatePointSecurityHeight; //备降点安全起飞高度
     private String alternatePointHeight; //备降点高度
     private String alternatePointTimes; //允许复降次数
+    private double zoomTargetX; //坐标x,范围0-1
+    private double zoomTargetY; //坐标y,范围0-1
+    private int cameraFocusMode; //对焦模式
+
+    public int getCameraFocusMode() {
+        return cameraFocusMode;
+    }
+
+    public void setCameraFocusMode(int cameraFocusMode) {
+        this.cameraFocusMode = cameraFocusMode;
+    }
+
+    public double getZoomTargetX() {
+        return zoomTargetX;
+    }
+
+    public void setZoomTargetX(double zoomTargetX) {
+        this.zoomTargetX = zoomTargetX;
+    }
+
+    public double getZoomTargetY() {
+        return zoomTargetY;
+    }
+
+    public void setZoomTargetY(double zoomTargetY) {
+        this.zoomTargetY = zoomTargetY;
+    }
+    public double getShootInterval() {
+        return shootInterval;
+    }
+
+    public void setShootInterval(double shootInterval) {
+        this.shootInterval = shootInterval;
+    }
+
+    public int getShootCount() {
+        return shootCount;
+    }
+
+    public void setShootCount(int shootCount) {
+        this.shootCount = shootCount;
+    }
 
     public String getAlternatePointSecurityHeight() {
         return alternatePointSecurityHeight;
