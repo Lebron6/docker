@@ -60,7 +60,7 @@ public class StickManager extends BaseManager {
 
                 @Override
                 public void onChangeReasonUpdate(@NonNull FlightControlAuthorityChangeReason reason) {
-
+                    LogUtil.log(TAG,"控制权变更原因:"+reason.name());
                 }
             });
         }
@@ -84,7 +84,6 @@ public class StickManager extends BaseManager {
                 }
             });
             VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
         }
@@ -137,20 +136,6 @@ public class StickManager extends BaseManager {
         }
     }
 
-//    private void publishStickState2Server() {
-//        if (isFlyClickTime()) {
-//            //推送飞行状态
-//            MqttMessage flightMessage = null;
-//            try {
-//                StickStateEntity.getInstance().setTimeStamp(String.valueOf(System.currentTimeMillis()));
-//                flightMessage = new MqttMessage(new Gson().toJson(StickStateEntity.getInstance()).getBytes("UTF-8"));
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//            flightMessage.setQos(1);
-//            publish(client, MqttConfig.MQTT_STICK_TOPIC, flightMessage);
-//        }
-//    }
 
     public void releaseStick(){
         VirtualStickManager.getInstance().setVirtualStickStateListener(null);

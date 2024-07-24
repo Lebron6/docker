@@ -117,7 +117,6 @@ public class FlightManager extends BaseManager {
                     if (information != null) {
                         Movement.getInstance().setLevelObstacleAvoidance(information.isHorizontalObstacleAvoidanceEnabled());
                         pushFlightAttitude();
-
                     }
                 }
             });
