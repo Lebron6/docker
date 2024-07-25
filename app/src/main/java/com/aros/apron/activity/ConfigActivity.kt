@@ -70,9 +70,9 @@ class ConfigActivity : BaseActivity() {
         configBinding.etMqttPassword.setText(PreferenceUtils.getInstance().mqttPassword)
         configBinding.etMqttSn.setText(PreferenceUtils.getInstance().mqttSn)
 
-        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
-        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
-        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
+//        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
+//        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
+//        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
 
         configBinding.etAlternateLat.setText(PreferenceUtils.getInstance().alternatePointLat)
         configBinding.etAlternateLon.setText(PreferenceUtils.getInstance().alternatePointLon)
@@ -117,7 +117,7 @@ class ConfigActivity : BaseActivity() {
                 if (locationCoordinate3D != null) {
                     configBinding.etDockerLat.setText(locationCoordinate3D?.latitude.toString())
                     configBinding.etDockerLon.setText(locationCoordinate3D?.longitude.toString())
-                    configBinding.etDockerLon.setText("假数据")
+                    configBinding.etAircraftHeading.setText("假数据")
                 } else {
                     configBinding.etDockerLat.setText("")
                     configBinding.etDockerLon.setText("")
@@ -195,11 +195,11 @@ class ConfigActivity : BaseActivity() {
                 return
             }
         }
-        if (TextUtils.isEmpty(configBinding.etDockerLat.text) || TextUtils.isEmpty(configBinding.etDockerLon.text)
-            || TextUtils.isEmpty(configBinding.etAircraftHeading.text)) {
-            ToastUtil.showToast("未标定起飞朝向")
-            return
-        }
+//        if (TextUtils.isEmpty(configBinding.etDockerLat.text) || TextUtils.isEmpty(configBinding.etDockerLon.text)
+//            || TextUtils.isEmpty(configBinding.etAircraftHeading.text)) {
+//            ToastUtil.showToast("未标定起飞朝向")
+//            return
+//        }
         if (TextUtils.isEmpty(configBinding.etAlternateLat.text) || TextUtils.isEmpty(configBinding.etAlternateLon.text)) {
             ToastUtil.showToast("未配置备降点经纬度")
             return

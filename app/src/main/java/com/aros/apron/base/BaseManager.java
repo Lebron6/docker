@@ -101,7 +101,6 @@ public abstract class BaseManager {
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "流程发送:"+event);
-
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
             }

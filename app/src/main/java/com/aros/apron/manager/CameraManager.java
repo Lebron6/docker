@@ -22,8 +22,9 @@ import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
-import dji.sdk.keyvalue.value.camera.ZoomPointTargetMsg;
+
 import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
+import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
@@ -537,7 +538,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
-            ZoomPointTargetMsg zoomPointTargetMsg = new ZoomPointTargetMsg();
+
+            ZoomTargetPointInfo zoomPointTargetMsg = new ZoomTargetPointInfo();
             zoomPointTargetMsg.setX(message.getZoomTargetX());
             zoomPointTargetMsg.setX(message.getZoomTargetY());
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyTapZoomAtTarget),zoomPointTargetMsg, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
