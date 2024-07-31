@@ -67,6 +67,7 @@ public class MQMessage {
     public void setZoomTargetY(double zoomTargetY) {
         this.zoomTargetY = zoomTargetY;
     }
+
     public double getShootInterval() {
         return shootInterval;
     }
