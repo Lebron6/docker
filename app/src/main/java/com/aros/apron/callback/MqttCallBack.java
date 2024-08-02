@@ -11,6 +11,7 @@ import com.aros.apron.manager.AlternateLandingManager;
 import com.aros.apron.manager.CameraManager;
 import com.aros.apron.manager.FlightManager;
 import com.aros.apron.manager.GimbalManager;
+import com.aros.apron.manager.MediaManager;
 import com.aros.apron.manager.MegaphoneManager;
 import com.aros.apron.manager.MissionManager;
 import com.aros.apron.manager.PayloadWidgetManager;
@@ -326,6 +327,36 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60125:
                 LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
                 CameraManager.getInstance().tapZoomAtTarget(mqttClient, message);
+                break;
+            //设置照片xmp写入
+            case 60126:
+                LogUtil.log(TAG, "收到命令：写入exif" + jsonString);
+                MediaManager.INSTANCE.setMediaFileXMPCustomInfo(mqttClient, message);
+                break;
+            //设置曝光模式
+            case 60127:
+                LogUtil.log(TAG, "收到命令：设置曝光模式" + jsonString);
+                CameraManager.getInstance().setExposureMode(mqttClient, message);
+                break;
+            //设置ev
+            case 60128:
+                LogUtil.log(TAG, "收到命令：设置曝光补偿" + jsonString);
+                CameraManager.getInstance().setExposureCompensation(mqttClient, message);
+                break;
+            //发送数据到psdk
+            case 60129:
+                LogUtil.log(TAG, "收到命令：发送数据到psdk" + jsonString);
+                PayloadWidgetManager.getInstance().sendMsgToPayload(mqttClient, message);
+                break;
+            //停止推流
+            case 60130:
+                LogUtil.log(TAG, "收到命令：停止推流" + jsonString);
+                StreamManager.getInstance().stopLive(mqttClient, message);
+                break;
+            //设置对焦值
+            case 60131:
+                LogUtil.log(TAG, "收到命令：设置对焦值" + jsonString);
+                CameraManager.getInstance().setCameraFocusRingValue(mqttClient, message);
                 break;
         }
     }
