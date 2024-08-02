@@ -5,6 +5,15 @@ public class MessageReply {
     private int msg_type;
     private int result;
     private String msg;
+    private String payloadData;//接收psdk数据
+
+    public String getPayloadData() {
+        return payloadData;
+    }
+
+    public void setPayloadData(String payloadData) {
+        this.payloadData = payloadData;
+    }
 
     public String getMsg() {
         return msg;

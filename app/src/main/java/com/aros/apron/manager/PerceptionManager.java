@@ -7,6 +7,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
 
@@ -17,6 +18,8 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.ObstacleAvoidanceType;
+import dji.v5.manager.aircraft.perception.data.ObstacleData;
+import dji.v5.manager.aircraft.perception.listener.ObstacleDataListener;
 import dji.v5.manager.interfaces.IPerceptionManager;
 
 public class PerceptionManager extends BaseManager {
@@ -34,11 +37,23 @@ public class PerceptionManager extends BaseManager {
         return PerceptionManagerHolder.INSTANCE;
     }
 
-    public void initPerceptionInfo(MqttAndroidClient client) {
-        this.client = client;
+    public void initPerceptionInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-
+            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
+            if (perceptionManager!=null){
+                perceptionManager.addObstacleDataListener(new ObstacleDataListener() {
+                    @Override
+                    public void onUpdate(ObstacleData obstacleData) {
+                        if (obstacleData != null) {
+                            Movement.getInstance().setHorizontalObstacleDistance(obstacleData.getHorizontalObstacleDistance());
+                            Movement.getInstance().setHorizontalAngleInterval(obstacleData.getHorizontalAngleInterval());
+                            Movement.getInstance().setDownwardObstacleDistance(obstacleData.getDownwardObstacleDistance());
+                            Movement.getInstance().setUpwardObstacleDistance(obstacleData.getUpwardObstacleDistance());
+                        }
+                    }
+                });
+            }
         }
     }
 

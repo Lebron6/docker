@@ -24,6 +24,7 @@ import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
+import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.PerceptionManager
 import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.StickManager
@@ -234,6 +235,8 @@ class MainActivity : BaseActivity() {
             WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)
             CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
+            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
+            PerceptionManager.getInstance().initPerceptionInfo()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

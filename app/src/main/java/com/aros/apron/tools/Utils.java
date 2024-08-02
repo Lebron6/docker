@@ -1,9 +1,9 @@
-package com.aros.apron.tools;
 
+package com.aros.apron.tools;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
@@ -48,5 +48,17 @@ public class Utils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static byte[] getByte(String str){
+        try {
+            byte[] bytes = str.getBytes("UTF-8");
+            return bytes;
+            // 使用bytes
+        } catch (UnsupportedEncodingException e) {
+            // 处理异常，比如使用默认字符集
+            byte[] bytes = str.getBytes();
+            return null;
+        }
     }
 }

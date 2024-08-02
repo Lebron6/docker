@@ -5,15 +5,17 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
@@ -25,6 +27,7 @@ import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
+import dji.v5.manager.aircraft.payload.listener.PayloadDataListener;
 import dji.v5.manager.aircraft.payload.widget.PayloadWidget;
 import dji.v5.manager.interfaces.IPayloadManager;
 
@@ -41,6 +44,37 @@ public class PayloadWidgetManager extends BaseManager {
 
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
+    }
+    public void initPayloadInfo(MqttAndroidClient client) {
+
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+            if (payloadManager != null) {
+                IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
+                if (iPayloadManager != null) {
+                    iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
+                        @Override
+                        public void onDataFromPayloadUpdate(byte[] data) {
+                            ByteArrayOutputStream filteredData = new ByteArrayOutputStream();
+                            for (byte b : data) {
+                                if (b != 0) {
+                                    filteredData.write(b);
+                                }
+                            }
+                            String str = new String(filteredData.toByteArray(), StandardCharsets.UTF_8);
+                            sendMsgFromPSDK2Server(client, str);
+                        }
+                    });
+                } else {
+                    LogUtil.log(TAG, "监听psdk数据失败:设备未连接");
+                }
+            } else {
+                LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
+            }
+        } else {
+            LogUtil.log(TAG, "设备未连接");
+        }
     }
 
     //锁定

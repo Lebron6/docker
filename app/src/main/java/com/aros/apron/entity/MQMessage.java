@@ -43,6 +43,33 @@ public class MQMessage {
     private double zoomTargetX; //坐标x,范围0-1
     private double zoomTargetY; //坐标y,范围0-1
     private int cameraFocusMode; //对焦模式
+    private String xmpInfo;//写入exif信息
+    private String payloadData;//发送数据给psdk
+    private int cameraFocusRingValue;//设置相机对焦值
+
+    public String getXmpInfo() {
+        return xmpInfo;
+    }
+
+    public void setXmpInfo(String xmpInfo) {
+        this.xmpInfo = xmpInfo;
+    }
+
+    public String getPayloadData() {
+        return payloadData;
+    }
+
+    public void setPayloadData(String payloadData) {
+        this.payloadData = payloadData;
+    }
+
+    public int getCameraFocusRingValue() {
+        return cameraFocusRingValue;
+    }
+
+    public void setCameraFocusRingValue(int cameraFocusRingValue) {
+        this.cameraFocusRingValue = cameraFocusRingValue;
+    }
 
     public int getCameraFocusMode() {
         return cameraFocusMode;
