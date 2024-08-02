@@ -2,12 +2,14 @@ package com.aros.apron.manager;
 
 
 import android.os.Handler;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
+import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -232,6 +234,34 @@ public class PayloadWidgetManager extends BaseManager {
             });
 
         }
+    }
 
+    public void sendMsgToPayload(MqttAndroidClient mqttClient, MQMessage message) {
+        Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+        if (payloadManager != null) {
+            IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
+            if (iPayloadManager != null) {
+                if (TextUtils.isEmpty(message.getPayloadData())) {
+                    sendMsg2Server(mqttClient, message, "发送数据到psdk失败:参数有误");
+                    return;
+                }
+                iPayloadManager.sendDataToPayload(Utils.getByte(message.getPayloadData()), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        LogUtil.log(TAG, "发送数据到psdk:" + Utils.getByte(message.getPayloadData()));
+                        sendMsg2Server(mqttClient, message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + new Gson().toJson(idjiError));
+                    }
+                });
+            } else {
+                sendMsg2Server(mqttClient, message, "发送数据到psdk失败:设备未连接");
+            }
+        } else {
+            sendMsg2Server(mqttClient, message, "发送数据到psdk失败:未检测到设备");
+        }
     }
 }

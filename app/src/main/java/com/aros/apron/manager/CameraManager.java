@@ -185,7 +185,29 @@ public class CameraManager extends BaseManager {
 //        }
 //    }
 
-
+    //设置手动对焦值
+    public void setCameraFocusRingValue(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            if (message != null) {
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + new Gson().toJson(idjiError));
+                    }
+                });
+            } else {
+                sendMsg2Server(mqttAndroidClient, message, "参数有误");
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        }
+    }
     //切换相机拍照录像模式
     public void setCameraMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
@@ -512,6 +534,55 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
 //        }
 //    }
 //
+
+    //设置曝光模式
+    public void setExposureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "曝光模式切换成功");
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "切换曝光模式失败:" + new Gson().toJson(idjiError));
+                    sendMsg2Server(mqttAndroidClient, message, "切换曝光模式失败:" + new Gson().toJson(idjiError));
+                }
+            });
+        } else {
+            LogUtil.log(TAG, "切换曝光失败：相机未连接");
+        }
+
+    }
+
+    //设置曝光补偿数值
+    public void setExposureCompensation(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
+
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "设置曝光补偿数值成功");
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                    sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                }
+            });
+
+        } else {
+            LogUtil.log(TAG, "设置曝光补偿数值失败:相机未连接");
+        }
+    }
 //重置相机参数
 public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage message) {
     Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.

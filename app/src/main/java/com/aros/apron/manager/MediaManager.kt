@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.aros.apron.base.BaseManager
 import com.aros.apron.entity.FileUploadResult
+import com.aros.apron.entity.MQMessage
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.autonavi.base.amap.mapcore.FileUtil
@@ -256,7 +257,6 @@ object MediaManager : BaseManager() {
 
                 override fun onFinish() {
                     LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片下载成功")
-
                     minIOUpLoad(mqttAndroidClient, file, mediaFile)
                     try {
                         outputStream.close()
@@ -379,8 +379,6 @@ object MediaManager : BaseManager() {
 
                 }
             })
-
-
     }
 
     //清空
@@ -413,6 +411,26 @@ object MediaManager : BaseManager() {
         }
         return sdCardPathString
     }
+
+    //写入exif信息
+    fun setMediaFileXMPCustomInfo(
+        client: MqttAndroidClient,
+        message: MQMessage
+    ) {
+        MediaDataCenter.getInstance().mediaManager.setMediaFileXMPCustomInfo(
+            message.xmpInfo,
+            object :
+                CommonCallbacks.CompletionCallback {
+                override fun onSuccess() {
+                    sendMsg2Server(client, message)
+                }
+
+                override fun onFailure(error: IDJIError) {
+                    sendMsg2Server(client, message, "写入exif失败: ${Gson().toJson(error)}")
+                }
+            })
+    }
+
 
     private fun checkSDCard(): Boolean {
         return TextUtils.equals(Environment.MEDIA_MOUNTED, Environment.getExternalStorageState())
