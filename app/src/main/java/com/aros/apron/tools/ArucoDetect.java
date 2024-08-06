@@ -276,7 +276,7 @@ public class ArucoDetect {
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.3);
                                 if (dropTimes > Integer.parseInt(AMSConfig.getInstance().getAlternateLandingTimes())) {
                                     LogUtil.log(TAG, "超过复降限制,去备降点");
-                                    AlternateLandingManager.getInstance().startTaskProcess();
+                                    AlternateLandingManager.getInstance().startTaskProcess(null);
                                     return;
                                 }
                                 if (dropTimesTag) {
@@ -293,7 +293,7 @@ public class ArucoDetect {
                             if (!triggerToAlternateLandingPoint) {
                                 triggerToAlternateLandingPoint = true;
                                 LogUtil.log(TAG, "判定未识别到二维码,飞往备降点");
-                                AlternateLandingManager.getInstance().startTaskProcess();
+                                AlternateLandingManager.getInstance().startTaskProcess(null);
                             }
                         }
                     }

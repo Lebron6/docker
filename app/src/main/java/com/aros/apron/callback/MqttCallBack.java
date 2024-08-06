@@ -267,7 +267,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //一键飞往紧急备降点
             case 60112:
                 LogUtil.log(TAG, "收到命令：备降点降落" + jsonString);
-                AlternateLandingManager.getInstance().startTaskProcess();
+                AlternateLandingManager.getInstance().startTaskProcess(message);
                 break;
             //降落
             case 60113:

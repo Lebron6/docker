@@ -160,7 +160,7 @@ public class OpenCVHelper {
                             if (!triggerToAlternateLandingPoint) {
                                 triggerToAlternateLandingPoint = true;
                                 LogUtil.log(TAG, "去备降点");
-                                AlternateLandingManager.getInstance().startTaskProcess();
+                                AlternateLandingManager.getInstance().startTaskProcess(null);
                             }
                         }
                     }

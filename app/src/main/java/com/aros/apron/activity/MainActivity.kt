@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityMainBinding
@@ -104,7 +103,7 @@ class MainActivity : BaseActivity() {
         }
 
         mainBinding?.startAlter?.setOnClickListener {
-            AlternateLandingManager.getInstance().startTaskProcess()
+            AlternateLandingManager.getInstance().startTaskProcess(null)
         }
 
         mainBinding?.startMission?.setOnClickListener {
