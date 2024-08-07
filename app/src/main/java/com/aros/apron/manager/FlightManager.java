@@ -79,7 +79,11 @@ public class FlightManager extends BaseManager {
         this.mqttAndroidClient = mqttAndroidClient;
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-
+            if (TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
+                    && TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLat())) {
+                Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
+                Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
+            }
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
 
             Boolean gimBalIsConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.KeyConnection, 0));
@@ -404,13 +408,14 @@ public class FlightManager extends BaseManager {
 
         if (isFlyClickTime()) {
 
-            XcFileLog.getInstace().e(TAG, "经纬度:" + Movement.getInstance().getCurrentLongitude() + ","
+            XcFileLog.getInstace().e(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
                     + Movement.getInstance().getCurrentLatitude()
-                    + "--椭球高:" + Movement.getInstance().getFlyingHeight()
-                    + "--超声波高:" + Movement.getInstance().getUltrasonicHeight()
-                    + "--健康信息:" + Movement.getInstance().getWarningMessage()
-                    + "--飞机状态:" + Movement.getInstance().getPlaneMessage());
+                    + "--altitude:" + Movement.getInstance().getFlyingHeight()
+                    + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
+                    + "--heath:" + Movement.getInstance().getWarningMessage()
+                    + "--status:" + Movement.getInstance().getPlaneMessage());
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
+
             //推送飞行状态
             MqttMessage flightMessage = null;
             try {
@@ -831,6 +836,19 @@ public class FlightManager extends BaseManager {
                         sendMsg2Server(mqttAndroidClient, message, "限远开关设置失败:" + error.description());
                     }
                 });
+            }
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+        }
+    }
+
+    //获取总里程
+    public void KeyAircraftTotalFlightDistance(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Double value = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
+            if (value != null) {
+                sendAircraftTotalFlightDistance2Server(mqttAndroidClient, value);
             }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");

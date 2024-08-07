@@ -6,6 +6,15 @@ public class MessageReply {
     private int result;
     private String msg;
     private String payloadData;//接收psdk数据
+    private double aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
+
+    public double getAircraftTotalFlightDistance() {
+        return aircraftTotalFlightDistance;
+    }
+
+    public void setAircraftTotalFlightDistance(double aircraftTotalFlightDistance) {
+        this.aircraftTotalFlightDistance = aircraftTotalFlightDistance;
+    }
 
     public String getPayloadData() {
         return payloadData;

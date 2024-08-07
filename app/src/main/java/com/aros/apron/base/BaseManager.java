@@ -100,7 +100,6 @@ public abstract class BaseManager {
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
-                LogUtil.log(TAG, "流程发送:"+event);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
             }
@@ -276,6 +275,28 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
+            throw new RuntimeException(e);
+        }
+    }
+
+    //获取总飞行里程
+    public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client,double data) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60132);
+                message.setResult(1);
+                message.setAircraftTotalFlightDistance(data);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "总飞行里程发送异常：mqtt 未连接");
             throw new RuntimeException(e);
         }
     }

@@ -20,6 +20,7 @@ import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
+import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
@@ -236,6 +237,7 @@ class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
             PerceptionManager.getInstance().initPerceptionInfo()
+            GimbalManager.getInstance().initGimbalInfo()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

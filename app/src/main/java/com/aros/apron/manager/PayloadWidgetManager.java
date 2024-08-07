@@ -96,7 +96,6 @@ public class PayloadWidgetManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
                     sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
-
                 }
             });
         }

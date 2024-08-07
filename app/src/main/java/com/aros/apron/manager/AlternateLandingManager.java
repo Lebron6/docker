@@ -406,7 +406,11 @@ if (message!=null){
         if (message!=null&&!TextUtils.isEmpty(message.getAlternatePointLat())&&!TextUtils.isEmpty(message.getAlternatePointLon())){
             PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternatePointLat());
             PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
-            PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
+            Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
+            Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
+            sendMsg2Server(client,message);
+        }else{
+            sendMsg2Server(client,message,"设置备降点失败:参数有误");
         }
     }
 }

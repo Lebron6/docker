@@ -358,6 +358,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置对焦值" + jsonString);
                 CameraManager.getInstance().setCameraFocusRingValue(mqttClient, message);
                 break;
+                //获取里程
+            case 60132:
+                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
+                FlightManager.getInstance().KeyAircraftTotalFlightDistance(mqttClient, message);
+                break;
         }
     }
 

@@ -88,6 +88,24 @@ public class Movement {
     public int downwardObstacleDistance;
     public int horizontalAngleInterval;
     public int flightControlAuthority;//当前控制权所属
+    private String alternatePointLat;//设置备降点经纬度
+    private String alternatePointLon;
+
+    public String getAlternatePointLat() {
+        return alternatePointLat;
+    }
+
+    public void setAlternatePointLat(String alternatePointLat) {
+        this.alternatePointLat = alternatePointLat;
+    }
+
+    public String getAlternatePointLon() {
+        return alternatePointLon;
+    }
+
+    public void setAlternatePointLon(String alternatePointLon) {
+        this.alternatePointLon = alternatePointLon;
+    }
 
     public List<Integer> getHorizontalObstacleDistance() {
         return horizontalObstacleDistance;

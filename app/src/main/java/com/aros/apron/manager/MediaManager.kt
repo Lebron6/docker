@@ -136,17 +136,19 @@ object MediaManager : BaseManager() {
 //                if (SystemManager.getInstance().isMediaFilePushOver) {
                 if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
                     sendDroneShutDownMsg2Server(mqttAndroidClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
+
                 }
             }
 
             override fun onFailure(idjiError: IDJIError) {
                 sendMissionExecuteEvents(mqttClient,"退出媒体模式失败:${idjiError.description()}")
-
                 LogUtil.log(TAG, "退出媒体模式失败:${idjiError.description()}")
                 SystemManager.getInstance().isMediaFilePushOver = true
 //                if (SystemManager.getInstance().isMediaFilePushOver) {
                 if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
                     sendDroneShutDownMsg2Server(mqttAndroidClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
             }
         })
@@ -168,9 +170,8 @@ object MediaManager : BaseManager() {
                             if (mediaFiles != null && mediaFiles!!.isNotEmpty()) {
                                 pullOriginalMediaFileFromCamera(mqttAndroidClient)
                             } else {
-                                LogUtil.log(TAG, "拉取媒体文件为空,发送关闭无人机")
-                                sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空,发送关闭无人机")
-
+                                LogUtil.log(TAG, "拉取媒体文件为空")
+                                sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空")
                                 disablePlayback(mqttAndroidClient)
                             }
                         } else {

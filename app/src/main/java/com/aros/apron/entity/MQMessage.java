@@ -47,6 +47,7 @@ public class MQMessage {
     private String payloadData;//发送数据给psdk
     private int cameraFocusRingValue;//设置相机对焦值
 
+
     public String getXmpInfo() {
         return xmpInfo;
     }
