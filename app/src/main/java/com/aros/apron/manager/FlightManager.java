@@ -843,12 +843,15 @@ public class FlightManager extends BaseManager {
     }
 
     //获取总里程
-    public void KeyAircraftTotalFlightDistance(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void getAircraftTotalFlightDistance(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Double value = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
             if (value != null) {
                 sendAircraftTotalFlightDistance2Server(mqttAndroidClient, value);
+            }else{
+                sendMsg2Server(mqttAndroidClient, message, "获取里程数失败");
+
             }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
