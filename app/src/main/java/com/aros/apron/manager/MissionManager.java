@@ -6,7 +6,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MQMessage;
@@ -15,13 +17,16 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
@@ -152,7 +157,7 @@ public class MissionManager extends BaseManager {
                 }
             });
         } else {
-            Log.e("Aros", "设备未连接");
+            LogUtil.log(TAG, "初始化mission:设备未连接");
         }
     }
 
@@ -243,7 +248,6 @@ public class MissionManager extends BaseManager {
                 com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
                 sendDroneStorageMsg2Server(client, -1);
                 sendMissionExecuteEvents(client, "飞行器自检异常,入库 " );
-                LogUtil.log(TAG, "航线状态检索第" + checkMissionStateTimes + "次失败,直接入库" + WaypointMissionExecuteState.find(missionStateCode).name() + "RTK状态:" + Movement.getInstance().isRtkSign());
             }else{
                 LogUtil.log(TAG, "指点任务自检第" + checkMissionStateTimes + "次失败" + WaypointMissionExecuteState.find(missionStateCode).name() + "RTK状态:" + Movement.getInstance().isRtkSign());
                 sendMissionExecuteEvents(client,"指点任务自检异常");
