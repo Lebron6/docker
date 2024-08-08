@@ -850,7 +850,7 @@ public class FlightManager extends BaseManager {
             if (value != null) {
                 sendAircraftTotalFlightDistance2Server(mqttAndroidClient, value);
             }else{
-                sendMsg2Server(mqttAndroidClient, message, "获取里程数失败");
+                sendMsg2Server(mqttAndroidClient, message, "获取里程数为空");
 
             }
         } else {
