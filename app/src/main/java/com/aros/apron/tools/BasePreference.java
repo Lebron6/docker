@@ -26,8 +26,7 @@ public class BasePreference {
     }
   
     protected void setString(String key, String value) {
-
-        sp.edit().putString(key, value).apply();  
+        sp.edit().putString(key, value).apply();
     }  
   
     protected String getString(String key) {

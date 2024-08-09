@@ -1,5 +1,7 @@
 package com.aros.apron.tools;
 
+import android.util.Log;
+
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
@@ -272,7 +274,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 16) {
                         detectedSmallMarkers = true;
@@ -283,7 +285,7 @@ public class ArucoDetect {
                 }
             }
 
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 15)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 14) {
                         detectedSmallMarkers = true;
@@ -294,7 +296,7 @@ public class ArucoDetect {
                 }
             }
 
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 12)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 12) {
                         detectedSmallMarkers = true;
@@ -304,7 +306,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 13) {
                         detectedSmallMarkers = true;
@@ -314,7 +316,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 11) {
                         detectedSmallMarkers = true;
@@ -324,7 +326,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 18) {
                         detectedSmallMarkers = true;
@@ -334,7 +336,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 19) {
                         detectedSmallMarkers = true;
@@ -344,7 +346,7 @@ public class ArucoDetect {
                     }
                 }
             }
-            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
+            if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 17) {
                         detectedSmallMarkers = true;
@@ -359,7 +361,7 @@ public class ArucoDetect {
 
 
 
-        if (Movement.getInstance().getFlyingHeight() > 0.8 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.8&&Movement.getInstance().getFlyingHeight()<6 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -375,7 +377,7 @@ public class ArucoDetect {
         }
 
         //如果识别到小Aruco,则不再触发识别大Aruco
-        if (Movement.getInstance().getFlyingHeight() > 0.8 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.8&&Movement.getInstance().getFlyingHeight()<5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -460,7 +462,7 @@ public class ArucoDetect {
                         || arucoMarkers.get(0).getId() == 2
                         || arucoMarkers.get(0).getId() == 3
                         || arucoMarkers.get(0).getId() == 4
-                        || arucoMarkers.get(0).getId() == 5)
+                        )
         ) {
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
@@ -496,16 +498,17 @@ public class ArucoDetect {
             //旋转向量转欧拉角
             List<Double> eulerAngles = RotationConversion.INSTANCE.rotationMatrixToEulerAngles(camR);
             //欧拉角转飞机偏航角度
-            Double yawCamera = MathUtils.toDegree(eulerAngles.get(2));
+            double yawCamera = MathUtils.toDegree(eulerAngles.get(2));
+            Log.e(TAG,"偏差角度:"+yawCamera+"---Aruco:"+arucoMarkers.get(0).getId()+"--Size:"+arucoMarkers.get(0).getSize());
             if (yawCamera < 0) {
-                if (yawCamera < -15) {
-                    resultYaw = -30.0;
+                if (yawCamera < -30) {
+                    resultYaw = -29.0;
                 } else {
                     resultYaw = 0.0;
                 }
             } else {
-                if (yawCamera >= 15) {
-                    resultYaw = 30.0;
+                if (yawCamera >= 30) {
+                    resultYaw = 29.0;
                 } else {
                     resultYaw = 0.0;
                 }
@@ -535,7 +538,7 @@ public class ArucoDetect {
                     ? updateOutDownSpeed() : 0f;
         }
 
-        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
+//        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
