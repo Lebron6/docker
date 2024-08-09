@@ -109,9 +109,7 @@ public class RTKManager extends BaseManager {
                     });
                 }
             }
-
         }
-
     }
 
     private int startNetWorkRtkTimes;

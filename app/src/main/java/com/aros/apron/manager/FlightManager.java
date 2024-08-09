@@ -79,8 +79,8 @@ public class FlightManager extends BaseManager {
         this.mqttAndroidClient = mqttAndroidClient;
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-            if (TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
-                    && TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLat())) {
+            if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
+                    && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLat())) {
                 Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
                 Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
             }

@@ -287,11 +287,10 @@ public abstract class BaseManager {
                 MessageReply message = new MessageReply();
                 message.setMsg_type(60132);
                 message.setResult(1);
-                message.setAircraftTotalFlightDistance(data);
+                message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance(). getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
-
             } else {
                 LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
             }
