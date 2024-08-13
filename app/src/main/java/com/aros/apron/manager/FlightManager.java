@@ -364,14 +364,7 @@ public class FlightManager extends BaseManager {
                 }
             });
 
-            KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode), this, new CommonCallbacks.KeyListener<RemoteControllerFlightMode>() {
-                @Override
-                public void onValueChange(@Nullable RemoteControllerFlightMode remoteControllerFlightMode, @Nullable RemoteControllerFlightMode t1) {
-                    if (t1!=null){
-                        LogUtil.log(TAG,"监听到挡位切换:"+t1.name());
-                    }
-                }
-            });
+
         } else {
             Log.e(TAG, "初始化飞控失败" + "flight controller is null");
         }
@@ -389,9 +382,16 @@ public class FlightManager extends BaseManager {
     private boolean sendOpenCabinDoorMsg;
     //飞机是否在降落,处理云台归中逻辑(确保只发送一次)
     private boolean aircraftIsLanding;
-    //(至关重要,决定飞机触发最后landing的因素)是否触发最后一步startLanding，如果触发过，确保landing时不再触发landing,但飞行结束后不重启app，再次起飞会在刚起飞就触发landing
+    //(决定飞机触发最后landing的重要因素)是否触发最后一步Landing，如果触发过，确保landing时不再触发landing
     private boolean isTriggerLanding = false;
 
+    public boolean isSendDetect() {
+        return isSendDetect;
+    }
+
+    public void setSendDetect(boolean sendDetect) {
+        isSendDetect = sendDetect;
+    }
 
     private void pushFlightAttitude() {
 
@@ -501,8 +501,8 @@ public class FlightManager extends BaseManager {
 
     // 检查是否满足开始视觉识别降落的条件
     private void checkAndStartVisionLanding() {
-        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 || !Movement.getInstance().isRtkSign()) &&
-                !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
+        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 || !Movement.getInstance().isRtkSign()) ;
+//                && !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         if (shouldStartVisionLanding) {
             startVisionLanding();
             // 检查是否满足降落条件
@@ -534,10 +534,12 @@ public class FlightManager extends BaseManager {
         boolean shouldStartDetection = shouldStartDetection(isDebugMode);
         if (shouldStartDetection) {
             triggerArucoDetection();
+        }else{
+
         }
     }
 
-    private boolean shouldStartDetection(boolean isDebugMode) {
+    public boolean shouldStartDetection(boolean isDebugMode) {
         boolean commonConditions = isFlying && Movement.getInstance().getFlyingHeight() < FLYING_HEIGHT_THRESHOLD_MAX
                 && Movement.getInstance().getFlyingHeight() > FLYING_HEIGHT_THRESHOLD_MIN
                 && !isSendDetect;

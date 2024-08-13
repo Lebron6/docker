@@ -121,17 +121,25 @@ public class ArucoDetect {
                             startTime = System.currentTimeMillis();
                             arucoNotFoundTag = true;
                         }
+
                         endTime = System.currentTimeMillis();
-                        //记录第一次识别不到二维码的时间,如果小于12s,拉高或拉低复降,否则降落至备降点
-                        if (endTime - startTime > 1000 && endTime - startTime <= 12000) {
+                        //记录第一次识别不到二维码的时间,如果小于8s,拉高或拉低复降,否则降落至备降点
+                        if (endTime - startTime > 1000 && endTime - startTime <= 8000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.3);
                                 if (dropTimes > Integer.parseInt(AMSConfig.getInstance().getAlternateLandingTimes())) {
-                                    LogUtil.log(TAG, "超过复降限制,去备降点");
-                                    AlternateLandingManager.getInstance().startTaskProcess(null);
-                                    return;
+                                    if (!triggerToAlternateLandingPoint) {
+                                        triggerToAlternateLandingPoint = true;
+                                        AlternateLandingManager.getInstance().startTaskProcess(null);
+                                        dropTimes = 0;
+                                        LogUtil.log(TAG, "超过复降限制,去备降点");
+
+                                    }else{
+                                        LogUtil.log(TAG, "在备降点超过复降限制,直接降落");
+
+                                    }
                                 }
                                 if (dropTimesTag) {
                                     dropTimesTag = false;
@@ -143,11 +151,19 @@ public class ArucoDetect {
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.3);
                             }
-                        } else if (endTime - startTime > 12000) {
+                        } else if (endTime - startTime > 8000) {
                             if (!triggerToAlternateLandingPoint) {
                                 triggerToAlternateLandingPoint = true;
                                 LogUtil.log(TAG, "判定未识别到二维码,飞往备降点");
                                 AlternateLandingManager.getInstance().startTaskProcess(null);
+                                //触发备降点后重置计时，到达备降点若未识别到二维码再次开始计时，超时自动降落
+                                endTime = 0;
+                                startTime = 0;
+                                //将startTime重置
+                                arucoNotFoundTag=false;
+                            } else {
+                                Log.e(TAG,"识别不到的时间:"+(endTime - startTime));
+//                                LogUtil.log(TAG, "已经到达备降点,未识别到二维码，直接降落");
                             }
                         }
                     }
@@ -360,8 +376,7 @@ public class ArucoDetect {
         }
 
 
-
-        if (Movement.getInstance().getFlyingHeight() > 0.8&&Movement.getInstance().getFlyingHeight()<6 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.8 && Movement.getInstance().getFlyingHeight() < 9.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -370,14 +385,14 @@ public class ArucoDetect {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 5) {
                     detectedBigMarkerId = 5;
-                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.12f));
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
                     break;
                 }
             }
         }
 
         //如果识别到小Aruco,则不再触发识别大Aruco
-        if (Movement.getInstance().getFlyingHeight() > 0.8&&Movement.getInstance().getFlyingHeight()<5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.8 && Movement.getInstance().getFlyingHeight() < 9.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -386,8 +401,7 @@ public class ArucoDetect {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 6) {
                     detectedBigMarkerId = 6;
-                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.09f));
-
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
                     break;
                 }
             }
@@ -455,8 +469,7 @@ public class ArucoDetect {
         double outX;
         double outY;
         double outZ;
-        //御三T机型因为脚架较低，容易受机库磁场影响导致起飞时偏航角记录不正确，
-        //需要进行姿态预估旋转机身,这里判断只有在识别到大二维码时才会进行姿态预估
+
         if ((arucoMarkers.size() == 1) && (
                 arucoMarkers.get(0).getId() == 1
                         || arucoMarkers.get(0).getId() == 2
@@ -499,16 +512,15 @@ public class ArucoDetect {
             List<Double> eulerAngles = RotationConversion.INSTANCE.rotationMatrixToEulerAngles(camR);
             //欧拉角转飞机偏航角度
             double yawCamera = MathUtils.toDegree(eulerAngles.get(2));
-            Log.e(TAG,"偏差角度:"+yawCamera+"---Aruco:"+arucoMarkers.get(0).getId()+"--Size:"+arucoMarkers.get(0).getSize());
             if (yawCamera < 0) {
-                if (yawCamera < -30) {
-                    resultYaw = -29.0;
+                if (yawCamera < -15) {
+                    resultYaw = -30.0;
                 } else {
                     resultYaw = 0.0;
                 }
             } else {
-                if (yawCamera >= 30) {
-                    resultYaw = 29.0;
+                if (yawCamera >= 15) {
+                    resultYaw = 30.0;
                 } else {
                     resultYaw = 0.0;
                 }

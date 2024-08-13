@@ -159,7 +159,7 @@ object MediaManager : BaseManager() {
     //从相机拉取媒体文件
     fun pullMediaFileListFromCamera(mqttAndroidClient: MqttAndroidClient) {
         MediaDataCenter.getInstance().mediaManager.pullMediaFileListFromCamera(
-            PullMediaFileListParam.Builder().count(350).build(),
+            PullMediaFileListParam.Builder().count(-1).build(),
             object : CompletionCallback {
                 @RequiresApi(Build.VERSION_CODES.O)
                 override fun onSuccess() {

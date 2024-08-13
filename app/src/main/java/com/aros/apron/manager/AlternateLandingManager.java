@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.FlightMission;
@@ -53,6 +54,7 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 public class AlternateLandingManager extends BaseManager {
 
     MqttAndroidClient mqttClient;
+    private boolean isRemoteControllerFlightModeChange;
 
     private AlternateLandingManager() {
     }
@@ -67,12 +69,26 @@ public class AlternateLandingManager extends BaseManager {
 
     public void initAlterLandingInfo(MqttAndroidClient mqttAndroidClient) {
         this.mqttClient = mqttAndroidClient;
+        KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode), this, new CommonCallbacks.KeyListener<RemoteControllerFlightMode>() {
+            @Override
+            public void onValueChange(@Nullable RemoteControllerFlightMode remoteControllerFlightMode, @Nullable RemoteControllerFlightMode t1) {
+                if (t1 != null) {
+                    LogUtil.log(TAG, "监听到挡位切换:" + t1.name());
+                    if (t1 != RemoteControllerFlightMode.P && t1 != RemoteControllerFlightMode.F) {
+                        isRemoteControllerFlightModeChange = true;
+                    }
+                }
+            }
+        });
     }
 
     public void startTaskProcess(MQMessage message) {
         //飞往备降点,关闭视觉识别
         EventBus.getDefault().post(FLAG_STOP_ARUCO);
-        sendMissionExecuteEvents(mqttClient, "触发备降点降落");
+        if (isRemoteControllerFlightModeChange) {
+            LogUtil.log(TAG, "挡位切换过:不触发去备降点");
+            return;
+        }
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -109,7 +125,6 @@ public class AlternateLandingManager extends BaseManager {
                             LogUtil.log(TAG, "取消返航成功");
                             toAlternatePoint(message);
                             sendMissionExecuteEvents(mqttClient, "取消返航:去备降点");
-
                         }
 
                         @Override
@@ -373,6 +388,10 @@ if (message!=null){
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(true);
                                 LogUtil.log(TAG, "开始飞往备降点");
                                 sendMissionExecuteEvents(mqttClient, "开始飞往备降点");
+                                //设置为未开始识别二维码状态
+                                FlightManager.getInstance().setSendDetect(false);
+                                EventBus.getDefault().post(FLAG_STOP_ARUCO);
+
                                 if (message!=null){
                                     sendMsg2Server(mqttClient,message);
                                 }
@@ -389,7 +408,7 @@ if (message!=null){
                             }
                         });
                     }
-                }, 500);
+                }, 1000);
             }
 
             @Override
