@@ -5,19 +5,15 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
-import com.aros.apron.entity.Movement;
-import com.aros.apron.tools.ArucoDetect;
+import com.aros.apron.tools.DockArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
-import dji.raw.jni.callback.Listener;
-import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
-import dji.sdk.keyvalue.value.flightcontroller.LowBatteryRTHInfo;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalMode;
@@ -47,7 +43,7 @@ public class GimbalManager extends BaseManager {
             public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                 if (t1!=null){
                     //双挂
-                    ArucoDetect.getInstance().setDoublePayload(t1);
+                    DockArucoDetect.getInstance().setDoublePayload(t1);
                     LogUtil.log(TAG,"检测是否双挂:"+t1);
                 }
             }

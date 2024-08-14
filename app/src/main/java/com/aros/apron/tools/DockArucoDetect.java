@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ArucoDetect {
+public class DockArucoDetect {
 
     //没识别到二维码
     private boolean arucoNotFoundTag;
@@ -67,14 +67,14 @@ public class ArucoDetect {
         this.productType = productType;
     }
 
-    private ArucoDetect() {
+    private DockArucoDetect() {
     }
 
     private static class OpenCVHelperHolder {
-        private static final ArucoDetect INSTANCE = new ArucoDetect();
+        private static final DockArucoDetect INSTANCE = new DockArucoDetect();
     }
 
-    public static ArucoDetect getInstance() {
+    public static DockArucoDetect getInstance() {
         return OpenCVHelperHolder.INSTANCE;
     }
 
@@ -138,7 +138,6 @@ public class ArucoDetect {
 
                                     }else{
                                         LogUtil.log(TAG, "在备降点超过复降限制,直接降落");
-
                                     }
                                 }
                                 if (dropTimesTag) {

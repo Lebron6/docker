@@ -112,6 +112,29 @@ public class StickManager extends BaseManager {
         }
     }
 
+    //参数
+    //模式
+    //数值限制
+    //x
+    //速度模式
+    //[-10 m/s, +10 m/s] 超过最大值，仍按最大值运动
+    //角度模式
+    //[-30°, +30 °]
+    //y
+    //速度模式
+    //[-10 m/s, +10 m/s] 超过最大值，仍按最大值运动
+    //角度模式
+    //[-30°, +30 °]
+    //z
+    //速度模式
+    //[-4 m/s, +4 m/s] 超过最大值，仍按最大值运动
+    //位置模式
+    //[0m, 100m]
+    //yaw
+    //角度模式
+    //[-180°, +180 °]
+    //角速度模式
+    //[-100°/s, +100 °/s]
     VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
@@ -120,15 +143,15 @@ public class StickManager extends BaseManager {
         if (isConnect != null && isConnect) {
             if (param == null) {
                 param = new VirtualStickFlightControlParam();
-                param.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
+                param.setRollPitchControlMode(RollPitchControlMode.VELOCITY);//
                 param.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
                 param.setVerticalControlMode(VerticalControlMode.VELOCITY);
                 param.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
             }
-            param.setPitch(Double.valueOf(message.getY()));//左右
-            param.setRoll(Double.valueOf(message.getX()));//前后
-            param.setYaw(Double.valueOf(message.getR())*10);//旋转
-            param.setVerticalThrottle(Double.valueOf(message.getZ()));//上下
+            param.setPitch(Double.valueOf(message.getY()));//左右(速度模式-10m/s-10m/s)
+            param.setRoll(Double.valueOf(message.getX()));//前后(速度模式-10m/s-10m/s)
+            param.setYaw(Double.valueOf(message.getR())*10);//旋转(角速度模式-100-100)
+            param.setVerticalThrottle(Double.valueOf(message.getZ()));//上下(速度模式-4m/s-4m/s)
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
 //            sendMsg2Server(mqttAndroidClient, message, "移动...");
         } else {

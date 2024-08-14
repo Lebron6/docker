@@ -373,7 +373,6 @@ object MediaManager : BaseManager() {
                         removeAllFiles(mqttAndroidClient)
                         downLoadMediaFileIndex == 0
                         sendMissionExecuteEvents(mqttClient,"媒体文件上传完成")
-
                     } else {
                         pullOriginalMediaFileFromCamera(mqttAndroidClient)
                     }

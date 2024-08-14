@@ -30,7 +30,7 @@ import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
-import com.aros.apron.tools.ArucoDetect
+import com.aros.apron.tools.DockArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
@@ -246,7 +246,7 @@ class MainActivity : BaseActivity() {
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
-            ArucoDetect.getInstance().productType = productType!!.name
+            DockArucoDetect.getInstance().productType = productType!!.name
         }
     }
 
@@ -278,7 +278,7 @@ class MainActivity : BaseActivity() {
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
             if (startAruco) {
-                ArucoDetect.getInstance()?.detectArucoTags(
+                DockArucoDetect.getInstance()?.detectArucoTags(
                     height,
                     width,
                     frameData,
@@ -314,7 +314,7 @@ class MainActivity : BaseActivity() {
                                 return
                             }
                             startAruco = true
-                            ArucoDetect.getInstance().setDetectedBigMarkers()
+                            DockArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
@@ -325,7 +325,7 @@ class MainActivity : BaseActivity() {
                             }
                             LogUtil.log(TAG, "取消降落失败" + Gson().toJson(error))
                             startAruco = true
-                            ArucoDetect.getInstance().setDetectedBigMarkers()
+                            DockArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }

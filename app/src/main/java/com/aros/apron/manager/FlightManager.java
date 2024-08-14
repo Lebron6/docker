@@ -11,7 +11,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.GISNeedDataEntity;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
-import com.aros.apron.tools.ArucoDetect;
+import com.aros.apron.tools.DockArucoDetect;
 import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
@@ -38,7 +38,6 @@ import dji.sdk.keyvalue.value.common.Velocity3D;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
-import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -534,8 +533,6 @@ public class FlightManager extends BaseManager {
         boolean shouldStartDetection = shouldStartDetection(isDebugMode);
         if (shouldStartDetection) {
             triggerArucoDetection();
-        }else{
-
         }
     }
 
@@ -560,13 +557,13 @@ public class FlightManager extends BaseManager {
 
     }
 
-    // 定义常量用于EventBus事件总线
+    // 定义常量用于EventBus
     public static final String FLAG_DOWN_LAND = "FLAG_DOWN_LAND";
     public static final String FLAG_START_DETECT_ARUCO = "FLAG_START_DETECT_ARUCO";
     public static final String FLAG_STOP_ARUCO = "FLAG_STOP_ARUCO";
 
     private boolean shouldStopVisionAndLanding() {
-        return !isTriggerLanding && isFlying && isMotorsOn && ArucoDetect.getInstance().isCanLanding();
+        return !isTriggerLanding && isFlying && isMotorsOn && DockArucoDetect.getInstance().isCanLanding();
     }
 
     private void logLandingHeight(int i) {
@@ -600,7 +597,7 @@ public class FlightManager extends BaseManager {
             isSendDetect = false;
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
-            ArucoDetect.getInstance().setCanLanding(false);
+            DockArucoDetect.getInstance().setCanLanding(false);
             // 避免在下次起飞时触发视觉识别（待测试）
             PreferenceUtils.getInstance().setNeedTriggerArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
