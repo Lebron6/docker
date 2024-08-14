@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
-import com.aros.apron.tools.DockArucoDetect;
+import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
 
@@ -43,7 +43,7 @@ public class GimbalManager extends BaseManager {
             public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                 if (t1!=null){
                     //双挂
-                    DockArucoDetect.getInstance().setDoublePayload(t1);
+                    ApronArucoDetect.getInstance().setDoublePayload(t1);
                     LogUtil.log(TAG,"检测是否双挂:"+t1);
                 }
             }

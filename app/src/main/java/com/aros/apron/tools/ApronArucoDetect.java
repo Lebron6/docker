@@ -1,7 +1,5 @@
 package com.aros.apron.tools;
 
-import android.util.Log;
-
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
@@ -22,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DockArucoDetect {
+public class ApronArucoDetect {
 
     //没识别到二维码
     private boolean arucoNotFoundTag;
@@ -67,14 +65,14 @@ public class DockArucoDetect {
         this.productType = productType;
     }
 
-    private DockArucoDetect() {
+    private ApronArucoDetect() {
     }
 
     private static class OpenCVHelperHolder {
-        private static final DockArucoDetect INSTANCE = new DockArucoDetect();
+        private static final ApronArucoDetect INSTANCE = new ApronArucoDetect();
     }
 
-    public static DockArucoDetect getInstance() {
+    public static ApronArucoDetect getInstance() {
         return OpenCVHelperHolder.INSTANCE;
     }
 
@@ -107,7 +105,7 @@ public class DockArucoDetect {
                         if (mFindArucoList.size() == 0) {
                             sigleMarkerDetectFailsTimes++;
                             if (sigleMarkerDetectFailsTimes >= 40) {
-                                sigleMarkerDetectFailsTimes = 0;
+                                sigleMarkerDetectFailsTimes=0;
                                 setDetectedBigMarkers();
                                 LogUtil.log(TAG, "标定的二维码未被识别,重置识别二维码状态");
                             }
@@ -116,29 +114,24 @@ public class DockArucoDetect {
                             moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                         }
                         dropTimesTag = true;
-                    } else {
+                    }
+
+                    else {
                         if (!arucoNotFoundTag) {
                             startTime = System.currentTimeMillis();
                             arucoNotFoundTag = true;
                         }
-
                         endTime = System.currentTimeMillis();
-                        //记录第一次识别不到二维码的时间,如果小于8s,拉高或拉低复降,否则降落至备降点
+                        //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 1000 && endTime - startTime <= 8000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.3);
                                 if (dropTimes > Integer.parseInt(AMSConfig.getInstance().getAlternateLandingTimes())) {
-                                    if (!triggerToAlternateLandingPoint) {
-                                        triggerToAlternateLandingPoint = true;
-                                        AlternateLandingManager.getInstance().startTaskProcess(null);
-                                        dropTimes = 0;
-                                        LogUtil.log(TAG, "超过复降限制,去备降点");
-
-                                    }else{
-                                        LogUtil.log(TAG, "在备降点超过复降限制,直接降落");
-                                    }
+                                    LogUtil.log(TAG, "超过复降限制,去备降点");
+                                    AlternateLandingManager.getInstance().startTaskProcess(null);
+                                    return;
                                 }
                                 if (dropTimesTag) {
                                     dropTimesTag = false;
@@ -155,14 +148,6 @@ public class DockArucoDetect {
                                 triggerToAlternateLandingPoint = true;
                                 LogUtil.log(TAG, "判定未识别到二维码,飞往备降点");
                                 AlternateLandingManager.getInstance().startTaskProcess(null);
-                                //触发备降点后重置计时，到达备降点若未识别到二维码再次开始计时，超时自动降落
-                                endTime = 0;
-                                startTime = 0;
-                                //将startTime重置
-                                arucoNotFoundTag=false;
-                            } else {
-                                Log.e(TAG,"识别不到的时间:"+(endTime - startTime));
-//                                LogUtil.log(TAG, "已经到达备降点,未识别到二维码，直接降落");
                             }
                         }
                     }

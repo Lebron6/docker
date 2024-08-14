@@ -32,12 +32,12 @@ public class SystemManager extends BaseManager {
 
 
     public void checkRemoteControlPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
+//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.KeyConnection));
+//        if (isConnect != null && isConnect) {
             sendMsg2Server(mqttAndroidClient, message);
-        } else {
-            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
-        }
+//        } else {
+//            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
+//        }
     }
 
     public void checkAircraftPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {

@@ -18,7 +18,8 @@ import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
-import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO
+import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
+import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
@@ -30,7 +31,8 @@ import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
-import com.aros.apron.tools.DockArucoDetect
+import com.aros.apron.tools.AlternateArucoDetect
+import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
@@ -65,7 +67,7 @@ class MainActivity : BaseActivity() {
 
     var cameraManager = MediaDataCenter.getInstance().cameraStreamManager
     private var mainBinding: ActivityMainBinding? = null
-    private var startAruco = false
+    private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
 
@@ -246,7 +248,7 @@ class MainActivity : BaseActivity() {
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
-            DockArucoDetect.getInstance().productType = productType!!.name
+            ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }
 
@@ -273,17 +275,27 @@ class MainActivity : BaseActivity() {
                 cameraManager.removeCameraStreamSurface(holder.surface)
             }
         })
+
         cameraManager.addFrameListener(
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-            if (startAruco) {
-                DockArucoDetect.getInstance()?.detectArucoTags(
-                    height,
-                    width,
-                    frameData,
-                    dictionary,
-                )
+            when (startArucoType) {
+                1 ->
+                    ApronArucoDetect.getInstance()?.detectArucoTags(
+                        height,
+                        width,
+                        frameData,
+                        dictionary,
+                    )
+
+                2 ->
+                    AlternateArucoDetect.getInstance()?.detectArucoTags(
+                        height,
+                        width,
+                        frameData,
+                        dictionary,
+                    )
             }
         }
     }
@@ -304,28 +316,56 @@ class MainActivity : BaseActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(message: String?) {
         when (message) {
-            FLAG_START_DETECT_ARUCO ->
+            FLAG_START_DETECT_ARUCO_APRON ->
                 KeyManager.getInstance().performAction<EmptyMsg>(
                     KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStopAutoLanding),
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
-                            LogUtil.log(TAG, "取消降落,开始识别降落")
-                            if (startAruco){
+                            LogUtil.log(TAG, "取消降落,识别机库二维码")
+                            if (startArucoType == 1) {
                                 return
                             }
-                            startAruco = true
-                            DockArucoDetect.getInstance().setDetectedBigMarkers()
+                            startArucoType = 1
+                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
 
                         override fun onFailure(error: IDJIError) {
-                            if (startAruco){
+                            if (startArucoType == 1) {
                                 return
                             }
-                            LogUtil.log(TAG, "取消降落失败" + Gson().toJson(error))
-                            startAruco = true
-                            DockArucoDetect.getInstance().setDetectedBigMarkers()
+                            startArucoType = 1
+                            LogUtil.log(TAG, "取消降落,识别机库二维码失败:" + Gson().toJson(error))
+                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
+                            DroneHelper.getInstance().setGimbalPitchDegree()
+                            DroneHelper.getInstance().setVerticalModeToVelocity()
+                        }
+                    })
+
+            FLAG_START_DETECT_ARUCO_ALTERNATE ->
+                KeyManager.getInstance().performAction<EmptyMsg>(
+                    KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStopAutoLanding),
+                    object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
+                        override fun onSuccess(emptyMsg: EmptyMsg?) {
+                            LogUtil.log(TAG, "取消降落,识别备降点二维码")
+                            if (startArucoType == 2) {
+                                return
+                            }
+                            startArucoType = 2
+                            DroneHelper.getInstance().setGimbalPitchDegree()
+                            DroneHelper.getInstance().setVerticalModeToVelocity()
+                        }
+
+                        override fun onFailure(error: IDJIError) {
+                            if (startArucoType == 2) {
+                                return
+                            }
+                            startArucoType = 2
+                            LogUtil.log(
+                                TAG,
+                                "取消降落,识别备降点二维码失败:" + Gson().toJson(error)
+                            )
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
@@ -336,7 +376,8 @@ class MainActivity : BaseActivity() {
                     KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStartAutoLanding),
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
-                            startAruco = false
+
+                            startArucoType = 0
                         }
 
                         override fun onFailure(error: IDJIError) {
@@ -345,7 +386,8 @@ class MainActivity : BaseActivity() {
                     })
 
             FLAG_STOP_ARUCO ->
-                startAruco = false
+
+                startArucoType = 0
 
         }
     }
