@@ -376,10 +376,8 @@ class MainActivity : BaseActivity() {
                     KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStartAutoLanding),
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
-
                             startArucoType = 0
                         }
-
                         override fun onFailure(error: IDJIError) {
                             LogUtil.log(TAG, "自动降落调用失败${error.description()}")
                         }

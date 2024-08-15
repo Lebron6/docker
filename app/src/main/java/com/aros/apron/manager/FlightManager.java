@@ -11,6 +11,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.GISNeedDataEntity;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.tools.AlternateArucoDetect;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
@@ -263,6 +264,12 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable FlightMode oldValue, @Nullable FlightMode newValue) {
                     if (newValue != null) {
+                        if (newValue == FlightMode.MOTOR_START) {
+                            //刚起飞时，重置保存的状态
+                            PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+                            PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+                            PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+                        }
                         Log.e(TAG, "飞行模式:" + newValue.name());
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
@@ -511,50 +518,55 @@ public class FlightManager extends BaseManager {
         }
     }
 
-    // 检查是否满足降落条件，并触发相应的降落逻辑
-    private void checkLandingConditions() {
-        // 获取配置中的降落高度阈值
-        float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
-        double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
-
-        // 检查声波高度和相对高度是否满足降落条件
-        if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
-                Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2) {
-            stopApronArucoDetectAndLanding(1);
-        } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4) {
-            stopApronArucoDetectAndLanding(2);
-        }
-    }
 
     private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = AMSConfig.getInstance().getDescentAltitude() - 0.1;
+    private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 3.0;
 
     private void startVisionLanding() {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
-        boolean shouldStartDetection = shouldStartDetection(isDebugMode);
-        if (shouldStartDetection) {
-            triggerArucoDetection();
+        boolean triggerToAlternatePoint = PreferenceUtils.getInstance().getTriggerToAlternatePoint();
+        boolean needTriggerApronArucoLand = PreferenceUtils.getInstance().getNeedTriggerApronArucoLand();
+        boolean needTriggerAlterArucoLand = PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand();
+
+        if (isFlying && Movement.getInstance().getFlyingHeight() < FLYING_HEIGHT_THRESHOLD_MAX && !isSendDetect) {
+            double flyingHeight = Movement.getInstance().getFlyingHeight();
+            double thresholdMin = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MIN;
+
+            if (flyingHeight > thresholdMin) {
+                boolean shouldTriggerDetection = false;
+
+                if (isDebugMode) {
+                    shouldTriggerDetection = goHomeExecutionState == 2;
+                } else {
+                    shouldTriggerDetection = goHomeExecutionState == 2 || needTriggerApronArucoLand || needTriggerAlterArucoLand;
+                }
+
+                if (shouldTriggerDetection) {
+                    triggerArucoDetection();
+                }
+            }
         }
     }
 
-    public boolean shouldStartDetection(boolean isDebugMode) {
-        boolean commonConditions = isFlying && Movement.getInstance().getFlyingHeight() < FLYING_HEIGHT_THRESHOLD_MAX
-                && Movement.getInstance().getFlyingHeight() > FLYING_HEIGHT_THRESHOLD_MIN
-                && !isSendDetect;
-        if (isDebugMode) {
-            return commonConditions && goHomeExecutionState == 2;
-        } else {
-            return commonConditions && (goHomeExecutionState == 2 || PreferenceUtils.getInstance().getNeedTriggerArucoLand());
-        }
-    }
 
     private void triggerArucoDetection() {
-        LogUtil.log(TAG, "识别TAG:" + PreferenceUtils.getInstance().getNeedTriggerArucoLand());
-        EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
+
+        if (PreferenceUtils.getInstance().getTriggerToAlternatePoint()) {
+            LogUtil.log(TAG, "识别AlterTag:" + PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand());
+            EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_ALTERNATE);
+            PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
+            PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+            LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
+            sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始识别备降点二维码");
+        } else {
+            LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
+            EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
+            PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
+            LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
+            sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始识别机库二维码");
+        }
         isSendDetect = true;
-        PreferenceUtils.getInstance().setNeedTriggerArucoLand(true);
-        LogUtil.log(TAG, "开始识别,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-        sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始视觉识别降落");
 
     }
 
@@ -563,6 +575,43 @@ public class FlightManager extends BaseManager {
     public static final String FLAG_START_DETECT_ARUCO_APRON = "FLAG_START_DETECT_ARUCO_APRON";
     public static final String FLAG_START_DETECT_ARUCO_ALTERNATE = "FLAG_START_DETECT_ARUCO_ALTERNATE";
     public static final String FLAG_STOP_ARUCO = "FLAG_STOP_ARUCO";
+
+
+    // 检查是否满足降落条件，并触发相应的降落逻辑
+    public void checkLandingConditions() {
+
+
+        //到达备降点触发了直接降落高度或备降点未识别到二维码
+        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() && AlternateArucoDetect.getInstance().isCanLanding()) {
+            stopApronArucoDetectAndLanding(3);
+            LogUtil.log(TAG, "备降点直接降落");
+        } else {
+            // 获取配置中的降落高度阈值
+            float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
+            double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
+            // 检查融合高度和相对高度是否满足降落条件
+            if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
+                    Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2 && shouldStopVisionAndLanding()) {
+                stopApronArucoDetectAndLanding(1);
+            } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4 && shouldStopVisionAndLanding()) {
+                stopApronArucoDetectAndLanding(2);
+            }
+        }
+
+
+    }
+
+    public void stopApronArucoDetectAndLanding(int i) {
+        logLandingHeight(i);
+        DroneHelper.getInstance().exitVirtualStickMode();
+        EventBus.getDefault().post(FLAG_DOWN_LAND);
+        PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+        PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+        PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+        aircraftIsLanding = false;
+        isTriggerLanding = true;
+
+    }
 
     private boolean shouldStopVisionAndLanding() {
         return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
@@ -577,16 +626,7 @@ public class FlightManager extends BaseManager {
                 + Movement.getInstance().getUltrasonicHeight() + "分米");
     }
 
-    private void stopApronArucoDetectAndLanding(int i) {
-        if (shouldStopVisionAndLanding()) {
-            logLandingHeight(i);
-            DroneHelper.getInstance().exitVirtualStickMode();
-            EventBus.getDefault().post(FLAG_DOWN_LAND);
-            PreferenceUtils.getInstance().setNeedTriggerArucoLand(false);
-            aircraftIsLanding = false;
-            isTriggerLanding = true;
-        }
-    }
+
 
 
     private void droneStorage() {
@@ -601,10 +641,11 @@ public class FlightManager extends BaseManager {
             sendCloseCabinDoorMsg = false;
             ApronArucoDetect.getInstance().setCanLanding(false);
             // 避免在下次起飞时触发视觉识别
-            PreferenceUtils.getInstance().setNeedTriggerArucoLand(false);
+            PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+            PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             // 发布事件，通知其他组件停止Aruco检测
-            EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
+            EventBus.getDefault().post(FLAG_STOP_ARUCO);
             if (!isDebugMode) {
                 // 发送无人机入库消息到服务器
                 sendDroneStorageMsg2Server(mqttAndroidClient, 1);

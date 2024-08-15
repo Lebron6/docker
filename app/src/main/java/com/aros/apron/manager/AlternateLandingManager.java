@@ -414,6 +414,7 @@ if (message!=null){
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
                 LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(idjiError));
+                PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                 sendMissionExecuteEvents(mqttClient, "备降航线上传失败:" + new Gson().toJson(idjiError));
                 if (message!=null){
                     sendMsg2Server(mqttClient,message,"备降航线上传失败:" + new Gson().toJson(idjiError));

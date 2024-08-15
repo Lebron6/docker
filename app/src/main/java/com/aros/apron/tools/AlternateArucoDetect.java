@@ -87,8 +87,9 @@ public class AlternateArucoDetect {
                         }
                         endTime = System.currentTimeMillis();
                         //识别不到二维码的时间,如果大于5s,直接降落
-                        if (endTime - startTime > 5000) {
-                            Log.e(TAG, "识别不到的时间:" + (endTime - startTime));
+                        if (endTime - startTime > 8000) {
+                            LogUtil.log(TAG,"未识别到备降点二维码:直接降落");
+                            canLanding=true;
                         }
                     }
                     grayImgMat.release();
@@ -205,7 +206,7 @@ public class AlternateArucoDetect {
         }
     }
 
-    private boolean canLanding;
+    public boolean canLanding;
 
     public boolean isCanLanding() {
         return canLanding;

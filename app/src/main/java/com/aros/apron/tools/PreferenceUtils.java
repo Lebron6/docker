@@ -27,7 +27,8 @@ public class PreferenceUtils extends BasePreference {
     private String KEY = "key";
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
-    private String NEED_TRIGGER_ARUCO_LAND = "need_trigger_aruco_land";//是否需要触发crash后继续降落
+    private String NEED_TRIGGER_APRON_ARUCO_LAND = "need_trigger_apron_aruco_land";//是否需要触发crash后继续降落到机库
+    private String NEED_TRIGGER_ALTER_ARUCO_LAND = "need_trigger_apron_aruco_land";//是否需要触发crash后继续降落到备降点
     private String TRIGGER_TO_ALTERNATE_POINT = "trigger_to_alternate_point";//是否需要触发crash后继续降落
 
     //AMS配置清单
@@ -133,12 +134,20 @@ public class PreferenceUtils extends BasePreference {
         setInt(RTK_TYPE, rtkType);
     }
 
-    public void setNeedTriggerArucoLand(boolean needTrigger) {
-        setBoolean(NEED_TRIGGER_ARUCO_LAND, needTrigger);
+    public void setNeedTriggerApronArucoLand(boolean needTrigger) {
+        setBoolean(NEED_TRIGGER_APRON_ARUCO_LAND, needTrigger);
     }
 
-    public boolean getNeedTriggerArucoLand() {
-        return getBoolean(NEED_TRIGGER_ARUCO_LAND);
+    public boolean getNeedTriggerApronArucoLand() {
+        return getBoolean(NEED_TRIGGER_APRON_ARUCO_LAND);
+    }
+
+    public void setNeedTriggerAlterArucoLand(boolean needTrigger) {
+        setBoolean(NEED_TRIGGER_ALTER_ARUCO_LAND, needTrigger);
+    }
+
+    public boolean getNeedTriggerAlterArucoLand() {
+        return getBoolean(NEED_TRIGGER_ALTER_ARUCO_LAND);
     }
 
     public void setTriggerToAlternatePoint(boolean trigger) {

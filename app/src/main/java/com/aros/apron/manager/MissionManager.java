@@ -445,7 +445,8 @@ public class MissionManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect) {
             //每次航线开始时，重置是否需要识别二维码状态，避免刚起飞就识别二维码/并确保不是飞向备降点的航线
-            PreferenceUtils.getInstance().setNeedTriggerArucoLand(false);
+            PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+            PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
 
             IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
