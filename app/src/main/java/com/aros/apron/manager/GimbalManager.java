@@ -13,6 +13,7 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
@@ -38,7 +39,7 @@ public class GimbalManager extends BaseManager {
 
     public void initGimbalInfo(){
         KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
-                KeyConnection, 1), this, new CommonCallbacks.KeyListener<Boolean>() {
+                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
             @Override
             public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                 if (t1!=null){

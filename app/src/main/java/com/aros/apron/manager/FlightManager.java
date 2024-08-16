@@ -387,9 +387,9 @@ public class FlightManager extends BaseManager {
     //飞机飞回后是否发送开舱门(确保只发送一次)
     private boolean sendOpenCabinDoorMsg;
     //飞机是否在降落,处理云台归中逻辑(确保只发送一次)
-    private boolean aircraftIsLanding;
+    public boolean aircraftIsLanding;
     //(决定飞机触发最后landing的重要因素)是否触发最后一步Landing，如果触发过，确保landing时不再触发landing
-    private boolean isTriggerLanding = false;
+    public boolean isTriggerLanding = false;
 
     public boolean isSendDetect() {
         return isSendDetect;
@@ -457,7 +457,7 @@ public class FlightManager extends BaseManager {
 //        +"---missionState:"+missionState+"---isMissionExecuting:"+isMissionExecuting+"---sendCloseCabinDoorMsg:"+
 //                sendOpenCabinDoorMsg);
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启避障
-        if (isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
+        if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
             sendCloseCabinDoorMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(true);
@@ -466,7 +466,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final int FLYING_HEIGHT_THRESHOLD = 20; // 飞行高度阈值
+    private static final int FLYING_HEIGHT_THRESHOLD = 15; // 飞行高度阈值
     private static final int DISTANCE_THRESHOLD = 100; // 返航距离阈值
 
     private void openCabinDoor() {
@@ -478,7 +478,8 @@ public class FlightManager extends BaseManager {
         boolean isDistanceAndHeightValid = distance < DISTANCE_THRESHOLD &&
                 flyingHeight > FLYING_HEIGHT_THRESHOLD && !sendOpenCabinDoorMsg;
 
-        if (isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
+        if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&
+                isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
             sendOpenCabinDoorMsg2Server(mqttAndroidClient);
@@ -520,6 +521,7 @@ public class FlightManager extends BaseManager {
 
 
     private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = AMSConfig.getInstance().getDescentAltitude() - 0.1;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 3.0;
 
@@ -528,8 +530,9 @@ public class FlightManager extends BaseManager {
         boolean triggerToAlternatePoint = PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         boolean needTriggerApronArucoLand = PreferenceUtils.getInstance().getNeedTriggerApronArucoLand();
         boolean needTriggerAlterArucoLand = PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand();
+        double thresholdMax = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MAX;
 
-        if (isFlying && Movement.getInstance().getFlyingHeight() < FLYING_HEIGHT_THRESHOLD_MAX && !isSendDetect) {
+        if (isFlying && Movement.getInstance().getFlyingHeight() < thresholdMax && !isSendDetect) {
             double flyingHeight = Movement.getInstance().getFlyingHeight();
             double thresholdMin = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MIN;
 
@@ -562,11 +565,13 @@ public class FlightManager extends BaseManager {
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
+            PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
             sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始识别机库二维码");
         }
         isSendDetect = true;
+        PerceptionManager.getInstance().setPerceptionEnable(false);
 
     }
 
@@ -579,11 +584,9 @@ public class FlightManager extends BaseManager {
 
     // 检查是否满足降落条件，并触发相应的降落逻辑
     public void checkLandingConditions() {
-
-
         //到达备降点触发了直接降落高度或备降点未识别到二维码
-        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() && AlternateArucoDetect.getInstance().isCanLanding()) {
-            stopApronArucoDetectAndLanding(3);
+        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() && shouldStopVisionAndLanding()) {
+            stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
             // 获取配置中的降落高度阈值
@@ -592,16 +595,16 @@ public class FlightManager extends BaseManager {
             // 检查融合高度和相对高度是否满足降落条件
             if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
                     Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2 && shouldStopVisionAndLanding()) {
-                stopApronArucoDetectAndLanding(1);
+                stopArucoDetectAndLanding(1);
             } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4 && shouldStopVisionAndLanding()) {
-                stopApronArucoDetectAndLanding(2);
+                stopArucoDetectAndLanding(2);
             }
         }
 
 
     }
 
-    public void stopApronArucoDetectAndLanding(int i) {
+    public void stopArucoDetectAndLanding(int i) {
         logLandingHeight(i);
         DroneHelper.getInstance().exitVirtualStickMode();
         EventBus.getDefault().post(FLAG_DOWN_LAND);
@@ -614,7 +617,13 @@ public class FlightManager extends BaseManager {
     }
 
     private boolean shouldStopVisionAndLanding() {
-        return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
+        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
+            return !isTriggerLanding && isFlying && isMotorsOn && AlternateArucoDetect.getInstance().isCanLanding();
+
+        }else{
+            return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
+
+        }
     }
 
     private void logLandingHeight(int i) {
@@ -640,20 +649,22 @@ public class FlightManager extends BaseManager {
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
             ApronArucoDetect.getInstance().setCanLanding(false);
+
+            // 发布事件，通知其他组件停止Aruco检测
+            EventBus.getDefault().post(FLAG_STOP_ARUCO);
+            if (!isDebugMode) {
+                if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
+                    // 发送无人机入库消息到服务器
+                    sendDroneStorageMsg2Server(mqttAndroidClient, 1);
+                    sendMissionExecuteEvents(mqttAndroidClient, "降落完成:执行入库");
+                }
+                // 上传媒体文件
+                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
+            }
             // 避免在下次起飞时触发视觉识别
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-            // 发布事件，通知其他组件停止Aruco检测
-            EventBus.getDefault().post(FLAG_STOP_ARUCO);
-            if (!isDebugMode) {
-                // 发送无人机入库消息到服务器
-                sendDroneStorageMsg2Server(mqttAndroidClient, 1);
-                sendMissionExecuteEvents(mqttAndroidClient, "降落完成:执行入库");
-                // 上传媒体文件
-                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
-
-            }
 
         }
     }

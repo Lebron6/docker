@@ -365,17 +365,17 @@ public class MissionManager extends BaseManager {
         if (isConnect != null && isConnect) {
             LogUtil.log(TAG, "航线开始上传:" + WaypointMissionExecuteState.find(missionStateCode).name());
             IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
-            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
-            if (value != null && value.size() > 0) {
-                if (message.getIsGuidingFlight() == 0) {
-                    SystemManager.getInstance().setMediaFilePushOver(true);
-                    sendDroneStorageMsg2Server(client, -1);
-                }
-                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
-                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
-                return;
-            }
+//            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
+//            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
+//            if (value != null && value.size() > 0) {
+//                if (message.getIsGuidingFlight() == 0) {
+//                    SystemManager.getInstance().setMediaFilePushOver(true);
+//                    sendDroneStorageMsg2Server(client, -1);
+//                }
+//                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
+//                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
+//                return;
+//            }
             missionManager.pushKMZFileToAircraft(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
                 @Override
                 public void onProgressUpdate(Double progress) {

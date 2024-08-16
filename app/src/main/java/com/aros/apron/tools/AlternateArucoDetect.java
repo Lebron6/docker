@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.manager.FlightManager;
 
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.Dictionary;
@@ -73,8 +74,8 @@ public class AlternateArucoDetect {
                         int[] idArray = ids.toArray();
                         if (mFindArucoList.isEmpty()) {
                             for (int i = 0; i < idArray.length; i++) {
-                                if (idArray[i] == 7) {
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.8f));
+                                if (idArray[i] == 20) {
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.6f));
                                     break;
                                 }
                             }
@@ -87,9 +88,9 @@ public class AlternateArucoDetect {
                         }
                         endTime = System.currentTimeMillis();
                         //识别不到二维码的时间,如果大于5s,直接降落
-                        if (endTime - startTime > 8000) {
-                            LogUtil.log(TAG,"未识别到备降点二维码:直接降落");
+                        if (endTime - startTime > 5000) {
                             canLanding=true;
+//                            FlightManager.getInstance().stopArucoDetectAndLanding(3);
                         }
                     }
                     grayImgMat.release();
@@ -123,7 +124,7 @@ public class AlternateArucoDetect {
         double outZ;
 
         if ((arucoMarkers.size() == 1) &&
-                arucoMarkers.get(0).getId() == 7
+                arucoMarkers.get(0).getId() == 20&&Movement.getInstance().getFlyingHeight()>8
         ) {
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
@@ -189,17 +190,17 @@ public class AlternateArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-            outX = imageVector.val[0] < 0 ? -(Math.abs(imageVector.val[0] / 1025))
+            outX = imageVector.val[0] < 0 ? -(Math.abs(imageVector.val[0] / 775))
                     : Math.abs(imageVector.val[0] / 1025);
-            outY = imageVector.val[1] < 0 ? (Math.abs(imageVector.val[1] / 1025))
+            outY = imageVector.val[1] < 0 ? (Math.abs(imageVector.val[1] / 775))
                     : -(Math.abs(imageVector.val[1] / 1025));
-            outZ = 0.3;
+            outZ = -0.3;
         }
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);
 
-        if (Movement.getInstance().getFlyingHeight()<=3) {
+        if (Movement.getInstance().getFlyingHeight()<=2) {
             canLanding = true;
         } else {
             canLanding = false;

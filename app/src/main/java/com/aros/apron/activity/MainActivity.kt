@@ -38,10 +38,15 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.ToastUtil
 import com.google.gson.Gson
+import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
+import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType
+import dji.sdk.keyvalue.value.camera.ThermalDisplayMode
+import dji.sdk.keyvalue.value.camera.ThermalPIPPosition
+import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.sdk.keyvalue.value.payload.WidgetType
@@ -107,10 +112,64 @@ class MainActivity : BaseActivity() {
 
         mainBinding?.startAlter?.setOnClickListener {
             AlternateLandingManager.getInstance().startTaskProcess(null)
+//            KeyManager.getInstance().setValue<CameraVideoStreamSourceType>(
+//                DJIKey.create<CameraVideoStreamSourceType>(CameraKey.KeyCameraVideoStreamSource),
+//                CameraVideoStreamSourceType.INFRARED_CAMERA,
+//                object : CompletionCallback {
+//                    override fun onSuccess() {
+//                    }
+//
+//                    override fun onFailure(error: IDJIError) {
+//
+//                    }
+//                })
+//            KeyManager.getInstance()
+//                .setValue<ThermalDisplayMode>(KeyTools.createCameraKey<ThermalDisplayMode>(
+//                    CameraKey.KeyThermalDisplayMode,
+//                    ComponentIndexType.LEFT_OR_MAIN,
+//                    CameraLensType.CAMERA_LENS_THERMAL
+//                ),
+//                    ThermalDisplayMode.THERMAL_ONLY, object : CompletionCallback {
+//                        override fun onSuccess() {
+////                                    setThermalPIPPosition(mqttAndroidClient, message);
+//                        }
+//
+//                        override fun onFailure(error: IDJIError) {
+//
+//                        }
+//                    })
+
         }
 
         mainBinding?.startMission?.setOnClickListener {
-
+//            KeyManager.getInstance()
+//                .setValue<ThermalDisplayMode>(KeyTools.createCameraKey<ThermalDisplayMode>(
+//                    CameraKey.KeyThermalDisplayMode,
+//                    ComponentIndexType.LEFT_OR_MAIN,
+//                    CameraLensType.CAMERA_LENS_THERMAL
+//                ),
+//                    ThermalDisplayMode.PIP, object : CompletionCallback {
+//                        override fun onSuccess() {
+//                            KeyManager.getInstance()
+//                                .setValue<ThermalPIPPosition>(KeyTools.createCameraKey<ThermalPIPPosition>(
+//                                    CameraKey.KeyThermalPIPPosition,
+//                                    ComponentIndexType.LEFT_OR_MAIN,
+//                                    CameraLensType.CAMERA_LENS_THERMAL
+//                                ),
+//                                    ThermalPIPPosition.SIDE_BY_SIDE,
+//                                    object : CompletionCallback {
+//                                        override fun onSuccess() {
+//                                        }
+//
+//                                        override fun onFailure(error: IDJIError) {
+//
+//                                        }
+//                                    })                        }
+//
+//                        override fun onFailure(error: IDJIError) {
+//
+//                        }
+//                    })
             val message=MQMessage ()
            message.secret_key="admin123"
            message.kmz_url="http://162.14.115.91:9000/test/kmz/测试1·.kmz"
@@ -137,6 +196,7 @@ class MainActivity : BaseActivity() {
             } else {
                 LogUtil.log(TAG, "返航模式,无法上传航线")
             }
+
         }
 
         mainBinding?.btnLock?.setOnClickListener {
@@ -328,6 +388,8 @@ class MainActivity : BaseActivity() {
                             startArucoType = 1
                             ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
+                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+                            DroneHelper.getInstance().isVirtualStickEnable=false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
 
@@ -339,6 +401,8 @@ class MainActivity : BaseActivity() {
                             LogUtil.log(TAG, "取消降落,识别机库二维码失败:" + Gson().toJson(error))
                             ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
+                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+                            DroneHelper.getInstance().isVirtualStickEnable=false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
                     })
@@ -354,6 +418,8 @@ class MainActivity : BaseActivity() {
                             }
                             startArucoType = 2
                             DroneHelper.getInstance().setGimbalPitchDegree()
+                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+                            DroneHelper.getInstance().isVirtualStickEnable=false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
 
@@ -367,6 +433,8 @@ class MainActivity : BaseActivity() {
                                 "取消降落,识别备降点二维码失败:" + Gson().toJson(error)
                             )
                             DroneHelper.getInstance().setGimbalPitchDegree()
+                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+                            DroneHelper.getInstance().isVirtualStickEnable=false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
                     })
@@ -384,7 +452,6 @@ class MainActivity : BaseActivity() {
                     })
 
             FLAG_STOP_ARUCO ->
-
                 startArucoType = 0
 
         }

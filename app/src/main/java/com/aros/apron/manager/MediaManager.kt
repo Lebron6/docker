@@ -206,6 +206,7 @@ object MediaManager : BaseManager() {
             downLoadMediaFileIndex++
             if (downLoadMediaFileIndex == mediaFiles?.size) {
                 //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
+                downLoadMediaFileIndex=0
                 removeAllFiles(mqttAndroidClient)
             } else {
                 LogUtil.log(TAG, "跳过一段视频文件下载:${mediaFile.fileName}")
@@ -283,8 +284,7 @@ object MediaManager : BaseManager() {
                         } "
                     )
                     sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片${mediaFile.fileName} 下载失败")
-
-
+                    downLoadMediaFileIndex=0
                     SystemManager.getInstance().isMediaFilePushOver = true
 //                    if (SystemManager.getInstance().isMediaFilePushOver) {
                     if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
@@ -353,6 +353,7 @@ object MediaManager : BaseManager() {
                     downLoadMediaFileIndex++
                     if (downLoadMediaFileIndex == mediaFiles?.size) {
                         //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
+                        downLoadMediaFileIndex=0
                         removeAllFiles(mqttAndroidClient)
                     } else {
                         pullOriginalMediaFileFromCamera(mqttAndroidClient)
@@ -368,7 +369,6 @@ object MediaManager : BaseManager() {
 
                     downLoadMediaFileIndex++
                     if (downLoadMediaFileIndex == mediaFiles?.size) {
-                        downLoadMediaFileIndex == 0
                         //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
                         removeAllFiles(mqttAndroidClient)
                         downLoadMediaFileIndex == 0

@@ -64,6 +64,14 @@ public class DroneHelper {
     private int enableVirtualStickTimes;
     private boolean virtualStickEnable;
 
+    public boolean isVirtualStickEnable() {
+        return virtualStickEnable;
+    }
+
+    public void setVirtualStickEnable(boolean virtualStickEnable) {
+        this.virtualStickEnable = virtualStickEnable;
+    }
+
     public void setVerticalModeToVelocity() {
 
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));

@@ -195,7 +195,6 @@ public class StreamManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "自定义推流启动失败:" + error.description() + "---");
-
                         }
                     });
 

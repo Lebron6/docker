@@ -6,9 +6,7 @@ import android.text.TextUtils;
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.entity.MQMessage;
 
-/**
- * 具体实现sp Created by James on 2016/10/30.
- */
+
 public class PreferenceUtils extends BasePreference {
     private String TAG = "PreferenceUtils";
 
@@ -28,7 +26,7 @@ public class PreferenceUtils extends BasePreference {
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
     private String NEED_TRIGGER_APRON_ARUCO_LAND = "need_trigger_apron_aruco_land";//是否需要触发crash后继续降落到机库
-    private String NEED_TRIGGER_ALTER_ARUCO_LAND = "need_trigger_apron_aruco_land";//是否需要触发crash后继续降落到备降点
+    private String NEED_TRIGGER_ALTER_ARUCO_LAND = "need_trigger_alter_aruco_land";//是否需要触发crash后继续降落到备降点
     private String TRIGGER_TO_ALTERNATE_POINT = "trigger_to_alternate_point";//是否需要触发crash后继续降落
 
     //AMS配置清单

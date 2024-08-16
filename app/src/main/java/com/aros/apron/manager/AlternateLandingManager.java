@@ -76,6 +76,9 @@ public class AlternateLandingManager extends BaseManager {
                     LogUtil.log(TAG, "监听到挡位切换:" + t1.name());
                     if (t1 != RemoteControllerFlightMode.P && t1 != RemoteControllerFlightMode.F) {
                         isRemoteControllerFlightModeChange = true;
+                        PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+                        PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+                        PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                     }
                 }
             }
@@ -386,6 +389,9 @@ if (message!=null){
                             @Override
                             public void onSuccess() {
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(true);
+                                PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+                                PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+
                                 LogUtil.log(TAG, "开始飞往备降点");
                                 sendMissionExecuteEvents(mqttClient, "开始飞往备降点");
                                 //设置为未开始识别二维码状态

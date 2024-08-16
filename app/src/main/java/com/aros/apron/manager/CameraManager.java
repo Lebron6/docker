@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -79,7 +81,6 @@ public class CameraManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setIsRecording(newValue ? 1 : 0);
-
                     }
                 }
             });
@@ -128,11 +129,12 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
-            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyThermalDisplayMode, 0), this, new CommonCallbacks.KeyListener<ThermalDisplayMode>() {
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalDisplayMode>() {
                 @Override
                 public void onValueChange(@Nullable ThermalDisplayMode thermalDisplayMode, @Nullable ThermalDisplayMode t1) {
                     if (t1 != null) {
+                        LogUtil.log(TAG,"监听红外模式:"+t1.name());
                         Movement.getInstance().setThermalDisplayMode(t1.value());
                     }
                 }
@@ -159,7 +161,6 @@ public class CameraManager extends BaseManager {
                         Movement.getInstance().setThermalContinuous(zoomRatiosRange.isContinuous());
                         Movement.getInstance().setThermalGears(zoomRatiosRange.getGears());
                     }
-
                 }
 
                 @Override
@@ -167,7 +168,6 @@ public class CameraManager extends BaseManager {
 
                 }
             });
-
         }
     }
 
