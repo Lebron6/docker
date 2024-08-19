@@ -9,6 +9,8 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
+import com.aros.apron.BuildConfig
+import com.aros.apron.app.ApronApp
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
@@ -38,15 +40,10 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.ToastUtil
 import com.google.gson.Gson
-import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
-import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType
-import dji.sdk.keyvalue.value.camera.ThermalDisplayMode
-import dji.sdk.keyvalue.value.camera.ThermalPIPPosition
-import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.sdk.keyvalue.value.payload.WidgetType
@@ -365,8 +362,9 @@ class MainActivity : BaseActivity() {
             if (status == SUCCESS) {
                 LogUtil.log(
                     TAG,
-                    "OpenCV loaded successfully----------------------------------------------"
+                    "OpenCV loaded successfully"
                 )
+                LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
             } else {
                 super.onManagerConnected(status)
             }

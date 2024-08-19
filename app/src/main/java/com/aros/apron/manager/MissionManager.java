@@ -180,17 +180,8 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "航线中断:" + productType.name() + "---" + new Gson().toJson(error));
                     if (isManualPause || error.errorCode().equals("USER_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
                         isManualPause = false;
-                        LogUtil.log(TAG, "手动暂停航线");
                     } else {
-                        if (productType.name().equals("DJI_MAVIC_3_ENTERPRISE_SERIES")) {
                             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
-                        } else if (productType.name().equals("M300_RTK") || productType.name().equals("M350_RTK")) {
-//                        if (!error.errorCode().equals("REQUEST_HANDLER_NOT_FOUND")) {
-                            WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
-//                        }
-                        } else {
-                            LogUtil.log(TAG, "其他机型任务中断，暂不考虑");
-                        }
                     }
                 }
                 sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
