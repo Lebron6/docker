@@ -75,6 +75,27 @@ public class MissionManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect) {
             missionManager = WaypointMissionManager.getInstance();
+            missionManager.addWaypointActionListener(new WaypointActionListener() {
+                @Override
+                public void onExecutionStart(int actionId) {
+CameraManager.getInstance().setCustomExpandNameSetting();
+                }
+
+                @Override
+                public void onExecutionFinish(int actionId, @Nullable IDJIError error) {
+
+                }
+
+                @Override
+                public void onExecutionStart(int actionGroup, int actionId) {
+
+                }
+
+                @Override
+                public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
+
+                }
+            });
             missionManager.addWaylineExecutingInfoListener(waylineExecutingInfoListener);
             missionManager.addWaypointMissionExecuteStateListener(new WaypointMissionExecuteStateListener() {
                 @Override

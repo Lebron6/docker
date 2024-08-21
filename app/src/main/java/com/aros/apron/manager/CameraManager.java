@@ -1,7 +1,5 @@
 package com.aros.apron.manager;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -9,6 +7,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -21,15 +20,17 @@ import dji.sdk.keyvalue.value.camera.CameraExposureMode;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
 import dji.sdk.keyvalue.value.camera.CameraMode;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
+import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
-
 import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
 import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
+import dji.sdk.keyvalue.value.common.EnCodingType;
+import dji.sdk.keyvalue.value.common.RelativePosition;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -263,6 +264,7 @@ public class CameraManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
+            CameraManager.getInstance().setCustomExpandNameSetting();
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
@@ -306,6 +308,7 @@ public class CameraManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
+            CameraManager.getInstance().setCustomExpandNameSetting();
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
@@ -657,7 +660,33 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         } else {
             LogUtil.log(TAG, "降落切换广角失败：相机未连接");
         }
+    }
 
+    //设置自定义文件后缀
+    public void setCustomExpandNameSetting() {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            CustomExpandNameSettings customExpandNameSettings = new CustomExpandNameSettings();
+            customExpandNameSettings.setEncodingType(EnCodingType.UTF8);
+            customExpandNameSettings.setForceCreateFolder(false);
+            customExpandNameSettings.setRelativePosition(RelativePosition.POSITION_END);
+            customExpandNameSettings.setPriority(0);
+            customExpandNameSettings.setCustomContent("flight" + PreferenceUtils.getInstance().getFlightId());
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCustomExpandFileNameSettings), customExpandNameSettings, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "设置文件后缀success");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "设置自定义文件后缀失败：" + new Gson().toJson(idjiError));
+                }
+            });
+        } else {
+            LogUtil.log(TAG, "设置自定义文件后缀失败：相机未连接");
+        }
     }
 
     //切换为广角镜头，恢复曝光

@@ -369,27 +369,27 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-
-
         } else {
             Log.e(TAG, "初始化飞控失败" + "flight controller is null");
         }
     }
 
     //标识是否降落后触发关舱门
-    private boolean triggerLandOrGoHome = false;
+    private boolean triggerLandOrGoHome;
     //标识飞机是否执行完任务处于landing或gohome，避免刚飞出去就执行精准降落
     private int goHomeExecutionState;
     //确保每次流程只发送触发降落一次，降落完成后设置为false，而不是最后开始landing时触发，如果不再landing时设置为false，那么在landing的途中，也可能再次触发landing
-    private boolean isSendDetect = false;
+    private boolean isSendDetect;
     //飞机飞走后是否发送关舱门(确保只发送一次)
     private boolean sendCloseCabinDoorMsg;
     //飞机飞回后是否发送开舱门(确保只发送一次)
     private boolean sendOpenCabinDoorMsg;
-    //飞机是否在降落,处理云台归中逻辑(确保只发送一次)
-    public boolean aircraftIsLanding;
+    //飞机是否在返航,处理云台归中逻辑(确保只发送一次)
+    public boolean isGimbalReset;
+    //飞机是否在降落,处理云台朝下逻辑(确保只发送一次)
+    public boolean isGimbalDownwards;
     //(决定飞机触发最后landing的重要因素)是否触发最后一步Landing，如果触发过，确保landing时不再触发landing
-    public boolean isTriggerLanding = false;
+    public boolean isTriggerLanding;
 
     public boolean isSendDetect() {
         return isSendDetect;
@@ -405,7 +405,9 @@ public class FlightManager extends BaseManager {
         closeCabinDoor();
         //开舱门
         openCabinDoor();
-        //降落时将云台归中,曝光ISO降低
+        //降落时将云台朝下
+        gimbalDownwards();
+        //返航时将云台归中,曝光ISO降低
         gimbalAndCameraReset();
         //开始视觉识别降落
         checkAndStartVisionLanding();
@@ -487,19 +489,30 @@ public class FlightManager extends BaseManager {
         }
     }
 
+    //降落时将云台朝下
+    private void gimbalDownwards(){
+        if (goHomeExecutionState == GoHomeState.LANDING.value()
+                && Movement.getInstance().getFlyingHeight() > 15
+                && !isGimbalDownwards){
+            DroneHelper.getInstance().setGimbalPitchDegree();
+            isGimbalDownwards=true;
+        }
+    }
+
     // 提取条件判断到一个单独的方法中
     private boolean shouldResetGimbalAndCamera() {
         return goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value()
                 && Movement.getInstance().getFlyingHeight() > 20
-                && !aircraftIsLanding;
+                && !isGimbalReset;
     }
+
 
     private void gimbalAndCameraReset() {
         if (shouldResetGimbalAndCamera()) {
             GimbalManager.getInstance().gimbalReset();
             CameraManager.getInstance().resumeLensToWideISOManual();
-            aircraftIsLanding = true;
-            sendMissionExecuteEvents(mqttAndroidClient, "降落中:锁定镜头");
+            isGimbalReset = true;
+            sendMissionExecuteEvents(mqttAndroidClient, "降落重置云台");
 
         }
     }
@@ -610,7 +623,7 @@ public class FlightManager extends BaseManager {
         PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
         PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
         PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-        aircraftIsLanding = false;
+        isGimbalReset = false;
         isTriggerLanding = true;
 
     }
