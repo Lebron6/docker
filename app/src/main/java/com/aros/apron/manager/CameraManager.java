@@ -672,7 +672,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             customExpandNameSettings.setForceCreateFolder(false);
             customExpandNameSettings.setRelativePosition(RelativePosition.POSITION_END);
             customExpandNameSettings.setPriority(0);
-            customExpandNameSettings.setCustomContent("flight" + PreferenceUtils.getInstance().getFlightId());
+            customExpandNameSettings.setCustomContent("flightId" + PreferenceUtils.getInstance().getFlightId());
             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCustomExpandFileNameSettings), customExpandNameSettings, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
