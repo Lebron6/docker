@@ -204,7 +204,7 @@ public abstract class BaseManager {
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "关舱发送成功：60107");
-                sendMissionExecuteEvents(client,"AMS通知机库执行关闭舱门");
+                sendMissionExecuteEvents(client,"AMS通知机库关闭舱门");
 
             } else {
                 LogUtil.log(TAG, "关闭舱门发送失败：mqtt 未连接");
@@ -230,7 +230,7 @@ public abstract class BaseManager {
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "开舱发送成功：60108"+"--"+sendOpenCabinDoorSuccessTimes);
-                sendMissionExecuteEvents(client,"AMS通知机库执行打开舱门");
+                sendMissionExecuteEvents(client,"AMS通知机库打开舱门");
 
                 isSendOpenCabinDoorSuccess = true;
                 sendOpenCabinDoorSuccessTimes = 0;

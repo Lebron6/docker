@@ -130,8 +130,7 @@ object MediaManager : BaseManager() {
         MediaDataCenter.getInstance().mediaManager.disable(object : CompletionCallback {
             override fun onSuccess() {
                 LogUtil.log(TAG, "退出媒体模式成功")
-                sendMissionExecuteEvents(mqttClient,"退出媒体模式成功")
-
+                sendMissionExecuteEvents(mqttClient,"退出媒体模式")
                 SystemManager.getInstance().isMediaFilePushOver = true
 //                if (SystemManager.getInstance().isMediaFilePushOver) {
                 if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
@@ -142,7 +141,7 @@ object MediaManager : BaseManager() {
             }
 
             override fun onFailure(idjiError: IDJIError) {
-                sendMissionExecuteEvents(mqttClient,"退出媒体模式失败:${idjiError.description()}")
+                sendMissionExecuteEvents(mqttClient,"退出媒体模式失败")
                 LogUtil.log(TAG, "退出媒体模式失败:${idjiError.description()}")
                 SystemManager.getInstance().isMediaFilePushOver = true
 //                if (SystemManager.getInstance().isMediaFilePushOver) {
@@ -185,7 +184,7 @@ object MediaManager : BaseManager() {
 
                 override fun onFailure(idjiError: IDJIError) {
                     LogUtil.log(TAG, "拉取媒体文件失败:" + Gson().toJson(idjiError))
-                    sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败:" + Gson().toJson(idjiError))
+                    sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败")
                     disablePlayback(mqttAndroidClient)
                 }
             })
@@ -194,6 +193,7 @@ object MediaManager : BaseManager() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun pullOriginalMediaFileFromCamera(mqttAndroidClient: MqttAndroidClient) {
+
 
         val mediaFile = mediaFiles!![downLoadMediaFileIndex]
         if ((!PreferenceUtils.getInstance().needUpLoadVideo && mediaFile.fileType == MediaFileType.MP4)
@@ -209,7 +209,7 @@ object MediaManager : BaseManager() {
                 downLoadMediaFileIndex=0
                 removeAllFiles(mqttAndroidClient)
             } else {
-                LogUtil.log(TAG, "跳过一段视频文件下载:${mediaFile.fileName}")
+                LogUtil.log(TAG, "跳过一段文件下载:${mediaFile.fileName}")
 
                 pullOriginalMediaFileFromCamera(mqttAndroidClient)
             }
@@ -240,7 +240,7 @@ object MediaManager : BaseManager() {
                     val tmpProgress = (1.0 * current / total * 100).toInt()
                     Log.e(
                         TAG,
-                        "第" + downLoadMediaFileIndex + "张图片:" + mediaFile.fileName + "下载进度:" + tmpProgress
+                        "第" + downLoadMediaFileIndex + "张文件:" + mediaFile.fileName + "下载进度:" + tmpProgress
                     )
                 }
 
@@ -283,7 +283,7 @@ object MediaManager : BaseManager() {
                             )
                         } "
                     )
-                    sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片${mediaFile.fileName} 下载失败")
+                    sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片下载失败")
                     downLoadMediaFileIndex=0
                     SystemManager.getInstance().isMediaFilePushOver = true
 //                    if (SystemManager.getInstance().isMediaFilePushOver) {
@@ -365,18 +365,17 @@ object MediaManager : BaseManager() {
                     //每上传一张就清除缓存
                     FileUtil.deleteFile(file)
                     LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传成功")
-                    sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片${mediaFile.fileName} 已上传")
+                    sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片已上传")
 
                     downLoadMediaFileIndex++
                     if (downLoadMediaFileIndex == mediaFiles?.size) {
                         //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
+                        sendMissionExecuteEvents(mqttClient,"媒体文件上传完成")
                         removeAllFiles(mqttAndroidClient)
                         downLoadMediaFileIndex == 0
-                        sendMissionExecuteEvents(mqttClient,"媒体文件上传完成")
                     } else {
                         pullOriginalMediaFileFromCamera(mqttAndroidClient)
                     }
-
                 }
             })
     }
@@ -423,6 +422,7 @@ object MediaManager : BaseManager() {
                 CommonCallbacks.CompletionCallback {
                 override fun onSuccess() {
                     sendMsg2Server(client, message)
+                    sendMissionExecuteEvents(client,"设置文件XMP:${message.xmpInfo}")
                 }
 
                 override fun onFailure(error: IDJIError) {

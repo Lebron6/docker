@@ -200,7 +200,7 @@ public class AlternateLandingManager extends BaseManager {
     public void toAlternatePoint(MQMessage message) {
         if (Movement.getInstance().getFlyingHeight() < 10) {
             LogUtil.log(TAG, "toAlternatePoint:" + "高度低于10米,拉高");
-            sendMissionExecuteEvents(mqttClient, "拉高...");
+            sendMissionExecuteEvents(mqttClient, "拉高去备降点...");
             raisesDrone(message);
         } else {
             sendMissionExecuteEvents(mqttClient, "开始创建备降任务");
@@ -361,9 +361,9 @@ if (message!=null){
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz");
         } catch (IOException e) {
             LogUtil.log(TAG, "备降航线压缩异常：" + e.toString());
-            sendMissionExecuteEvents(mqttClient, "备降航线压缩异常：" + e.toString());
+            sendMissionExecuteEvents(mqttClient, "备降任务生成异常");
             if (message!=null){
-                sendMsg2Server(mqttClient,message,"备降航线压缩异常");
+                sendMsg2Server(mqttClient,message,"备降任务生成异常");
             }
             throw new RuntimeException(e);
         }
@@ -373,7 +373,7 @@ if (message!=null){
             @Override
             public void onProgressUpdate(Double aDouble) {
                 LogUtil.log(TAG, "备降点航线上传进度:" + aDouble + "%");
-                sendMissionExecuteEvents(mqttClient, "备降点航线上传进度:" + aDouble + "%");
+                sendMissionExecuteEvents(mqttClient, "备降任务上传中:" + aDouble + "%");
 
             }
 
@@ -407,9 +407,9 @@ if (message!=null){
                             public void onFailure(@NonNull IDJIError idjiError) {
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                                 LogUtil.log(TAG, "飞往备降点失败:" + new Gson().toJson(idjiError));
-                                sendMissionExecuteEvents(mqttClient, "飞往备降点失败:" + new Gson().toJson(idjiError));
+                                sendMissionExecuteEvents(mqttClient, "飞往备降点失败");
                                 if (message!=null){
-                                    sendMsg2Server(mqttClient,message,"飞往备降点失败:" + new Gson().toJson(idjiError));
+                                    sendMsg2Server(mqttClient,message,"飞往备降点失败");
                                 }
                             }
                         });
@@ -421,7 +421,7 @@ if (message!=null){
             public void onFailure(@NonNull IDJIError idjiError) {
                 LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(idjiError));
                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-                sendMissionExecuteEvents(mqttClient, "备降航线上传失败:" + new Gson().toJson(idjiError));
+                sendMissionExecuteEvents(mqttClient, "备降航线上传失败");
                 if (message!=null){
                     sendMsg2Server(mqttClient,message,"备降航线上传失败:" + new Gson().toJson(idjiError));
                 }

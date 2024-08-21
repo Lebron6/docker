@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -15,7 +16,6 @@ import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -25,18 +25,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.value.product.ProductType;
-import dji.sdk.wpmz.value.mission.WaylineCheckError;
-import dji.sdk.wpmz.value.mission.WaylineCheckErrorMsg;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.waypoint3.WaylineExecutingInfoListener;
+import dji.v5.manager.aircraft.waypoint3.WaypointActionListener;
 import dji.v5.manager.aircraft.waypoint3.WaypointMissionExecuteStateListener;
 import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import dji.v5.manager.aircraft.waypoint3.model.WaylineExecutingInfo;
@@ -182,9 +180,10 @@ public class MissionManager extends BaseManager {
                         isManualPause = false;
                     } else {
                             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
+                        sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
+
                     }
                 }
-                sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
             }
         }
     };
@@ -294,7 +293,7 @@ public class MissionManager extends BaseManager {
                             });
                             checkMissionStateTimes = 0;
                         } catch (Exception e) {
-                            sendMissionExecuteEvents(client, "任务下载,网络异常:"+e.toString());
+                            sendMissionExecuteEvents(client, "任务下载,网络异常");
                             LogUtil.log(TAG, "航线下载异常:" + e.toString());
                             if (message.getIsGuidingFlight() == 0) {
 //                                    com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);

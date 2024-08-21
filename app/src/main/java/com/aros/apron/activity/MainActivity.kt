@@ -10,7 +10,6 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import com.aros.apron.BuildConfig
-import com.aros.apron.app.ApronApp
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
@@ -40,10 +39,12 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.ToastUtil
 import com.google.gson.Gson
+import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
+import dji.sdk.keyvalue.value.camera.CameraMode
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.sdk.keyvalue.value.payload.WidgetType
@@ -56,6 +57,7 @@ import dji.v5.manager.aircraft.payload.PayloadCenter
 import dji.v5.manager.aircraft.payload.PayloadIndexType
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
+import okio.Utf8
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -63,6 +65,7 @@ import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.aruco.Aruco
 import org.opencv.aruco.Dictionary
+import java.nio.charset.StandardCharsets
 
 
 class MainActivity : BaseActivity() {
@@ -109,64 +112,47 @@ class MainActivity : BaseActivity() {
 
         mainBinding?.startAlter?.setOnClickListener {
             AlternateLandingManager.getInstance().startTaskProcess(null)
-//            KeyManager.getInstance().setValue<CameraVideoStreamSourceType>(
-//                DJIKey.create<CameraVideoStreamSourceType>(CameraKey.KeyCameraVideoStreamSource),
-//                CameraVideoStreamSourceType.INFRARED_CAMERA,
-//                object : CompletionCallback {
+//            MediaDataCenter.getInstance().mediaManager.setMediaFileXMPCustomInfo(
+//                "wangmingge",
+//                object :
+//                    CommonCallbacks.CompletionCallback {
 //                    override fun onSuccess() {
+//                        Log.e("写入成功","----")
 //                    }
 //
 //                    override fun onFailure(error: IDJIError) {
-//
+//                        Log.e("写入失败", Gson().toJson(error))
 //                    }
 //                })
-//            KeyManager.getInstance()
-//                .setValue<ThermalDisplayMode>(KeyTools.createCameraKey<ThermalDisplayMode>(
-//                    CameraKey.KeyThermalDisplayMode,
-//                    ComponentIndexType.LEFT_OR_MAIN,
-//                    CameraLensType.CAMERA_LENS_THERMAL
-//                ),
-//                    ThermalDisplayMode.THERMAL_ONLY, object : CompletionCallback {
-//                        override fun onSuccess() {
-////                                    setThermalPIPPosition(mqttAndroidClient, message);
-//                        }
-//
-//                        override fun onFailure(error: IDJIError) {
-//
-//                        }
-//                    })
 
         }
 
         mainBinding?.startMission?.setOnClickListener {
-//            KeyManager.getInstance()
-//                .setValue<ThermalDisplayMode>(KeyTools.createCameraKey<ThermalDisplayMode>(
-//                    CameraKey.KeyThermalDisplayMode,
-//                    ComponentIndexType.LEFT_OR_MAIN,
-//                    CameraLensType.CAMERA_LENS_THERMAL
-//                ),
-//                    ThermalDisplayMode.PIP, object : CompletionCallback {
-//                        override fun onSuccess() {
-//                            KeyManager.getInstance()
-//                                .setValue<ThermalPIPPosition>(KeyTools.createCameraKey<ThermalPIPPosition>(
-//                                    CameraKey.KeyThermalPIPPosition,
-//                                    ComponentIndexType.LEFT_OR_MAIN,
-//                                    CameraLensType.CAMERA_LENS_THERMAL
-//                                ),
-//                                    ThermalPIPPosition.SIDE_BY_SIDE,
-//                                    object : CompletionCallback {
-//                                        override fun onSuccess() {
-//                                        }
+//            KeyManager.getInstance().setValue<CameraMode>(
+//                DJIKey.create<CameraMode>(CameraKey.KeyCameraMode),
+//                CameraMode.PHOTO_NORMAL,
+//                object : CompletionCallback {
+//                    override fun onSuccess() {
+//                        Log.e("切换模式", "success")
+//                        KeyManager.getInstance().performAction<EmptyMsg>(
+//                            DJIKey.create<EmptyMsg, EmptyMsg>(CameraKey.KeyStartShootPhoto),
+//                            object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
+//                                override fun onSuccess(emptyMsg: EmptyMsg?) {
+//                                    Log.e("拍照成功",  "拍照成功:") }
+//                                override fun onFailure(error: IDJIError) {
+//                                    Log.e("拍照失败",  "拍照失败:" + Gson().toJson(error)) }
 //
-//                                        override fun onFailure(error: IDJIError) {
+//                            })
+//                    }
 //
-//                                        }
-//                                    })                        }
 //
-//                        override fun onFailure(error: IDJIError) {
+//                    override fun onFailure(error: IDJIError) {
+//                        Log.e("切换模式失败", Gson().toJson(error))
+//                    }
 //
-//                        }
-//                    })
+//
+//                })
+
             val message=MQMessage ()
            message.secret_key="admin123"
            message.kmz_url="http://162.14.115.91:9000/test/kmz/测试1·.kmz"

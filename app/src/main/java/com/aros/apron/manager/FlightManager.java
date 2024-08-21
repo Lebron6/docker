@@ -461,7 +461,6 @@ public class FlightManager extends BaseManager {
             sendCloseCabinDoorMsg = true;
             sendCloseCabinDoorMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(true);
-            sendMissionExecuteEvents(mqttAndroidClient, "起飞完成:关闭舱门");
         }
     }
 
@@ -484,7 +483,6 @@ public class FlightManager extends BaseManager {
             sendOpenCabinDoorMsg = true;
             sendOpenCabinDoorMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(false);
-            sendMissionExecuteEvents(mqttAndroidClient, "返航中:打开舱门");
 
         }
     }
@@ -508,7 +506,8 @@ public class FlightManager extends BaseManager {
 
     // 检查是否满足开始视觉识别降落的条件
     private void checkAndStartVisionLanding() {
-        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 || !Movement.getInstance().isRtkSign()) ;
+//        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 || !Movement.getInstance().isRtkSign()) ;
+        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 ) ;
 //                && !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         if (shouldStartVisionLanding) {
             startVisionLanding();
@@ -561,14 +560,14 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始识别备降点二维码");
+            sendMissionExecuteEvents(mqttAndroidClient, "开始备降点视觉降落");
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "降落中:开始识别机库二维码");
+            sendMissionExecuteEvents(mqttAndroidClient, "开始机库视觉降落");
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
