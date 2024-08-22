@@ -13,7 +13,6 @@ import com.aros.apron.BuildConfig
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
-import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -44,9 +43,11 @@ import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
-import dji.sdk.keyvalue.value.camera.CameraMode
+import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
+import dji.sdk.keyvalue.value.common.EnCodingType
+import dji.sdk.keyvalue.value.common.RelativePosition
 import dji.sdk.keyvalue.value.payload.WidgetType
 import dji.sdk.keyvalue.value.payload.WidgetValue
 import dji.v5.common.callback.CommonCallbacks
@@ -57,7 +58,6 @@ import dji.v5.manager.aircraft.payload.PayloadCenter
 import dji.v5.manager.aircraft.payload.PayloadIndexType
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
-import okio.Utf8
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -65,7 +65,6 @@ import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.aruco.Aruco
 import org.opencv.aruco.Dictionary
-import java.nio.charset.StandardCharsets
 
 
 class MainActivity : BaseActivity() {
@@ -128,6 +127,35 @@ class MainActivity : BaseActivity() {
         }
 
         mainBinding?.startMission?.setOnClickListener {
+//            val customExpandNameSettings = CustomExpandNameSettings()
+//            customExpandNameSettings.encodingType = EnCodingType.UTF8
+//            customExpandNameSettings.forceCreateFolder = false
+//            customExpandNameSettings.relativePosition = RelativePosition.POSITION_END
+//            customExpandNameSettings.priority = 0
+//            customExpandNameSettings.customContent =
+//                "flightId111" + PreferenceUtils.getInstance().flightId
+//            KeyManager.getInstance().setValue(
+//                DJIKey.create(CameraKey.KeyCustomExpandFileNameSettings),
+//                customExpandNameSettings,
+//                object : CompletionCallback {
+//                    override fun onSuccess() {
+//                        LogUtil.log(TAG, "设置文件后缀success")
+//                        KeyManager.getInstance().performAction<EmptyMsg>(
+//                            DJIKey.create<EmptyMsg, EmptyMsg>(CameraKey.KeyStartShootPhoto),
+//                            object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
+//                                override fun onSuccess(emptyMsg: EmptyMsg?) {
+//                                    Log.e("拍照成功",  "拍照成功:") }
+//                                override fun onFailure(error: IDJIError) {
+//                                    Log.e("拍照失败",  "拍照失败:" + Gson().toJson(error)) }
+//
+//                            })
+//                    }
+//
+//                    override fun onFailure(idjiError: IDJIError) {
+//                        LogUtil.log(TAG, "设置自定义文件后缀失败：" + Gson().toJson(idjiError))
+//                    }
+//                })
+
 //            KeyManager.getInstance().setValue<CameraMode>(
 //                DJIKey.create<CameraMode>(CameraKey.KeyCameraMode),
 //                CameraMode.PHOTO_NORMAL,
@@ -153,33 +181,33 @@ class MainActivity : BaseActivity() {
 //
 //                })
 
-            val message=MQMessage ()
-           message.secret_key="admin123"
-           message.kmz_url="http://162.14.115.91:9000/test/kmz/测试1·.kmz"
-           message.access_key="admin"
-           message.flight_name="测试1·2024_04_02_09_18_45"
-           message.msg_type=60003
-           message.upload_url="http://162.14.115.91:9000/test/88AEDD00D02A/54403fbf-f964-4585-9dff-f8dfd7b4b61d"
-           message.flightId="flightId"
-//            //楼上350
-           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003W"
-//            //楼下小机库2
-           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003A"
-           message.isGuidingFlight=0
-            if (Movement.getInstance().goHomeState != 1 && Movement.getInstance().goHomeState != 2) {
-                    // 1.缓存推流地址,minIO配置
-                    PreferenceUtils.getInstance().setStreamAndMinIOConfig(message)
-                    // 2.收到60003直接回复
-                    StreamManager.getInstance().sendReply2Server(mqttAndroidClient, message)
-                    // 3.开启推流
-                    StreamManager.getInstance().startLive(mqttAndroidClient, message)
-                    // 4.关闭避障
-                    PerceptionManager.getInstance().setPerceptionEnable(false)
-                    MissionManager.getInstance().startTaskProcess(mqttAndroidClient, message)
-            } else {
-                LogUtil.log(TAG, "返航模式,无法上传航线")
-            }
-
+//            val message=MQMessage ()
+//           message.secret_key="admin123"
+//           message.kmz_url="http://162.14.115.91:9000/test/kmz/测试1·.kmz"
+//           message.access_key="admin"
+//           message.flight_name="测试1·2024_04_02_09_18_45"
+//           message.msg_type=60003
+//           message.upload_url="http://162.14.115.91:9000/test/88AEDD00D02A/54403fbf-f964-4585-9dff-f8dfd7b4b61d"
+//           message.flightId="flightId"
+////            //楼上350
+//           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003W"
+////            //楼下小机库2
+//           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003A"
+//           message.isGuidingFlight=0
+//            if (Movement.getInstance().goHomeState != 1 && Movement.getInstance().goHomeState != 2) {
+//                    // 1.缓存推流地址,minIO配置
+//                    PreferenceUtils.getInstance().setStreamAndMinIOConfig(message)
+//                    // 2.收到60003直接回复
+//                    StreamManager.getInstance().sendReply2Server(mqttAndroidClient, message)
+//                    // 3.开启推流
+//                    StreamManager.getInstance().startLive(mqttAndroidClient, message)
+//                    // 4.关闭避障
+//                    PerceptionManager.getInstance().setPerceptionEnable(false)
+//                    MissionManager.getInstance().startTaskProcess(mqttAndroidClient, message)
+//            } else {
+//                LogUtil.log(TAG, "返航模式,无法上传航线")
+//            }
+//
         }
 
         mainBinding?.btnLock?.setOnClickListener {
