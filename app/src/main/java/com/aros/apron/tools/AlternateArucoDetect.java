@@ -76,7 +76,7 @@ public class AlternateArucoDetect {
                         if (mFindArucoList.isEmpty()) {
                             for (int i = 0; i < idArray.length; i++) {
                                 if (idArray[i] == 20||idArray[i] == 21||idArray[i] == 22||idArray[i] == 23) {
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.45f));
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.37f));
                                 }
                             }
                         }
