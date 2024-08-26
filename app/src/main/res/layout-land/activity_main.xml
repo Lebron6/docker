@@ -63,7 +63,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="invisible">
 
                 <Button
                     android:id="@+id/startMission"

@@ -104,10 +104,10 @@ public class ApronArucoDetect {
 
                         if (mFindArucoList.size() == 0) {
                             sigleMarkerDetectFailsTimes++;
-                            if (sigleMarkerDetectFailsTimes >= 40) {
+                            if (sigleMarkerDetectFailsTimes >= 20) {
                                 sigleMarkerDetectFailsTimes=0;
                                 setDetectedBigMarkers();
-                                LogUtil.log(TAG, "标定的二维码未被识别,重置识别二维码状态");
+                                LogUtil.log(TAG, "重置识别二维码状态");
                             }
                         } else {
                             sigleMarkerDetectFailsTimes = 0;
@@ -141,7 +141,7 @@ public class ApronArucoDetect {
                             } else if (Movement.getInstance().getFlyingHeight() > 7) {
                                 //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
                                 setDetectedBigMarkers();
-                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.3);
+                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.4);
                             }
                         } else if (endTime - startTime > 8000) {
                             if (!triggerToAlternateLandingPoint) {
@@ -361,7 +361,7 @@ public class ApronArucoDetect {
 
 
         //如果识别到小Aruco,则不再触发识别大Aruco
-        if (Movement.getInstance().getFlyingHeight() > 0.5 && Movement.getInstance().getFlyingHeight() < 7.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.7 && Movement.getInstance().getFlyingHeight() < 8.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -380,7 +380,7 @@ public class ApronArucoDetect {
             }
         }
 
-        if (Movement.getInstance().getFlyingHeight() > 0.5 && Movement.getInstance().getFlyingHeight() < 7.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 0.7 && Movement.getInstance().getFlyingHeight() < 8.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -399,7 +399,7 @@ public class ApronArucoDetect {
         }
 
 
-        if (Movement.getInstance().getFlyingHeight() > 0.5 && Movement.getInstance().getFlyingHeight() < 7.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 1 && Movement.getInstance().getFlyingHeight() < 8.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 8
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -417,7 +417,7 @@ public class ApronArucoDetect {
             }
         }
 
-        if (Movement.getInstance().getFlyingHeight() > 0.5 && Movement.getInstance().getFlyingHeight() < 7.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 1 && Movement.getInstance().getFlyingHeight() < 8.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 7
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -434,7 +434,7 @@ public class ApronArucoDetect {
             }
         }
 
-        if (Movement.getInstance().getFlyingHeight() > 0.5 && Movement.getInstance().getFlyingHeight() < 7.2 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+        if (Movement.getInstance().getFlyingHeight() > 1 && Movement.getInstance().getFlyingHeight() < 8.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                 (detectedBigMarkerId == 0 || detectedBigMarkerId == 9
                         || detectedBigMarkerId == 1
                         || detectedBigMarkerId == 2
@@ -742,13 +742,13 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.375;
+            return -0.455;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.325;
+            return -0.395;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.305;
+            return -0.375;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.275;
+            return -0.295;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
             return -0.235;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {

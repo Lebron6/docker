@@ -58,6 +58,7 @@ public class AlternateArucoDetect {
             @Override
             public void run() {
                 try {
+
                     Mat yuvMat = new Mat(height + height / 2, width, CvType.CV_8UC1);
                     yuvMat.put(0, 0, data);
                     Mat rgbMat = new Mat();
@@ -74,26 +75,25 @@ public class AlternateArucoDetect {
                         int[] idArray = ids.toArray();
                         if (mFindArucoList.isEmpty()) {
                             for (int i = 0; i < idArray.length; i++) {
-                                if (idArray[i] == 20) {
-                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.6f));
-                                    break;
+                                if (idArray[i] == 20||idArray[i] == 21||idArray[i] == 22||idArray[i] == 23) {
+                                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.45f));
                                 }
                             }
                         }
                         moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                     } else {
-                        if (!arucoNotFoundTag) {
-                            startTime = System.currentTimeMillis();
-                            arucoNotFoundTag = true;
-                        }
-                        endTime = System.currentTimeMillis();
-                        if (endTime - startTime > 1000 && endTime - startTime <= 5000) {
-                            if (Movement.getInstance().getFlyingHeight() > 3) {
-                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.3);
-                            }
-                        }
+//                        if (!arucoNotFoundTag) {
+//                            startTime = System.currentTimeMillis();
+//                            arucoNotFoundTag = true;
+//                        }
+//                        endTime = System.currentTimeMillis();
+//                        if (endTime - startTime > 1000 && endTime - startTime <= 10000) {
+//                            if (Movement.getInstance().getFlyingHeight() > 2) {
+                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.6f);
+//                            }
+//                        }
                         //识别不到二维码的时间,如果大于6s,直接降落
-                        if (endTime - startTime > 6000) {
+                        if (Movement.getInstance().getFlyingHeight()<=2) {
                             canLanding=true;
 //                            FlightManager.getInstance().stopArucoDetectAndLanding(3);
                         }
@@ -119,17 +119,23 @@ public class AlternateArucoDetect {
 
     //根据识别到的二维码移动无人机
     private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight) {
-
-        double centerX = Core.mean(arucoMarkers.get(0).getConner()).val[0] - (imageWidth / 2f);
-        double centerY = Core.mean(arucoMarkers.get(0).getConner()).val[1] - (imageHeight / 2f);
+        //计算标记中心
+        double centerX = 0, centerY = 0;
+        for (int i = 0; i < arucoMarkers.size(); i++) {
+            centerX = centerX + Core.mean(arucoMarkers.get(i).getConner()).val[0] - (imageWidth / 2f);
+            centerY = centerY + Core.mean(arucoMarkers.get(i).getConner()).val[1] - (imageHeight / 2f);
+        }
         //计算相对于图像中心的图像矢量
-        Scalar imageVector = new Scalar(centerX, centerY);
+        Scalar imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
         double outX;
         double outY;
         double outZ;
 
-        if ((arucoMarkers.size() == 1) &&
-                arucoMarkers.get(0).getId() == 20&&Movement.getInstance().getFlyingHeight()>8
+        if (
+                arucoMarkers.get(0).getId() == 20||
+                        arucoMarkers.get(0).getId() == 21||
+                        arucoMarkers.get(0).getId() == 22||
+                        arucoMarkers.get(0).getId() == 23&&Movement.getInstance().getFlyingHeight()>10
         ) {
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
@@ -195,14 +201,23 @@ public class AlternateArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-            outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
-                    : updateOutXYSpeed(Math.abs(imageVector.val[0]));
-            outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
-                    : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
-            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 320 : 200))
-                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 320 : 200))
-                    ? updateOutDownSpeed() : -0.2f;
+
+            if (Math.abs(imageVector.val[0])<100){
+                outX=0;
+            }else{
+                outX = imageVector.val[0] < 0 ? -(Math.abs(imageVector.val[0])/600)
+                        : (Math.abs(imageVector.val[0])/600);
+            }
+            if (Math.abs(imageVector.val[1])<100) {
+                outY=0;
+            }else {
+                outY = imageVector.val[1] < 0 ? (Math.abs(imageVector.val[1])/600)
+                        : -(Math.abs(imageVector.val[1])/600);
+            }
+            outZ = -0.6f;
         }
+        LogUtil.log(TAG, "Aruco:" + arucoMarkers.size()+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
+
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);

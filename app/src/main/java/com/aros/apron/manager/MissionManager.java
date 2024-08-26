@@ -78,7 +78,7 @@ public class MissionManager extends BaseManager {
             missionManager.addWaypointActionListener(new WaypointActionListener() {
                 @Override
                 public void onExecutionStart(int actionId) {
-CameraManager.getInstance().setCustomExpandNameSetting();
+//CameraManager.getInstance().setCustomExpandNameSetting();
                 }
 
                 @Override
@@ -88,11 +88,12 @@ CameraManager.getInstance().setCustomExpandNameSetting();
 
                 @Override
                 public void onExecutionStart(int actionGroup, int actionId) {
-
+                    sendMsgWaypointActionState2Server(client, "0");
                 }
 
                 @Override
                 public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
+                    sendMsgWaypointActionState2Server(client, "1");
 
                 }
             });
@@ -153,22 +154,18 @@ CameraManager.getInstance().setCustomExpandNameSetting();
                                             LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
                                             if (message.getIsGuidingFlight() == 0) {
                                                 SystemManager.getInstance().setMediaFilePushOver(true);
-                                                sendDroneStorageMsg2Server(client, -1);
-                                                sendMissionExecuteEvents(client,"任务非正常结束");
+                                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                                sendMissionExecuteEvents(client, "任务非正常结束");
                                             }
-                                        } else {
-                                            LogUtil.log(TAG, "任务正常结束");
                                         }
                                     }
                                 }, 5000);
-                                sendMissionExecuteEvents(client,"航线任务完成");
-
                                 break;
                             case RETURN_TO_START_POINT:
                                 Movement.getInstance().setAirlineFlight(true);
                                 break;
                         }
-                        LogUtil.log(TAG, "航线执行状态:" + missionState.name());
+                        LogUtil.log(TAG, "WaypointMissionExecuteState:" + missionState.name());
                         Movement.getInstance().setWaypointMissionExecuteState(missionState.name());
                         missionStateCode = missionState.value();
                         publishMission2Server();
@@ -185,7 +182,6 @@ CameraManager.getInstance().setCustomExpandNameSetting();
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
-                LogUtil.log(TAG, "航线名称：" + excutingWaylineInfo.getMissionFileName());
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
                 Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
             }
@@ -257,8 +253,8 @@ CameraManager.getInstance().setCustomExpandNameSetting();
         } else {
             if (message.getIsGuidingFlight() == 0) {
                 com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                sendDroneStorageMsg2Server(client, -1);
-                sendMissionExecuteEvents(client, "飞行器自检异常,入库 " );
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
             }else{
                 LogUtil.log(TAG, "指点任务自检第" + checkMissionStateTimes + "次失败" + WaypointMissionExecuteState.find(missionStateCode).name() + "RTK状态:" + Movement.getInstance().isRtkSign());
                 sendMissionExecuteEvents(client,"指点任务自检异常");
@@ -277,7 +273,7 @@ CameraManager.getInstance().setCustomExpandNameSetting();
                     LogUtil.log(TAG, "航线文件下载失败:" + e.toString());
                     if (message.getIsGuidingFlight() == 0) {
                         SystemManager.getInstance().setMediaFilePushOver(true);
-                        sendDroneStorageMsg2Server(client, -1);
+                        DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                         sendMissionExecuteEvents(client, "任务下载失败,执行入库");
                     }else{
                         sendMissionExecuteEvents(client,"指点任务下载失败");
@@ -318,7 +314,7 @@ CameraManager.getInstance().setCustomExpandNameSetting();
                             LogUtil.log(TAG, "航线下载异常:" + e.toString());
                             if (message.getIsGuidingFlight() == 0) {
 //                                    com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-//                                    sendDroneStorageMsg2Server(client, -1);
+//                                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                             }
                         } finally {
                             try {
@@ -381,7 +377,7 @@ CameraManager.getInstance().setCustomExpandNameSetting();
 //            if (value != null && value.size() > 0) {
 //                if (message.getIsGuidingFlight() == 0) {
 //                    SystemManager.getInstance().setMediaFilePushOver(true);
-//                    sendDroneStorageMsg2Server(client, -1);
+//                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
 //                }
 //                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
 //                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
@@ -430,7 +426,7 @@ CameraManager.getInstance().setCustomExpandNameSetting();
                         } else {
                             if (message.getIsGuidingFlight() == 0) {
                                 com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                                sendDroneStorageMsg2Server(client, -1);
+                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                             }
                             sendMissionExecuteEvents(client,"任务上传失败,执行入库");
                             LogUtil.log(TAG, "航线第" + pushKMZFileTimes + "次上传失败,直接入库");
@@ -489,8 +485,8 @@ CameraManager.getInstance().setCustomExpandNameSetting();
                             } else {
                                 if (message.getIsGuidingFlight() == 0) {
                                     com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                                    sendDroneStorageMsg2Server(MissionManager.this.client, -1);
-                                    sendMissionExecuteEvents(client,"任务开始失败,执行入库");
+                                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MissionManager.this.client, -1);
+                                    sendMissionExecuteEvents(client, "任务开始失败,执行入库");
                                     LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接入库:" + "---" + new Gson().toJson(error));
                                 }else{
                                     sendMissionExecuteEvents(client,"指点任务开始失败");

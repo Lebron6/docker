@@ -2,6 +2,7 @@ package com.aros.apron.callback;
 
 
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
@@ -44,11 +45,10 @@ public class MqttCallBack implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable cause) {
-        LogUtil.log(TAG, "监听到MQtt断开连接-----");
+        LogUtil.log(TAG, "MQtt connectionLost-----");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                LogUtil.log(TAG, "断联延迟1s后重连");
                 try {
                     reConnect();
                 } catch (Exception e) {
@@ -62,7 +62,7 @@ public class MqttCallBack implements MqttCallbackExtended {
     //断线重连
     public void reConnect() throws Exception {
         if (null != mqttClient) {
-            LogUtil.log(TAG, "MQtt开始重连-----");
+            LogUtil.log(TAG, "MQtt reConnect-----");
             mqttClient.connect(mMqttConnectOptions);
         }
     }
@@ -84,12 +84,12 @@ public class MqttCallBack implements MqttCallbackExtended {
         switch (message.getMsg_type()) {
             //检测遥控器与开发板是否连接
             case 60001:
-                LogUtil.log(TAG, "收到命令：检测遥控器与开发板是否连接" + jsonString);
+                LogUtil.log(TAG, "收到命令：遥控器是否连接" + jsonString);
                 SystemManager.getInstance().checkRemoteControlPowerStatus(mqttClient, message);
                 break;
             //检测飞机是否开机
             case 60002:
-                LogUtil.log(TAG, "收到命令：检测飞机是否开机" + jsonString);
+                LogUtil.log(TAG, "收到命令：飞机是否开机" + jsonString);
                 SystemManager.getInstance().checkAircraftPowerStatus(mqttClient, message);
                 break;
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
@@ -358,10 +358,36 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置对焦值" + jsonString);
                 CameraManager.getInstance().setCameraFocusRingValue(mqttClient, message);
                 break;
-                //获取里程
+            //获取里程
             case 60132:
                 LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
                 FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
+                break;
+            //上传媒体文件
+            case 60134:
+                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
+                FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
+                break;
+            //监听机库收到AMS命令后的回执
+            case 60999:
+                if (!TextUtils.isEmpty(message.getStatus())) {
+                    switch (message.getStatus()) {
+                        case "0":
+                            LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
+                            break;
+                        case "1":
+                            LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
+                            break;
+                        case "2":
+                            LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
+                            break;
+                        case "3":
+                            LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
+                            break;
+                    }
+                } else {
+                    LogUtil.log(TAG, "收到命令：机库动作参数有误" + jsonString);
+                }
                 break;
         }
     }
@@ -375,12 +401,12 @@ public class MqttCallBack implements MqttCallbackExtended {
     public void connectComplete(boolean reconnect, String serverURI) {
         try {
             if (reconnect) {//重新订阅
-                Log.e(TAG, "监听到MQtt重连-----");
+                Log.e(TAG, "MQtt ConnectComplete:" + serverURI);
                 mqttClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 1);//订阅主题:注册
                 // publish(topic,"注册",0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "MQtt重连失败");
+            Log.e(TAG, "MQtt ConnectException:" + e.toString());
         }
     }
 }

@@ -54,7 +54,7 @@ public class SystemManager extends BaseManager {
         sendMsg2Server(mqttAndroidClient, message);
         setItCentered(true);
         if (isMediaFilePushOver()) {
-            sendDroneShutDownMsg2Server(mqttAndroidClient);
+            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
         }
     }
 
@@ -68,7 +68,7 @@ public class SystemManager extends BaseManager {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
             setMediaFilePushOver(true);
             if (isItCentered()) {
-                sendDroneShutDownMsg2Server(mqttAndroidClient);
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
             }
         }
 

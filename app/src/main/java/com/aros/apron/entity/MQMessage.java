@@ -46,7 +46,15 @@ public class MQMessage {
     private String xmpInfo;//写入exif信息
     private String payloadData;//发送数据给psdk
     private int cameraFocusRingValue;//设置相机对焦值
+    private String status;//收到机库状态的回执消息
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getXmpInfo() {
         return xmpInfo;

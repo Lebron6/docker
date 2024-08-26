@@ -374,10 +374,6 @@ class MainActivity : BaseActivity() {
     private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
         override fun onManagerConnected(status: Int) {
             if (status == SUCCESS) {
-                LogUtil.log(
-                    TAG,
-                    "OpenCV loaded successfully"
-                )
                 LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
             } else {
                 super.onManagerConnected(status)

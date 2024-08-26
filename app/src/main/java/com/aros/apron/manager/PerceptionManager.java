@@ -1,18 +1,13 @@
 package com.aros.apron.manager;//package com.aros.apron.manager;
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
-
 import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;

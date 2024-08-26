@@ -323,7 +323,7 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable GoHomeState oldValue, @Nullable GoHomeState newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setGoHomeState(newValue.value());
-                        LogUtil.log(TAG, "返航执行状态" + newValue.name());
+                        LogUtil.log(TAG, "GoHomeStatus:" + newValue.name());
                         goHomeExecutionState = newValue.value();
                         //返航后触发可入库条件
                         if (newValue.value() == 2) {
@@ -461,13 +461,13 @@ public class FlightManager extends BaseManager {
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
-            sendCloseCabinDoorMsg2Server(mqttAndroidClient);
+            DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(true);
         }
     }
 
 
-    private static final int FLYING_HEIGHT_THRESHOLD = 15; // 飞行高度阈值
+    private static final int FLYING_HEIGHT_THRESHOLD = 15; // 开舱门飞行高度阈值
     private static final int DISTANCE_THRESHOLD = 100; // 返航距离阈值
 
     private void openCabinDoor() {
@@ -483,7 +483,7 @@ public class FlightManager extends BaseManager {
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
-            sendOpenCabinDoorMsg2Server(mqttAndroidClient);
+            DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(false);
 
         }
@@ -535,7 +535,7 @@ public class FlightManager extends BaseManager {
     private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = AMSConfig.getInstance().getDescentAltitude() - 0.1;
-    private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 3.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
 
     private void startVisionLanding() {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
@@ -665,9 +665,10 @@ public class FlightManager extends BaseManager {
             // 发布事件，通知其他组件停止Aruco检测
             EventBus.getDefault().post(FLAG_STOP_ARUCO);
             if (!isDebugMode) {
+                //这里可能也会触发备降点关舱门的逻辑
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
-                    // 发送无人机入库消息到服务器
-                    sendDroneStorageMsg2Server(mqttAndroidClient, 1);
+                    // 发送无人机入库消息到服务器********************待修改************************
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
                     sendMissionExecuteEvents(mqttAndroidClient, "降落完成:执行入库");
                 }
                 // 上传媒体文件
