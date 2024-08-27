@@ -601,14 +601,8 @@ public class FlightManager extends BaseManager {
             stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
-            // 获取配置中的降落高度阈值
-            float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
-            double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
-            // 检查融合高度和相对高度是否满足降落条件
-            if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
-                    Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2 && shouldStopVisionAndLanding()) {
-                stopArucoDetectAndLanding(1);
-            } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4 && shouldStopVisionAndLanding()) {
+
+             if (shouldStopVisionAndLanding()) {
                 stopArucoDetectAndLanding(2);
             }
         }

@@ -1,5 +1,8 @@
 package com.aros.apron.tools;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
@@ -602,12 +605,28 @@ public class ApronArucoDetect {
 
         if (Math.abs(imageVector.val[0]) <= 150
                 && Math.abs(imageVector.val[1]) <= 100) {
-            canLanding = true;
+            // 获取配置中的降落高度阈值
+            float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
+            double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
+            // 检查融合高度和相对高度是否满足降落条件
+            if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
+                    Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2) {
+                if (!startFastStick) {
+                    startFastStick = true;
+                    handler.post(runnable);
+                }
+            } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4) {
+                if (!startFastStick) {
+                    startFastStick = true;
+                    handler.post(runnable);
+                }
+            }
         } else {
             canLanding = false;
         }
     }
 
+    private boolean startFastStick;
     private boolean canLanding;
 
     public boolean isCanLanding() {
@@ -754,9 +773,33 @@ public class ApronArucoDetect {
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
-                return -0.175;
+            return -0.175;
         } else {
             return 0.0;
         }
+    }
+
+    private int handlerCallbackCount = 0; // 记录回调次数
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            performOperation();
+            if (handlerCallbackCount < 20) {
+                handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
+            } else {
+                performNextStep();
+            }
+        }
+    };
+
+    private void performOperation() {
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1);
+        handlerCallbackCount++; // 增加计数器
+    }
+
+    private void performNextStep() {
+        canLanding = true;
+        handler.removeCallbacks(runnable); // 防止重复执行
     }
 }
