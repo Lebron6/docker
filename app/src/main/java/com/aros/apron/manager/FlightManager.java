@@ -601,7 +601,6 @@ public class FlightManager extends BaseManager {
             stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
-
              if (shouldStopVisionAndLanding()) {
                 stopArucoDetectAndLanding(2);
             }
@@ -633,11 +632,7 @@ public class FlightManager extends BaseManager {
     }
 
     private void logLandingHeight(int i) {
-        String heightLog = "参考相对高度";
-        if (i == 1) {
-            heightLog += "与融合高度降落:";
-        }
-        LogUtil.log(TAG, heightLog + Movement.getInstance().getFlyingHeight() + "米---"
+        LogUtil.log(TAG, "降落高度" + Movement.getInstance().getFlyingHeight() + "米---"
                 + Movement.getInstance().getUltrasonicHeight() + "分米");
     }
 
