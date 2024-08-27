@@ -66,9 +66,6 @@ object ManualUploadManager : BaseManager() {
         }
     }
 
-
-
-
     private var downLoadMediaFileIndex = 0
 
     //从相机拉取媒体文件
@@ -99,7 +96,6 @@ object ManualUploadManager : BaseManager() {
                 override fun onFailure(idjiError: IDJIError) {
                     LogUtil.log(TAG, "拉取媒体文件失败:" + Gson().toJson(idjiError))
                     sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败")
-                    disablePlayback(mqttAndroidClient)
                 }
             })
     }

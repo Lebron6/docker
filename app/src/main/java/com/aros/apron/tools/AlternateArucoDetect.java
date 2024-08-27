@@ -231,6 +231,10 @@ public class AlternateArucoDetect {
 
     public boolean canLanding;
 
+    public void setCanLanding(boolean canLanding) {
+        this.canLanding = canLanding;
+    }
+
     public boolean isCanLanding() {
         return canLanding;
     }

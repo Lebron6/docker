@@ -16,6 +16,10 @@ import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.dji.wpmzsdk.common.data.KMZInfo;
+import com.dji.wpmzsdk.common.data.Template;
+import com.dji.wpmzsdk.common.data.TemplateParseInfo;
+import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -25,11 +29,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.value.product.ProductType;
+import dji.sdk.wpmz.value.mission.WaylineActionGroup;
+import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -88,13 +95,45 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onExecutionStart(int actionGroup, int actionId) {
-                    sendMsgWaypointActionState2Server(client, "0");
+                    if (mActionGroups != null && mActionGroups.size() > actionGroup) {
+                        //判断是否是该动作组第一个动作
+                        if (actionId == 0) {
+                            //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
+//                            if (actionGroupStartIndex != actionGroup) {
+//                                actionGroupStartIndex = actionGroup;
+                                sendMsgWaypointActionState2Server(client, "0",""+(Movement.getInstance().getCurrentWaypointIndex()+1));
+                                LogUtil.log(TAG, "航点动作组开始:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
+//                            }
+                        }
+
+                    }else{
+                        LogUtil.log(TAG,"动作组下标异常:mActionGroups.size()= "+mActionGroups.size() +"actionGroup="+actionGroup);
+                    }
+
                 }
 
                 @Override
                 public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
-                    sendMsgWaypointActionState2Server(client, "1");
+//                    sendMsgWaypointActionState2Server(client, "1");
+                    if (mActionGroups != null && mActionGroups.size() > actionGroup) {
+                        if (mActionGroups.get(actionGroup).getActions().size()>actionId){
+                            //判断是否是该动作组第一个动作
+                            if (actionId == mActionGroups.get(actionGroup).getActions().size()-1) {
+                                //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
+//                                if (actionGroupEndIndex != actionGroup) {
+//                                    actionGroupEndIndex = actionGroup;
+                                sendMsgWaypointActionState2Server(client, "1",""+(Movement.getInstance().getCurrentWaypointIndex()+1));
+                                    LogUtil.log(TAG, "航点动作组结束:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
+//                                }
+                            }
 
+                        }else{
+                            LogUtil.log(TAG,"动作下标异常:getActions().size()= "+mActionGroups.get(actionGroup).getActions().size() +"actionId="+actionId);
+                        }
+
+                    }else{
+                        LogUtil.log(TAG,"动作组下标异常:mActionGroups.size()= "+mActionGroups.size() +"actionGroup="+actionGroup);
+                    }
                 }
             });
             missionManager.addWaylineExecutingInfoListener(waylineExecutingInfoListener);
@@ -190,17 +229,29 @@ public class MissionManager extends BaseManager {
         @Override
         public void onWaylineExecutingInterruptReasonUpdate(IDJIError error) {
             if (error != null) {
-                ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
-                if (productType != null) {
-                    LogUtil.log(TAG, "航线中断:" + productType.name() + "---" + new Gson().toJson(error));
-                    if (isManualPause || error.errorCode().equals("USER_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
-                        isManualPause = false;
-                    } else {
-                            WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
-                        sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+                        if (missionManager!=null){
+                            missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    LogUtil.log(TAG, "航线中断后继续成功");
+                                    sendMissionExecuteEvents(client,"航线中断后继续成功");
+                                }
 
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    LogUtil.log(TAG, "航线继续失败:" + new Gson().toJson(error));
+                                    sendMissionExecuteEvents(client,"航线中断后继续失败");
+
+                                }
+                            });
+                        }
                     }
-                }
+                },1000);
+
             }
         }
     };
@@ -366,12 +417,16 @@ public class MissionManager extends BaseManager {
 
     public boolean isPushKMZSuccess;
 
+
+    List<WaylineActionGroup> mActionGroups;
+    int actionGroupStartIndex = 125432;
+    int actionGroupEndIndex = 125432;
+
     public void pushKMZFileToAircraft(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
             LogUtil.log(TAG, "航线开始上传:" + WaypointMissionExecuteState.find(missionStateCode).name());
-            IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
 //            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
 //            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
 //            if (value != null && value.size() > 0) {
@@ -383,17 +438,55 @@ public class MissionManager extends BaseManager {
 //                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
 //                return;
 //            }
+
+            KMZInfo kmzInfo = WPMZManager.getInstance().getKMZInfo(
+                    Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
+            if (kmzInfo != null) {
+                TemplateParseInfo waylineTemplatesParseInfo = kmzInfo.getWaylineTemplatesParseInfo();
+                if (waylineTemplatesParseInfo != null) {
+                    List<Template> templates = waylineTemplatesParseInfo.getTemplates();
+                    if (templates != null && templates.size() > 0) {
+                        WaylineTemplateWaypointInfo waypointInfo = templates.get(0).getWaypointInfo();
+                        if (waypointInfo != null) {
+                            Log.e(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
+                            List<WaylineActionGroup> actionGroups = waypointInfo.getActionGroups();
+                            if (actionGroups != null && actionGroups.size() > 0) {
+                                mActionGroups = actionGroups;
+                                Log.e(TAG, "该航线有" + actionGroups.size() + "个动作组");
+                                for (int i = 0; i < actionGroups.size(); i++) {
+                                    Log.e(TAG, "第" + i + "个动作组有" + actionGroups.get(i).getActions().size() + "个动作");
+                                }
+                            } else {
+                                LogUtil.log(TAG, "WPMZManager getActionGroups有误");
+                            }
+                        } else {
+                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误");
+                        }
+                    } else {
+                        LogUtil.log(TAG, "WPMZManager getTemplates有误");
+                    }
+
+                } else {
+                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+                }
+            } else {
+                LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+
+            }
+
+            IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+
             missionManager.pushKMZFileToAircraft(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
                 @Override
                 public void onProgressUpdate(Double progress) {
                     LogUtil.log(TAG, "航线上传进度:" + progress);
-                    sendMissionExecuteEvents(client,"航线上传进度:" + progress);
+                    sendMissionExecuteEvents(client, "航线上传进度:" + progress);
                 }
 
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "航线上传成功,等待2s执行任务");
-                    sendMissionExecuteEvents(client,"开始执行任务");
+                    sendMissionExecuteEvents(client, "开始执行任务");
                     isPushKMZSuccess = true;
 
                     new Handler().postDelayed(new Runnable() {
@@ -410,7 +503,7 @@ public class MissionManager extends BaseManager {
                 public void onFailure(@NonNull IDJIError error) {
                     if (!isPushKMZSuccess) {
 
-                        if (pushKMZFileTimes < 20) {
+                        if (pushKMZFileTimes < 10) {
                             if (isPushKMZFailTimes()) {
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
@@ -481,7 +574,7 @@ public class MissionManager extends BaseManager {
                                         LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:" + new Gson().toJson(error));
                                         startMissionFailTimes++;
                                     }
-                                }, 5000);
+                                }, 2000);
                             } else {
                                 if (message.getIsGuidingFlight() == 0) {
                                     com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);

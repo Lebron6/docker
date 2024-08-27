@@ -155,7 +155,7 @@ public abstract class BaseManager {
     }
 
     //推送航点动作组执行状态
-    public void sendMsgWaypointActionState2Server(MqttAndroidClient client,String data) {
+    public void sendMsgWaypointActionState2Server(MqttAndroidClient client,String data,String index) {
         try {
             if (client.isConnected()) {
                 MqttMessage mqttMessage = null;
@@ -163,6 +163,7 @@ public abstract class BaseManager {
                 message.setMsg_type(60133);
                 message.setResult(1);
                 message.setWaypointActionState(data);
+                message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);

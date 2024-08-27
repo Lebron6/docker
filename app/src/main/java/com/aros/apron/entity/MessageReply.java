@@ -7,7 +7,16 @@ public class MessageReply {
     private String msg;
     private String payloadData;//接收psdk数据
     private String waypointActionState;//推送航点动作状态
+    private String waypointIndex;//推送航点index
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
+
+    public String getWaypointIndex() {
+        return waypointIndex;
+    }
+
+    public void setWaypointIndex(String waypointIndex) {
+        this.waypointIndex = waypointIndex;
+    }
 
     public String getWaypointActionState() {
         return waypointActionState;

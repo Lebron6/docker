@@ -89,8 +89,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             @Override
             public void run() {
                 if (Movement.getInstance().getFlyingHeight() < 100) {
-                    sendVirtualStickAdvancedParam();
-                    handler.postDelayed(this, 200);
+
+                    if (Movement.getInstance().getGoHomeState()==1||Movement.getInstance().getGoHomeState()==2){
+                        handler.removeCallbacks(this);
+                    }else{
+                        sendVirtualStickAdvancedParam();
+                        handler.postDelayed(this, 200);
+                    }
                 } else {
                     VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                         @Override

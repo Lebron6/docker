@@ -57,6 +57,7 @@ public class PreferenceUtils extends BasePreference {
     private String DEBUG_MODE = "debug_mode"; //调试模式
     private String NAVIGATION_LEDS_ON = "navigation_LEDs_On"; //夜航灯
 
+
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
         if (!TextUtils.isEmpty(message.getUpload_url())) {
