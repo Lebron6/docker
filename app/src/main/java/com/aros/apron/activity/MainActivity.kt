@@ -308,8 +308,6 @@ class MainActivity : BaseActivity() {
             WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)
             CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
-            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
-            PerceptionManager.getInstance().initPerceptionInfo()
             GimbalManager.getInstance().initGimbalInfo()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {

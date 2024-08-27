@@ -132,50 +132,6 @@ public abstract class BaseManager {
     }
 
 
-    //推送MSDK收到的PSDK数据
-    public void sendMsgFromPSDK2Server(MqttAndroidClient client,String data) {
-        try {
-            if (client.isConnected()) {
-                MqttMessage mqttMessage = null;
-                MessageReply message = new MessageReply();
-                message.setMsg_type(60119);
-                message.setResult(1);
-                message.setPayloadData(data);
-                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-
-            } else {
-                LogUtil.log(TAG, "psdkData发送失败：mqtt 未连接");
-            }
-        } catch (Exception e) {
-            LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
-        }
-    }
-
-    //推送航点动作组执行状态
-    public void sendMsgWaypointActionState2Server(MqttAndroidClient client,String data) {
-        try {
-            if (client.isConnected()) {
-                MqttMessage mqttMessage = null;
-                MessageReply message = new MessageReply();
-                message.setMsg_type(60133);
-                message.setResult(1);
-                message.setWaypointActionState(data);
-                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-
-            } else {
-                LogUtil.log(TAG, "推送航点动作组失败：mqtt 未连接");
-            }
-        } catch (Exception e) {
-            LogUtil.log(TAG, "推送航点动作组发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
-        }
-    }
-
     //获取总飞行里程
     public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client,double data) {
         try {

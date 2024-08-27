@@ -83,10 +83,6 @@ public class Movement {
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
 
     //避障
-    private List<Integer> horizontalObstacleDistance;
-    public int upwardObstacleDistance;
-    public int downwardObstacleDistance;
-    public int horizontalAngleInterval;
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
@@ -107,37 +103,7 @@ public class Movement {
         this.alternatePointLon = alternatePointLon;
     }
 
-    public List<Integer> getHorizontalObstacleDistance() {
-        return horizontalObstacleDistance;
-    }
 
-    public void setHorizontalObstacleDistance(List<Integer> horizontalObstacleDistance) {
-        this.horizontalObstacleDistance = horizontalObstacleDistance;
-    }
-
-    public int getUpwardObstacleDistance() {
-        return upwardObstacleDistance;
-    }
-
-    public void setUpwardObstacleDistance(int upwardObstacleDistance) {
-        this.upwardObstacleDistance = upwardObstacleDistance;
-    }
-
-    public int getDownwardObstacleDistance() {
-        return downwardObstacleDistance;
-    }
-
-    public void setDownwardObstacleDistance(int downwardObstacleDistance) {
-        this.downwardObstacleDistance = downwardObstacleDistance;
-    }
-
-    public int getHorizontalAngleInterval() {
-        return horizontalAngleInterval;
-    }
-
-    public void setHorizontalAngleInterval(int horizontalAngleInterval) {
-        this.horizontalAngleInterval = horizontalAngleInterval;
-    }
 
     public int getFlightControlAuthority() {
         return flightControlAuthority;
