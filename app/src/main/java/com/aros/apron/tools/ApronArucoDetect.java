@@ -81,7 +81,7 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (isStartAruco) {
+        if (isStartAruco||startFastStick) {
             return;
         }
         isStartAruco = true;
@@ -611,12 +611,20 @@ public class ApronArucoDetect {
             // 检查融合高度和相对高度是否满足降落条件
             if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
                     Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2) {
+
                 if (!startFastStick) {
+                    LogUtil.log(TAG,"参考相对高度与融合高度降落:"+
+                            Movement.getInstance().getFlyingHeight()+"--"+
+                            Movement.getInstance().getUltrasonicHeight());
                     startFastStick = true;
                     handler.post(runnable);
                 }
             } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4) {
+
                 if (!startFastStick) {
+                    LogUtil.log(TAG,"参考相对高度降落:"+
+                            Movement.getInstance().getFlyingHeight()+"--"+
+                            Movement.getInstance().getUltrasonicHeight());
                     startFastStick = true;
                     handler.post(runnable);
                 }
@@ -785,7 +793,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 20) {
+            if (handlerCallbackCount < 40) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
