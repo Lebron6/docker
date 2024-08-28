@@ -101,7 +101,7 @@ public class MissionManager extends BaseManager {
                             //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
 //                            if (actionGroupStartIndex != actionGroup) {
 //                                actionGroupStartIndex = actionGroup;
-                                sendMsgWaypointActionState2Server(client, "0",""+(Movement.getInstance().getCurrentWaypointIndex()+1));
+                                sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
                                 LogUtil.log(TAG, "航点动作组开始:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
 //                            }
                         }
@@ -122,7 +122,7 @@ public class MissionManager extends BaseManager {
                                 //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
 //                                if (actionGroupEndIndex != actionGroup) {
 //                                    actionGroupEndIndex = actionGroup;
-                                sendMsgWaypointActionState2Server(client, "1",""+(Movement.getInstance().getCurrentWaypointIndex()+1));
+                                sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
                                     LogUtil.log(TAG, "航点动作组结束:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
 //                                }
                             }

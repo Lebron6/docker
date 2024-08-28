@@ -1,5 +1,8 @@
 package com.aros.apron.tools;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.Movement;
@@ -78,7 +81,7 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (isStartAruco) {
+        if (isStartAruco||startFastStick) {
             return;
         }
         isStartAruco = true;
@@ -407,7 +410,7 @@ public class ApronArucoDetect {
                         || detectedBigMarkerId == 4
                         || detectedBigMarkerId == 7
                         || detectedBigMarkerId == 9
-                        )) {
+                )) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 8) {
                     detectedBigMarkerId = 8;
@@ -424,7 +427,7 @@ public class ApronArucoDetect {
                         || detectedBigMarkerId == 3
                         || detectedBigMarkerId == 4
                         || detectedBigMarkerId == 9
-                        )) {
+                )) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 7) {
                     detectedBigMarkerId = 7;
@@ -440,7 +443,7 @@ public class ApronArucoDetect {
                         || detectedBigMarkerId == 2
                         || detectedBigMarkerId == 3
                         || detectedBigMarkerId == 4
-                        )) {
+                )) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 9) {
                     detectedBigMarkerId = 9;
@@ -518,7 +521,7 @@ public class ApronArucoDetect {
                         || arucoMarkers.get(0).getId() == 2
                         || arucoMarkers.get(0).getId() == 3
                         || arucoMarkers.get(0).getId() == 4
-                        )
+        )
         ) {
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
@@ -602,12 +605,36 @@ public class ApronArucoDetect {
 
         if (Math.abs(imageVector.val[0]) <= 150
                 && Math.abs(imageVector.val[1]) <= 100) {
-            canLanding = true;
+            // 获取配置中的降落高度阈值
+            float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
+            double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
+            // 检查融合高度和相对高度是否满足降落条件
+            if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
+                    Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2) {
+
+                if (!startFastStick) {
+                    LogUtil.log(TAG,"参考相对高度与融合高度降落:"+
+                            Movement.getInstance().getFlyingHeight()+"--"+
+                            Movement.getInstance().getUltrasonicHeight());
+                    startFastStick = true;
+                    handler.post(runnable);
+                }
+            } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4) {
+
+                if (!startFastStick) {
+                    LogUtil.log(TAG,"参考相对高度降落:"+
+                            Movement.getInstance().getFlyingHeight()+"--"+
+                            Movement.getInstance().getUltrasonicHeight());
+                    startFastStick = true;
+                    handler.post(runnable);
+                }
+            }
         } else {
             canLanding = false;
         }
     }
 
+    private boolean startFastStick;
     private boolean canLanding;
 
     public boolean isCanLanding() {
@@ -742,21 +769,45 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.555;
+            return -0.455;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.495;
+            return -0.395;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.475;
+            return -0.375;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.435;
+            return -0.295;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.335;
+            return -0.235;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
-                return -0.175;
+            return -0.175;
         } else {
             return 0.0;
         }
+    }
+
+    private int handlerCallbackCount = 0; // 记录回调次数
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            performOperation();
+            if (handlerCallbackCount < 40) {
+                handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
+            } else {
+                performNextStep();
+            }
+        }
+    };
+
+    private void performOperation() {
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1);
+        handlerCallbackCount++; // 增加计数器
+    }
+
+    private void performNextStep() {
+        canLanding = true;
+        handler.removeCallbacks(runnable); // 防止重复执行
     }
 }

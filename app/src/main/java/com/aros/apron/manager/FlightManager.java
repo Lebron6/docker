@@ -52,6 +52,7 @@ import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
 
+
 public class FlightManager extends BaseManager {
 
 
@@ -601,14 +602,7 @@ public class FlightManager extends BaseManager {
             stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
-            // 获取配置中的降落高度阈值
-            float descentUltrasonicAltitude = AMSConfig.getInstance().getDescentUltrasonicAltitude();
-            double descentAltitude = AMSConfig.getInstance().getDescentAltitude();
-            // 检查融合高度和相对高度是否满足降落条件
-            if (Movement.getInstance().getUltrasonicHeight() <= descentUltrasonicAltitude &&
-                    Movement.getInstance().getFlyingHeight() <= descentAltitude + 1.2 && shouldStopVisionAndLanding()) {
-                stopArucoDetectAndLanding(1);
-            } else if (Movement.getInstance().getFlyingHeight() <= descentAltitude - 0.4 && shouldStopVisionAndLanding()) {
+            if (shouldStopVisionAndLanding()) {
                 stopArucoDetectAndLanding(2);
             }
         }
@@ -631,6 +625,7 @@ public class FlightManager extends BaseManager {
     private boolean shouldStopVisionAndLanding() {
         if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
             return !isTriggerLanding && isFlying && isMotorsOn && AlternateArucoDetect.getInstance().isCanLanding();
+
         }else{
             return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
 
@@ -638,11 +633,7 @@ public class FlightManager extends BaseManager {
     }
 
     private void logLandingHeight(int i) {
-        String heightLog = "参考相对高度";
-        if (i == 1) {
-            heightLog += "与融合高度降落:";
-        }
-        LogUtil.log(TAG, heightLog + Movement.getInstance().getFlyingHeight() + "米---"
+        LogUtil.log(TAG, "降落高度" + Movement.getInstance().getFlyingHeight() + "米---"
                 + Movement.getInstance().getUltrasonicHeight() + "分米");
     }
 
@@ -659,6 +650,7 @@ public class FlightManager extends BaseManager {
             isSendDetect = false;
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
+            ApronArucoDetect.getInstance().setCanLanding(false);
 
             // 发布事件，通知其他组件停止Aruco检测
             EventBus.getDefault().post(FLAG_STOP_ARUCO);
@@ -666,7 +658,7 @@ public class FlightManager extends BaseManager {
                 //这里可能也会触发备降点关舱门的逻辑
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
                     // 发送无人机入库消息到服务器********************待修改************************
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient,1);
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
                     sendMissionExecuteEvents(mqttAndroidClient, "降落完成:执行入库");
                 }
                 // 上传媒体文件
@@ -676,8 +668,6 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-            ApronArucoDetect.getInstance().setCanLanding(false);
-            AlternateArucoDetect.getInstance().setCanLanding(false);
 
         }
     }
