@@ -32,25 +32,6 @@ public class PerceptionManager extends BaseManager {
         return PerceptionManagerHolder.INSTANCE;
     }
 
-    public void initPerceptionInfo() {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
-            if (perceptionManager!=null){
-                perceptionManager.addObstacleDataListener(new ObstacleDataListener() {
-                    @Override
-                    public void onUpdate(ObstacleData obstacleData) {
-                        if (obstacleData != null) {
-                            Movement.getInstance().setHorizontalObstacleDistance(obstacleData.getHorizontalObstacleDistance());
-                            Movement.getInstance().setHorizontalAngleInterval(obstacleData.getHorizontalAngleInterval());
-                            Movement.getInstance().setDownwardObstacleDistance(obstacleData.getDownwardObstacleDistance());
-                            Movement.getInstance().setUpwardObstacleDistance(obstacleData.getUpwardObstacleDistance());
-                        }
-                    }
-                });
-            }
-        }
-    }
 
     private int closePerceptionTimes;
     private boolean closePerceptionSuccess;
