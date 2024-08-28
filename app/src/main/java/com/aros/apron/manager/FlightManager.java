@@ -605,8 +605,6 @@ public class FlightManager extends BaseManager {
                 stopArucoDetectAndLanding(2);
             }
         }
-
-
     }
 
     public void stopArucoDetectAndLanding(int i) {
@@ -618,16 +616,13 @@ public class FlightManager extends BaseManager {
         PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
         isGimbalReset = false;
         isTriggerLanding = true;
-
     }
 
     private boolean shouldStopVisionAndLanding() {
         if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
             return !isTriggerLanding && isFlying && isMotorsOn && AlternateArucoDetect.getInstance().isCanLanding();
-
         }else{
             return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
-
         }
     }
 
