@@ -365,8 +365,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             //上传媒体文件
             case 60134:
-                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
-                FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
+//                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
+//                FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:
