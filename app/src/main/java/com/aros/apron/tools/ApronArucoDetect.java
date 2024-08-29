@@ -547,7 +547,7 @@ public class ApronArucoDetect {
             double x = tvec.get(0, 0)[0];
             double y = tvec.get(0, 0)[1];
             double z = tvec.get(0, 0)[2];
-//            LogUtil.log(TAG,"位移矩阵x:"+x+"--y:"+y+"--z:"+z);
+            LogUtil.log(TAG,"位移矩阵x:"+x+"--y:"+y+"--z:"+z);
         if ((arucoMarkers.size() == 1) && (
                 arucoMarkers.get(0).getId() == 1
                         || arucoMarkers.get(0).getId() == 2
