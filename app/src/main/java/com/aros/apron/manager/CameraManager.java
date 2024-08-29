@@ -519,14 +519,15 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
-                public void onSuccess() {
+                public void onSuccess(EmptyMsg emptyMsg) {
                     if (mqttAndroidClient!=null&&message!=null){
                         sendMsg2Server(mqttAndroidClient, message);
                     }
                     LogUtil.log(TAG,"sd卡已格式化");
                 }
+
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     if (mqttAndroidClient!=null&&message!=null){
@@ -542,6 +543,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
             LogUtil.log(TAG,"相机未连接");
 
         }
+
     }
 //
 

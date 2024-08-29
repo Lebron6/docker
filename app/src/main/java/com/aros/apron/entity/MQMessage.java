@@ -47,6 +47,15 @@ public class MQMessage {
     private String payloadData;//发送数据给psdk
     private int cameraFocusRingValue;//设置相机对焦值
     private String status;//收到机库状态的回执消息
+    private String flag;//后端用来区别里程(用作AI)
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
 
     public String getStatus() {
         return status;

@@ -133,13 +133,14 @@ public abstract class BaseManager {
 
 
     //获取总飞行里程
-    public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client,double data) {
+    public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client, MQMessage mqMessage, double data) {
         try {
             if (client.isConnected()) {
                 MqttMessage mqttMessage = null;
                 MessageReply message = new MessageReply();
                 message.setMsg_type(60132);
                 message.setResult(1);
+                message.setFlag(mqMessage.getFlag());
                 message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);

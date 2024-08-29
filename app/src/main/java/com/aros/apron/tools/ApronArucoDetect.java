@@ -778,13 +778,13 @@ public class ApronArucoDetect {
         if (flyingHeight > 5) {
             return -0.455;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.395;
+            return -0.435;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.375;
+            return -0.425;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.295;
+            return -0.375;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.235;
+            return -0.355;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
