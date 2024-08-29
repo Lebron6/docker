@@ -534,20 +534,18 @@ public class ApronArucoDetect {
             //旋转矩阵
             Mat rvecs = new Mat();
             //位移矩阵
-            Mat tvecs = new Mat();
-            //姿态预估
-            List<Mat> conners = new ArrayList<>();
-            conners.add(arucoMarkers.get(0).getConner());
-            Aruco.estimatePoseSingleMarkers(conners, arucoMarkers.get(0).getSize(), cameraMatrix, distCoeffs, rvecs, tvecs);
-            //罗德里变换
-            Mat R = new Mat(3, 3, CvType.CV_32FC1);
-            Mat rvec = rvecs.row(0);
+        Mat tvecs = new Mat();
+        //姿态预估
+        List<Mat> conners = new ArrayList<>();
+        conners.add(arucoMarkers.get(0).getConner());
+        Aruco.estimatePoseSingleMarkers(conners, arucoMarkers.get(0).getSize(), cameraMatrix, distCoeffs, rvecs, tvecs);
+        //罗德里变换
+        Mat R = new Mat(3, 3, CvType.CV_32FC1);
+        Mat rvec = rvecs.row(0);
 
-            Mat tvec = tvecs.row(0);
-            double x = tvec.get(0, 0)[0];
-            double y = tvec.get(0, 0)[1];
-            double z = tvec.get(0, 0)[2];
-            LogUtil.log(TAG,"位移矩阵x:"+x+"--y:"+y+"--z:"+z);
+        Mat tvec = tvecs.row(0);
+        double z = tvec.get(0, 0)[2];
+        LogUtil.log(TAG, "z坐标:" + z + "声波高:" + Movement.getInstance().getUltrasonicHeight());
         if ((arucoMarkers.size() == 1) && (
                 arucoMarkers.get(0).getId() == 1
                         || arucoMarkers.get(0).getId() == 2
