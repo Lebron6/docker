@@ -108,6 +108,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                             StreamManager.getInstance().startLive(mqttClient, message);
                             // 4.关闭避障
                             PerceptionManager.getInstance().setPerceptionEnable(false);
+                            // 5.清空sd卡
+                            CameraManager.getInstance().formatStorage(null,null);
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {

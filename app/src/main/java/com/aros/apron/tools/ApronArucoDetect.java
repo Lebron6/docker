@@ -516,13 +516,7 @@ public class ApronArucoDetect {
         double outY;
         double outZ;
 
-        if ((arucoMarkers.size() == 1) && (
-                arucoMarkers.get(0).getId() == 1
-                        || arucoMarkers.get(0).getId() == 2
-                        || arucoMarkers.get(0).getId() == 3
-                        || arucoMarkers.get(0).getId() == 4
-                        )
-        ) {
+
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
             cameraMatrix.put(0, 0, 646.1198423802089);
@@ -548,6 +542,19 @@ public class ApronArucoDetect {
             //罗德里变换
             Mat R = new Mat(3, 3, CvType.CV_32FC1);
             Mat rvec = rvecs.row(0);
+
+            Mat tvec = tvecs.row(0);
+            double x = tvec.get(0, 0)[0];
+            double y = tvec.get(0, 0)[1];
+            double z = tvec.get(0, 0)[2];
+            LogUtil.log(TAG,"位移矩阵x:"+x+"--y:"+y+"--z:"+z);
+        if ((arucoMarkers.size() == 1) && (
+                arucoMarkers.get(0).getId() == 1
+                        || arucoMarkers.get(0).getId() == 2
+                        || arucoMarkers.get(0).getId() == 3
+                        || arucoMarkers.get(0).getId() == 4
+        )
+        ) {
             Calib3d.Rodrigues(rvec, R);
             Mat camR = R.t();
             //左乘
@@ -596,7 +603,7 @@ public class ApronArucoDetect {
                     ? updateOutDownSpeed() : 0f;
         }
 
-        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
+//        LogUtil.log(TAG, "Aruco:" + arucoMarkers.get(0).getId() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
@@ -793,7 +800,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 40) {
+            if (handlerCallbackCount < 20) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();

@@ -12,6 +12,8 @@ import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
+import com.amazonaws.services.s3.model.ProgressEvent
+import com.amazonaws.services.s3.model.ProgressListener
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.aros.apron.base.BaseManager
 import com.aros.apron.entity.FileUploadResult
@@ -308,14 +310,37 @@ object MediaManager : BaseManager() {
             if (!bucketExists) {
                 s3.createBucket(PreferenceUtils.getInstance().bucketName)
             }
-
             //上传文件到网关MINIO存储服务
             s3.putObject(
                 PutObjectRequest(
                     PreferenceUtils.getInstance().bucketName,
                     "/${PreferenceUtils.getInstance().key}/${PreferenceUtils.getInstance().sortiesId}/${mediaFile.fileName}",
                     file
-                )
+                ).withProgressListener { progressEvent ->
+                    when (progressEvent?.eventCode) {
+                        ProgressEvent.PREPARING_EVENT_CODE -> {
+                            LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传准备")
+                        }
+
+                        ProgressEvent.STARTED_EVENT_CODE -> {
+                            val bytesTransferred = progressEvent.bytesTransferred
+                            val percentage = (bytesTransferred * 100 / file.length()).toInt()
+                            LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传已开始$percentage% (${bytesTransferred} out of ${file.length()} bytes)")
+                        }
+
+                        ProgressEvent.COMPLETED_EVENT_CODE -> {
+                            LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传完成")
+                        }
+
+                        ProgressEvent.FAILED_EVENT_CODE -> {
+                            LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传失败")
+                        }
+
+                        ProgressEvent.RESET_EVENT_CODE -> {
+                            LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片上传重置")
+                        }
+                    }
+                },
             )
             //获取文件上传后访问地址url
             val urlRequest = GeneratePresignedUrlRequest(
@@ -328,7 +353,8 @@ object MediaManager : BaseManager() {
             emitter.onComplete()
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribe(object : Observer<String> {
-                override fun onSubscribe(d: Disposable) {}
+                override fun onSubscribe(d: Disposable) {
+                }
                 override fun onNext(s: String) {
                     var fileUploadResult = FileUploadResult().apply {
                         this.fileName = mediaFile.fileName

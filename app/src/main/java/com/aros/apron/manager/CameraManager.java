@@ -19,6 +19,7 @@ import dji.sdk.keyvalue.value.camera.CameraExposureCompensation;
 import dji.sdk.keyvalue.value.camera.CameraExposureMode;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
 import dji.sdk.keyvalue.value.camera.CameraMode;
+import dji.sdk.keyvalue.value.camera.CameraStorageLocation;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
@@ -513,27 +514,35 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
     }
 }
 //
-//    //格式化SD卡
-//    public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection));
-//        if (isConnect != null && isConnect) {
-//
-//            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
-//                @Override
-//                public void onSuccess() {
-//                    sendMsg2Server(mqttAndroidClient, message);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    sendMsg2Server(mqttAndroidClient, message, "格式化失败:" + error.description());
-//                }
-//            });
-//        } else {
-//            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
-//        }
-//    }
+    //格式化SD卡
+    public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    if (mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+                    LogUtil.log(TAG,"sd卡已格式化");
+                }
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    if (mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message, "格式化失败:" +new Gson().toJson(error));
+                    }
+                    LogUtil.log(TAG,"sd卡格式化失败:"+new Gson().toJson(error));
+                }
+            });
+        } else {
+            if (mqttAndroidClient!=null&&message!=null){
+                sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            }
+            LogUtil.log(TAG,"相机未连接");
+
+        }
+    }
 //
 
     //设置曝光模式
