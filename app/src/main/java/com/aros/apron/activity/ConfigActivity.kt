@@ -7,6 +7,7 @@ import android.widget.CompoundButton.GONE
 import android.widget.CompoundButton.VISIBLE
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityConfigBinding
+import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
@@ -96,6 +97,7 @@ class ConfigActivity : BaseActivity() {
                 var locationCoordinate3D = KeyManager.getInstance()
                     .getValue(KeyTools.createKey(FlightControllerKey.KeyAircraftLocation3D))
                 if (locationCoordinate3D != null) {
+                    LogUtil.log(TAG,"标定备降点经纬度:${locationCoordinate3D?.latitude.toString()}---${locationCoordinate3D?.longitude.toString()}")
                     configBinding.etAlternateLat.setText(locationCoordinate3D?.latitude.toString())
                     configBinding.etAlternateLon.setText(locationCoordinate3D?.longitude.toString())
                 } else {

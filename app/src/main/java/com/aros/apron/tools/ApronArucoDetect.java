@@ -539,13 +539,10 @@ public class ApronArucoDetect {
         List<Mat> conners = new ArrayList<>();
         conners.add(arucoMarkers.get(0).getConner());
         Aruco.estimatePoseSingleMarkers(conners, arucoMarkers.get(0).getSize(), cameraMatrix, distCoeffs, rvecs, tvecs);
-        //罗德里变换
-        Mat R = new Mat(3, 3, CvType.CV_32FC1);
-        Mat rvec = rvecs.row(0);
 
         Mat tvec = tvecs.row(0);
         double z = tvec.get(0, 0)[2];
-        LogUtil.log(TAG, "z坐标:" + z + "声波高:" + Movement.getInstance().getUltrasonicHeight());
+        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
         if ((arucoMarkers.size() == 1) && (
                 arucoMarkers.get(0).getId() == 1
                         || arucoMarkers.get(0).getId() == 2
@@ -553,6 +550,9 @@ public class ApronArucoDetect {
                         || arucoMarkers.get(0).getId() == 4
         )
         ) {
+            //罗德里变换
+            Mat R = new Mat(3, 3, CvType.CV_32FC1);
+            Mat rvec = rvecs.row(0);
             Calib3d.Rodrigues(rvec, R);
             Mat camR = R.t();
             //左乘
@@ -782,7 +782,7 @@ public class ApronArucoDetect {
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
             return -0.375;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.355;
+            return -0.275;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.1) {
