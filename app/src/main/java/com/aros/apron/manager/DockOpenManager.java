@@ -61,7 +61,7 @@ public class DockOpenManager extends BaseManager {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
                 LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes);
-                sendMissionExecuteEvents(client, "AMS通知机库执行无人机开舱");
+                sendMissionExecuteEvents(client, "AMS通知机库开舱");
                 isSendDockOpenSuccess = true;
             }
 
