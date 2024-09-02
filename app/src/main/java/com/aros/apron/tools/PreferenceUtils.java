@@ -56,6 +56,8 @@ public class PreferenceUtils extends BasePreference {
     private String ALTERNATE_POINT_TIMES = "alternate_point_times"; //允许复降次数
     private String DEBUG_MODE = "debug_mode"; //调试模式
     private String NAVIGATION_LEDS_ON = "navigation_LEDs_On"; //夜航灯
+    private String CLOSE_OBS_ENABLE = "close_obstacle_enable"; //是否关闭避障
+    private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
 
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
@@ -260,6 +262,14 @@ public class PreferenceUtils extends BasePreference {
         setInt(AIRPORT_TYPE, airPortType);
     }
 
+    public int getMissionInterruptAction() {
+        return getInt(MISSION_INTERRUPT_ACTION);
+    }
+
+    public void setMissionInterruptAction(int missionInterruptAction) {
+        setInt(MISSION_INTERRUPT_ACTION, missionInterruptAction);
+    }
+
     public int getLandType() {
         return getInt(LANDING_TYPE);
     }
@@ -346,6 +356,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setNavigationLEDsOn(boolean navigationLEDsOn) {
         setBoolean(NAVIGATION_LEDS_ON, navigationLEDsOn);
+    }
+
+    public boolean getCloseObsEnable() {
+        return getBoolean(CLOSE_OBS_ENABLE);
+    }
+
+    public void setCloseObsEnable(boolean close_obs_enable) {
+        setBoolean(CLOSE_OBS_ENABLE, close_obs_enable);
     }
 
     private PreferenceUtils(Context context) {

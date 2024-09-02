@@ -32,6 +32,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun initView() {
         configBinding.cbHaveRtk.isChecked = PreferenceUtils.getInstance().haveRTK
+        configBinding.cbCloseObstacle.isChecked = PreferenceUtils.getInstance().closeObsEnable
         configBinding.cbDebuggingMode.isChecked = PreferenceUtils.getInstance().isDebugMode
         configBinding.cbLEDsSettings.isChecked = PreferenceUtils.getInstance().navigationLEDsOn
         configBinding.rbRtkCustom.isChecked = PreferenceUtils.getInstance().rtkType == 1
@@ -86,6 +87,11 @@ class ConfigActivity : BaseActivity() {
             1 -> configBinding.rbAd2.isChecked = true
             2 -> configBinding.rbAd3.isChecked = true
             3 -> configBinding.rbArs350.isChecked = true
+        }
+        when (PreferenceUtils.getInstance().missionInterruptAction) {
+            1 -> configBinding.rbHover.isChecked = true
+            2 -> configBinding.rbResume.isChecked = true
+            3 -> configBinding.rbGohome.isChecked = true
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
@@ -181,6 +187,10 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置机库类型")
             return
         }
+        if (!configBinding.rbHover.isChecked && !configBinding.rbResume.isChecked && !configBinding.rbGohome.isChecked) {
+            ToastUtil.showToast("未配置航线中断动作")
+            return
+        }
         if (!configBinding.rbRtkFirst.isChecked && !configBinding.rbVisionFirst.isChecked) {
             ToastUtil.showToast("至少配置一种降落方式")
             return
@@ -228,6 +238,7 @@ class ConfigActivity : BaseActivity() {
             configBinding.etSetAlternateTimes.text.toString()
 
         PreferenceUtils.getInstance().setHaveRtk(configBinding.cbHaveRtk.isChecked)
+        PreferenceUtils.getInstance().closeObsEnable = configBinding.cbCloseObstacle.isChecked
         if (configBinding.rbRtkCustom.isChecked) {
             PreferenceUtils.getInstance().rtkType = 1
         } else if (configBinding.rbRtkDji.isChecked) {
@@ -235,16 +246,16 @@ class ConfigActivity : BaseActivity() {
         } else {
             PreferenceUtils.getInstance().rtkType = -1
         }
-        PreferenceUtils.getInstance().setIsDebugMode(configBinding.cbDebuggingMode.isChecked)
-        PreferenceUtils.getInstance().setNavigationLEDsOn(configBinding.cbLEDsSettings.isChecked)
-        PreferenceUtils.getInstance().setCustomStreamEnable(configBinding.cbCustomStream.isChecked)
+        PreferenceUtils.getInstance().isDebugMode = configBinding.cbDebuggingMode.isChecked
+        PreferenceUtils.getInstance().navigationLEDsOn = configBinding.cbLEDsSettings.isChecked
+        PreferenceUtils.getInstance().customStreamEnable = configBinding.cbCustomStream.isChecked
         if (configBinding.cbCustomStream.isChecked) {
-            PreferenceUtils.getInstance()
-                .setCustomStreamUrl(configBinding.etStreamUrl.text.toString().replace("", ""))
+            PreferenceUtils.getInstance().customStreamUrl =
+                configBinding.etStreamUrl.text.toString().replace("", "")
         }
         PreferenceUtils.getInstance().ntrip = configBinding.etNtrip.text.toString().replace(" ", "")
-        PreferenceUtils.getInstance()
-            .setNTRPort(configBinding.etNtrPort.text.toString().replace(" ", ""))
+        PreferenceUtils.getInstance().ntrPort =
+            configBinding.etNtrPort.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().ntrAccount =
             configBinding.etNtrAccount.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().ntrPassword =
@@ -268,6 +279,14 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().airPortType = 2
         } else {
             PreferenceUtils.getInstance().airPortType = 3
+        }
+
+        if (configBinding.rbHover.isChecked) {
+            PreferenceUtils.getInstance().missionInterruptAction = 1
+        } else if (configBinding.rbResume.isChecked) {
+            PreferenceUtils.getInstance().missionInterruptAction = 2
+        } else {
+            PreferenceUtils.getInstance().missionInterruptAction = 3
         }
 
         if (configBinding.rbVisionFirst.isChecked) {

@@ -175,7 +175,20 @@ public class MissionManager extends BaseManager {
                     if (isManualPause || error.errorCode().equals("USER_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
                         isManualPause = false;
                     } else {
+                        if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
+                            if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        resumeMission(null,null);
+                                    }
+                                });
+                            }else{
+                                WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
+                            }
+                        } else if (PreferenceUtils.getInstance().getMissionInterruptAction()==3) {
                             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
+                        }
                         sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
 
                     }
