@@ -53,6 +53,8 @@ public class Movement {
     private double thermalZoomRatios;//红外镜头变焦倍数
     private boolean continuous;//变焦档位是否连续 (true表示gears最小值-最大值都可使用，false表示只支持数组内关键档位)
     private int[] gears;//变焦倍率范围的关键档位
+    private boolean thermalContinuous;
+    private int[] thermalGears;
     private int isVirtualStickEnable;//是否获取控制权 0未获取控制权  1已获取控制权
     private boolean isDistanceLimitEnabled;//是否启用限远
     private int thermalDisplayMode;//红外模式 1仅红外  2红外分屏
@@ -354,8 +356,7 @@ public class Movement {
     }
 
 
-    private boolean thermalContinuous;
-    private int[] thermalGears;
+
 
     public boolean isThermalContinuous() {
         return thermalContinuous;
