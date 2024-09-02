@@ -97,7 +97,7 @@ public abstract class BaseManager {
                 message.setResult(1);
                 message.setMsg(event);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
@@ -117,7 +117,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = null;
                 result.setMsg_type(60102);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(1);
 
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功：60102"+new Gson().toJson(result));

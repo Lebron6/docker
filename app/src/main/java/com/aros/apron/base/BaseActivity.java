@@ -53,6 +53,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), AMSConfig.getInstance().getMqttServerUri(), generateRandomString(10));
         mMqttConnectOptions = new MqttConnectOptions();
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
+        mMqttConnectOptions.setMaxInflight(100);// 增加最大并发未确认消息数量
         mMqttConnectOptions.setCleanSession(true); //设置是否清除缓存
         mMqttConnectOptions.setConnectionTimeout(10); //设置超时时间，单位：秒 ltz denote
         mMqttConnectOptions.setKeepAliveInterval(5); //设置心跳包发送间隔，单位：秒 ltz denote
