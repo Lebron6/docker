@@ -31,6 +31,7 @@ open class ApronApp : Application() {
         super.onCreate()
         context=this
         initConfig()
+        LogUtil.log("test","test")
         msdkManagerVM.initMobileSDK(this)
 
     }
