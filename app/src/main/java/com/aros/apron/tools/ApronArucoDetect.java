@@ -471,14 +471,14 @@ public class ApronArucoDetect {
                 }
             }
         }
-        if (Movement.getInstance().getFlyingHeight() > 1.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
+//        if (Movement.getInstance().getFlyingHeight() > 1.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 3) {
-                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.295f));
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.175f));
                     break;
                 }
             }
-        }
+//        }
         if (Movement.getInstance().getFlyingHeight() > 1.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 4) {
@@ -519,18 +519,18 @@ public class ApronArucoDetect {
 
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-            cameraMatrix.put(0, 0, 646.1198423802089);
-            cameraMatrix.put(1, 1, 649.420087990641);
-            cameraMatrix.put(0, 2, 483.1565243887304);
-            cameraMatrix.put(1, 2, 381.43615954610954);
+            cameraMatrix.put(0, 0,  1131.3484309796945);
+            cameraMatrix.put(1, 1, 1143.0319750579686);
+            cameraMatrix.put(0, 2, 676.696876660099);
+            cameraMatrix.put(1, 2, 532.6254545540435);
             cameraMatrix.put(2, 2, 1.0);
             //相机畸变
             Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
-            distCoeffs.put(0, 0, -0.03573595371849505);
-            distCoeffs.put(1, 0, -0.09935474011298286);
-            distCoeffs.put(2, 0, 0.006489622318657623);
-            distCoeffs.put(3, 0, 0.0008973587999385083);
-            distCoeffs.put(4, 0, 0.0861065987784395);
+            distCoeffs.put(0, 0, -0.16879686656897544);
+            distCoeffs.put(1, 0, 0.4252674979687209);
+            distCoeffs.put(2, 0, 0.004260616672174669);
+            distCoeffs.put(3, 0, 0.010597384861297276);
+            distCoeffs.put(4, 0, -0.6032569042575567);
             //旋转矩阵
             Mat rvecs = new Mat();
             //位移矩阵

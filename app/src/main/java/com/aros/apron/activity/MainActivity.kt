@@ -111,6 +111,7 @@ class MainActivity : BaseActivity() {
 
         mainBinding?.startAlter?.setOnClickListener {
             AlternateLandingManager.getInstance().startTaskProcess(null)
+            startArucoType=1;
 //            MediaDataCenter.getInstance().mediaManager.setMediaFileXMPCustomInfo(
 //                "wangmingge",
 //                object :
