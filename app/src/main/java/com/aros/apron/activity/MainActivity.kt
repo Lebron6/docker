@@ -111,7 +111,9 @@ class MainActivity : BaseActivity() {
 
         mainBinding?.startAlter?.setOnClickListener {
             AlternateLandingManager.getInstance().startTaskProcess(null)
-//            startArucoType=1;
+//            startArucoType=1
+//            DroneHelper.getInstance().setGimbalPitchDegree()
+
 //            MediaDataCenter.getInstance().mediaManager.setMediaFileXMPCustomInfo(
 //                "wangmingge",
 //                object :

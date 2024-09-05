@@ -1,6 +1,7 @@
 package com.aros.apron.manager;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -73,11 +74,12 @@ public class DockCloseManager extends BaseManager {
             }
         });
     }
+    final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private void retrySend(MqttAndroidClient client) {
         sendDockCloseSuccessTimes++;
         if (sendDockCloseSuccessTimes < maxRetries) {
-            new Handler().postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，关舱发送失败：" + sendDockCloseSuccessTimes);
         }

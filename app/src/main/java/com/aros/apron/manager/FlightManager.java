@@ -131,7 +131,6 @@ public class FlightManager extends BaseManager {
                     if (infos != null && infos.size() > 0) {
                         String warningMessage = infos.get(0).description();
                         if (!TextUtils.isEmpty(warningMessage)) {
-                            LogUtil.log(TAG, "监听设备健康" + warningMessage);
                             Movement.getInstance().setWarningMessage(warningMessage);
                             pushFlightAttitude();
                         }
@@ -467,8 +466,8 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final int FLYING_HEIGHT_THRESHOLD = 15; // 开舱门飞行高度阈值
-    private static final int DISTANCE_THRESHOLD = 100; // 返航距离阈值
+    private static final int FLYING_HEIGHT_THRESHOLD = 10; // 开舱门飞行高度阈值
+    private static final int DISTANCE_THRESHOLD = 10000; // 返航距离阈值
 
     private void openCabinDoor() {
         boolean isReturningHome = goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value() ||
@@ -534,7 +533,7 @@ public class FlightManager extends BaseManager {
 
     private static final double FLYING_HEIGHT_THRESHOLD_MAX = 9.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
-    private static final double FLYING_HEIGHT_THRESHOLD_MIN = AMSConfig.getInstance().getDescentAltitude() - 0.1;
+    private static final double FLYING_HEIGHT_THRESHOLD_MIN = -3;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
 
     private void startVisionLanding() {
@@ -549,7 +548,7 @@ public class FlightManager extends BaseManager {
             double thresholdMin = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MIN;
 
             if (flyingHeight > thresholdMin) {
-                boolean shouldTriggerDetection = false;
+                boolean shouldTriggerDetection;
 
                 if (isDebugMode) {
                     shouldTriggerDetection = goHomeExecutionState == 2;

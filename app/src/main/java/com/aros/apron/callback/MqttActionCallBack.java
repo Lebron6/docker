@@ -23,7 +23,7 @@ public class MqttActionCallBack implements IMqttActionListener {
         ToastUtil.showToast("MQtt连接成功");
         LogUtil.log(TAG, "MQtt连接成功：-------");
         try {
-            mqttAndroidClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 1);//订阅主题:注册
+            mqttAndroidClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 2);//订阅主题:注册
         } catch (MqttException e) {
             e.printStackTrace();
         }
