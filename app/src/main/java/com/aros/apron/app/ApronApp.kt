@@ -4,16 +4,13 @@ import android.app.Application
 import android.content.Context
 import com.aros.apron.models.MSDKManagerVM
 import com.aros.apron.models.globalViewModels
-import com.aros.apron.tools.LogUtil
-import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.xclog.CrashHandler
 import com.aros.apron.xclog.XcFileLog
 import com.aros.apron.xclog.XcLogConfig
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
-import com.secneo.sdk.Helper
-import com.tencent.bugly.crashreport.CrashReport
+
 
 open class ApronApp : Application() {
 
@@ -37,8 +34,7 @@ open class ApronApp : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Helper.install(this)
-    }
+        com.cySdkyc.clx.Helper.install(this)    }
 
     /**
      * Logger 初始化配置
