@@ -667,7 +667,7 @@ public class ApronArucoDetect {
                     logMessage = "参考Aurco降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
-                } else if (flyingHeight <= -3) {
+                } else if (flyingHeight <= -0.5) {
                     logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
@@ -828,7 +828,7 @@ public class ApronArucoDetect {
             return -0.275;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
             return -0.195;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= -0.3) {
+        } else if (flyingHeight <= 1.0 && flyingHeight >= -0.5) {
             return -0.175;
         } else {
             return 0.0;
