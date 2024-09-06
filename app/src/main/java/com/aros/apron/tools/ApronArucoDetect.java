@@ -351,31 +351,22 @@ public class ApronArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
 
-//        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 120 || flyingHeight <= 0.1) {
-        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || ultrasonicHeight <= 5) {
+        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 170 || flyingHeight <= -0.5) {
             if (!startFastStick) {
                 String logMessage = "";
                 if (ultrasonicHeight <= 5 && flyingHeight <= 1.7) {
                     logMessage = "参考相对高度与融合高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
-                }
-//                else if (arucoWidth >= 120) {
-//                    logMessage = "参考Aurco降落:" + id + " arucoW" + arucoWidth +
-//                            " Flying Height:" + flyingHeight + "--" +
-//                            " Ultrasonic Height:" + ultrasonicHeight;
-//                }
-                else if (ultrasonicHeight <= 5) {
-                    logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
+                } else if (arucoWidth >= 170) {
+                    logMessage = "参考Aurco降落:" + id + " arucoW" + arucoWidth +
+                            " Flying Height:" + flyingHeight + "--" +
+                            " Ultrasonic Height:" + ultrasonicHeight;
+                } else if (flyingHeight <= -0.5) {
+                    logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
                 }
-
-//                else if (flyingHeight <= 0.1) {
-//                    logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
-//                            " Flying Height:" + flyingHeight + "--" +
-//                            " Ultrasonic Height:" + ultrasonicHeight;
-//                }
 
                 LogUtil.log(TAG, logMessage);
                 startFastStick = true;
@@ -597,7 +588,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 10) {
+            if (handlerCallbackCount < 20) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
@@ -613,6 +604,5 @@ public class ApronArucoDetect {
     private void performNextStep() {
         handler.removeCallbacks(runnable); // 防止重复执行
         canLanding = true;
-        startFastStick=false;
     }
 }
