@@ -52,7 +52,6 @@ import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
 
-
 public class FlightManager extends BaseManager {
 
 
@@ -132,7 +131,6 @@ public class FlightManager extends BaseManager {
                     if (infos != null && infos.size() > 0) {
                         String warningMessage = infos.get(0).description();
                         if (!TextUtils.isEmpty(warningMessage)) {
-                            LogUtil.log(TAG, "监听设备健康" + warningMessage);
                             Movement.getInstance().setWarningMessage(warningMessage);
                             pushFlightAttitude();
                         }
@@ -468,8 +466,8 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final int FLYING_HEIGHT_THRESHOLD = 15; // 开舱门飞行高度阈值
-    private static final int DISTANCE_THRESHOLD = 100; // 返航距离阈值
+    private static final int FLYING_HEIGHT_THRESHOLD = 10; // 开舱门飞行高度阈值
+    private static final int DISTANCE_THRESHOLD = 10000; // 返航距离阈值
 
     private void openCabinDoor() {
         boolean isReturningHome = goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value() ||
@@ -533,9 +531,9 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 9.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
-    private static final double FLYING_HEIGHT_THRESHOLD_MIN = AMSConfig.getInstance().getDescentAltitude() - 0.1;
+    private static final double FLYING_HEIGHT_THRESHOLD_MIN = -0.5;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
 
     private void startVisionLanding() {
@@ -550,7 +548,7 @@ public class FlightManager extends BaseManager {
             double thresholdMin = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MIN;
 
             if (flyingHeight > thresholdMin) {
-                boolean shouldTriggerDetection = false;
+                boolean shouldTriggerDetection;
 
                 if (isDebugMode) {
                     shouldTriggerDetection = goHomeExecutionState == 2;
@@ -602,12 +600,10 @@ public class FlightManager extends BaseManager {
             stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
-            if (shouldStopVisionAndLanding()) {
+             if (shouldStopVisionAndLanding()) {
                 stopArucoDetectAndLanding(2);
             }
         }
-
-
     }
 
     public void stopArucoDetectAndLanding(int i) {
@@ -619,16 +615,13 @@ public class FlightManager extends BaseManager {
         PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
         isGimbalReset = false;
         isTriggerLanding = true;
-
     }
 
     private boolean shouldStopVisionAndLanding() {
         if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
             return !isTriggerLanding && isFlying && isMotorsOn && AlternateArucoDetect.getInstance().isCanLanding();
-
         }else{
             return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
-
         }
     }
 
@@ -904,10 +897,9 @@ public class FlightManager extends BaseManager {
         if (isConnect != null && isConnect) {
             Double value = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
             if (value != null) {
-                sendAircraftTotalFlightDistance2Server(mqttAndroidClient, value);
+                sendAircraftTotalFlightDistance2Server(mqttAndroidClient, message,value);
             }else{
                 sendMsg2Server(mqttAndroidClient, message, "获取里程数为空");
-
             }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");

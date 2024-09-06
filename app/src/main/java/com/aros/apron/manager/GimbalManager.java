@@ -65,8 +65,8 @@ public class GimbalManager extends BaseManager {
                 int pitch = message.getY();
                 GimbalAngleRotation rotation = new GimbalAngleRotation();
                 rotation.setMode(GimbalAngleRotationMode.RELATIVE_ANGLE);
-                rotation.setYaw(Double.valueOf(yaw * 10));
-                rotation.setPitch(Double.valueOf(pitch * 10));
+                rotation.setYaw(Double.valueOf(yaw));
+                rotation.setPitch(Double.valueOf(pitch));
                 KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {

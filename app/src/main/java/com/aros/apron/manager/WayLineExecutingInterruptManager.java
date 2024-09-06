@@ -44,7 +44,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         if (Movement.getInstance().getFlyingHeight() < 90) {
             LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getFlyingHeight());
             raiseTheReturnFlight();
-            sendMissionExecuteEvents(client,"航线中断:先拉高后返航");
+            sendMissionExecuteEvents(client,"航线中断:拉高后返航");
         } else {
             LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight() );
             FlightManager.getInstance().startGoHome(null, null);

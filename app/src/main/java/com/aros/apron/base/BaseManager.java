@@ -97,7 +97,7 @@ public abstract class BaseManager {
                 message.setResult(1);
                 message.setMsg(event);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
@@ -117,7 +117,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = null;
                 result.setMsg_type(60102);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(1);
 
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功：60102"+new Gson().toJson(result));
@@ -132,37 +132,15 @@ public abstract class BaseManager {
     }
 
 
-    //推送航点动作组执行状态
-    public void sendMsgWaypointActionState2Server(MqttAndroidClient client,String data,String index) {
-        try {
-            if (client.isConnected()) {
-                MqttMessage mqttMessage = null;
-                MessageReply message = new MessageReply();
-                message.setMsg_type(60133);
-                message.setResult(1);
-                message.setWaypointActionState(data);
-                message.setWaypointIndex(index);
-                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-
-            } else {
-                LogUtil.log(TAG, "推送航点动作组失败：mqtt 未连接");
-            }
-        } catch (Exception e) {
-            LogUtil.log(TAG, "推送航点动作组发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
-        }
-    }
-
     //获取总飞行里程
-    public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client,double data) {
+    public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client, MQMessage mqMessage, double data) {
         try {
             if (client.isConnected()) {
                 MqttMessage mqttMessage = null;
                 MessageReply message = new MessageReply();
                 message.setMsg_type(60132);
                 message.setResult(1);
+                message.setFlag(mqMessage.getFlag());
                 message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);

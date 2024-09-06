@@ -1,6 +1,7 @@
 package com.aros.apron.manager;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -62,7 +63,7 @@ public class DockCloseManager extends BaseManager {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
                 LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes);
-                sendMissionExecuteEvents(client, "AMS通知机库执行无人机关舱");
+                sendMissionExecuteEvents(client, "AMS通知机库关舱");
                 isSendDockCloseSuccess = true;
             }
 
@@ -73,11 +74,12 @@ public class DockCloseManager extends BaseManager {
             }
         });
     }
+    final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private void retrySend(MqttAndroidClient client) {
         sendDockCloseSuccessTimes++;
         if (sendDockCloseSuccessTimes < maxRetries) {
-            new Handler().postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，关舱发送失败：" + sendDockCloseSuccessTimes);
         }

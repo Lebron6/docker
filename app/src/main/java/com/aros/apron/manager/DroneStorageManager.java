@@ -1,6 +1,7 @@
 package com.aros.apron.manager;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -61,7 +62,7 @@ public class DroneStorageManager extends BaseManager {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
                 LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes);
-                sendMissionExecuteEvents(client, "AMS通知机库执行无人机入库");
+                sendMissionExecuteEvents(client, "AMS通知机库入库");
                 isSendDroneStorageSuccess = true;
             }
 
@@ -72,11 +73,12 @@ public class DroneStorageManager extends BaseManager {
             }
         });
     }
+    final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private void retrySend(MqttAndroidClient client,int result) {
         sendDroneStorageSuccessTimes++;
         if (sendDroneStorageSuccessTimes < maxRetries) {
-            new Handler().postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
+            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，入库发送失败：" + sendDroneStorageSuccessTimes);
         }
