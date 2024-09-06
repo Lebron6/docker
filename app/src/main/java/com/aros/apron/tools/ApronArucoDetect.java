@@ -351,14 +351,14 @@ public class ApronArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
 
-        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 170 || flyingHeight <= -0.5) {
+        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 160 || flyingHeight <= -0.5) {
             if (!startFastStick) {
                 String logMessage = "";
                 if (ultrasonicHeight <= 5 && flyingHeight <= 1.7) {
                     logMessage = "参考相对高度与融合高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
-                } else if (arucoWidth >= 170) {
+                } else if (arucoWidth >= 160) {
                     logMessage = "参考Aurco降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
@@ -603,6 +603,7 @@ public class ApronArucoDetect {
 
     private void performNextStep() {
         handler.removeCallbacks(runnable); // 防止重复执行
+        handlerCallbackCount=0;
         canLanding = true;
     }
 }
