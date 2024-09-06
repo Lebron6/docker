@@ -211,7 +211,7 @@ public class ApronArucoDetect {
             }
 
 
-        if (Movement.getInstance().getFlyingHeight() > 1.5 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 22)) {
+        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 22)) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 22) {
                     detectedBigMarkerId = 22;
@@ -280,7 +280,7 @@ public class ApronArucoDetect {
         Mat tvec = tvecs.row(0);
         double z = tvec.get(0, 0)[2];
 //        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
-        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>3&& id == 23) {
+        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>2&& id == 22) {
             //罗德里变换
             Mat R = new Mat(3, 3, CvType.CV_32FC1);
             Mat rvec = rvecs.row(0);
@@ -351,7 +351,7 @@ public class ApronArucoDetect {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
 
 //        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 120 || flyingHeight <= 0.1) {
-        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || flyingHeight <= 0.3) {
+        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || ultrasonicHeight <= 5) {
             if (!startFastStick) {
                 String logMessage = "";
                 if (ultrasonicHeight <= 5 && flyingHeight <= 1.7) {
@@ -370,11 +370,11 @@ public class ApronArucoDetect {
                             " Ultrasonic Height:" + ultrasonicHeight;
                 }
 
-                else if (flyingHeight <= 0.1) {
-                    logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
-                            " Flying Height:" + flyingHeight + "--" +
-                            " Ultrasonic Height:" + ultrasonicHeight;
-                }
+//                else if (flyingHeight <= 0.1) {
+//                    logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
+//                            " Flying Height:" + flyingHeight + "--" +
+//                            " Ultrasonic Height:" + ultrasonicHeight;
+//                }
 
                 LogUtil.log(TAG, logMessage);
                 startFastStick = true;
