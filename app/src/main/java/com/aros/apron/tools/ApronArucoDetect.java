@@ -201,9 +201,9 @@ public class ApronArucoDetect {
     public void findAruco(int[] idArray) {
             if (mFindArucoList.isEmpty()) {
                 for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 23) {
+                    if (idArray[i] == 22) {
                         detectedSmallMarkers = true;
-                        detectedSmallMarkerId = 23;
+                        detectedSmallMarkerId = 22;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.042f));
                         break;
                     }
@@ -213,8 +213,8 @@ public class ApronArucoDetect {
 
         if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 22)) {
             for (int i = 0; i < idArray.length; i++) {
-                if (idArray[i] == 22) {
-                    detectedBigMarkerId = 22;
+                if (idArray[i] == 23) {
+                    detectedBigMarkerId = 23;
                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.395f));
                     break;
                 }
@@ -280,7 +280,7 @@ public class ApronArucoDetect {
         Mat tvec = tvecs.row(0);
         double z = tvec.get(0, 0)[2];
 //        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
-        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>2&& id == 22) {
+        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>2&& id == 23) {
             //罗德里变换
             Mat R = new Mat(3, 3, CvType.CV_32FC1);
             Mat rvec = rvecs.row(0);
@@ -340,7 +340,7 @@ public class ApronArucoDetect {
 
 
         if (Math.abs(imageVector.val[0]) <= 150
-                && Math.abs(imageVector.val[1]) <= 100 && id == 23) {
+                && Math.abs(imageVector.val[1]) <= 100 && id == 22) {
             checkConditions(id, arucoWidth);
         } else {
             canLanding = false;
