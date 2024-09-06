@@ -338,6 +338,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setUltrasonicHeight(newValue);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -347,6 +349,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightDistance(t1.toString());
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -356,6 +360,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightDuration(t1.toString());
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -365,6 +371,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightTimes(t1.toString());
+                        pushFlightAttitude();
+
                     }
                 }
             });
