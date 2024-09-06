@@ -917,6 +917,5 @@ public class ApronArucoDetect {
     private void performNextStep() {
         handler.removeCallbacks(runnable); // 防止重复执行
         canLanding = true;
-        startFastStick=false;
     }
 }
