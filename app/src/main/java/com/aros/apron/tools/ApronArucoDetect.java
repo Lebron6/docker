@@ -597,7 +597,7 @@ public class ApronArucoDetect {
     };
 
     private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1);
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.6);
         handlerCallbackCount++; // 增加计数器
     }
 
