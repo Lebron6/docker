@@ -332,7 +332,7 @@ public class ApronArucoDetect {
                     ? updateOutDownSpeed() : 0f;
         }
 
-        LogUtil.log(TAG, "Aruco:" + id + "arucoW:" + arucoWidth+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
+        LogUtil.log(TAG, "Aruco=" + id + "  arucoW:" + arucoWidth+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
