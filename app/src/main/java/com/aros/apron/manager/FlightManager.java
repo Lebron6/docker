@@ -401,7 +401,7 @@ public class FlightManager extends BaseManager {
     private void pushFlightAttitude() {
 
         //关仓门
-        closeCabinDoor();
+//        closeCabinDoor();
         //开舱门
         openCabinDoor();
         //降落时将云台朝下

@@ -211,7 +211,8 @@ public class ApronArucoDetect {
             }
 
 
-        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 22)) {
+        if (Movement.getInstance().getFlyingHeight() > 1 && mFindArucoList.isEmpty()
+                && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 23)) {
             for (int i = 0; i < idArray.length; i++) {
                 if (idArray[i] == 23) {
                     detectedBigMarkerId = 23;
@@ -596,7 +597,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 20) {
+            if (handlerCallbackCount < 10) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
