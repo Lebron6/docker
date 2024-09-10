@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DroneStorageManager extends BaseManager {
 
-    private final int maxRetries = 5;
+    private final int maxRetries = 10;
     private int sendDroneStorageSuccessTimes;
     private boolean isSendDroneStorageSuccess;
 
