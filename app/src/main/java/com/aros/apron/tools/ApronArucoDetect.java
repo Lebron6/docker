@@ -208,7 +208,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 12;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -218,7 +218,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 13;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -229,7 +229,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 15;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -240,7 +240,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 16;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -250,7 +250,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 11;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -260,7 +260,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 18;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -270,7 +270,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 14;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -280,7 +280,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 17;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -290,7 +290,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 19;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -301,7 +301,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 15;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -311,7 +311,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 16;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -322,7 +322,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 14;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -333,7 +333,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 12;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -343,7 +343,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 13;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -353,7 +353,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 11;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -363,7 +363,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 18;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -373,7 +373,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 19;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -383,7 +383,7 @@ public class ApronArucoDetect {
                             detectedSmallMarkers = true;
                             detectedSmallMarkerId = 17;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            break;
+                            return;
                         }
                     }
                 }
@@ -407,7 +407,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 6) {
                         detectedBigMarkerId = 6;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -425,7 +425,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 5) {
                         detectedBigMarkerId = 5;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -444,7 +444,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 8) {
                         detectedBigMarkerId = 8;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -461,7 +461,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 7) {
                         detectedBigMarkerId = 7;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -477,7 +477,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 9) {
                         detectedBigMarkerId = 9;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -489,7 +489,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 1) {
                         detectedBigMarkerId = 1;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -499,7 +499,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 2) {
                         detectedBigMarkerId = 2;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -507,7 +507,7 @@ public class ApronArucoDetect {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 3) {
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        break;
+                        return;
                     }
                 }
             }
@@ -516,7 +516,7 @@ public class ApronArucoDetect {
                     if (idArray[i] == 4) {
                         detectedBigMarkerId = 4;
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.295f));
-                        break;
+                        return;
                     }
                 }
             }
