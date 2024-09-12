@@ -43,10 +43,9 @@ public class ApronArucoDetect {
     long startTime;
     long endTime;
 
-    //复降触发条件
-    private boolean dropTimesTag;
-    //复降次数
-    private int dropTimes;
+    //没识别到当前高度应该识别的二维码
+    private int sigleMarkerDetectFailsTimes;
+
     //是否双挂
     private boolean isDoublePayload;
 
@@ -103,21 +102,20 @@ public class ApronArucoDetect {
                         arucoNotFoundTag = false;
                         int[] idArray = ids.toArray();
                         findAruco(idArray);
-
-
-
-
                         if (mFindArucoList.size() == 0) {
                             sigleMarkerDetectFailsTimes++;
                             if (sigleMarkerDetectFailsTimes >= 20) {
                                 sigleMarkerDetectFailsTimes = 0;
-                                setDetectedBigMarkers();
-                                LogUtil.log(TAG, "重置识别二维码状态");
+                                LogUtil.log(TAG, "未找到相应高度二维码");
+                                if (Movement.getInstance().getFlyingHeight() < 7) {
+                                    //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
+                                    DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.4);
+                                }
                             }
                         } else {
+                            sigleMarkerDetectFailsTimes=0;
                             moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                         }
-                        dropTimesTag = true;
                     }
 
                     else {
@@ -130,21 +128,9 @@ public class ApronArucoDetect {
                         if (endTime - startTime > 1000 && endTime - startTime <= 8000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
-                                setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.3);
-                                if (dropTimes > Integer.parseInt(AMSConfig.getInstance().getAlternateLandingTimes())) {
-                                    LogUtil.log(TAG, "超过复降限制,去备降点");
-                                    AlternateLandingManager.getInstance().startTaskProcess(null);
-                                    return;
-                                }
-                                if (dropTimesTag) {
-                                    dropTimesTag = false;
-                                    dropTimes++;
-                                    LogUtil.log(TAG, "复降第:" + dropTimes + "次");
-                                }
                             } else if (Movement.getInstance().getFlyingHeight() > 7) {
                                 //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
-                                setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.4);
                             }
                         } else if (endTime - startTime > 8000) {
@@ -669,27 +655,49 @@ public class ApronArucoDetect {
             } else {
                 return 0.145;
             }
-        } else if (d <= 150 && d > 99) {
+        } else if (d <= 150 && d > 100) {
             if (ultrasonicHeight > 6) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.095;
+                return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.065;
+                return 0.145;
             } else {
-                return 0.055;
+                return 0.135;
             }
-        } else {
+        }
+        else if (d <= 100 && d > 79) {
+            if (ultrasonicHeight > 6) {
+                return 0.045;
+            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
+                return 0.045;
+            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
+                return 0.045;
+            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
+                return 0.045;
+            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
+                return 0.045;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
+                return 0.045;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.045;
+            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
+                return 0.035;
+            } else {
+                return 0.025;
+            }
+        }
+        else {
             return 0.0;
         }
     }
@@ -698,17 +706,17 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.495;
-        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
             return -0.475;
+        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
+            return -0.425;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.455;
-        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.435;
-        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
             return -0.395;
+        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
+            return -0.375;
+        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
+            return -0.275;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
-            return -0.295;
+            return -0.215;
         } else if (flyingHeight <= 1.0 && flyingHeight >= -0.5) {
             return -0.175;
         } else {
