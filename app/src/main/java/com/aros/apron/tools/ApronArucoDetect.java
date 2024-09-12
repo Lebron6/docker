@@ -2,7 +2,6 @@ package com.aros.apron.tools;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
@@ -106,7 +105,7 @@ public class ApronArucoDetect {
                         findAruco(idArray);
 
                         if (mFindArucoList.size() == 0) {
-//                            Log
+                            LogUtil.log(TAG, "未识别到相应二维码");
                         } else {
                             moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                         }
@@ -659,30 +658,10 @@ public class ApronArucoDetect {
                 return 0.175;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
-            }else {
+            } else {
                 return 0.145;
             }
-        } else if (d <= 150 && d > 100) {
-            if (ultrasonicHeight > 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.165;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.165;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.165;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.165;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
-            }else {
-                return 0.145;
-            }
-        }else if (d <= 100 && d > 79) {
+        } else if (d <= 150 && d > 99) {
             if (ultrasonicHeight > 6) {
                 return 0.095;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
@@ -699,10 +678,10 @@ public class ApronArucoDetect {
                 return 0.095;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.065;
-            }else {
+            } else {
                 return 0.055;
             }
-        }  else {
+        } else {
             return 0.0;
         }
     }
@@ -711,17 +690,17 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 5) {
-            return -0.455;
+            return -0.495;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.435;
+            return -0.475;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.425;
+            return -0.455;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.375;
+            return -0.435;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.275;
+            return -0.395;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
-            return -0.195;
+            return -0.295;
         } else if (flyingHeight <= 1.0 && flyingHeight >= -0.5) {
             return -0.175;
         } else {
@@ -735,7 +714,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 20) {
+            if (handlerCallbackCount < 15) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
