@@ -463,9 +463,10 @@ public class ApronArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-
-            outX = updateOutXYSpeed(id, imageVector.val[0]);
-            outY = updateOutXYSpeed(id, imageVector.val[1]);
+            outX = imageVector.val[0] < 0 ? -updateOutXYSpeed(Math.abs(imageVector.val[0]))
+                    : updateOutXYSpeed(Math.abs(imageVector.val[0]));
+            outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
+                    : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
             outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
                     && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 100))
                     ? updateOutDownSpeed() : 0f;
@@ -539,23 +540,23 @@ public class ApronArucoDetect {
 
 
     //根据偏移量和高度决定X/Y轴移动速度
-    private double updateOutXYSpeed(int id, Double d) {
+    private double updateOutXYSpeed(double d) {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
             if (ultrasonicHeight > 6) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.215;
+                return 0.185;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
             }else {
@@ -563,19 +564,19 @@ public class ApronArucoDetect {
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 6) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.205;
+                return 0.185;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
             }else {
@@ -583,19 +584,19 @@ public class ApronArucoDetect {
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 6) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.195;
+                return 0.185;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
             }else {
