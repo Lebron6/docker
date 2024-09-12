@@ -104,8 +104,16 @@ public class ApronArucoDetect {
                         int[] idArray = ids.toArray();
                         findAruco(idArray);
 
+
+
+
                         if (mFindArucoList.size() == 0) {
-                            LogUtil.log(TAG, "未识别到相应二维码");
+                            sigleMarkerDetectFailsTimes++;
+                            if (sigleMarkerDetectFailsTimes >= 20) {
+                                sigleMarkerDetectFailsTimes = 0;
+                                setDetectedBigMarkers();
+                                LogUtil.log(TAG, "重置识别二维码状态");
+                            }
                         } else {
                             moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                         }
