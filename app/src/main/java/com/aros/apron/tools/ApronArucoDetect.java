@@ -2,6 +2,7 @@ package com.aros.apron.tools;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
@@ -97,7 +98,6 @@ public class ApronArucoDetect {
                     MatOfInt ids = new MatOfInt();
                     mFindArucoList.clear();
                     mArucoCornerList.clear();
-                    MatOfPoint2f corner = new MatOfPoint2f();
 
                     Aruco.detectMarkers(grayImgMat, dictionary, mArucoCornerList, ids);
                     if (ids.depth() > 0) {
@@ -106,16 +106,9 @@ public class ApronArucoDetect {
                         findAruco(idArray);
 
                         if (mFindArucoList.size() == 0) {
-
+//                            Log
                         } else {
-                            Core.extractChannel(mFindArucoList.get(0).getConner(), corner, 0);
-                            Point[] points = corner.toArray();
-                            // 计算宽度（两个相邻角点之间的距离）
-                            double width = calculateDistance(points[0], points[1]);
-                            // 计算高度（另外两个相邻角点之间的距离）
-                            double height = calculateDistance(points[1], points[2]);
-
-                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(),width,height);
+                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height());
                         }
                         dropTimesTag = true;
                     }
@@ -163,7 +156,6 @@ public class ApronArucoDetect {
                     grayImgMat.release();
                     mFindArucoList.clear();
                     mArucoCornerList.clear();
-                    corner.release();
                     isStartAruco = false;
                 } catch (Exception e) {
                     isStartAruco = false;
@@ -207,10 +199,157 @@ public class ApronArucoDetect {
                     }
                 }
             }else{
-                if (mFindArucoList.isEmpty()) {
-                    for (int i = 0; i < idArray.length; i++) {
-
+                if (isDoublePayload()) {
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 12) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
                     }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 13) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 15) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 16) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 11) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 18) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 14) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 17) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 19) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 15) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 16) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 14) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 12) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 13) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 11) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 18) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 19) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 17) {
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                        }
+                    }
+
                 }
 
             }
@@ -224,54 +363,28 @@ public class ApronArucoDetect {
     }
 
     //根据识别到的二维码移动无人机
-    private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight, double arucoWidth, double arucoHeight) {
+    private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight) {
 
         //计算标记中心
-//        double centerX = 0, centerY = 0;
-//        for (int i = 0; i < arucoMarkers.size(); i++) {
-//            centerX = centerX + Core.mean(arucoMarkers.get(i).getConner()).val[0] - (imageWidth / 2f);
-//            centerY = centerY + Core.mean(arucoMarkers.get(i).getConner()).val[1] - (imageHeight / 2f);
-//        }
+        double centerX = 0, centerY = 0;
+        for (int i = 0; i < arucoMarkers.size(); i++) {
+            centerX = centerX + Core.mean(arucoMarkers.get(i).getConner()).val[0] - (imageWidth / 2f);
+            centerY = centerY + Core.mean(arucoMarkers.get(i).getConner()).val[1] - (imageHeight / 2f);
+        }
 
         int id = arucoMarkers.get(0).getId();
         // 打印宽度和高度
 //        LogUtil.log(TAG, "Aruco:" + mFindArucoList.get(0).getId() + "arucoW:" + arucoWidth + "imageW:" + imageWidth);
-        double centerX = Core.mean(arucoMarkers.get(0).getConner()).val[0] - (imageWidth / 2f);
-        double centerY = Core.mean(arucoMarkers.get(0).getConner()).val[1] - (imageHeight / 2f);
-        //计算相对于图像中心的图像矢量
-//        Scalar imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
-        Scalar imageVector = new Scalar(centerX, centerY);
+//        double centerX = Core.mean(arucoMarkers.get(0).getConner()).val[0] - (imageWidth / 2f);
+//        double centerY = Core.mean(arucoMarkers.get(0).getConner()).val[1] - (imageHeight / 2f);
+//        计算相对于图像中心的图像矢量
+        Scalar imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
+//        Scalar imageVector = new Scalar(centerX, centerY);
         double outX;
         double outY;
         double outZ;
 
-        //相机内参
-        Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-        cameraMatrix.put(0, 0,  1131.3484309796945);
-        cameraMatrix.put(1, 1, 1143.0319750579686);
-        cameraMatrix.put(0, 2, 676.696876660099);
-        cameraMatrix.put(1, 2, 532.6254545540435);
-        cameraMatrix.put(2, 2, 1.0);
-        //相机畸变
-        Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
-        distCoeffs.put(0, 0, -0.16879686656897544);
-        distCoeffs.put(1, 0, 0.4252674979687209);
-        distCoeffs.put(2, 0, 0.004260616672174669);
-        distCoeffs.put(3, 0, 0.010597384861297276);
-        distCoeffs.put(4, 0, -0.6032569042575567);
-        //旋转矩阵
-        Mat rvecs = new Mat();
-        //位移矩阵
-        Mat tvecs = new Mat();
-        //姿态预估
-        List<Mat> conners = new ArrayList<>();
-        conners.add(arucoMarkers.get(0).getConner());
-        Aruco.estimatePoseSingleMarkers(conners, arucoMarkers.get(0).getSize(), cameraMatrix, distCoeffs, rvecs, tvecs);
-
-        Mat tvec = tvecs.row(0);
-        double z = tvec.get(0, 0)[2];
-//        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
-        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>3&& (
+        if (Movement.getInstance().getFlyingHeight()>3&& (
                 id == 1
                         || id == 2
                         || id == 3
@@ -283,6 +396,31 @@ public class ApronArucoDetect {
                         || id == 9
         )
         ) {
+            //相机内参
+            Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
+            cameraMatrix.put(0, 0,  1131.3484309796945);
+            cameraMatrix.put(1, 1, 1143.0319750579686);
+            cameraMatrix.put(0, 2, 676.696876660099);
+            cameraMatrix.put(1, 2, 532.6254545540435);
+            cameraMatrix.put(2, 2, 1.0);
+            //相机畸变
+            Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
+            distCoeffs.put(0, 0, -0.16879686656897544);
+            distCoeffs.put(1, 0, 0.4252674979687209);
+            distCoeffs.put(2, 0, 0.004260616672174669);
+            distCoeffs.put(3, 0, 0.010597384861297276);
+            distCoeffs.put(4, 0, -0.6032569042575567);
+            //旋转矩阵
+            Mat rvecs = new Mat();
+            //位移矩阵
+            Mat tvecs = new Mat();
+            //姿态预估
+            List<Mat> conners = new ArrayList<>();
+            conners.add(arucoMarkers.get(0).getConner());
+            Aruco.estimatePoseSingleMarkers(conners, arucoMarkers.get(0).getSize(), cameraMatrix, distCoeffs, rvecs, tvecs);
+
+            Mat tvec = tvecs.row(0);
+            double z = tvec.get(0, 0)[2];
             //罗德里变换
             Mat R = new Mat(3, 3, CvType.CV_32FC1);
             Mat rvec = rvecs.row(0);
@@ -333,7 +471,7 @@ public class ApronArucoDetect {
                     ? updateOutDownSpeed() : 0f;
         }
 
-        LogUtil.log(TAG, "Aruco=" + id + "  arucoW:" + arucoWidth+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
+        LogUtil.log(TAG, "Aruco=" + arucoMarkers.size() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
@@ -343,7 +481,14 @@ public class ApronArucoDetect {
         if (Math.abs(imageVector.val[0]) <= 150
                 && Math.abs(imageVector.val[1]) <= 100&&(id==11||id==12||id==13||id==14||id==15
                 ||id==16||id==17||id==18||id==19)) {
-            checkConditions(id,arucoWidth);
+            MatOfPoint2f corner = new MatOfPoint2f();
+            Core.extractChannel(mFindArucoList.get(0).getConner(), corner, 0);
+            Point[] points = corner.toArray();
+            // 计算宽度（两个相邻角点之间的距离）
+            double width = calculateDistance(points[0], points[1]);
+            // 计算高度（另外两个相邻角点之间的距离）
+//            double height = calculateDistance(points[1], points[2]);
+            checkConditions(id,width);
         } else {
             canLanding = false;
         }
