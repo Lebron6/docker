@@ -465,16 +465,17 @@ public class ApronArucoDetect {
                     ? updateOutDownSpeed() : 0f;
         }
 
-        MiniPID xPID=new MiniPID(1000,0.001,0.5);
+        MiniPID xPID=new MiniPID(0.001,0,0);
         xPID.setOutputLimits(0,350);
         xPID.setSetpoint(0);
 
-        MiniPID yPID=new MiniPID(0.001,0.001,0.5);
-        yPID.setOutputLimits(0,350);
-        yPID.setSetpoint(0);
+//        MiniPID yPID=new MiniPID(0.001,0.001,0.5);
+//        yPID.setOutputLimits(0,350);
+//        yPID.setSetpoint(0);
+//        yPID.se
 
         LogUtil.log(TAG,"xpid"+(imageVector.val[0]<0?-xPID.getOutput(Math.abs(imageVector.val[0])):xPID.getOutput(Math.abs(imageVector.val[0]))));
-        LogUtil.log(TAG,"ypid"+(imageVector.val[1]<0?yPID.getOutput(Math.abs(imageVector.val[1])):-yPID.getOutput(Math.abs(imageVector.val[1]))));
+//        LogUtil.log(TAG,"ypid"+(imageVector.val[1]<0?yPID.getOutput(Math.abs(imageVector.val[1])):-yPID.getOutput(Math.abs(imageVector.val[1]))));
 
         LogUtil.log(TAG, "Aruco=" + arucoMarkers.size() + "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
 
