@@ -212,7 +212,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 13)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 13) {
                             detectedSmallMarkers = true;
@@ -223,7 +223,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 15)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 15)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 15) {
                             detectedSmallMarkers = true;
@@ -234,7 +234,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 16)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 16) {
                             detectedSmallMarkers = true;
@@ -244,7 +244,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 11)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11) {
                             detectedSmallMarkers = true;
@@ -254,7 +254,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 18)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 18) {
                             detectedSmallMarkers = true;
@@ -264,7 +264,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 14)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 14) {
                             detectedSmallMarkers = true;
@@ -274,7 +274,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 17)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 17) {
                             detectedSmallMarkers = true;
@@ -284,7 +284,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 19)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 19) {
                             detectedSmallMarkers = true;
@@ -305,7 +305,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 16)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 16) {
                             detectedSmallMarkers = true;
@@ -316,7 +316,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 14)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 14) {
                             detectedSmallMarkers = true;
@@ -327,7 +327,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 12)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 12)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 12) {
                             detectedSmallMarkers = true;
@@ -337,7 +337,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 13)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 13) {
                             detectedSmallMarkers = true;
@@ -347,7 +347,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 11)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11) {
                             detectedSmallMarkers = true;
@@ -357,7 +357,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 18)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 18) {
                             detectedSmallMarkers = true;
@@ -367,7 +367,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 19)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 19) {
                             detectedSmallMarkers = true;
@@ -377,7 +377,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 17)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 17) {
                             detectedSmallMarkers = true;
@@ -483,8 +483,10 @@ public class ApronArucoDetect {
             }
         }
 
-        if (Movement.getInstance().getFlyingHeight()>1.5){
-            if ( mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 1)) {
+        if (Movement.getInstance().getFlyingHeight()>2.5){
+            if ( mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+                    (detectedBigMarkerId == 0 || detectedBigMarkerId == 1|| detectedBigMarkerId == 2
+                            || detectedBigMarkerId == 3|| detectedBigMarkerId == 4)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 1) {
                         detectedBigMarkerId = 1;
@@ -494,7 +496,8 @@ public class ApronArucoDetect {
                 }
             }
 
-            if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 2)) {
+            if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 ||
+                    detectedBigMarkerId == 2|| detectedBigMarkerId == 3|| detectedBigMarkerId == 4)) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 2) {
                         detectedBigMarkerId = 2;
@@ -881,9 +884,9 @@ public class ApronArucoDetect {
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
             return -0.435;
         } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.425;
+            return -0.395;
         } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.375;
+            return -0.345;
         } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
             return -0.275;
         } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
@@ -901,7 +904,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 20) {
+            if (handlerCallbackCount < 10) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
