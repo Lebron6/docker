@@ -370,6 +370,11 @@ public class MqttCallBack implements MqttCallbackExtended {
 //                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
 //                FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
                 break;
+            //异地降落
+            case 60135:
+                LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
+                AlternateLandingManager.getInstance().startTaskProcess(message);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
@@ -391,6 +396,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                     LogUtil.log(TAG, "收到命令：机库动作参数有误" + jsonString);
                 }
                 break;
+
         }
     }
 
