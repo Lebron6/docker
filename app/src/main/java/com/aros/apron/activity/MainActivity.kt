@@ -313,7 +313,7 @@ class MainActivity : BaseActivity() {
             CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
-            OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
+            OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

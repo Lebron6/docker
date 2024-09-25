@@ -1,17 +1,18 @@
 package com.aros.apron.manager;
 
-import static com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO;
+import android.os.Handler;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.greenrobot.eventbus.EventBus;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
+import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.v5.common.callback.CommonCallbacks;
@@ -24,7 +25,6 @@ import dji.v5.manager.KeyManager;
  */
 public class ResetHomePointManager extends BaseManager {
 
-    MqttAndroidClient mqttClient;
 
     private ResetHomePointManager() {
     }
@@ -38,14 +38,13 @@ public class ResetHomePointManager extends BaseManager {
     }
 
 
-    public void startTaskProcess(MQMessage message) {
+    public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         if (TextUtils.isEmpty(message.getOffSitePointLat()) || TextUtils.isEmpty(message.getOffSitePointLon())) {
-            sendMissionExecuteEvents(mqttClient, "重置返航点经纬度有误");
+            sendMissionExecuteEvents(client, "重置返航点经纬度有误");
             LogUtil.log(TAG, "重置返航点经纬度有误");
             return;
         }
-        //飞往异地降落点,关闭视觉识别
-        EventBus.getDefault().post(FLAG_STOP_ARUCO);
+
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -54,24 +53,24 @@ public class ResetHomePointManager extends BaseManager {
             if ((areMotorOn != null && areMotorOn) && (isFlying != null && isFlying)) {
                 RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
                 if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
-                    checkDroneState(message);
+                    checkDroneState(client, message);
                 } else {
                     if (message != null) {
-                        sendMsg2Server(mqttClient, message, "挡位不正确,不刷新返航点");
+                        sendMsg2Server(client, message, "挡位不正确,不刷新返航点");
                     }
-                    sendMissionExecuteEvents(mqttClient, "挡位不正确,不刷新返航点");
+                    sendMissionExecuteEvents(client, "挡位不正确,不刷新返航点");
                     LogUtil.log(TAG, "检测到挡位不正确,不刷新返航点");
                 }
             } else {
                 if (message != null) {
-                    sendMsg2Server(mqttClient, message, "飞机未起飞,不刷新返航点");
+                    sendMsg2Server(client, message, "飞机未起飞,不刷新返航点");
                 }
-                sendMissionExecuteEvents(mqttClient, "飞机未起飞,不刷新返航点");
+                sendMissionExecuteEvents(client, "飞机未起飞,不刷新返航点");
             }
         }
     }
 
-    private void checkDroneState(MQMessage message) {
+    private void checkDroneState(MqttAndroidClient client, MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -79,16 +78,15 @@ public class ResetHomePointManager extends BaseManager {
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "取消返航成功");
-                            resetHomePoint(message);
-                            sendMissionExecuteEvents(mqttClient, "取消返航:刷新返航点");
+                            LogUtil.log(TAG, "取消返航,刷新返航点成功");
+                            resetHomePoint(client, message);
+                            sendMissionExecuteEvents(client, "取消返航:刷新返航点");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
-                            resetHomePoint(message);
-                            sendMissionExecuteEvents(mqttClient, "取消返航失败:刷新返航点");
+                            sendMissionExecuteEvents(client, "取消返航失败:" + new Gson().toJson(error));
                         }
                     });
                     break;
@@ -96,29 +94,56 @@ public class ResetHomePointManager extends BaseManager {
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "取消降落成功");
-                            sendMissionExecuteEvents(mqttClient, "取消降落成功:去异地降落");
-                            resetHomePoint(message);
+                            LogUtil.log(TAG, "取消降落,刷新返航点成功");
+                            sendMissionExecuteEvents(client, "取消降落成功:刷新返航点");
+                            resetHomePoint(client, message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "取消降落失败:去异地降落");
-                            resetHomePoint(message);
+                            sendMissionExecuteEvents(client, "取消降落失败:" + new Gson().toJson(error));
                         }
                     });
                     break;
                 default:
-                    resetHomePoint(message);
+                    resetHomePoint(client, message);
                     break;
             }
         }
     }
 
 
-    public void resetHomePoint(MQMessage message) {
+    public void resetHomePoint(MqttAndroidClient client, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    LocationCoordinate2D homeLocation = new LocationCoordinate2D();
+                    homeLocation.setLatitude(Utils.parseLatLon(message.getOffSitePointLat()));
+                    homeLocation.setLongitude(Utils.parseLatLon(message.getOffSitePointLon()));
+                    KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyHomeLocation), homeLocation, new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(client, message);
+                            LogUtil.log(TAG, "刷新返航点成功");
+                        }
 
+                        @Override
+                        public void onFailure(@NonNull IDJIError idjiError) {
+                            LogUtil.log(TAG, "刷新返航点失败:" + new Gson().toJson(idjiError));
+                            sendMsg2Server(client, message, "刷新返航点失败:" + new Gson().toJson(idjiError));
+                        }
+                    });
+                }
+            },1000);
+
+        } else {
+            LogUtil.log(TAG, "刷新返航点失败:飞控未连接");
+            sendMsg2Server(client, message, "刷新返航点失败:飞控未连接");
+        }
     }
 
 }

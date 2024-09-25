@@ -67,7 +67,8 @@ public class OffSiteLandingManager extends BaseManager {
         return OffSiteLandingHolder.INSTANCE;
     }
 
-    public void initOffSiteLandingInfo() {
+    public void initOffSiteLandingInfo(MqttAndroidClient client) {
+        this.mqttClient=client;
         KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyGoHomeHeight), this, new CommonCallbacks.KeyListener<Integer>() {
             @Override
             public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
