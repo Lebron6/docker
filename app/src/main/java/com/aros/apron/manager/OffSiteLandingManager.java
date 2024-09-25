@@ -77,16 +77,21 @@ public class OffSiteLandingManager extends BaseManager {
                 }else{
                     goHomeHeight=80;
                     LogUtil.log(TAG,"返航高度监听失败:"+goHomeHeight);
-
                 }
             }
         });
     }
 
     public void startTaskProcess(MQMessage message) {
+        if (TextUtils.isEmpty(message.getOffSitePointLat())||TextUtils.isEmpty(message.getOffSitePointLon())){
+            sendMissionExecuteEvents(mqttClient, "异地降落点经纬度有误");
+            LogUtil.log(TAG, "异地降落点经纬度有误,不触发异地降落");
+            return;
+        }
+        PerceptionManager.getInstance().setPerceptionEnable(false);
+        DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttClient);
         //飞往异地降落点,关闭视觉识别
         EventBus.getDefault().post(FLAG_STOP_ARUCO);
-
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -293,7 +298,7 @@ public class OffSiteLandingManager extends BaseManager {
         missionPoint.setExecuteHeight(Movement.getInstance().getFlyingHeight()
                 > goHomeHeight
                 ? Movement.getInstance().getFlyingHeight()-1 :
-                goHomeHeight-1);
+                goHomeHeight);
 
         // 创建第二个 MissionPoint 对象
         MissionPoint missionPoint1 = new MissionPoint();
@@ -303,7 +308,7 @@ public class OffSiteLandingManager extends BaseManager {
         missionPoint1.setExecuteHeight(Movement.getInstance().getFlyingHeight()
                 > goHomeHeight
                 ? Movement.getInstance().getFlyingHeight() -1 :
-                goHomeHeight-1);
+                goHomeHeight);
 
         // 创建一个 MissionPoint 列表
         List<MissionPoint> missionPoints = new ArrayList<>();
@@ -378,8 +383,8 @@ public class OffSiteLandingManager extends BaseManager {
                             @Override
                             public void onSuccess() {
 
-                                LogUtil.log(TAG, "开始异地降落");
-                                sendMissionExecuteEvents(mqttClient, "开始异地降落");
+                                LogUtil.log(TAG, "开始异地降落航线");
+                                sendMissionExecuteEvents(mqttClient, "开始异地降落航线");
                                 //设置为未开始识别二维码状态
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);

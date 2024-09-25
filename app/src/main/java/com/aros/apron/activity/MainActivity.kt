@@ -25,6 +25,7 @@ import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
+import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.PerceptionManager
 import com.aros.apron.manager.RTKManager
@@ -312,6 +313,7 @@ class MainActivity : BaseActivity() {
             CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
+            OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

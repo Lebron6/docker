@@ -15,6 +15,7 @@ import com.aros.apron.manager.GimbalManager;
 import com.aros.apron.manager.MediaManager;
 import com.aros.apron.manager.MegaphoneManager;
 import com.aros.apron.manager.MissionManager;
+import com.aros.apron.manager.OffSiteLandingManager;
 import com.aros.apron.manager.PayloadWidgetManager;
 import com.aros.apron.manager.PerceptionManager;
 import com.aros.apron.manager.StickManager;
@@ -373,7 +374,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //异地降落
             case 60135:
                 LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
-                AlternateLandingManager.getInstance().startTaskProcess(message);
+                OffSiteLandingManager.getInstance().startTaskProcess(message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:
