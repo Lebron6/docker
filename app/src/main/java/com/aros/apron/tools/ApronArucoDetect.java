@@ -111,7 +111,7 @@ public class ApronArucoDetect {
 
                         if (mFindArucoList.size() == 0) {
                             sigleMarkerDetectFailsTimes++;
-                            if (sigleMarkerDetectFailsTimes >= 20) {
+                            if (sigleMarkerDetectFailsTimes >= 30) {
                                 sigleMarkerDetectFailsTimes = 0;
                                 setDetectedBigMarkers();
                                 LogUtil.log(TAG, "重置识别二维码状态");
