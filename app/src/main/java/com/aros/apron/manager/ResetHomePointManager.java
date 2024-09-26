@@ -2,13 +2,17 @@ package com.aros.apron.manager;
 
 import android.os.Handler;
 import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
@@ -69,12 +73,13 @@ public class ResetHomePointManager extends BaseManager {
             }
         }
     }
-
+private int droneStatus;
     private void checkDroneState(MqttAndroidClient client, MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
                 case GO_HOME:
+                    droneStatus = 1;
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
@@ -91,6 +96,7 @@ public class ResetHomePointManager extends BaseManager {
                     });
                     break;
                 case AUTO_LANDING:
+                    droneStatus = 2;
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
@@ -107,6 +113,7 @@ public class ResetHomePointManager extends BaseManager {
                     });
                     break;
                 default:
+                    droneStatus = 0;
                     resetHomePoint(client, message);
                     break;
             }
@@ -127,8 +134,11 @@ public class ResetHomePointManager extends BaseManager {
                     KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyHomeLocation), homeLocation, new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(client, message);
+                            sendMissionExecuteEvents(client, "刷新返航点成功");
                             LogUtil.log(TAG, "刷新返航点成功");
+                            if (droneStatus==1||droneStatus==2){
+                                startGoHome(client,message);
+                            }
                         }
 
                         @Override
@@ -138,11 +148,42 @@ public class ResetHomePointManager extends BaseManager {
                         }
                     });
                 }
-            },1000);
+            }, 500);
 
         } else {
             LogUtil.log(TAG, "刷新返航点失败:飞控未连接");
             sendMsg2Server(client, message, "刷新返航点失败:飞控未连接");
+        }
+    }
+
+    //返航
+    public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(mqttAndroidClient, message);
+                            LogUtil.log(TAG, "执行继续返航");
+                            sendMissionExecuteEvents(mqttAndroidClient, "刷新返航点成功");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败:" + new Gson().toJson(error));
+                            LogUtil.log(TAG, "继续返航执行失败：" + new Gson().toJson(error));
+                        }
+                    });
+                }
+            },500);
+
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败：飞控未连接");
+            LogUtil.log(TAG, "返航执行失败：飞控未连接");
+
         }
     }
 

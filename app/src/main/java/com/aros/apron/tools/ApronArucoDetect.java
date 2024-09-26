@@ -721,20 +721,10 @@ public class ApronArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
             if (ultrasonicHeight > 8) {
-                return 0.375;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
+                return 0.325;
+            }  else if (ultrasonicHeight >1 && ultrasonicHeight <= 8) {
                 return 0.215;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.215;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.215;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.215;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
@@ -743,20 +733,10 @@ public class ApronArucoDetect {
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 8) {
-                return 0.375;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
+                return 0.325;
+            }  else if (ultrasonicHeight > 1 && ultrasonicHeight <= 8) {
                 return 0.205;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.205;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.205;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.205;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.205;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.205;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
@@ -765,20 +745,10 @@ public class ApronArucoDetect {
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 8) {
-                return 0.375;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
+                return 0.325;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 8) {
                 return 0.195;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.195;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
@@ -788,19 +758,9 @@ public class ApronArucoDetect {
         } else if (d <= 300 && d > 250) {
             if (ultrasonicHeight > 8) {
                 return 0.275;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 8) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
@@ -809,20 +769,10 @@ public class ApronArucoDetect {
             }
         } else if (d <= 250 && d > 200) {
             if (ultrasonicHeight > 8) {
-                return 0.175;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
+                return 0.275;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 8) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.155;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.155;
@@ -831,20 +781,10 @@ public class ApronArucoDetect {
             }
         }else if (d <= 200 && d > 150) {
             if (ultrasonicHeight > 8) {
-                return 0.135;
-            } else if (ultrasonicHeight > 6 && ultrasonicHeight <= 8) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 8) {
                 return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.165;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.165;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.165;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
                 return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.145;

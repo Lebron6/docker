@@ -377,9 +377,9 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
                 OffSiteLandingManager.getInstance().startTaskProcess(message);
                 break;
-            //异地降落
+            //重置返航点
             case 60136:
-                LogUtil.log(TAG, "收到命令：刷新返航点" + jsonString);
+                LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
                 ResetHomePointManager.getInstance().startTaskProcess(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
