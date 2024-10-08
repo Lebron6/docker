@@ -225,6 +225,7 @@ public class MissionManager extends BaseManager {
                     downLoadKMZFile(client, message);
                 }
             } else {
+                sendMissionExecuteEvents(client, "飞行器自检中 ");
                 verifyAircraftStatus(client, message);
             }
         }
@@ -239,14 +240,24 @@ public class MissionManager extends BaseManager {
                     startTaskProcess(client, message);
                     checkMissionStateTimes++;
                     LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" + WaypointMissionExecuteState.find(missionStateCode).name() + "---RTK:" + Movement.getInstance().isRtkSign() + "---" + Movement.getInstance().getPlaneMessage());
-                    sendMissionExecuteEvents(client, "飞行器自检中,任务状态:"+WaypointMissionExecuteState.find(missionStateCode).name()+"---rtk:"+Movement.getInstance().isRtkSign()+"---飞行器状态:"+Movement.getInstance().getPlaneMessage() );
                 }
             }, 2000);
         } else {
             if (message.getIsGuidingFlight() == 0) {
                 com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-                sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
+                if (PreferenceUtils.getInstance().getHaveRTK()){
+                    if (!Movement.getInstance().isRtkSign()){
+                        sendMissionExecuteEvents(client, "飞行器RTK收敛异常");
+                    }else if (!(missionStateCode ==2 || missionStateCode == 0)){
+                        sendMissionExecuteEvents(client, "飞行器航线状态异常:"+WaypointMissionExecuteState.find(missionStateCode).name());
+                    }else {
+                        sendMissionExecuteEvents(client, "飞行器自检异常:"+Movement.getInstance().getPlaneMessage());
+                    }
+                }else{
+                    sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
+                }
+
             }else{
                 LogUtil.log(TAG, "指点任务自检第" + checkMissionStateTimes + "次失败" + WaypointMissionExecuteState.find(missionStateCode).name() + "RTK状态:" + Movement.getInstance().isRtkSign());
                 sendMissionExecuteEvents(client,"指点任务自检异常");

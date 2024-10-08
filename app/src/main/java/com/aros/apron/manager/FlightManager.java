@@ -269,7 +269,7 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                         }
-                        Log.e(TAG, "飞行模式:" + newValue.name());
+                        LogUtil.log(TAG, "飞行模式:" + newValue.name());
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
                     }
@@ -461,11 +461,9 @@ public class FlightManager extends BaseManager {
         boolean isFlyingAndHeightOk = isFlying && Movement.getInstance().getFlyingHeight() > 10;
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         String missionState = Movement.getInstance().getWaypointMissionExecuteState();
-        boolean isMissionExecuting = !TextUtils.isEmpty(missionState) &&
-                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"));
-//        Log.e(TAG,"isFlyingAndHeightOk:"+isFlyingAndHeightOk+"---isDebugMode:"+isDebugMode
-//        +"---missionState:"+missionState+"---isMissionExecuting:"+isMissionExecuting+"---sendCloseCabinDoorMsg:"+
-//                sendOpenCabinDoorMsg);
+        boolean isMissionExecuting = (!TextUtils.isEmpty(missionState) &&
+                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"))||(!TextUtils.isEmpty(Movement.getInstance().getPlaneMode()) &&Movement.getInstance().getPlaneMode().equals("WAYPOINT")));
+
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
