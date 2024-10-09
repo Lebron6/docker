@@ -24,6 +24,7 @@ import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
+import com.aros.apron.manager.MediaManager.sendMsg2Server
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.RTKManager
@@ -38,10 +39,12 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.ToastUtil
 import com.google.gson.Gson
+import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
+import dji.sdk.keyvalue.value.camera.CameraFocusMode
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.sdk.keyvalue.value.payload.WidgetType
@@ -132,6 +135,8 @@ class MainActivity : BaseActivity() {
         }
 
         mainBinding?.startMission?.setOnClickListener {
+
+
             val message = MQMessage()
             message.msg_type = 60135
             message.offSitePointLat = PreferenceUtils.getInstance().alternatePointLat

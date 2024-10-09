@@ -565,6 +565,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                     sendMsg2Server(mqttAndroidClient, message, "切换曝光模式失败:" + new Gson().toJson(idjiError));
                 }
             });
+
         } else {
             LogUtil.log(TAG, "切换曝光失败：相机未连接");
         }

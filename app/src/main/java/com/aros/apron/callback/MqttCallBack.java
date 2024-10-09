@@ -117,7 +117,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                                 public void run() {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
                                 }
-                            }, 5000);
+                            }, 1000);
                         }
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
