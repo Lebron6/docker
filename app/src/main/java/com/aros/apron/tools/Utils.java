@@ -73,8 +73,7 @@ public class Utils {
 
         // 检查方向标识符是否有效
         if (direction != 'N' && direction != 'S' && direction != 'E' && direction != 'W') {
-            throw new IllegalArgumentException("Invalid direction: " + direction);
-        }
+return Double.parseDouble(latLonStr);        }
 
         // 提取数字部分
         String numberPart = latLonStr.substring(0, latLonStr.length() - 1);

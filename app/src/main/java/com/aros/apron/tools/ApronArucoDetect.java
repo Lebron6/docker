@@ -772,7 +772,7 @@ public class ApronArucoDetect {
             if (ultrasonicHeight > 9) {
                 return 0.175;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return 0;
+                return 0.125;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
                 return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
