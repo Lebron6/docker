@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 public class MissionPoint {
-    private double lng;
-    private double lat;
+    private String lng;
+    private String lat;
     private double waypointSpeed;
     //航点执行高度
     private double executeHeight;
@@ -28,19 +28,19 @@ public class MissionPoint {
     }
 
 
-    public double getLng() {
+    public String getLng() {
         return lng;
     }
 
-    public void setLng(double lng) {
+    public void setLng(String lng) {
         this.lng = lng;
     }
 
-    public double getLat() {
+    public String getLat() {
         return lat;
     }
 
-    public void setLat(double lat) {
+    public void setLat(String lat) {
         this.lat = lat;
     }
 

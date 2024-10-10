@@ -1,5 +1,6 @@
 package com.aros.apron.tools;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.aros.apron.entity.FlightMission;
@@ -8,6 +9,7 @@ import com.aros.apron.entity.MissionPoint;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Text;
 import org.dom4j.io.XMLWriter;
 
 import java.io.File;
@@ -144,7 +146,7 @@ public class DomParserWPML {
      * @param parentElement
      */
     private boolean addPointToPlacemark(Element parentElement, MissionPoint missionPoint, int index) {
-        if (missionPoint == null || missionPoint.getLat() == 0 || missionPoint.getLng() == 0) {
+        if (missionPoint == null || TextUtils.isEmpty(missionPoint.getLat())||TextUtils.isEmpty(missionPoint.getLng())) {
             return false;
         } else {
             Element placemarkElement = parentElement.addElement("Placemark");

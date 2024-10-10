@@ -4,8 +4,11 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -167,13 +170,22 @@ public abstract class BaseManager {
                 message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+                client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "总飞行里程发送异常：mqtt 未连接");
             throw new RuntimeException(e);
+        }
+    }
+
+    public boolean getGimbalAndCameraEnabled() {
+        if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
+            return true;
+        } else {
+            LogUtil.log(TAG, "降落时不允许操作云台或相机");
+            return false;
         }
     }
 }

@@ -61,4 +61,33 @@ public class Utils {
             return null;
         }
     }
+
+    public static double parseLatLon(String latLonStr) {
+        // 检查输入字符串是否为空或无效
+        if (latLonStr == null || latLonStr.isEmpty()) {
+            throw new IllegalArgumentException("Input string is null or empty");
+        }
+
+        // 获取最后一个字符，即方向标识符
+        char direction = latLonStr.charAt(latLonStr.length() - 1);
+
+        // 检查方向标识符是否有效
+        if (direction != 'N' && direction != 'S' && direction != 'E' && direction != 'W') {
+            throw new IllegalArgumentException("Invalid direction: " + direction);
+        }
+
+        // 提取数字部分
+        String numberPart = latLonStr.substring(0, latLonStr.length() - 1);
+
+        // 将数字部分转换为Double
+        double number = Double.parseDouble(numberPart);
+
+        // 根据方向标识符调整数值
+        if (direction == 'S' || direction == 'W') {
+            number = -number;
+        }
+
+        return number;
+    }
+
 }

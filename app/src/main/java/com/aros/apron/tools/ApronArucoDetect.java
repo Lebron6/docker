@@ -83,7 +83,7 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (isStartAruco||startFastStick) {
+        if (isStartAruco) {
             return;
         }
         isStartAruco = true;
@@ -111,7 +111,7 @@ public class ApronArucoDetect {
 
                         if (mFindArucoList.size() == 0) {
                             sigleMarkerDetectFailsTimes++;
-                            if (sigleMarkerDetectFailsTimes >= 20) {
+                            if (sigleMarkerDetectFailsTimes >= 40) {
                                 sigleMarkerDetectFailsTimes = 0;
                                 setDetectedBigMarkers();
                                 LogUtil.log(TAG, "重置识别二维码状态");
@@ -212,7 +212,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 13)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 13) {
                             detectedSmallMarkers = true;
@@ -223,7 +223,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 15)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 15)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 15) {
                             detectedSmallMarkers = true;
@@ -234,7 +234,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 16)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 16) {
                             detectedSmallMarkers = true;
@@ -244,7 +244,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 11)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11) {
                             detectedSmallMarkers = true;
@@ -254,7 +254,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 18)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 18) {
                             detectedSmallMarkers = true;
@@ -264,7 +264,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 14)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 14) {
                             detectedSmallMarkers = true;
@@ -274,7 +274,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 17)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 17) {
                             detectedSmallMarkers = true;
@@ -284,7 +284,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 19)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 19) {
                             detectedSmallMarkers = true;
@@ -305,7 +305,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 16)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 16)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 16) {
                             detectedSmallMarkers = true;
@@ -316,7 +316,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 14)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 14)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 14) {
                             detectedSmallMarkers = true;
@@ -327,7 +327,7 @@ public class ApronArucoDetect {
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 12)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 12)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 12) {
                             detectedSmallMarkers = true;
@@ -337,7 +337,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 13)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 13)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 13) {
                             detectedSmallMarkers = true;
@@ -347,7 +347,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 11)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 11)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11) {
                             detectedSmallMarkers = true;
@@ -357,7 +357,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 18)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 18)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 18) {
                             detectedSmallMarkers = true;
@@ -367,7 +367,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 19)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 19)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 19) {
                             detectedSmallMarkers = true;
@@ -377,7 +377,7 @@ public class ApronArucoDetect {
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedBigMarkerId == 17)) {
+                if (mFindArucoList.isEmpty() && (detectedSmallMarkerId == 0 || detectedSmallMarkerId == 17)) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 17) {
                             detectedSmallMarkers = true;
@@ -391,26 +391,7 @@ public class ApronArucoDetect {
             }
         }
 
-        if (Movement.getInstance().getFlyingHeight() < 7.5) {
-            //如果识别到小Aruco,则不再触发识别大Aruco
-            if (Movement.getInstance().getFlyingHeight() > 0.7  && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
-                    (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
-                            || detectedBigMarkerId == 1
-                            || detectedBigMarkerId == 2
-                            || detectedBigMarkerId == 3
-                            || detectedBigMarkerId == 4
-                            || detectedBigMarkerId == 5
-                            || detectedBigMarkerId == 7
-                            || detectedBigMarkerId == 8
-                            || detectedBigMarkerId == 9)) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 6) {
-                        detectedBigMarkerId = 6;
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                        return;
-                    }
-                }
-            }
+
 
             if (Movement.getInstance().getFlyingHeight() > 0.7  && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                     (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
@@ -418,6 +399,7 @@ public class ApronArucoDetect {
                             || detectedBigMarkerId == 2
                             || detectedBigMarkerId == 3
                             || detectedBigMarkerId == 4
+                            || detectedBigMarkerId == 6
                             || detectedBigMarkerId == 7
                             || detectedBigMarkerId == 8
                             || detectedBigMarkerId == 9)) {
@@ -429,7 +411,24 @@ public class ApronArucoDetect {
                     }
                 }
             }
-
+//如果识别到小Aruco,则不再触发识别大Aruco
+        if (Movement.getInstance().getFlyingHeight() > 0.7 && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+                (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
+                        || detectedBigMarkerId == 1
+                        || detectedBigMarkerId == 2
+                        || detectedBigMarkerId == 3
+                        || detectedBigMarkerId == 4
+                        || detectedBigMarkerId == 7
+                        || detectedBigMarkerId == 8
+                        || detectedBigMarkerId == 9)) {
+            for (int i = 0; i < idArray.length; i++) {
+                if (idArray[i] == 6) {
+                    detectedBigMarkerId = 6;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
+                    return;
+                }
+            }
+        }
 
             if (Movement.getInstance().getFlyingHeight() > 1  && mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                     (detectedBigMarkerId == 0 || detectedBigMarkerId == 8
@@ -481,46 +480,47 @@ public class ApronArucoDetect {
                     }
                 }
             }
-        }
+            if (Movement.getInstance().getFlyingHeight() > 2.5) {
+                if (mFindArucoList.isEmpty() && !detectedSmallMarkers &&
+                        (detectedBigMarkerId == 0 || detectedBigMarkerId == 1 || detectedBigMarkerId == 2
+                                || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 1) {
+                            detectedBigMarkerId = 1;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
+                            return;
+                        }
+                    }
+                }
 
-        if (Movement.getInstance().getFlyingHeight()>1.5){
-            if ( mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 1)) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 1) {
-                        detectedBigMarkerId = 1;
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        return;
+                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 ||
+                        detectedBigMarkerId == 2 || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 2) {
+                            detectedBigMarkerId = 2;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
+                            return;
+                        }
+                    }
+                }
+                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 3) {
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
+                            return;
+                        }
+                    }
+                }
+                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 4) {
+                            detectedBigMarkerId = 4;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
+                            return;
+                        }
                     }
                 }
             }
-
-            if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 2)) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 2) {
-                        detectedBigMarkerId = 2;
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        return;
-                    }
-                }
-            }
-            if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 3) {
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                        return;
-                    }
-                }
-            }
-            if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 4) {
-                        detectedBigMarkerId = 4;
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.295f));
-                        return;
-                    }
-                }
-            }
-        }
 
 
     }
@@ -531,7 +531,6 @@ public class ApronArucoDetect {
         detectedSmallMarkerId = 0;
         detectedMediumMarkers = false;
         detectedSmallMarkers = false;
-        startFastStick=false;
     }
 
     //根据识别到的二维码移动无人机
@@ -582,16 +581,13 @@ public class ApronArucoDetect {
         Mat tvec = tvecs.row(0);
         double z = tvec.get(0, 0)[2];
 //        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
-        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>3&& (
+        if ((arucoMarkers.size() == 1) &&Movement.getInstance().getFlyingHeight()>8.5&& (
                 id == 1
                         || id == 2
                         || id == 3
                         || id == 4
                         || id == 5
                         || id == 6
-                        || id == 7
-                        || id == 8
-                        || id == 9
         )
         ) {
             //罗德里变换
@@ -640,12 +636,19 @@ public class ApronArucoDetect {
                     : updateOutXYSpeed(Math.abs(imageVector.val[0]));
             outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
                     : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
-            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
-                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 100))
-                    ? updateOutDownSpeed() : 0f;
+            if (Movement.getInstance().getFlyingHeight()>9){
+                outZ = (Math.abs(imageVector.val[0]) < 150)
+                        && (Math.abs(imageVector.val[1]) < 90)
+                        ? -0.455 : 0f;
+            }else {
+                outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1.5 ? 200 : 150))
+                        && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1.5 ? 160 : 100))
+                        ? updateOutDownSpeed() : 0f;
+            }
+
         }
 
-        LogUtil.log(TAG, "Aruco=" + id + "  arucoW:" + arucoWidth+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
+        LogUtil.log(TAG, "Aruco=" + id +" arucoR="+resultYaw+ " arucoW=" + arucoWidth+ " 杆量x=" + outX + " 偏移:x=" + imageVector.val[0] + " 杆量y=" + outY + " 偏移:y=" + imageVector.val[1]+ " 高度:z=" + Movement.getInstance().getFlyingHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
@@ -664,33 +667,30 @@ public class ApronArucoDetect {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
 
-        if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 120 || flyingHeight <= -0.5) {
-            if (!startFastStick) {
+        if ((ultrasonicHeight <= 3 && flyingHeight <= 1.7) || arucoWidth >= 145 || flyingHeight <= -1) {
                 String logMessage = "";
-                if (ultrasonicHeight <= 5 && flyingHeight <= 1.7) {
+                if (ultrasonicHeight <= 3 && flyingHeight <= 1.7) {
                     logMessage = "参考相对高度与融合高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
-                } else if (arucoWidth >= 120) {
+                } else if (arucoWidth >= 145) {
                     logMessage = "参考Aurco降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
-                } else if (flyingHeight <= -0.5) {
+                } else if (flyingHeight <= -1) {
                     logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
                             " Flying Height:" + flyingHeight + "--" +
                             " Ultrasonic Height:" + ultrasonicHeight;
                 }
 
                 LogUtil.log(TAG, logMessage);
-                startFastStick = true;
-                handler.post(runnable);
-            }
+                canLanding=true;
+
         }
 
 
     }
 
-    private boolean startFastStick;
     private boolean canLanding;
 
     public boolean isCanLanding() {
@@ -706,167 +706,103 @@ public class ApronArucoDetect {
 
 
     //根据偏移量和高度决定X/Y轴移动速度
-    private double updateOutXYSpeed(Double d) {
+    private double updateOutXYSpeed(double d) {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            }  else if (ultrasonicHeight >1 && ultrasonicHeight <= 9) {
                 return 0.215;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.215;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.215;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.215;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.215;
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 500 && d > 400) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            }  else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.205;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.205;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.205;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.205;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.205;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.205;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.205;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 400 && d > 300) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.195;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.195;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.195;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 300 && d > 250) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.295;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.185;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 250 && d > 200) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.235;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.185;
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         }else if (d <= 200 && d > 150) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
                 return 0.175;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.175;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.175;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.175;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.175;
+            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
-            }else {
-                return 0.145;
+                return 0.075;
+            } else {
+                return 0.075;
             }
         } else if (d <= 150 && d > 100) {
-            if (ultrasonicHeight > 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.165;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.165;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.165;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.165;
+            if (ultrasonicHeight > 9) {
+                return 0.135;
+            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
+                return 0.075;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
-            }else {
-                return 0.145;
+                return 0.075;
+            } else {
+                return 0.075;
             }
-        }else if (d <= 100 && d > 79) {
-            if (ultrasonicHeight > 6) {
-                return 0.095;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.095;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.095;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.095;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.095;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.095;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.095;
+        } else if (d <= 100 && d > 79) {
+            if (ultrasonicHeight > 9) {
+                return 0.125;
+            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 3) {
+                return 0.065;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.065;
-            }else {
-                return 0.055;
+            } else {
+                return 0.065;
             }
         }  else {
             return 0.0;
@@ -876,47 +812,15 @@ public class ApronArucoDetect {
     //根据不同高度决定下降多快
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        if (flyingHeight > 5) {
+        if (flyingHeight > 2) {
             return -0.455;
-        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.435;
-        } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.425;
-        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.375;
-        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.275;
-        } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
+        } else if (flyingHeight <= 2 && flyingHeight > 1.0) {
+            return -0.295;
+        } else if (flyingHeight <= 1.0 && flyingHeight >= -1) {
             return -0.195;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= -0.5) {
-            return -0.175;
         } else {
             return 0.0;
         }
     }
 
-    private int handlerCallbackCount = 0; // 记录回调次数
-    private Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            performOperation();
-            if (handlerCallbackCount < 20) {
-                handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
-            } else {
-                performNextStep();
-            }
-        }
-    };
-
-    private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.6);
-        handlerCallbackCount++; // 增加计数器
-    }
-
-    private void performNextStep() {
-        handler.removeCallbacks(runnable); // 防止重复执行
-        handlerCallbackCount=0;
-        canLanding = true;
-    }
 }
