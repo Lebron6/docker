@@ -83,7 +83,7 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (isStartAruco||startFastStick) {
+        if (isStartAruco) {
             return;
         }
         isStartAruco = true;
@@ -230,7 +230,6 @@ public class ApronArucoDetect {
         detectedSmallMarkerId = 0;
         detectedMediumMarkers = false;
         detectedSmallMarkers = false;
-        startFastStick=false;
     }
 
     //根据识别到的二维码移动无人机
@@ -328,12 +327,19 @@ public class ApronArucoDetect {
                     : updateOutXYSpeed(Math.abs(imageVector.val[0]));
             outY = imageVector.val[1] < 0 ? updateOutXYSpeed(Math.abs(imageVector.val[1]))
                     : -updateOutXYSpeed(Math.abs(imageVector.val[1]));
-            outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 150))
-                    && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1 ? 260 : 100))
-                    ? updateOutDownSpeed() : 0f;
+            if (Movement.getInstance().getFlyingHeight()>9){
+                outZ = (Math.abs(imageVector.val[0]) < 150)
+                        && (Math.abs(imageVector.val[1]) < 90)
+                        ? -0.455 : 0f;
+            }else {
+                outZ = (Math.abs(imageVector.val[0]) < (Movement.getInstance().getFlyingHeight() > 1.5 ? 200 : 150))
+                        && (Math.abs(imageVector.val[1]) < (Movement.getInstance().getFlyingHeight() > 1.5 ? 160 : 100))
+                        ? updateOutDownSpeed() : 0f;
+            }
+
         }
 
-        LogUtil.log(TAG, "Aruco=" + id + "  arucoW:" + arucoWidth+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]+ "  高度:z=" + Movement.getInstance().getFlyingHeight());
+        LogUtil.log(TAG, "Aruco=" + id +" arucoR="+resultYaw+ " arucoW=" + arucoWidth+ " 杆量x=" + outX + " 偏移:x=" + imageVector.val[0] + " 杆量y=" + outY + " 偏移:y=" + imageVector.val[1]+ " 高度:z=" + Movement.getInstance().getFlyingHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
@@ -352,7 +358,6 @@ public class ApronArucoDetect {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
 
         if ((ultrasonicHeight <= 5 && flyingHeight <= 1.7) || arucoWidth >= 160 || flyingHeight <= -0.5) {
-            if (!startFastStick) {
                 String logMessage = "";
                 if (ultrasonicHeight <= 5 && flyingHeight <= 1.7) {
                     logMessage = "参考相对高度与融合高度降落:" + id + " arucoW" + arucoWidth +
@@ -369,15 +374,13 @@ public class ApronArucoDetect {
                 }
 
                 LogUtil.log(TAG, logMessage);
-                startFastStick = true;
-                handler.post(runnable);
+            canLanding=true;
             }
-        }
+
 
 
     }
 
-    private boolean startFastStick;
     private boolean canLanding;
 
     public boolean isCanLanding() {
@@ -393,217 +396,124 @@ public class ApronArucoDetect {
 
 
     //根据偏移量和高度决定X/Y轴移动速度
-    private double updateOutXYSpeed(Double d) {
+    private double updateOutXYSpeed(double d) {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
         if (d > 500) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            }  else if (ultrasonicHeight >1 && ultrasonicHeight <= 9) {
                 return 0.215;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.215;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.215;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.215;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.215;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.215;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.215;
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 500 && d > 400) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            }  else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.205;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.205;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.205;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.205;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.205;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.205;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.205;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 400 && d > 300) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.325;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.195;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.195;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.195;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.195;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.195;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.195;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.195;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 300 && d > 250) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.295;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.185;
+            }  else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         } else if (d <= 250 && d > 200) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
+                return 0.235;
+            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 9) {
                 return 0.185;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.185;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.185;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.185;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.185;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.185;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.185;
+            }else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
+                return 0.075;
             }else {
-                return 0.145;
+                return 0.075;
             }
         }else if (d <= 200 && d > 150) {
-            if (ultrasonicHeight > 6) {
+            if (ultrasonicHeight > 9) {
                 return 0.175;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.175;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.175;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.175;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.175;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.175;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.175;
+            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
+                return 0.125;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
-            }else {
-                return 0.145;
+                return 0.075;
+            } else {
+                return 0.075;
             }
         } else if (d <= 150 && d > 100) {
-            if (ultrasonicHeight > 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.165;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.165;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.165;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.165;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.165;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.165;
+            if (ultrasonicHeight > 9) {
+                return 0.135;
+            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
+                return 0.075;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.155;
-            }else {
-                return 0.145;
+                return 0.075;
+            } else {
+                return 0.075;
             }
-        }else if (d <= 100 && d > 79) {
-            if (ultrasonicHeight > 6) {
-                return 0.095;
-            } else if (ultrasonicHeight > 5 && ultrasonicHeight <= 6) {
-                return 0.095;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 5) {
-                return 0.095;
-            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 4) {
-                return 0.095;
-            } else if (ultrasonicHeight > 2 && ultrasonicHeight <= 3) {
-                return 0.095;
-            } else if (ultrasonicHeight > 1 && ultrasonicHeight <= 2) {
-                return 0.095;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1) {
-                return 0.095;
+        } else if (d <= 100 && d > 79) {
+            if (ultrasonicHeight > 9) {
+                return 0.125;
+            } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 9) {
+                return 0;
+            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 3) {
+                return 0.065;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
                 return 0.065;
-            }else {
-                return 0.055;
+            } else {
+                return 0.065;
             }
         }  else {
             return 0.0;
         }
     }
 
+
+
     //根据不同高度决定下降多快
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        if (flyingHeight > 5) {
+        if (flyingHeight > 2) {
             return -0.455;
-        } else if (flyingHeight <= 5 && flyingHeight > 3.5) {
-            return -0.435;
-        } else if (flyingHeight <= 3.5 && flyingHeight > 2.5) {
-            return -0.425;
-        } else if (flyingHeight <= 2.5 && flyingHeight > 2.0) {
-            return -0.375;
-        } else if (flyingHeight <= 2.0 && flyingHeight > 1.5) {
-            return -0.275;
-        } else if (flyingHeight <= 1.5 && flyingHeight > 1.0) {
+        } else if (flyingHeight <= 2 && flyingHeight > 1.0) {
+            return -0.295;
+        } else if (flyingHeight <= 1.0 && flyingHeight >= -1) {
             return -0.195;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= -0.5) {
-            return -0.175;
         } else {
             return 0.0;
         }
     }
 
-    private int handlerCallbackCount = 0; // 记录回调次数
-    private Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            performOperation();
-            if (handlerCallbackCount < 20) {
-                handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
-            } else {
-                performNextStep();
-            }
-        }
-    };
 
-    private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.6);
-        handlerCallbackCount++; // 增加计数器
-    }
-
-    private void performNextStep() {
-        handler.removeCallbacks(runnable); // 防止重复执行
-        handlerCallbackCount=0;
-        canLanding = true;
-    }
 }
