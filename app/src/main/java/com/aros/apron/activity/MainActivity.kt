@@ -211,33 +211,33 @@ class MainActivity : BaseActivity() {
 //
 //                })
 
-            val message=MQMessage ()
-           message.secret_key="admin123"
-           message.kmz_url="http://117.22.253.250:9000/test/kmz/8.26测试.kmz"
-           message.access_key="admin"
-           message.flight_name="8.26测试_2024_08_26_18_33_46"
-           message.msg_type=60003
-           message.upload_url="http://117.22.253.250:9000/test/323RFDSVDTHBDFVSD/2289928366458398149"
-           message.flightId="2289928366458398149"
+//            val message=MQMessage ()
+//           message.secret_key="admin123"
+//           message.kmz_url="http://117.22.253.250:9000/test/kmz/8.26测试.kmz"
+//           message.access_key="admin"
+//           message.flight_name="8.26测试_2024_08_26_18_33_46"
+//           message.msg_type=60003
+//           message.upload_url="http://117.22.253.250:9000/test/323RFDSVDTHBDFVSD/2289928366458398149"
+//           message.flightId="2289928366458398149"
 //            //楼上350
 //           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003W"
 //            //楼下小机库2
 //           message.rtmp_push_url="rtmp://47.97.39.183/live/1581F5FJB229Q00A003A"
-           message.rtmp_push_url="test"
-           message.isGuidingFlight=0
-            if (Movement.getInstance().goHomeState != 1 && Movement.getInstance().goHomeState != 2) {
-                    // 1.缓存推流地址,minIO配置
-                    PreferenceUtils.getInstance().setStreamAndMinIOConfig(message)
-                    // 2.收到60003直接回复
-                    StreamManager.getInstance().sendReply2Server(mqttAndroidClient, message)
-                    // 3.开启推流
-                    StreamManager.getInstance().startLive(mqttAndroidClient, message)
-                    // 4.关闭避障
-                    PerceptionManager.getInstance().setPerceptionEnable(false)
-                    MissionManager.getInstance().startTaskProcess(mqttAndroidClient, message)
-            } else {
-                LogUtil.log(TAG, "返航模式,无法上传航线")
-            }
+//           message.rtmp_push_url="test"
+//           message.isGuidingFlight=0
+//            if (Movement.getInstance().goHomeState != 1 && Movement.getInstance().goHomeState != 2) {
+//                    // 1.缓存推流地址,minIO配置
+//                    PreferenceUtils.getInstance().setStreamAndMinIOConfig(message)
+//                    // 2.收到60003直接回复
+//                    StreamManager.getInstance().sendReply2Server(mqttAndroidClient, message)
+//                    // 3.开启推流
+//                    StreamManager.getInstance().startLive(mqttAndroidClient, message)
+//                    // 4.关闭避障
+//                    PerceptionManager.getInstance().setPerceptionEnable(false)
+//                    MissionManager.getInstance().startTaskProcess(mqttAndroidClient, message)
+//            } else {
+//                LogUtil.log(TAG, "返航模式,无法上传航线")
+//            }
 //
         }
 
