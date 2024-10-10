@@ -37,6 +37,8 @@ public class MQMessage {
     private int msg_type;
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
+    private String offSitePointLat;//设置异地降落经纬度
+    private String offSitePointLon;
     private String alternatePointSecurityHeight; //备降点安全起飞高度
     private String alternatePointHeight; //备降点高度
     private String alternatePointTimes; //允许复降次数
@@ -48,6 +50,22 @@ public class MQMessage {
     private int cameraFocusRingValue;//设置相机对焦值
     private String status;//收到机库状态的回执消息
     private String flag;//后端用来区别里程(用作AI)
+
+    public String getOffSitePointLat() {
+        return offSitePointLat;
+    }
+
+    public void setOffSitePointLat(String offSitePointLat) {
+        this.offSitePointLat = offSitePointLat;
+    }
+
+    public String getOffSitePointLon() {
+        return offSitePointLon;
+    }
+
+    public void setOffSitePointLon(String offSitePointLon) {
+        this.offSitePointLon = offSitePointLon;
+    }
 
     public String getFlag() {
         return flag;

@@ -7,6 +7,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -57,7 +58,7 @@ public class GimbalManager extends BaseManager {
     public void gimbalRotateByRelativeAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect != null && isConnect) {
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message.getX() == 0 && message.getY() == 0) {
                 gimbalReset();
             } else {
@@ -147,7 +148,7 @@ public class GimbalManager extends BaseManager {
     public void gimbalReset(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect != null && isConnect) {
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {

@@ -83,7 +83,7 @@ object MediaManager : BaseManager() {
 
             override fun onFailure(idjiError: IDJIError) {
                 if (!enablePlayBackSuccess) {
-                    if (enablePlayBackTimes < 5) {
+                    if (enablePlayBackTimes < 3) {
                         enablePlayBackTimes++
                         LogUtil.log(TAG, "第${enablePlayBackTimes}次进入媒体模式失败:${Gson().toJson(idjiError)}")
                         Handler().postDelayed(Runnable {

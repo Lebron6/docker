@@ -15,8 +15,10 @@ import com.aros.apron.manager.GimbalManager;
 import com.aros.apron.manager.MediaManager;
 import com.aros.apron.manager.MegaphoneManager;
 import com.aros.apron.manager.MissionManager;
+import com.aros.apron.manager.OffSiteLandingManager;
 import com.aros.apron.manager.PayloadWidgetManager;
 import com.aros.apron.manager.PerceptionManager;
+import com.aros.apron.manager.ResetHomePointManager;
 import com.aros.apron.manager.StickManager;
 import com.aros.apron.manager.StreamManager;
 import com.aros.apron.manager.SystemManager;
@@ -115,7 +117,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                                 public void run() {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
                                 }
-                            }, 5000);
+                            }, 1000);
                         }
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
@@ -298,9 +300,9 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
                 PayloadWidgetManager.getInstance().throwAll(mqttClient,message); break;
             //设置备降点
-            case 60119:
-                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
-                AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
+//            case 60119:
+//                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
+//                AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
             //设置定时拍照参数
             case 60120:
                 LogUtil.log(TAG, "收到命令：设置定时拍照参数" + jsonString);
@@ -370,6 +372,16 @@ public class MqttCallBack implements MqttCallbackExtended {
 //                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
 //                FlightManager.getInstance().getAircraftTotalFlightDistance(mqttClient, message);
                 break;
+            //异地降落
+            case 60135:
+                LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
+                OffSiteLandingManager.getInstance().startTaskProcess(message);
+                break;
+            //重置返航点
+            case 60136:
+                LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
+                ResetHomePointManager.getInstance().startTaskProcess(mqttClient,message);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
@@ -391,6 +403,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                     LogUtil.log(TAG, "收到命令：机库动作参数有误" + jsonString);
                 }
                 break;
+
         }
     }
 

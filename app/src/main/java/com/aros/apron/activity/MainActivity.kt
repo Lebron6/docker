@@ -24,10 +24,11 @@ import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
+import com.aros.apron.manager.MediaManager.sendMsg2Server
 import com.aros.apron.manager.MissionManager
-import com.aros.apron.manager.PayloadWidgetManager
-import com.aros.apron.manager.PerceptionManager
+import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.RTKManager
+import com.aros.apron.manager.ResetHomePointManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
@@ -43,11 +44,9 @@ import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
-import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings
+import dji.sdk.keyvalue.value.camera.CameraFocusMode
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
-import dji.sdk.keyvalue.value.common.EnCodingType
-import dji.sdk.keyvalue.value.common.RelativePosition
 import dji.sdk.keyvalue.value.payload.WidgetType
 import dji.sdk.keyvalue.value.payload.WidgetValue
 import dji.v5.common.callback.CommonCallbacks
@@ -110,7 +109,7 @@ class MainActivity : BaseActivity() {
         }
 
         mainBinding?.startAlter?.setOnClickListener {
-            AlternateLandingManager.getInstance().startTaskProcess(null)
+//            AlternateLandingManager.getInstance().startTaskProcess(null)
 //            startArucoType=1
 //            DroneHelper.getInstance().setGimbalPitchDegree()
 
@@ -126,10 +125,37 @@ class MainActivity : BaseActivity() {
 //                        Log.e("写入失败", Gson().toJson(error))
 //                    }
 //                })
+            val message = MQMessage()
+            message.msg_type = 60136
+            message.offSitePointLat = PreferenceUtils.getInstance().alternatePointLat
+            message.offSitePointLon = PreferenceUtils.getInstance().alternatePointLon
+            OffSiteLandingManager.getInstance().startTaskProcess(message)
+
 
         }
 
         mainBinding?.startMission?.setOnClickListener {
+
+
+            val message = MQMessage()
+            message.msg_type = 60135
+            message.offSitePointLat = PreferenceUtils.getInstance().alternatePointLat
+            message.offSitePointLon = PreferenceUtils.getInstance().alternatePointLon
+            ResetHomePointManager.getInstance().startTaskProcess(mqttAndroidClient, message)
+
+//            if (Movement.getInstance().goHomeState != 1 && Movement.getInstance().goHomeState != 2) {
+//                    // 1.缓存推流地址,minIO配置
+//                    PreferenceUtils.getInstance().setStreamAndMinIOConfig(message)
+//                    // 2.收到60003直接回复
+//                    StreamManager.getInstance().sendReply2Server(mqttAndroidClient, message)
+//                    // 3.开启推流
+//                    StreamManager.getInstance().startLive(mqttAndroidClient, message)
+//                    // 4.关闭避障
+//                    PerceptionManager.getInstance().setPerceptionEnable(false)
+//                    MissionManager.getInstance().startTaskProcess(mqttAndroidClient, message)
+//            } else {
+//                LogUtil.log(TAG, "返航模式,无法上传航线")
+//            }
 //            val customExpandNameSettings = CustomExpandNameSettings()
 //            customExpandNameSettings.encodingType = EnCodingType.UTF8
 //            customExpandNameSettings.forceCreateFolder = false
@@ -312,6 +338,7 @@ class MainActivity : BaseActivity() {
             CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
+            OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

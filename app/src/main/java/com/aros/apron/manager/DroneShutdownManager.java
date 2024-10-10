@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DroneShutdownManager extends BaseManager {
 
-    private final int maxRetries = 5;
+    private final int maxRetries = 10;
     private int sendDroneShutDownSuccessTimes;
     private boolean isSendDroneShutDownSuccess;
 

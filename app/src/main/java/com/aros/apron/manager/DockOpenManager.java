@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DockOpenManager extends BaseManager {
 
-    private final int maxRetries = 10;
+    private final int maxRetries = 15;
     private int sendDockOpenSuccessTimes;
     private boolean isSendDockOpenSuccess;
     private DockOpenManager() {
