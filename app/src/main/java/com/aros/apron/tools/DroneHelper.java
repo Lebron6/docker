@@ -149,25 +149,25 @@ public class DroneHelper {
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
-        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection, 0));
-        if (cameraConnect!=null&&cameraConnect) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.MANUAL, new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    LogUtil.log(TAG, "设置对焦模式MF");
-
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG, "设置对焦模式MF失败:"+new Gson().toJson(idjiError));
-
-                }
-            });
-        }else {
-            LogUtil.log(TAG, "相机未连接");
-        }
+//        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection, 0));
+//        if (cameraConnect!=null&&cameraConnect) {
+//            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.MANUAL, new CommonCallbacks.CompletionCallback() {
+//                @Override
+//                public void onSuccess() {
+//                    LogUtil.log(TAG, "设置对焦模式MF");
+//
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull IDJIError idjiError) {
+//                    LogUtil.log(TAG, "设置对焦模式MF失败:"+new Gson().toJson(idjiError));
+//
+//                }
+//            });
+//        }else {
+//            LogUtil.log(TAG, "相机未连接");
+//        }
     }
 
 

@@ -498,7 +498,7 @@ public class FlightManager extends BaseManager {
     //降落时将云台朝下
     private void gimbalDownwards(){
         if (goHomeExecutionState == GoHomeState.LANDING.value()
-                && Movement.getInstance().getFlyingHeight() > 15
+                && Movement.getInstance().getFlyingHeight() > 11
                 && !isGimbalDownwards){
             DroneHelper.getInstance().setGimbalPitchDegree();
             isGimbalDownwards=true;
@@ -622,6 +622,7 @@ public class FlightManager extends BaseManager {
         PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
         isGimbalReset = false;
         isTriggerLanding = true;
+        isGimbalDownwards=false;
     }
 
     private boolean shouldStopVisionAndLanding() {
