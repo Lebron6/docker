@@ -57,7 +57,7 @@ public class DockCloseManager extends BaseManager {
         message.setResult(1);
 
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(2);
+        mqttMessage.setQos(0);
 
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
             @Override
