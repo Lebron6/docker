@@ -182,7 +182,7 @@ public class CameraManager extends BaseManager {
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
-//            flightMessage.setQos(1);
+//            flightMessage.setQos(0);
 //            publish(client, MqttConfig.MQTT_CAMERA_TOPIC, flightMessage);
 //        }
 //    }

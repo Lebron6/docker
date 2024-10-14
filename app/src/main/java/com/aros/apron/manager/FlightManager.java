@@ -439,7 +439,7 @@ public class FlightManager extends BaseManager {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            flightMessage.setQos(1);
+            flightMessage.setQos(0);
             publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
         }
 
@@ -451,7 +451,7 @@ public class FlightManager extends BaseManager {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            flightMessage.setQos(1);
+            flightMessage.setQos(0);
             publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushGisMessage2ServerTopic(), flightMessage);
         }
     }
@@ -540,7 +540,7 @@ public class FlightManager extends BaseManager {
 
     private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
-    private static final double FLYING_HEIGHT_THRESHOLD_MIN = -0.5;
+    private static final double FLYING_HEIGHT_THRESHOLD_MIN = -2;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
 
     private void startVisionLanding() {

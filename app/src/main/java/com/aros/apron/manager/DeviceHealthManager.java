@@ -78,7 +78,7 @@
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
-//            flightMessage.setQos(1);
+//            flightMessage.setQos(0);
 //            publish(client, MqttConfig.MQTT_DEVICE_HEALTH, flightMessage);
 //        }
 //    }

@@ -350,7 +350,7 @@ public class MissionManager extends BaseManager {
             LogUtil.log(TAG, "航线状态发送异常:" + e.toString());
             throw new RuntimeException(e);
         }
-        flightMessage.setQos(1);
+        flightMessage.setQos(0);
         publish(client, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
 
     }

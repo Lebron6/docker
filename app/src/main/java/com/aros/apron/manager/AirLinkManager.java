@@ -97,7 +97,7 @@
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
-//            flightMessage.setQos(1);
+//            flightMessage.setQos(0);
 //            publish(client, MqttConfig.MQTT_AIRLINK_TOPIC, flightMessage);
 //        }
 //    }
