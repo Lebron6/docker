@@ -158,7 +158,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.1"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -184,7 +184,7 @@ dependencies {
     compileOnly  'com.dji:dji-sdk-v5-aircraft-provided:5.10.0'
     implementation 'com.dji:dji-sdk-v5-networkImp:5.10.0'
 
-    implementation 'com.shd:dji-uxsdk:5.9.1'
+//    implementation 'com.shd:dji-uxsdk:5.9.1'
 
     implementation 'com.squareup.okio:okio:1.15.0'
     implementation 'com.squareup.wire:wire-runtime:2.2.0'
@@ -226,5 +226,6 @@ dependencies {
 //    implementation 'com.quickbirdstudios:opencv-contrib:4.5.3.0'
 
     implementation 'com.quickbirdstudios:opencv-contrib:3.4.5'
+    implementation project(path: ':android-sdk-v5-uxsdk')
 
 }
