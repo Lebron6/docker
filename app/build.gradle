@@ -11,8 +11,8 @@ android {
         applicationId "com.aros.apron"
         minSdk 23
         targetSdk 32
-        versionCode 23
-        versionName "v1.5.3"
+        versionCode 24
+        versionName "v1.5.5"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
