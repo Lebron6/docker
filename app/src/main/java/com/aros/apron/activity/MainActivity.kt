@@ -588,7 +588,7 @@ open class MainActivity : BaseActivity() {
         }
         lastDevicePosition = devicePosition
         lastLensType = lensType
-        updateViewVisibility(devicePosition, lensType)
+            updateViewVisibility(devicePosition, lensType)
         updateInteractionEnabled()
         //如果无需使能或者显示的，也就没有必要切换了。
         if (fpvInteractionWidget!!.isInteractionEnabled) {
@@ -622,7 +622,6 @@ open class MainActivity : BaseActivity() {
         if (horizontalSituationIndicatorWidget!!.visibility == View.VISIBLE) {
             horizontalSituationIndicatorWidget!!.updateCameraSource(devicePosition, lensType)
         }
-
         setViewVisibilityWithCleanMode()
     }
 
@@ -630,6 +629,7 @@ open class MainActivity : BaseActivity() {
         if (PreferenceUtils.getInstance().isCleanMode) {
             fpvInteractionWidget?.visibility = View.GONE
             horizontalSituationIndicatorWidget?.visibility = View.GONE
+            remainingFlightTimeWidget?.visibility=View.GONE
             gimbalFineTuneWidget?.visibility = View.GONE
             ndviCameraPanel?.visibility = View.GONE
             visualCameraPanel?.visibility = View.GONE
