@@ -50,6 +50,15 @@ public class MQMessage {
     private int cameraFocusRingValue;//设置相机对焦值
     private String status;//收到机库状态的回执消息
     private String flag;//后端用来区别里程(用作AI)
+    private int isCleanMode;//是否清洁模式
+
+    public int getIsCleanMode() {
+        return isCleanMode;
+    }
+
+    public void setIsCleanMode(int isCleanMode) {
+        this.isCleanMode = isCleanMode;
+    }
 
     public String getOffSitePointLat() {
         return offSitePointLat;

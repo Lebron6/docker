@@ -31,6 +31,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
 
@@ -382,6 +383,12 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
                 ResetHomePointManager.getInstance().startTaskProcess(mqttClient,message);
                 break;
+            //设置清洁模式
+            case 60137:
+                LogUtil.log(TAG, "收到命令：设置清洁模式" + jsonString);
+                PreferenceUtils.getInstance().setIsCleanMode(message.getIsCleanMode()==1?true:false);
+                EventBus.getDefault().post(FLAG_RESET_CLEAN_MODE);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
@@ -406,6 +413,9 @@ public class MqttCallBack implements MqttCallbackExtended {
 
         }
     }
+
+    public static final String FLAG_RESET_CLEAN_MODE = "FLAG_RESET_CLEAN_MODE";
+
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {

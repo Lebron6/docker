@@ -34,6 +34,7 @@ class ConfigActivity : BaseActivity() {
         configBinding.cbHaveRtk.isChecked = PreferenceUtils.getInstance().haveRTK
         configBinding.cbCloseObstacle.isChecked = PreferenceUtils.getInstance().closeObsEnable
         configBinding.cbDebuggingMode.isChecked = PreferenceUtils.getInstance().isDebugMode
+        configBinding.cbCleanMode.isChecked = PreferenceUtils.getInstance().isCleanMode
         configBinding.cbLEDsSettings.isChecked = PreferenceUtils.getInstance().navigationLEDsOn
         configBinding.rbRtkCustom.isChecked = PreferenceUtils.getInstance().rtkType == 1
         configBinding.rbRtkDji.isChecked = PreferenceUtils.getInstance().rtkType == 2
@@ -247,6 +248,7 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().rtkType = -1
         }
         PreferenceUtils.getInstance().isDebugMode = configBinding.cbDebuggingMode.isChecked
+        PreferenceUtils.getInstance().isCleanMode = configBinding.cbCleanMode.isChecked
         PreferenceUtils.getInstance().navigationLEDsOn = configBinding.cbLEDsSettings.isChecked
         PreferenceUtils.getInstance().customStreamEnable = configBinding.cbCustomStream.isChecked
         if (configBinding.cbCustomStream.isChecked) {
