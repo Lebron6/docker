@@ -31,8 +31,8 @@
 
     <ImageView
         android:id="@+id/imageview_video_icon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imageview_video_signal"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,8 +52,8 @@
 
     <ImageView
         android:id="@+id/imageview_video_signal"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
         android:layout_marginStart="2dp"
         android:src="@drawable/uxsdk_signal_level_list"
         app:layout_constraintBottom_toBottomOf="parent"
