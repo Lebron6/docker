@@ -383,9 +383,9 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
                 ResetHomePointManager.getInstance().startTaskProcess(mqttClient,message);
                 break;
-            //设置清洁模式
+            //设置纯净模式
             case 60137:
-                LogUtil.log(TAG, "收到命令：设置清洁模式" + jsonString);
+                LogUtil.log(TAG, "收到命令：设置纯净模式" + jsonString);
                 PreferenceUtils.getInstance().setIsCleanMode(message.getIsCleanMode()==1?true:false);
                 EventBus.getDefault().post(FLAG_RESET_CLEAN_MODE);
                 break;

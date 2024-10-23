@@ -103,8 +103,20 @@ public class ApronArucoDetect {
 
                     Aruco.detectMarkers(grayImgMat, dictionary, mArucoCornerList, ids);
                     if (ids.depth() > 0) {
+
                         arucoNotFoundTag = false;
                         int[] idArray = ids.toArray();
+                        int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
+                        double flyingHeight = Movement.getInstance().getFlyingHeight();
+                        if (ultrasonicHeight <=4&& flyingHeight <1.7
+                                &&(idArray.length>=6&&(idArray[0]==11||idArray[0]==12||idArray[0]==13||
+                                idArray[0]==14||idArray[0]==15||idArray[0]==16||idArray[0]==17||idArray[0]==18||idArray[0]==19))){
+                          String  logMessage = "参考Aurco数目降落:" + idArray.length  +
+                                    " Flying Height:" + flyingHeight + "--" +
+                                    " Ultrasonic Height:" + ultrasonicHeight ;
+                            canLanding = true;
+                            LogUtil.log(TAG, logMessage);
+                        }
                         findAruco(idArray);
 
                         if (mFindArucoList.size() == 0) {
@@ -682,7 +694,7 @@ public class ApronArucoDetect {
 
         }
 
-        LogUtil.log(TAG, "Aruco=" + id + " arucoR=" + resultYaw + " arucoW=" + arucoWidth + " 杆量x=" + outX + " 偏移:x=" + imageVector.val[0] + " 杆量y=" + outY + " 偏移:y=" + imageVector.val[1] + " 高度:z=" + Movement.getInstance().getFlyingHeight());
+//        LogUtil.log(TAG, "Aruco=" + id + " arucoR=" + resultYaw + " arucoW=" + arucoWidth + " 杆量x=" + outX + " 偏移:x=" + imageVector.val[0] + " 杆量y=" + outY + " 偏移:y=" + imageVector.val[1] + " 高度:z=" + Movement.getInstance().getFlyingHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
@@ -721,7 +733,7 @@ public class ApronArucoDetect {
 
         }
 
-        if (arucoWidth >= 240) {
+        if (arucoWidth >= 260) {
             logMessage = "参考Aurco尺寸降落:" + id + " arucoW" + arucoWidth +
                     " Flying Height:" + flyingHeight + "--" +
                     " Ultrasonic Height:" + ultrasonicHeight + "  absX:" + absX + "  absY:" + absY;
