@@ -108,15 +108,32 @@ public class ApronArucoDetect {
                         int[] idArray = ids.toArray();
                         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
                         double flyingHeight = Movement.getInstance().getFlyingHeight();
-                        if (ultrasonicHeight <=4&& flyingHeight <1.7
-                                &&(idArray.length>=6&&(idArray[0]==11||idArray[0]==12||idArray[0]==13||
-                                idArray[0]==14||idArray[0]==15||idArray[0]==16||idArray[0]==17||idArray[0]==18||idArray[0]==19))){
-                          String  logMessage = "参考Aurco数目降落:" + idArray.length  +
-                                    " Flying Height:" + flyingHeight + "--" +
-                                    " Ultrasonic Height:" + ultrasonicHeight ;
-                            canLanding = true;
-                            LogUtil.log(TAG, logMessage);
+                        if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
+                                idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17 || idArray[0] == 18 || idArray[0] == 19) {
+                            if ((idArray.length >= 5 &&ultrasonicHeight <=4&& flyingHeight <1.7)) {
+                                String logMessage = "A参考Aurco数目降落:" + idArray.length +
+                                        " Flying Height:" + flyingHeight + "--" +
+                                        " Ultrasonic Height:" + ultrasonicHeight;
+                                canLanding = true;
+                                LogUtil.log(TAG, logMessage);
+                            }else{
+                                Core.extractChannel(mArucoCornerList.get(0), corner, 0);
+                                Point[] points = corner.toArray();
+                                // 计算宽度（两个相邻角点之间的距离）
+                                double width = calculateDistance(points[0], points[1]);
+                                // 计算高度（另外两个相邻角点之间的距离）
+//                                double height = calculateDistance(points[1], points[2]);
+                                if (width >= 260) {
+                                    String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
+                                            " Flying Height:" + flyingHeight + "--" +
+                                            " Ultrasonic Height:" + ultrasonicHeight ;
+                                    canLanding = true;
+                                    LogUtil.log(TAG, logMessage);
+                                }
+                            }
+
                         }
+
                         findAruco(idArray);
 
                         if (mFindArucoList.size() == 0) {
@@ -147,7 +164,7 @@ public class ApronArucoDetect {
                         }
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
-                        if (endTime - startTime > 1000 && endTime - startTime <= 8000) {
+                        if (endTime - startTime > 600 && endTime - startTime <= 8000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
