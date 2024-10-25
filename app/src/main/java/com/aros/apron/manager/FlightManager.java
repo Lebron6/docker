@@ -660,7 +660,6 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
                     // 发送无人机入库消息到服务器********************待修改************************
                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
-                    sendMissionExecuteEvents(mqttAndroidClient, "降落完成:执行入库");
                 }
                 // 上传媒体文件
                 SystemManager.getInstance().upLoadMedia(mqttAndroidClient);

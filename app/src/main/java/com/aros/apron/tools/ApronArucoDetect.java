@@ -110,7 +110,7 @@ public class ApronArucoDetect {
                         double flyingHeight = Movement.getInstance().getFlyingHeight();
                         if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
                                 idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17 || idArray[0] == 18 || idArray[0] == 19) {
-                            if ((idArray.length >= 5 &&ultrasonicHeight <=4&& flyingHeight <1.7)) {
+                            if ((idArray.length >= 6 &&ultrasonicHeight <=4&& flyingHeight <1.7)) {
                                 String logMessage = "A参考Aurco数目降落:" + idArray.length +
                                         " Flying Height:" + flyingHeight + "--" +
                                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -704,8 +704,8 @@ public class ApronArucoDetect {
                         && (absY < 100)
                         ? -0.455 : 0f;
             } else {
-                outZ = (absX < (Movement.getInstance().getFlyingHeight() > 0.5 ? 200 : 180))
-                        && (absY < (Movement.getInstance().getFlyingHeight() > 0.5 ? 160 : 120))
+                outZ = (absX < (Movement.getInstance().getFlyingHeight() > 0.5 ? 200 : 200))
+                        && (absY < (Movement.getInstance().getFlyingHeight() > 0.5 ? 160 : 160))
                         ? updateOutDownSpeed() : 0f;
             }
 
@@ -729,7 +729,7 @@ public class ApronArucoDetect {
     private void checkConditions(double absX, double absY, int id, double arucoWidth) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        boolean xy = absX <= 180 && absY <= 120;
+        boolean xy = absX <= 200 && absY <= 160;
         String logMessage = "";
 
         if (xy && ultrasonicHeight <= 3 && flyingHeight <= 1.7) {
@@ -748,14 +748,6 @@ public class ApronArucoDetect {
             LogUtil.log(TAG, logMessage);
             return;
 
-        }
-
-        if (arucoWidth >= 260) {
-            logMessage = "参考Aurco尺寸降落:" + id + " arucoW" + arucoWidth +
-                    " Flying Height:" + flyingHeight + "--" +
-                    " Ultrasonic Height:" + ultrasonicHeight + "  absX:" + absX + "  absY:" + absY;
-            canLanding = true;
-            LogUtil.log(TAG, logMessage);
         }
 
 //        if (xy && flyingHeight <= -2) {
