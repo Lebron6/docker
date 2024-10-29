@@ -192,8 +192,7 @@ public class MissionManager extends BaseManager {
                                         if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing()) {
                                             LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
                                             if (message.getIsGuidingFlight() == 0) {
-                                                SystemManager.getInstance().setMediaFilePushOver(true);
-                                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
                                                 sendMissionExecuteEvents(client, "任务非正常结束");
                                             }
                                         }
@@ -303,8 +302,7 @@ public class MissionManager extends BaseManager {
             }, 2000);
         } else {
             if (message.getIsGuidingFlight() == 0) {
-                com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
                 if (PreferenceUtils.getInstance().getHaveRTK()){
                     if (!Movement.getInstance().isRtkSign()){
                         sendMissionExecuteEvents(client, "飞行器RTK收敛异常");
@@ -334,9 +332,8 @@ public class MissionManager extends BaseManager {
                     //下载失败，直接入库
                     LogUtil.log(TAG, "航线文件下载失败:" + e.toString());
                     if (message.getIsGuidingFlight() == 0) {
-                        SystemManager.getInstance().setMediaFilePushOver(true);
-                        DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-                        sendMissionExecuteEvents(client, "任务下载失败,执行入库");
+                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+                        sendMissionExecuteEvents(client, "任务下载失败,关机");
                     }else{
                         sendMissionExecuteEvents(client,"指点任务下载失败");
                     }
@@ -529,11 +526,14 @@ public class MissionManager extends BaseManager {
                             }
                         } else {
                             if (message.getIsGuidingFlight() == 0) {
-                                com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+                                sendMissionExecuteEvents(client,"任务上传失败,执行关机");
+                                LogUtil.log(TAG, "航线第" + pushKMZFileTimes + "次上传失败,直接关机");
+                            }else{
+                                LogUtil.log(TAG, "指点航线第" + pushKMZFileTimes + "次上传失败");
+
                             }
-                            sendMissionExecuteEvents(client,"任务上传失败,执行入库");
-                            LogUtil.log(TAG, "航线第" + pushKMZFileTimes + "次上传失败,直接入库");
+
                         }
                     } else {
                         LogUtil.log(TAG, "航线上传已经执行onSuccess回调:" + WaypointMissionExecuteState.find(missionStateCode).name());
@@ -587,11 +587,10 @@ public class MissionManager extends BaseManager {
                                     }
                                 }, 2000);
                             } else {
-                                if (message.getIsGuidingFlight() == 0) {
-                                    com.aros.apron.manager.SystemManager.getInstance().setMediaFilePushOver(true);
-                                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MissionManager.this.client, -1);
-                                    sendMissionExecuteEvents(client, "任务开始失败,执行入库");
-                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接入库:" + "---" + new Gson().toJson(error));
+                                if (message.getIsGuidingFlight() == 0&&!Movement.getInstance().isPlaneWing()) {
+                                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+                                    sendMissionExecuteEvents(client, "任务开始失败,执行关机");
+                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error));
                                 }else{
                                     sendMissionExecuteEvents(client,"指点任务开始失败");
                                     LogUtil.log(TAG, "指点第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error));
