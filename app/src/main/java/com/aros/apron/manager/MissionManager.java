@@ -228,29 +228,30 @@ public class MissionManager extends BaseManager {
         @Override
         public void onWaylineExecutingInterruptReasonUpdate(IDJIError error) {
             if (error != null) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-                        if (missionManager!=null){
-                            missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    LogUtil.log(TAG, "航线中断后继续成功");
-                                    sendMissionExecuteEvents(client,"航线中断后继续成功");
-                                }
-
-                                @Override
-                                public void onFailure(@NonNull IDJIError error) {
-                                    LogUtil.log(TAG, "航线继续失败:" + new Gson().toJson(error));
-                                    sendMissionExecuteEvents(client,"航线中断后继续失败");
-
-                                }
-                            });
+                ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
+                if (productType != null) {
+                    LogUtil.log(TAG, "航线中断:" + productType.name() + "---" + new Gson().toJson(error));
+                    if (isManualPause || error.errorCode().equals("USER_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
+                        isManualPause = false;
+                    } else {
+                        if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
+                            if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        resumeMission(null,null);
+                                    }
+                                });
+                            }else{
+                                WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
+                            }
+                        } else if (PreferenceUtils.getInstance().getMissionInterruptAction()==3) {
+                            WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                         }
-                    }
-                },1000);
+                        sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
 
+                    }
+                }
             }
         }
     };
