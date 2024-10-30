@@ -56,7 +56,7 @@ public class SystemManager extends BaseManager {
         if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
-            MediaManager.INSTANCE.enablePlayback(mqttAndroidClient);
+            MediaManager.INSTANCE.enablePlayback();
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
                 DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);

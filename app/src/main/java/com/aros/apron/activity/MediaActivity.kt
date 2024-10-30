@@ -32,10 +32,10 @@ class MediaActivity : BaseActivity() {
         galleryBinding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(galleryBinding.root)
         galleryBinding.btnDisable?.setOnClickListener {
-            MediaManager.disablePlayback(mqttAndroidClient)
+            MediaManager.disablePlayback()
         }
         galleryBinding.btnEnable?.setOnClickListener {
-            MediaManager.enablePlayback(mqttAndroidClient)
+            MediaManager.enablePlayback()
         }
         galleryBinding.btnRemoveAll?.setOnClickListener {
             deleteMediaFiles()

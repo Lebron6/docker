@@ -427,8 +427,7 @@ public class MissionManager extends BaseManager {
 
 
     List<WaylineActionGroup> mActionGroups;
-    int actionGroupStartIndex = 125432;
-    int actionGroupEndIndex = 125432;
+
 
     public void pushKMZFileToAircraft(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
