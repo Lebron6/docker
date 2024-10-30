@@ -1,5 +1,6 @@
 package com.aros.apron.manager
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -93,13 +94,15 @@ object MediaManager : BaseManager() {
                     LogUtil.log(TAG, "清除文件成功 ")
                     sendMissionExecuteEvents(mqttClient,"媒体文件已清除")
                     disablePlayback()
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
 
                 override fun onFailure(p0: IDJIError) {
                     LogUtil.log(TAG, "清除文件失败: ${p0.description()} ")
                     sendMissionExecuteEvents(mqttClient, "媒体文件清除失败")
-                    DroneShutdownManager.getInstance()
-                        .sendDroneShutDownMsg2Server(mqttClient)
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
             })
     }
@@ -110,8 +113,7 @@ object MediaManager : BaseManager() {
             override fun onSuccess() {
                 LogUtil.log(TAG, "退出媒体模式成功")
                 sendMissionExecuteEvents(mqttClient,"退出媒体模式")
-                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
-                    LogUtil.log(TAG, "发送关闭无人机")
+
 
             }
 
@@ -141,11 +143,15 @@ object MediaManager : BaseManager() {
                                 LogUtil.log(TAG, "拉取媒体文件为空")
                                 sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空")
                                 disablePlayback()
+                                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                                LogUtil.log(TAG, "发送关闭无人机")
                             }
                         } else {
                             sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败,当前状态:$mState")
                             LogUtil.log(TAG, "拉取媒体文件失败,当前状态:$mState")
                             disablePlayback()
+                            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                            LogUtil.log(TAG, "发送关闭无人机")
                         }
                     }, 2000)
 
@@ -155,6 +161,8 @@ object MediaManager : BaseManager() {
                     LogUtil.log(TAG, "拉取媒体文件失败:" + Gson().toJson(idjiError))
                     sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败")
                     disablePlayback()
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
             })
     }
@@ -240,6 +248,7 @@ object MediaManager : BaseManager() {
                     }
                 }
 
+                @SuppressLint("SuspiciousIndentation")
                 override fun onFailure(error: IDJIError) {
                     //决定下载某张照片失败后是否关机
                     LogUtil.log(
