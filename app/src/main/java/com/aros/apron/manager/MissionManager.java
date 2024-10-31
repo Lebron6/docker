@@ -231,7 +231,8 @@ public class MissionManager extends BaseManager {
                 ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
                 if (productType != null) {
                     LogUtil.log(TAG, "航线中断:" + productType.name() + "---" + new Gson().toJson(error));
-                    if (isManualPause || error.errorCode().equals("USER_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
+                    if (isManualPause || error.errorCode().equals("USER_BREAK")
+                            || error.errorCode().equals("INTERRUPT_REASON_AVOID_USER_REQ_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
                         isManualPause = false;
                     } else {
                         if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
