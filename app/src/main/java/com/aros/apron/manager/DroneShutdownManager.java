@@ -53,8 +53,7 @@ public class DroneShutdownManager extends BaseManager {
         MessageReply message = new MessageReply();
         message.setMsg_type(60011);
         message.setResult(1);
-
-        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
+        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
         mqttMessage.setQos(0);
 
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {

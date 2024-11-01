@@ -15,9 +15,6 @@ import dji.v5.manager.KeyManager;
 
 public class SystemManager extends BaseManager {
 
-    public boolean mediaFilePushOver = false;
-    public boolean itCentered = false;
-
 
     private SystemManager() {
     }
@@ -52,10 +49,6 @@ public class SystemManager extends BaseManager {
     //收到60012表示飞机已归中,立即回复60012
     public void aircraftStoredReply(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         sendMsg2Server(mqttAndroidClient, message);
-        setItCentered(true);
-        if (isMediaFilePushOver()) {
-            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
-        }
     }
 
     public void upLoadMedia(MqttAndroidClient mqttAndroidClient) {
@@ -63,30 +56,12 @@ public class SystemManager extends BaseManager {
         if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
-            MediaManager.INSTANCE.enablePlayback(mqttAndroidClient);
+            MediaManager.INSTANCE.enablePlayback();
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
-            setMediaFilePushOver(true);
-            if (isItCentered()) {
                 DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
-            }
         }
 
     }
 
-    public boolean isMediaFilePushOver() {
-        return mediaFilePushOver;
-    }
-
-    public void setMediaFilePushOver(boolean mediaFilePushOver) {
-        this.mediaFilePushOver = mediaFilePushOver;
-    }
-
-    public boolean isItCentered() {
-        return itCentered;
-    }
-
-    public void setItCentered(boolean itCentered) {
-        this.itCentered = itCentered;
-    }
 }

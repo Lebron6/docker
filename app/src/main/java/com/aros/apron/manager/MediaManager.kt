@@ -1,5 +1,6 @@
 package com.aros.apron.manager
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
@@ -13,7 +14,6 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.amazonaws.services.s3.model.ProgressEvent
-import com.amazonaws.services.s3.model.ProgressListener
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.aros.apron.base.BaseManager
 import com.aros.apron.entity.FileUploadResult
@@ -68,89 +68,58 @@ object MediaManager : BaseManager() {
         }
     }
 
-    var enablePlayBackTimes: Int = 0
-    var enablePlayBackSuccess: Boolean = false
-
     //删除媒体文件和预览视频回放需要相机进入到回放模式，即调用enable接口,进入媒体模式
-    fun enablePlayback(mqttAndroidClient: MqttAndroidClient) {
+    fun enablePlayback() {
         MediaDataCenter.getInstance().mediaManager.enable(object : CompletionCallback {
             override fun onSuccess() {
                 Log.e(TAG, "enablePlayback Success")
-                pullMediaFileListFromCamera(mqttAndroidClient)
-                enablePlayBackTimes = 0
-                enablePlayBackSuccess = true
+                pullMediaFileListFromCamera()
+
             }
 
             override fun onFailure(idjiError: IDJIError) {
-                if (!enablePlayBackSuccess) {
-                    if (enablePlayBackTimes < 3) {
-                        enablePlayBackTimes++
-                        LogUtil.log(TAG, "第${enablePlayBackTimes}次进入媒体模式失败:${Gson().toJson(idjiError)}")
-                        Handler().postDelayed(Runnable {
-                            enablePlayback(mqttAndroidClient)
-                        }, 2000)
-                    } else {
-                        LogUtil.log(TAG, "进入媒体模式失败:${idjiError.description()}")
-                        sendMissionExecuteEvents(mqttClient,"媒体模式进入失败:等待归中关机")
-                        SystemManager.getInstance().isMediaFilePushOver = true
-//                        if (SystemManager.getInstance().isMediaFilePushOver) {
-                        if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                        }
-                    }
-
-                }
+                LogUtil.log(TAG, "进入媒体模式失败:${idjiError.description()}")
+                sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机")
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
 
             }
         })
     }
 
-    fun removeAllFiles(mqttAndroidClient: MqttAndroidClient) {
+    fun removeAllFiles() {
         MediaDataCenter.getInstance().mediaManager.deleteMediaFiles(
             mediaFiles,
             object : CommonCallbacks.CompletionCallback {
                 override fun onSuccess() {
                     LogUtil.log(TAG, "清除文件成功 ")
                     sendMissionExecuteEvents(mqttClient,"媒体文件已清除")
-                    disablePlayback(mqttAndroidClient)
+                    disablePlayback()
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
 
                 override fun onFailure(p0: IDJIError) {
                     LogUtil.log(TAG, "清除文件失败: ${p0.description()} ")
-                    sendMissionExecuteEvents(mqttClient,"媒体文件清除失败")
-                    SystemManager.getInstance().isMediaFilePushOver = true
-//                    if (SystemManager.getInstance().isMediaFilePushOver) {
-                    if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                    }
+                    sendMissionExecuteEvents(mqttClient, "媒体文件清除失败")
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
             })
     }
 
     //退出媒体模式
-    fun disablePlayback(mqttAndroidClient: MqttAndroidClient) {
+    fun disablePlayback() {
         MediaDataCenter.getInstance().mediaManager.disable(object : CompletionCallback {
             override fun onSuccess() {
                 LogUtil.log(TAG, "退出媒体模式成功")
                 sendMissionExecuteEvents(mqttClient,"退出媒体模式")
-                SystemManager.getInstance().isMediaFilePushOver = true
-//                if (SystemManager.getInstance().isMediaFilePushOver) {
-                if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                    LogUtil.log(TAG, "发送关闭无人机")
 
-                }
+
             }
 
             override fun onFailure(idjiError: IDJIError) {
                 sendMissionExecuteEvents(mqttClient,"退出媒体模式失败")
                 LogUtil.log(TAG, "退出媒体模式失败:${idjiError.description()}")
-                SystemManager.getInstance().isMediaFilePushOver = true
-//                if (SystemManager.getInstance().isMediaFilePushOver) {
-                if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                    LogUtil.log(TAG, "发送关闭无人机")
-                }
             }
         })
     }
@@ -158,7 +127,7 @@ object MediaManager : BaseManager() {
     private var downLoadMediaFileIndex = 0
 
     //从相机拉取媒体文件
-    fun pullMediaFileListFromCamera(mqttAndroidClient: MqttAndroidClient) {
+    fun pullMediaFileListFromCamera() {
         MediaDataCenter.getInstance().mediaManager.pullMediaFileListFromCamera(
             PullMediaFileListParam.Builder().count(-1).build(),
             object : CompletionCallback {
@@ -169,16 +138,20 @@ object MediaManager : BaseManager() {
                             mediaFiles =
                                 MediaDataCenter.getInstance().mediaManager.mediaFileListData.data
                             if (mediaFiles != null && mediaFiles!!.isNotEmpty()) {
-                                pullOriginalMediaFileFromCamera(mqttAndroidClient)
+                                pullOriginalMediaFileFromCamera()
                             } else {
                                 LogUtil.log(TAG, "拉取媒体文件为空")
                                 sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空")
-                                disablePlayback(mqttAndroidClient)
+                                disablePlayback()
+                                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                                LogUtil.log(TAG, "发送关闭无人机")
                             }
                         } else {
                             sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败,当前状态:$mState")
                             LogUtil.log(TAG, "拉取媒体文件失败,当前状态:$mState")
-                            disablePlayback(mqttAndroidClient)
+                            disablePlayback()
+                            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                            LogUtil.log(TAG, "发送关闭无人机")
                         }
                     }, 2000)
 
@@ -187,14 +160,16 @@ object MediaManager : BaseManager() {
                 override fun onFailure(idjiError: IDJIError) {
                     LogUtil.log(TAG, "拉取媒体文件失败:" + Gson().toJson(idjiError))
                     sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败")
-                    disablePlayback(mqttAndroidClient)
+                    disablePlayback()
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
+                    LogUtil.log(TAG, "发送关闭无人机")
                 }
             })
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun pullOriginalMediaFileFromCamera(mqttAndroidClient: MqttAndroidClient) {
+    fun pullOriginalMediaFileFromCamera() {
 
 
         val mediaFile = mediaFiles!![downLoadMediaFileIndex]
@@ -209,11 +184,11 @@ object MediaManager : BaseManager() {
             if (downLoadMediaFileIndex == mediaFiles?.size) {
                 //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
                 downLoadMediaFileIndex=0
-                removeAllFiles(mqttAndroidClient)
+                removeAllFiles()
             } else {
                 LogUtil.log(TAG, "跳过一段文件下载:${mediaFile.fileName}")
 
-                pullOriginalMediaFileFromCamera(mqttAndroidClient)
+                pullOriginalMediaFileFromCamera()
             }
             return
         }
@@ -261,20 +236,19 @@ object MediaManager : BaseManager() {
 
                 override fun onFinish() {
                     LogUtil.log(TAG, "第${downLoadMediaFileIndex}张图片下载成功")
-                    minIOUpLoad(mqttAndroidClient, file, mediaFile)
+                    minIOUpLoad(file, mediaFile)
                     try {
                         outputStream.close()
                         bos.close()
                     } catch (error: IOException) {
                         LogUtil.log(TAG, "文件$downLoadMediaFileIndex  error: ${error.message}")
-                        SystemManager.getInstance().isMediaFilePushOver = true
-//                        if (SystemManager.getInstance().isMediaFilePushOver) {
-                        if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                        }
+
+                            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(
+                                mqttClient)
                     }
                 }
 
+                @SuppressLint("SuspiciousIndentation")
                 override fun onFailure(error: IDJIError) {
                     //决定下载某张照片失败后是否关机
                     LogUtil.log(
@@ -287,18 +261,14 @@ object MediaManager : BaseManager() {
                     )
                     sendMissionExecuteEvents(mqttClient,"第 $downLoadMediaFileIndex 张图片下载失败")
                     downLoadMediaFileIndex=0
-                    SystemManager.getInstance().isMediaFilePushOver = true
-//                    if (SystemManager.getInstance().isMediaFilePushOver) {
-                    if (SystemManager.getInstance().isMediaFilePushOver && SystemManager.getInstance().isItCentered) {
-                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient)
-                    }
+                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient)
                 }
             })
     }
 
 
     private fun minIOUpLoad(
-        mqttAndroidClient: MqttAndroidClient,
+
         file: File,
         mediaFile: MediaFile
     ) {
@@ -367,7 +337,7 @@ object MediaManager : BaseManager() {
                         this.offIndex = downLoadMediaFileIndex
                         this.flightId = PreferenceUtils.getInstance().flightId
                     }
-                    sendFileUploadCallback(mqttAndroidClient, fileUploadResult)
+                    sendFileUploadCallback(mqttClient, fileUploadResult)
                 }
 
                 @RequiresApi(Build.VERSION_CODES.O)
@@ -380,9 +350,9 @@ object MediaManager : BaseManager() {
                     if (downLoadMediaFileIndex == mediaFiles?.size) {
                         //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
                         downLoadMediaFileIndex=0
-                        removeAllFiles(mqttAndroidClient)
+                        removeAllFiles()
                     } else {
-                        pullOriginalMediaFileFromCamera(mqttAndroidClient)
+                        pullOriginalMediaFileFromCamera()
                     }
                 }
 
@@ -397,10 +367,10 @@ object MediaManager : BaseManager() {
                     if (downLoadMediaFileIndex == mediaFiles?.size) {
                         //这里指的是所有文件已经下载完成或失败,清空SD卡,缓存,退出媒体模式发送无人机关机
                         sendMissionExecuteEvents(mqttClient,"媒体文件上传完成")
-                        removeAllFiles(mqttAndroidClient)
+                        removeAllFiles()
                         downLoadMediaFileIndex == 0
                     } else {
-                        pullOriginalMediaFileFromCamera(mqttAndroidClient)
+                        pullOriginalMediaFileFromCamera()
                     }
                 }
             })
