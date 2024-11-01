@@ -227,5 +227,5 @@ dependencies {
 
     implementation 'com.quickbirdstudios:opencv-contrib:3.4.5'
     implementation project(path: ':android-sdk-v5-uxsdk')
-
+    implementation files ('libs/lib28181agent-release.aar')
 }

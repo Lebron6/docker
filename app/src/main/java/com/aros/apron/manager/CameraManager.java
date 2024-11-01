@@ -6,14 +6,19 @@ import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.tools.FileUtil;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
+import com.gosuncn.lib28181agent.bean.AngleEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import java.util.List;
+
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
+import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.CameraExposureCompensation;
 import dji.sdk.keyvalue.value.camera.CameraExposureMode;
@@ -25,6 +30,9 @@ import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
+import dji.sdk.keyvalue.value.camera.VideoBitrateMode;
+import dji.sdk.keyvalue.value.camera.VideoMimeType;
+import dji.sdk.keyvalue.value.camera.VideoResolutionFrameRate;
 import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
 import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
@@ -32,6 +40,8 @@ import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.EnCodingType;
 import dji.sdk.keyvalue.value.common.RelativePosition;
+import dji.sdk.keyvalue.value.gimbal.GimbalAttitudeRange;
+import dji.sdk.keyvalue.value.gimbal.GimbalMode;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -171,8 +181,153 @@ public class CameraManager extends BaseManager {
                 }
             });
         }
+
+        //            获取当前镜头类型，禅思h20t之类的
+        Movement.getInstance().setCurCameraType(KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType)));
+//                    获取镜头类型后监听焦距计算视场角
+        KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomFocalLength,
+                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Integer>() {
+            @Override
+            public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                if (t1 != null) {
+                    //测试视场角
+                    AngleEvent angleEvent = null;
+                    if (Movement.getInstance().getCameraTypeParameter().containsKey(Movement.getInstance().getCurCameraType())) {
+                        angleEvent = FileUtil.getInstance().countCmos(
+                                Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[0],
+                                Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[1],
+                                // TODO: 2024/9/27 计算视场角： 焦距采用广角镜头的焦距乘当前倍率
+                                Movement.getInstance().getCameraZoomRatios()
+                                        * Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[2]);
+                    } else {
+                        LogUtil.log(TAG, "未被记录镜头参数的相机类型，无法计算视场角");
+                    }
+                    if (angleEvent != null) {
+                        Movement.getInstance().setAngleH(angleEvent.getAngleH());
+                        Movement.getInstance().setAngleV(angleEvent.getAngleV());
+                        LogUtil.log(TAG, "视场角水平垂直和焦距:" + angleEvent.getAngleH() + "==" + angleEvent.getAngleV() + "---" + t1);
+                    }
+                    Movement.getInstance().setFocalLenght(t1);
+                }
+            }
+        });
+        //        获取云台可变动的范围
+        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.KeyGimbalAttitudeRange), this, new CommonCallbacks.KeyListener<GimbalAttitudeRange>() {
+            @Override
+            public void onValueChange(@Nullable GimbalAttitudeRange gimbalAttitudeRange, @Nullable GimbalAttitudeRange t1) {
+                if (t1 != null) {
+                    Movement.getInstance().setGimbalPitchRange(t1.getPitch());
+                    Movement.getInstance().setGimbalYawRange(t1.getYaw());
+                }
+            }
+        });
+        //        获取镜头分辨率范围
+        KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyVideoResolutionFrameRateRange), new CommonCallbacks.CompletionCallbackWithParam<List<VideoResolutionFrameRate>>() {
+            @Override
+            public void onSuccess(List<VideoResolutionFrameRate> videoResolutionFrameRates) {
+                LogUtil.log(TAG, "获取分辨率为：" + videoResolutionFrameRates);
+                Movement.getInstance().setKeyVideoResolutionFrameRateRange(videoResolutionFrameRates);
+                setBitRate();//设置分辨率
+
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "获取分辨率失败：" + idjiError);
+            }
+        });
+//        获取相机编码格式
+        KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyVideoMimeType), new CommonCallbacks.CompletionCallbackWithParam<VideoMimeType>() {
+            @Override
+            public void onSuccess(VideoMimeType videoMimeType) {
+                LogUtil.log(TAG, "获取相机支持的编码格式为：" + videoMimeType);
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "获取相机支持的编码格式失败：" + idjiError);
+            }
+        });
+    }
+    public void setBitRate() {
+        //        设置录像模式
+        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode), CameraMode.VIDEO_NORMAL, null);
+//        设置镜头分辨率，降低分辨率
+        List<VideoResolutionFrameRate> VList = Movement.getInstance().getKeyVideoResolutionFrameRateRange();
+        LogUtil.log(TAG, VList + "==============");
+//
+        VideoResolutionFrameRate v = VList.get(0);
+        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoResolutionFrameRate), v, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtil.log(TAG, "设置镜头分辨率和帧率成功：" + v);
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "设置镜头分辨率和帧率失败：" + idjiError);
+            }
+        });
+//        设置码率,降低码率
+        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoBitrateMode), VideoBitrateMode.VBR, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtil.log(TAG, "相机码率设置VBR成功");
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "相机码率设置VBR失败");
+            }
+        });
+    }
+    public void gimbalFollow(){
+        // 设置无人机的云台跟踪模式
+        KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,ComponentIndexType.LEFT_OR_MAIN), GimbalMode.FPV, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtil.log(TAG,"云台设置跟踪模式成功: ");
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG,"云台设置跟踪模式失败: " + error.description());
+            }
+        });
     }
 
+    public void setCameraZoom(double v1){
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (!isConnect){
+            LogUtil.log(TAG,"相机未连接，无法变焦");
+        }
+        //        监听焦距前设置相机视频源为变焦
+        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.ZOOM_CAMERA, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtil.log(TAG, "监听焦距前设置相机视频源--成功");
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "监听焦距前设置相机视频源--失败：" + idjiError);
+            }
+        });
+        //        变焦
+        KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), v1,
+                new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        LogUtil.log(TAG, "放缩成功");
+                    }
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        LogUtil.log(TAG, "放缩失败" + idjiError);
+                    }
+                });
+    }
 //    private void publishCamera2Server() {
 //        if (isFlyClickTime()) {
 //            MqttMessage flightMessage = null;
