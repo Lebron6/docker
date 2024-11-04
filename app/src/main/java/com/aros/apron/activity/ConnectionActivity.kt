@@ -13,15 +13,19 @@ import androidx.activity.viewModels
 import com.aros.apron.R
 import com.aros.apron.app.ApronApp
 import com.aros.apron.base.BaseActivity
+import com.aros.apron.callback.MGS28181Listener
 import com.aros.apron.constant.AMSConfig
 import com.aros.apron.databinding.ActivityConnectionBinding
 import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.models.MSDKManagerVM
 import com.aros.apron.models.globalViewModels
+import com.aros.apron.tools.FileUtil
+import com.aros.apron.tools.IPAddressUtil
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
+import com.gosuncn.lib28181agent.GS28181SDKManager
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.v5.utils.common.StringUtils
@@ -85,7 +89,18 @@ class ConnectionActivity : BaseActivity() {
 //            startService(it)
 //        }
         initBugly()
+        var addr= IPAddressUtil.getLocalIPv4Address()
+        var code= GS28181SDKManager.getInstance().initSDK(addr)
+        if (code==0){
+            Log.e(TAG, "初始化国标推流:$code 本地ip:$addr")
+            GS28181SDKManager.getInstance().registerSDK("183.62.9.189", 15060)
+            FileUtil.getInstance().startHeartBeatTask()//开心跳包
+            //                开启监听
+            GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
+        }else{
+            LogUtil.log(TAG, "初始化国标推流失败:$code 本地ip:$addr")
 
+        }
     }
 
     private fun initBugly() {
