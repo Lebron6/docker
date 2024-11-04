@@ -40,9 +40,11 @@ import com.aros.apron.manager.WayLineExecutingInterruptManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
+import com.aros.apron.tools.FileUtil
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.google.gson.Gson
+import com.gosuncn.lib28181agent.GS28181SDKManager
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -63,7 +65,6 @@ import dji.v5.utils.common.LogUtils
 import dji.v5.ux.accessory.RTKStartServiceHelper.startRtkService
 import dji.v5.ux.cameracore.widget.autoexposurelock.AutoExposureLockWidget
 import dji.v5.ux.cameracore.widget.cameracontrols.CameraControlsWidget
-import dji.v5.ux.cameracore.widget.cameracontrols.lenscontrol.LensControlWidget
 import dji.v5.ux.cameracore.widget.focusexposureswitch.FocusExposureSwitchWidget
 import dji.v5.ux.cameracore.widget.focusmode.FocusModeWidget
 import dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget
@@ -87,8 +88,6 @@ import dji.v5.ux.core.widget.hsi.HorizontalSituationIndicatorWidget
 import dji.v5.ux.core.widget.hsi.PrimaryFlightDisplayWidget
 import dji.v5.ux.core.widget.remainingflighttime.RemainingFlightTimeWidget
 import dji.v5.ux.core.widget.setting.SettingWidget
-import dji.v5.ux.flight.returnhome.ReturnHomeWidget
-import dji.v5.ux.flight.takeoff.TakeOffWidget
 import dji.v5.ux.gimbal.GimbalFineTuneWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget.UIState.VisibilityUpdated
@@ -343,30 +342,39 @@ open class MainActivity : BaseActivity() {
         }
     }
 
+    private var startTime: Long = 0
+    private var endTime: Long = 90
 
     private fun initCameraStream() {
-//        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
-//            override fun surfaceCreated(holder: SurfaceHolder) {}
-//            override fun surfaceChanged(
-//                holder: SurfaceHolder,
-//                format: Int,
-//                width: Int,
-//                height: Int
-//            ) {
-//                cameraManager.putCameraStreamSurface(
-//                    ComponentIndexType.LEFT_OR_MAIN,
-//                    holder.surface,
-//                    width,
-//                    height,
-//                    ICameraStreamManager.ScaleType.FIX_XY
-//                )
-//            }
-//
-//            override fun surfaceDestroyed(holder: SurfaceHolder) {
-//                cameraManager.removeCameraStreamSurface(holder.surface)
-//            }
-//        })
-
+        cameraManager.addReceiveStreamListener(
+            ComponentIndexType.LEFT_OR_MAIN
+        ) { data, _, _, info ->
+            if (data != null) {
+                startTime = System.currentTimeMillis()
+                if (info.mimeType == ICameraStreamManager.MimeType.H264) {
+                    val re: Int = GS28181SDKManager.getInstance().sendVideoStream(
+                        System.currentTimeMillis(),
+                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
+                        data
+                    )
+                } else {
+                    val re: Int = GS28181SDKManager.getInstance().sendVideoStreamH265(
+                        System.currentTimeMillis(),
+                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
+                        data
+                    )
+                }
+                endTime = System.currentTimeMillis()
+                val delay: Long = startTime - endTime
+                if (delay < 40) {
+                    try {
+                        Thread.sleep(40L - delay)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
         cameraManager.addFrameListener(
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888

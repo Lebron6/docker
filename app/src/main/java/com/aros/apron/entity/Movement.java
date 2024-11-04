@@ -130,21 +130,6 @@ public class Movement {
         this.currentAltitude = currentAltitude;
     }
 
-    public boolean isFlightController() {
-        return isFlightController;
-    }
-
-    public void setFlightController(boolean flightController) {
-        isFlightController = flightController;
-    }
-
-    public Boolean getCameraConnection() {
-        return isCameraConnection;
-    }
-
-    public void setCameraConnection(Boolean cameraConnection) {
-        isCameraConnection = cameraConnection;
-    }
 
     public List<ComponentIndexType> getAvailableCameraList() {
         return availableCameraList;
@@ -176,14 +161,6 @@ public class Movement {
 
     public void setCameraTypeParameter(Map<CameraType, float[]> cameraTypeParameter) {
         this.cameraTypeParameter = cameraTypeParameter;
-    }
-
-    public double getMinFocalLenght() {
-        return minFocalLenght;
-    }
-
-    public void setMinFocalLenght(double minFocalLenght) {
-        this.minFocalLenght = minFocalLenght;
     }
 
     public DoubleMinMax getGimbalYawRange() {
@@ -226,13 +203,6 @@ public class Movement {
         this.height = height;
     }
 
-    public String getDevieGBCode() {
-        return devieGBCode;
-    }
-
-    public void setDevieGBCode(String devieGBCode) {
-        this.devieGBCode = devieGBCode;
-    }
 
     public float getAngleH() {
         return angleH;
@@ -250,13 +220,6 @@ public class Movement {
         this.angleV = angleV;
     }
 
-    public float getCountYaw() {
-        return countYaw;
-    }
-
-    public void setCountYaw(float countYaw) {
-        this.countYaw = countYaw;
-    }
 
     public float getAltitude() {
         return altitude;
