@@ -61,7 +61,7 @@ public class DroneStorageManager extends BaseManager {
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes);
+                LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes+"clientId:"+client.getClientId());
                 sendMissionExecuteEvents(client, "AMS通知机库入库");
                 isSendDroneStorageSuccess = true;
             }

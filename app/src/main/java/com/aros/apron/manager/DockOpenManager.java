@@ -61,7 +61,7 @@ public class DockOpenManager extends BaseManager {
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes);
+                LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes+"clientId:"+client.getClientId());
                 sendMissionExecuteEvents(client, "AMS通知机库开舱");
                 isSendDockOpenSuccess = true;
             }
