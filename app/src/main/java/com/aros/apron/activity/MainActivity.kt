@@ -20,6 +20,7 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
+import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -352,11 +353,13 @@ open class MainActivity : BaseActivity() {
             if (data != null) {
                 startTime = System.currentTimeMillis()
                 if (info.mimeType == ICameraStreamManager.MimeType.H264) {
-                    val re: Int = GS28181SDKManager.getInstance().sendVideoStream(
-                        System.currentTimeMillis(),
-                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
-                        data
-                    )
+//                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfo(System.currentTimeMillis(), if(info.isKeyFrame) 1 else FileUtil.getFrameType(data), data,
+//                    Movement.getInstance().gimbalRoll.toFloat(),
+//                    cameraControllerUtil.preFramePitch + cameraControllerUtil.compensatePitch,
+//                    cameraControllerUtil.preFrameYaw + cameraControllerUtil.compensateYaw,
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude());
                 } else {
                     val re: Int = GS28181SDKManager.getInstance().sendVideoStreamH265(
                         System.currentTimeMillis(),
