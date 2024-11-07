@@ -10,6 +10,7 @@ import com.aros.apron.xclog.XcLogConfig
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
+import dji.v5.common.utils.GeoidManager
 
 
 open class ApronApp : Application() {
@@ -34,7 +35,9 @@ open class ApronApp : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        com.cySdkyc.clx.Helper.install(this)    }
+        com.cySdkyc.clx.Helper.install(this)
+        GeoidManager.getInstance().init(this)}
+
 
     /**
      * Logger 初始化配置

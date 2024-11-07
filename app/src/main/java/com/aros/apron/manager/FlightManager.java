@@ -41,6 +41,8 @@ import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
+import dji.v5.common.utils.GeoidManager;
+import dji.v5.common.utils.GpsUtils;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.PerceptionInfo;
 import dji.v5.manager.aircraft.perception.listener.PerceptionInformationListener;
@@ -170,9 +172,11 @@ public class FlightManager extends BaseManager {
                     if (newValue != null) {
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
+                        Movement.getInstance().setEgm96Altitude( GpsUtils.egm96Altitude(newValue.getAltitude(), newValue.getLatitude(), newValue.getLongitude()));
                         GISNeedDataEntity.getInstance().setFlyingHeight(newValue.getAltitude().intValue());
                         GISNeedDataEntity.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
                         GISNeedDataEntity.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
+
                         if (newValue.getAltitude() != null) {
                             Movement.getInstance().setFlyingHeight(Double.parseDouble(decimalFormat.format(newValue.getAltitude())));
                         }
