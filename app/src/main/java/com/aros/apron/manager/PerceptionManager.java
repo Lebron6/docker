@@ -50,10 +50,10 @@ public class PerceptionManager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     if (perceptionEnable) {
-                        LogUtil.log(TAG, "避障已开启");
+                        LogUtil.log(TAG, "避障开启");
                     } else {
                         closePerceptionSuccess = true;
-                        LogUtil.log(TAG, "避障已关闭");
+                        LogUtil.log(TAG, "避障关闭");
                     }
                 }
 

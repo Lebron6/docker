@@ -166,13 +166,32 @@ public class FlightManager extends BaseManager {
                 }
             });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyTakeoffLocationAltitude), this, new CommonCallbacks.KeyListener<Double>() {
+                @Override
+                public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setTakeoffLocationAltitude(t1);
+                    }
+                }
+            });
+
             KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyAircraftLocation3D), this, new CommonCallbacks.KeyListener<LocationCoordinate3D>() {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
+                        Movement.getInstance().setEgm96Altitude(
+                                        GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
+                                                        newValue.getAltitude(),
+                                newValue.getLatitude(), newValue.getLongitude()));
+
+
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
-                        Movement.getInstance().setEgm96Altitude( GpsUtils.egm96Altitude(newValue.getAltitude(), newValue.getLatitude(), newValue.getLongitude()));
+
+                        Movement.getInstance().setEgm96Altitude( GpsUtils.egm96Altitude(newValue.getAltitude(),
+                                newValue.getLatitude(), newValue.getLongitude()));
+
+
                         GISNeedDataEntity.getInstance().setFlyingHeight(newValue.getAltitude().intValue());
                         GISNeedDataEntity.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
                         GISNeedDataEntity.getInstance().setCurrentLongitude(newValue.getLongitude() + "");

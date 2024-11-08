@@ -22,6 +22,7 @@ public class Movement {
 
     private int distance;//距离航点
     private double egm96Altitude;//海拔高度
+    private double takeoffLocationAltitude;//起飞高度
     private String horizontalSpeed;//水平速度
     private String verticalSpeed;//垂直速度
     private int windSpeed;//风速
@@ -87,6 +88,14 @@ public class Movement {
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
+
+    public double getTakeoffLocationAltitude() {
+        return takeoffLocationAltitude;
+    }
+
+    public void setTakeoffLocationAltitude(double takeoffLocationAltitude) {
+        this.takeoffLocationAltitude = takeoffLocationAltitude;
+    }
 
     public double getEgm96Altitude() {
         return egm96Altitude;
