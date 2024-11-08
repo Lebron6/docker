@@ -190,20 +190,6 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-//                        if (Movement.getInstance().isRtkSign()){
-                            Movement.getInstance().setEgm96Altitude(
-                                    GpsUtils.egm96Altitude(Movement.getInstance().getRTKTakeoffAltitude()+
-                                                    newValue.getAltitude(),
-                                            newValue.getLatitude(), newValue.getLongitude()));
-//                        }else{
-//                            Movement.getInstance().setEgm96Altitude(
-//                                    GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
-//                                                    newValue.getAltitude(),
-//                                            newValue.getLatitude(), newValue.getLongitude()));
-//                        }
-
-                        Log.e(TAG,"海拔高度:"+Movement.getInstance().getEgm96Altitude());
-
 
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
@@ -473,8 +459,11 @@ public class FlightManager extends BaseManager {
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
                     + "--heath:" + Movement.getInstance().getWarningMessage()
                     + "--status:" + Movement.getInstance().getPlaneMessage());
+            Movement.getInstance().setEgm96Altitude(
+                    GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude()+
+                                    Movement.getInstance().getFlyingHeight()),
+                            Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
-
             //推送飞行状态
             MqttMessage flightMessage = null;
             try {
