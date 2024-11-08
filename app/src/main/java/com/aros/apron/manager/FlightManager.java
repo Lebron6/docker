@@ -31,6 +31,7 @@ import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.RtkMobileStationKey;
 import dji.sdk.keyvalue.value.common.Attitude;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
@@ -39,6 +40,7 @@ import dji.sdk.keyvalue.value.common.Velocity3D;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.common.utils.GeoidManager;
@@ -175,14 +177,31 @@ public class FlightManager extends BaseManager {
                 }
             });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(RtkMobileStationKey.KeyRTKTakeoffAltitudeInfo), this, new CommonCallbacks.KeyListener<RTKTakeoffAltitudeInfo>() {
+                @Override
+                public void onValueChange(@Nullable RTKTakeoffAltitudeInfo rtkTakeoffAltitudeInfo, @Nullable RTKTakeoffAltitudeInfo t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setRTKTakeoffAltitude(t1.getAltitude());
+                    }
+                }
+            });
+
             KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyAircraftLocation3D), this, new CommonCallbacks.KeyListener<LocationCoordinate3D>() {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-                        Movement.getInstance().setEgm96Altitude(
-                                        GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
-                                                        newValue.getAltitude(),
-                                newValue.getLatitude(), newValue.getLongitude()));
+                        if (Movement.getInstance().isRtkSign()){
+                            Movement.getInstance().setEgm96Altitude(
+                                    GpsUtils.egm96Altitude(Movement.getInstance().getRTKTakeoffAltitude()+
+                                                    newValue.getAltitude(),
+                                            newValue.getLatitude(), newValue.getLongitude()));
+                        }else{
+                            Movement.getInstance().setEgm96Altitude(
+                                    GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
+                                                    newValue.getAltitude(),
+                                            newValue.getLatitude(), newValue.getLongitude()));
+                        }
+
 
 
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
