@@ -40,6 +40,7 @@ import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
+import com.aros.apron.tools.CameraControllerUtil
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.FileUtil
 import com.aros.apron.tools.LogUtil
@@ -165,6 +166,8 @@ open class MainActivity : BaseActivity() {
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
+    private var delay: Long = 0
+
 
     override fun useEventBus(): Boolean {
         return true
@@ -351,26 +354,60 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN
         ) { data, _, _, info ->
             if (data != null) {
+
                 startTime = System.currentTimeMillis()
+                LogUtil.log(TAG, "$startTime-----发送的时间--开始")
+
+                CameraControllerUtil.getInstance().countPT(
+                    Movement.getInstance().gimbalPitch.toFloat(),
+                    Movement.getInstance().gimbalYaw.toFloat(),
+                    CameraControllerUtil.getInstance().debounceThresholdYaw,
+                    CameraControllerUtil.getInstance().debounceThresholdPitch
+                )
                 if (info.mimeType == ICameraStreamManager.MimeType.H264) {
-//                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfo(System.currentTimeMillis(), if(info.isKeyFrame) 1 else FileUtil.getFrameType(data), data,
-//                    Movement.getInstance().gimbalRoll.toFloat(),
-//                    cameraControllerUtil.preFramePitch + cameraControllerUtil.compensatePitch,
-//                    cameraControllerUtil.preFrameYaw + cameraControllerUtil.compensateYaw,
-//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-//                    Movement.getInstance().getCurrentAltitude());
-                } else {
-                    val re: Int = GS28181SDKManager.getInstance().sendVideoStreamH265(
+                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfo(
                         System.currentTimeMillis(),
                         if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
-                        data
+                        data,
+                        Movement.getInstance().gimbalRoll.toFloat(),
+                        CameraControllerUtil.getInstance().preFramePitch +CameraControllerUtil.compensatePitch,
+                        CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
+                        Movement.getInstance().currentLongitude.toFloat(),
+                        Movement.getInstance().currentLatitude.toFloat(),
+                        Movement.getInstance().currentAltitude
+                    )
+
+                    LogUtil.log(
+                        TAG,
+                        "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfo:$re"
+                    )
+                } else {
+                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfoH265(
+                        System.currentTimeMillis(),
+                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
+                        data,
+                        Movement.getInstance().gimbalRoll.toFloat(),
+                        CameraControllerUtil.getInstance().preFramePitch +CameraControllerUtil.compensatePitch,
+                        CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
+                        Movement.getInstance().currentLongitude.toFloat(),
+                        Movement.getInstance().currentLatitude.toFloat(),
+                        Movement.getInstance().currentAltitude
+                    )
+                    LogUtil.log(
+                        TAG,
+                        "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfoH265:$re"
                     )
                 }
+
                 endTime = System.currentTimeMillis()
-                val delay: Long = startTime - endTime
+                LogUtil.log(TAG, "发送的时间--结束-----$endTime")
+//                    推太快就等待直到满足33ms推一帧，即30的帧率
+                //                    推太快就等待直到满足33ms推一帧，即30的帧率
+                delay = startTime - endTime
                 if (delay < 40) {
+                    LogUtil.log(TAG, "推太快，用时-----$delay")
                     try {
+                        //将上一次的推流耗时近似当做下一次的耗时，也就是两帧之间是（40-delay）+下次网络推流用时delay，即保证每两帧间隔40ms
                         Thread.sleep(40L - delay)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
