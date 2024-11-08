@@ -28,6 +28,9 @@ public class Movement {
     private String homepointLong;
 
     private int distance;//距离航点
+    private double egm96Altitude;//海拔高度
+    private double takeoffLocationAltitude;//起飞高度
+    private double RTKTakeoffAltitude;//RTK起飞高度
     private String horizontalSpeed;//水平速度
     private String verticalSpeed;//垂直速度
     private int windSpeed;//风速
@@ -227,6 +230,29 @@ public class Movement {
 
     public void setAltitude(float altitude) {
         this.altitude = altitude;
+    }
+    public double getRTKTakeoffAltitude() {
+        return RTKTakeoffAltitude;
+    }
+
+    public void setRTKTakeoffAltitude(double RTKTakeoffAltitude) {
+        this.RTKTakeoffAltitude = RTKTakeoffAltitude;
+    }
+
+    public double getTakeoffLocationAltitude() {
+        return takeoffLocationAltitude;
+    }
+
+    public void setTakeoffLocationAltitude(double takeoffLocationAltitude) {
+        this.takeoffLocationAltitude = takeoffLocationAltitude;
+    }
+
+    public double getEgm96Altitude() {
+        return egm96Altitude;
+    }
+
+    public void setEgm96Altitude(double egm96Altitude) {
+        this.egm96Altitude = egm96Altitude;
     }
 
     public String getAlternatePointLat() {
