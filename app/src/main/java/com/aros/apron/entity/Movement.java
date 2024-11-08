@@ -78,9 +78,9 @@ public class Movement {
     private int landingPower;//降落电量所需百分比
     private String missionName;//当前正在执行的航线名
     private int currentWaypointIndex;//当前航点下标
-    private String currentLongitude;//当前经度
-    private String currentLatitude;//当前纬度
-    private double flyingHeight;//飞行高度
+    private String currentLongitude="0";//当前经度
+    private String currentLatitude="0";//当前纬度
+    private double flyingHeight=0.0;//飞行高度
     private String roll;//机身姿态
     private String pitch;
     private String yaw="0";

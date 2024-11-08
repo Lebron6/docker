@@ -191,10 +191,7 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
 //                        if (Movement.getInstance().isRtkSign()){
-                            Movement.getInstance().setEgm96Altitude(
-                                    GpsUtils.egm96Altitude(Movement.getInstance().getRTKTakeoffAltitude()+
-                                                    newValue.getAltitude(),
-                                            newValue.getLatitude(), newValue.getLongitude()));
+
 //                        }else{
 //                            Movement.getInstance().setEgm96Altitude(
 //                                    GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
@@ -473,7 +470,12 @@ public class FlightManager extends BaseManager {
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
                     + "--heath:" + Movement.getInstance().getWarningMessage()
                     + "--status:" + Movement.getInstance().getPlaneMessage());
+            Movement.getInstance().setEgm96Altitude(
+                    GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude()+
+                                    Movement.getInstance().getFlyingHeight()),
+                            Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
+            Log.e(TAG,"rizhi "+new Gson().toJson(Movement.getInstance()));
 
             //推送飞行状态
             MqttMessage flightMessage = null;
