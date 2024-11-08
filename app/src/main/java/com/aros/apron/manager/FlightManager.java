@@ -190,18 +190,19 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-                        if (Movement.getInstance().isRtkSign()){
+//                        if (Movement.getInstance().isRtkSign()){
                             Movement.getInstance().setEgm96Altitude(
                                     GpsUtils.egm96Altitude(Movement.getInstance().getRTKTakeoffAltitude()+
                                                     newValue.getAltitude(),
                                             newValue.getLatitude(), newValue.getLongitude()));
-                        }else{
-                            Movement.getInstance().setEgm96Altitude(
-                                    GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
-                                                    newValue.getAltitude(),
-                                            newValue.getLatitude(), newValue.getLongitude()));
-                        }
+//                        }else{
+//                            Movement.getInstance().setEgm96Altitude(
+//                                    GpsUtils.egm96Altitude(Movement.getInstance().getTakeoffLocationAltitude()+
+//                                                    newValue.getAltitude(),
+//                                            newValue.getLatitude(), newValue.getLongitude()));
+//                        }
 
+                        Log.e(TAG,"海拔高度:"+Movement.getInstance().getEgm96Altitude());
 
 
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
