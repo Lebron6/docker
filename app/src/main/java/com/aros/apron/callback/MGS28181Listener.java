@@ -23,6 +23,7 @@ import com.aros.apron.tools.CameraControllerUtil;
 import com.aros.apron.tools.LogUtil;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
 import com.gosuncn.lib28181agent.Jni28181AgentSDK;
+import com.gosuncn.lib28181agent.bean.MobilePosSubInfo;
 
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.GimbalKey;
@@ -357,16 +358,15 @@ public class MGS28181Listener implements GS28181SDKManager.listenerServerControl
         });
     }
 
-    /**
-     * 移动设备位置信息订阅
-     *
-     * @param interval 移动设备位置信息上报时间间隔 单位：秒 默认值 5
-	     * @param expires  订阅持续时间 单位：秒 (0：表示取消订阅)
-     * @param subID    订阅 ID 大于 0，用于标识不同订阅
-     */
     @Override
-    public void onMobilePosSub(int interval, int expires, int subID) {
-        Log.e(TAG, "onMobilePosSub:" + "interval:"+interval+ "expires:"+expires+ "subID:"+subID);
+    public void onMobilePosSub(int i, int i1, int i2) {
+
+    }
+
+
+    @Override
+    public void onMobilePosSub(MobilePosSubInfo mobilePosSubInfo) {
+
     }
 
     //    获取水平视场角
