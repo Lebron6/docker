@@ -472,11 +472,11 @@ public class FileUtil {
         //即使插入时加锁丢帧了，到这里也不影响，当前判断为I帧，不会进入while
         if (gopNum > gopDropPer) {
             if (lock.tryLock()) {//获取到锁则采用丢尾帧
-                LogUtil.log(TAG, "=--=-=-=-=-=-=--=队列要满了");
+//                LogUtil.log(TAG, "=--=-=-=-=-=-=--=队列要满了");
                 try {
                     while (frameQueue.peek().getFrameType() != 1) {
                         frameQueue.poll();
-                        LogUtil.log(TAG, "丢掉一帧，队列要满了" + gopNum);
+//                        LogUtil.log(TAG, "丢掉一帧，队列要满了" + gopNum);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -567,7 +567,7 @@ public class FileUtil {
                 @Override
                 public void run() {
                     int code = Jni28181AgentSDK.getInstance().sendHeartBeat();
-                    LogUtil.log(TAG, "发送心跳信息：" + code);
+//                    LogUtil.log(TAG, "发送心跳信息：" + code);
                 }
             };
         }
