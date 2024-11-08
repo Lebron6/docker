@@ -202,7 +202,7 @@ public class FlightManager extends BaseManager {
 //                                            newValue.getLatitude(), newValue.getLongitude()));
 //                        }
 
-                        Log.e(TAG,"海拔高度:"+Movement.getInstance().getEgm96Altitude());
+//                        Log.e(TAG,"海拔高度:"+Movement.getInstance().getEgm96Altitude());
 
 
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
