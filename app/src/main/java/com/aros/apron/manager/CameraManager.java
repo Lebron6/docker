@@ -25,6 +25,7 @@ import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
+import dji.sdk.keyvalue.value.camera.ThermalTemperatureMeasureMode;
 import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
 import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
@@ -715,13 +716,11 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                         public void onSuccess() {
                             LogUtil.log(TAG, "降落后设置曝光补偿数值成功");
                         }
-
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
                             LogUtil.log(TAG, "降落后设置曝光补偿数值失败");
                         }
                     });
-
                 }
 
                 @Override
@@ -729,11 +728,32 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     LogUtil.log(TAG, "降落后切换曝光模式为自动失败:" + new Gson().toJson(idjiError));
                 }
             });
-
-
         } else {
             LogUtil.log(TAG, "降落后降落完成切换曝光失败：相机未连接");
         }
-
     }
+
+    //设置测温模式
+    public void setThermalTemperatureMeasureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyThermalTemperatureMeasureMode),
+                    ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "设置测温模式:" + new Gson().toJson(error));
+                        }
+                    });
+        } else {
+            LogUtil.log(TAG, "降落后降落完成切换曝光失败：相机未连接");
+        }
+    }
+
 }

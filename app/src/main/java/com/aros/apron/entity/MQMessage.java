@@ -51,6 +51,15 @@ public class MQMessage {
     private String status;//收到机库状态的回执消息
     private String flag;//后端用来区别里程(用作AI)
     private int isCleanMode;//是否清洁模式
+    private int thermalTemperatureMeasureMode;//红外测温模式
+
+    public int getThermalTemperatureMeasureMode() {
+        return thermalTemperatureMeasureMode;
+    }
+
+    public void setThermalTemperatureMeasureMode(int thermalTemperatureMeasureMode) {
+        this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
+    }
 
     public int getIsCleanMode() {
         return isCleanMode;
