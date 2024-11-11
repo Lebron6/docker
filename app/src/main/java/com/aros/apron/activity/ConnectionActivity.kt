@@ -93,7 +93,7 @@ class ConnectionActivity : BaseActivity() {
         var code= GS28181SDKManager.getInstance().initSDK(addr)
         if (code==0){
             Log.e(TAG, "初始化国标推流:$code 本地ip:$addr")
-            GS28181SDKManager.getInstance().registerSDK("183.62.9.189", 15060)
+            GS28181SDKManager.getInstance().registerSDK("192.168.2.110", 15060)
             FileUtil.getInstance().startHeartBeatTask()//开心跳包
             //                开启监听
             GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
