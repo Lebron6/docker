@@ -89,6 +89,87 @@ public class Movement {
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
+    private int thermalTemperatureMeasureMode;//测温模式
+    private String spotMetersureTemperature;//测温点温度
+    private String averageAreaTemperature;//平均温度
+    private String minAreaTemperature;//最小温度
+    private String maxAreaTemperature;//最大温度
+    private String maxTemperaturePointX;//最大温度的位置
+    private String maxTemperaturePointY;
+    private String minTemperaturePointX;//最小位置的位置
+    private String minTemperaturePointY;
+
+    public String getSpotMetersureTemperature() {
+        return spotMetersureTemperature;
+    }
+
+    public void setSpotMetersureTemperature(String spotMetersureTemperature) {
+        this.spotMetersureTemperature = spotMetersureTemperature;
+    }
+
+    public String getAverageAreaTemperature() {
+        return averageAreaTemperature;
+    }
+
+    public void setAverageAreaTemperature(String averageAreaTemperature) {
+        this.averageAreaTemperature = averageAreaTemperature;
+    }
+
+    public String getMinAreaTemperature() {
+        return minAreaTemperature;
+    }
+
+    public void setMinAreaTemperature(String minAreaTemperature) {
+        this.minAreaTemperature = minAreaTemperature;
+    }
+
+    public String getMaxAreaTemperature() {
+        return maxAreaTemperature;
+    }
+
+    public void setMaxAreaTemperature(String maxAreaTemperature) {
+        this.maxAreaTemperature = maxAreaTemperature;
+    }
+
+    public String getMaxTemperaturePointX() {
+        return maxTemperaturePointX;
+    }
+
+    public void setMaxTemperaturePointX(String maxTemperaturePointX) {
+        this.maxTemperaturePointX = maxTemperaturePointX;
+    }
+
+    public String getMaxTemperaturePointY() {
+        return maxTemperaturePointY;
+    }
+
+    public void setMaxTemperaturePointY(String maxTemperaturePointY) {
+        this.maxTemperaturePointY = maxTemperaturePointY;
+    }
+
+    public String getMinTemperaturePointX() {
+        return minTemperaturePointX;
+    }
+
+    public void setMinTemperaturePointX(String minTemperaturePointX) {
+        this.minTemperaturePointX = minTemperaturePointX;
+    }
+
+    public String getMinTemperaturePointY() {
+        return minTemperaturePointY;
+    }
+
+    public void setMinTemperaturePointY(String minTemperaturePointY) {
+        this.minTemperaturePointY = minTemperaturePointY;
+    }
+
+    public int getThermalTemperatureMeasureMode() {
+        return thermalTemperatureMeasureMode;
+    }
+
+    public void setThermalTemperatureMeasureMode(int thermalTemperatureMeasureMode) {
+        this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
+    }
 
     public double getRTKTakeoffAltitude() {
         return RTKTakeoffAltitude;
