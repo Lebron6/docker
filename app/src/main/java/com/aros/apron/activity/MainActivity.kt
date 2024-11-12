@@ -373,7 +373,7 @@ open class MainActivity : BaseActivity() {
                         CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
                         Movement.getInstance().currentLongitude.toFloat(),
                         Movement.getInstance().currentLatitude.toFloat(),
-                        Movement.getInstance().currentAltitude
+                        Movement.getInstance().egm96Altitude.toFloat()
                     )
 
                 } else {
@@ -386,7 +386,7 @@ open class MainActivity : BaseActivity() {
                         CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
                         Movement.getInstance().currentLongitude.toFloat(),
                         Movement.getInstance().currentLatitude.toFloat(),
-                        Movement.getInstance().currentAltitude
+                        Movement.getInstance().egm96Altitude.toFloat()
                     )
                 }
 

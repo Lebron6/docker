@@ -51,6 +51,69 @@ public class MQMessage {
     private String status;//收到机库状态的回执消息
     private String flag;//后端用来区别里程(用作AI)
     private int isCleanMode;//是否清洁模式
+    private int thermalTemperatureMeasureMode;//红外测温模式
+    private String metersurePointX;//点测温位置
+    private String metersurePointY;
+    private String metersureAreaX;//区域测温矩形左上角起始位置
+    private String metersureAreaY;
+    private String metersureAreaWidth;//测温矩形长度
+    private String metersureAreaHeight;//测温矩形宽度
+
+    public String getMetersurePointX() {
+        return metersurePointX;
+    }
+
+    public void setMetersurePointX(String metersurePointX) {
+        this.metersurePointX = metersurePointX;
+    }
+
+    public String getMetersurePointY() {
+        return metersurePointY;
+    }
+
+    public void setMetersurePointY(String metersurePointY) {
+        this.metersurePointY = metersurePointY;
+    }
+
+    public String getMetersureAreaX() {
+        return metersureAreaX;
+    }
+
+    public void setMetersureAreaX(String metersureAreaX) {
+        this.metersureAreaX = metersureAreaX;
+    }
+
+    public String getMetersureAreaY() {
+        return metersureAreaY;
+    }
+
+    public void setMetersureAreaY(String metersureAreaY) {
+        this.metersureAreaY = metersureAreaY;
+    }
+
+    public String getMetersureAreaWidth() {
+        return metersureAreaWidth;
+    }
+
+    public void setMetersureAreaWidth(String metersureAreaWidth) {
+        this.metersureAreaWidth = metersureAreaWidth;
+    }
+
+    public String getMetersureAreaHeight() {
+        return metersureAreaHeight;
+    }
+
+    public void setMetersureAreaHeight(String metersureAreaHeight) {
+        this.metersureAreaHeight = metersureAreaHeight;
+    }
+
+    public int getThermalTemperatureMeasureMode() {
+        return thermalTemperatureMeasureMode;
+    }
+
+    public void setThermalTemperatureMeasureMode(int thermalTemperatureMeasureMode) {
+        this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
+    }
 
     public int getIsCleanMode() {
         return isCleanMode;
