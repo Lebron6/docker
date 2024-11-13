@@ -113,27 +113,37 @@ public class ApronArucoDetect {
                         double flyingHeight = Movement.getInstance().getFlyingHeight();
                         if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
                                 idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17 || idArray[0] == 18 || idArray[0] == 19) {
-                            if ((idArray.length >= 6 &&ultrasonicHeight <=3&& flyingHeight <1.7)) {
-                                String logMessage = "A参考Aurco数目降落:" + idArray.length +
-                                        " Flying Height:" + flyingHeight + "--" +
-                                        " Ultrasonic Height:" + ultrasonicHeight;
-                                canLanding = true;
-                                LogUtil.log(TAG, logMessage);
-                            }else{
-                                Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                                Point[] points = corner.toArray();
-                                // 计算宽度（两个相邻角点之间的距离）
-                                double width = calculateDistance(points[0], points[1]);
-                                // 计算高度（另外两个相邻角点之间的距离）
-//                                double height = calculateDistance(points[1], points[2]);
-                                if (width >= 260) {
-                                    String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
+                            if (!startFastStick){
+                                if ((idArray.length >= 6 &&ultrasonicHeight <=3&& flyingHeight <1.7)) {
+
+                                    String logMessage = "A参考Aurco数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
-                                            " Ultrasonic Height:" + ultrasonicHeight ;
-                                    canLanding = true;
+                                            " Ultrasonic Height:" + ultrasonicHeight;
+                                    startFastStick = true;
+
+                                    handler.post(runnable);
+
                                     LogUtil.log(TAG, logMessage);
+                                }else{
+                                    Core.extractChannel(mArucoCornerList.get(0), corner, 0);
+                                    Point[] points = corner.toArray();
+                                    // 计算宽度（两个相邻角点之间的距离）
+                                    double width = calculateDistance(points[0], points[1]);
+                                    // 计算高度（另外两个相邻角点之间的距离）
+//                                double height = calculateDistance(points[1], points[2]);
+                                    if (width >= 260) {
+                                        String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
+                                                " Flying Height:" + flyingHeight + "--" +
+                                                " Ultrasonic Height:" + ultrasonicHeight ;
+                                        startFastStick = true;
+
+                                        handler.post(runnable);
+
+                                        LogUtil.log(TAG, logMessage);
+                                    }
                                 }
                             }
+
 
                         }
 
@@ -579,6 +589,9 @@ public class ApronArucoDetect {
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
                 LogUtil.log(TAG, logMessage);
+                startFastStick = true;
+
+                handler.post(runnable);
                 return;
             }
             if (xy && arucoWidth >= 240) {
@@ -586,10 +599,11 @@ public class ApronArucoDetect {
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
                 LogUtil.log(TAG, logMessage);
-                return;
+                startFastStick = true;
 
+                handler.post(runnable);
             }
-            handler.post(runnable);
+
 
         }
 
@@ -735,7 +749,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 10) {
+            if (handlerCallbackCount < 15) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
