@@ -13,18 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fpv_holder"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:id="@+id/fpv_holder"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
 
             <SurfaceView
                 android:id="@+id/widget_primary_fpv"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -33,16 +33,17 @@
                 app:uxsdk_cameraSideTextSize="0dp">
             </SurfaceView>
 
-                <dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget
-                    android:id="@+id/widget_fpv_interaction"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.80"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:layout_editor_absoluteX="0dp"
-                    tools:layout_editor_absoluteY="0dp" />
+<!--                <dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget-->
+<!--                    android:id="@+id/widget_fpv_interaction"-->
+<!--                    android:visibility="gone"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintHeight_percent="0.80"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    tools:layout_editor_absoluteX="0dp"-->
+<!--                    tools:layout_editor_absoluteY="0dp" />-->
 
 <!--            <dji.v5.ux.core.widget.fpv.FPVWidget-->
 <!--                android:id="@+id/widget_secondary_fpv"-->
@@ -58,7 +59,7 @@
 <!--                app:uxsdk_cameraSideTextSize="8dp"-->
 <!--                app:uxsdk_interactionEnabled="false"-->
 <!--                app:uxsdk_sourceCameraNameVisibility="true" />-->
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
         <dji.v5.ux.core.panel.topbar.TopBarPanelWidget
             android:id="@+id/panel_top_bar"

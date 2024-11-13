@@ -113,7 +113,7 @@ import java.util.concurrent.TimeUnit
 open class MainActivity : BaseActivity() {
 
     private var primaryFpvWidget: SurfaceView? = null
-    private var fpvInteractionWidget: FPVInteractionWidget? = null
+//    private var fpvInteractionWidget: FPVInteractionWidget? = null
     private var secondaryFPVWidget: SurfaceView? = null
     private var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
     private var simulatorControlWidget: SimulatorControlWidget? = null
@@ -134,7 +134,7 @@ open class MainActivity : BaseActivity() {
     //    private var mapWidget: MapWidget? = null
     private var topBarPanel: TopBarPanelWidget? = null
     private var remainingFlightTimeWidget: RemainingFlightTimeWidget? = null
-    private var fpvParentView: ConstraintLayout? = null
+//    private var fpvParentView: ConstraintLayout? = null
     private var mDrawerLayout: DrawerLayout? = null
     private var gimbalAdjustDone: TextView? = null
     private var gimbalFineTuneWidget: GimbalFineTuneWidget? = null
@@ -159,7 +159,7 @@ open class MainActivity : BaseActivity() {
 
 
 
-    var cameraManager = MediaDataCenter.getInstance().cameraStreamManager
+    var cameraManager: ICameraStreamManager = MediaDataCenter.getInstance().cameraStreamManager
     private var mainBinding: ActivityMainBinding? = null
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
@@ -245,12 +245,13 @@ open class MainActivity : BaseActivity() {
 //        mapWidget?.onCreate(savedInstanceState)
         needConnect()
         initDJIManager()
-        initCameraStream()
         initView()
+        initCameraStream()
+
     }
 
     private fun initView() {
-        fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
+//        fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
         mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
         topBarPanel = findViewById<TopBarPanelWidget>(R.id.panel_top_bar)
         remainingFlightTimeWidget =
@@ -259,7 +260,7 @@ open class MainActivity : BaseActivity() {
 //        takeOffWidget = findViewById<TakeOffWidget>(R.id.widget_take_off)
 //        returnHomeWidget = findViewById<ReturnHomeWidget>(R.id.widget_return_to_home)
         primaryFpvWidget = findViewById<SurfaceView>(R.id.widget_primary_fpv)
-        fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
+//        fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
         secondaryFPVWidget = findViewById<SurfaceView>(R.id.widget_secondary_fpv)
         systemStatusListPanelWidget =
             findViewById<SystemStatusListPanelWidget>(R.id.widget_panel_system_status_list)
@@ -597,7 +598,7 @@ open class MainActivity : BaseActivity() {
 
     private fun setViewVisibilityWithCleanMode() {
         if (PreferenceUtils.getInstance().isCleanMode) {
-            fpvInteractionWidget?.visibility = View.GONE
+//            fpvInteractionWidget?.visibility = View.GONE
             horizontalSituationIndicatorWidget?.visibility = View.GONE
             remainingFlightTimeWidget?.visibility=View.GONE
             gimbalFineTuneWidget?.visibility = View.GONE
@@ -620,8 +621,8 @@ open class MainActivity : BaseActivity() {
 
     private fun updateViewVisibility(devicePosition: ComponentIndexType, lensType: CameraLensType) {
         //只在fpv下显示
-        pfvFlightDisplayWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.VISIBLE else View.INVISIBLE
+//        pfvFlightDisplayWidget!!.visibility =
+//            if (devicePosition == ComponentIndexType.FPV) View.VISIBLE else View.INVISIBLE
 
         //fpv下不显示
 //        lensControlWidget!!.visibility =

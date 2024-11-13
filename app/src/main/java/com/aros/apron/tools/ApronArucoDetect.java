@@ -576,7 +576,7 @@ public class ApronArucoDetect {
             LogUtil.log(TAG, logMessage);
             return;
         }
-        if (xy && arucoWidth >= 190) {
+        if (xy && arucoWidth >= 240) {
             logMessage = "参考Aurco偏移量降落:" + id + " arucoW" + arucoWidth +
                     " Flying Height:" + flyingHeight + "--" +
                     " Ultrasonic Height:" + ultrasonicHeight;
