@@ -1,5 +1,8 @@
 package com.aros.apron.tools;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ArucoMarker;
 import com.aros.apron.entity.ArucoMarkerDimensions;
@@ -81,7 +84,7 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (isStartAruco) {
+        if (isStartAruco||startFastStick) {
             return;
         }
         isStartAruco = true;
@@ -406,6 +409,8 @@ public class ApronArucoDetect {
         detectedSmallMarkerId = 0;
         detectedMediumMarkers = false;
         detectedSmallMarkers = false;
+        startFastStick=false;
+
     }
 
     //根据识别到的二维码移动无人机
@@ -567,35 +572,29 @@ public class ApronArucoDetect {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         boolean xy = absX <= 160 && absY <= 130;
         String logMessage = "";
+        if (!startFastStick) {
 
-        if (xy && ultrasonicHeight <= 3 && flyingHeight <= 1.7) {
-            logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
-                    " Flying Height:" + flyingHeight + "--" +
-                    " Ultrasonic Height:" + ultrasonicHeight;
-            canLanding = true;
-            LogUtil.log(TAG, logMessage);
-            return;
+            if (xy && ultrasonicHeight <= 3 && flyingHeight <= 1.7) {
+                logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
+                        " Flying Height:" + flyingHeight + "--" +
+                        " Ultrasonic Height:" + ultrasonicHeight;
+                LogUtil.log(TAG, logMessage);
+                return;
+            }
+            if (xy && arucoWidth >= 240) {
+                logMessage = "参考Aurco偏移量降落:" + id + " arucoW" + arucoWidth +
+                        " Flying Height:" + flyingHeight + "--" +
+                        " Ultrasonic Height:" + ultrasonicHeight;
+                LogUtil.log(TAG, logMessage);
+                return;
+
+            }
+            handler.post(runnable);
+
         }
-        if (xy && arucoWidth >= 240) {
-            logMessage = "参考Aurco偏移量降落:" + id + " arucoW" + arucoWidth +
-                    " Flying Height:" + flyingHeight + "--" +
-                    " Ultrasonic Height:" + ultrasonicHeight;
-            canLanding = true;
-            LogUtil.log(TAG, logMessage);
-            return;
-
-        }
-
-//        if (xy && flyingHeight <= -2) {
-//            logMessage = "参考相对高度降落:" + id + " arucoW" + arucoWidth +
-//                    " Flying Height:" + flyingHeight + "--" +
-//                    " Ultrasonic Height:" + ultrasonicHeight;
-//            canLanding = true;
-//            LogUtil.log(TAG, logMessage);
-//        }
-
 
     }
+    private boolean startFastStick;
 
     private boolean canLanding;
 
@@ -729,5 +728,31 @@ public class ApronArucoDetect {
             return -0.175;
         }
     }
+
+    private int handlerCallbackCount = 0; // 记录回调次数
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            performOperation();
+            if (handlerCallbackCount < 10) {
+                handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
+            } else {
+                performNextStep();
+            }
+        }
+    };
+
+    private void performOperation() {
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -4);
+        handlerCallbackCount++; // 增加计数器
+    }
+
+    private void performNextStep() {
+        handler.removeCallbacks(runnable); // 防止重复执行
+        handlerCallbackCount=0;
+        canLanding = true;
+    }
+
 
 }
