@@ -548,7 +548,7 @@ public class ApronArucoDetect {
                         ? -0.455 : 0f;
             } else {
                 int xf,yf;
-                if (Movement.getInstance().getFlyingHeight()<=3&&Movement.getInstance().getUltrasonicHeight()<=10){
+                if (Movement.getInstance().getFlyingHeight()<=3&&Movement.getInstance().getUltrasonicHeight()<=4){
                     xf=160;
                     yf=130;
                 }else{

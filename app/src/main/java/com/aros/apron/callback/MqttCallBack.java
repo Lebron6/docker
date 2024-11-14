@@ -378,7 +378,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
                 OffSiteLandingManager.getInstance().startTaskProcess(message);
                 break;
-            //重置返航点
+            //刷新返航点
             case 60136:
                 LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
                 ResetHomePointManager.getInstance().startTaskProcess(mqttClient,message);
@@ -388,6 +388,21 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置纯净模式" + jsonString);
                 PreferenceUtils.getInstance().setIsCleanMode(message.getIsCleanMode()==1?true:false);
                 EventBus.getDefault().post(FLAG_RESET_CLEAN_MODE);
+                break;
+            //设置测温模式
+            case 60138:
+                LogUtil.log(TAG, "收到命令：设置测温模式" + jsonString);
+                CameraManager.getInstance().setThermalTemperatureMeasureMode(mqttClient,message);
+                break;
+            //设置测温点
+            case 60139:
+                LogUtil.log(TAG, "收到命令：设置测温点" + jsonString);
+                CameraManager.getInstance().setThermalSpotMetersurePoint(mqttClient,message);
+                break;
+            //设置测温区域
+            case 60140:
+                LogUtil.log(TAG, "收到命令：设置测温区域" + jsonString);
+                CameraManager.getInstance().setThermalRegionMetersureArea(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:

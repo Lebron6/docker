@@ -57,6 +57,7 @@ public class Movement {
     private boolean continuous;//变焦档位是否连续 (true表示gears最小值-最大值都可使用，false表示只支持数组内关键档位)
     private int[] gears;//变焦倍率范围的关键档位
     private int isVirtualStickEnable;//是否获取控制权 0未获取控制权  1已获取控制权
+    private int isVirtualStickAdvancedModeEnabled;//是否处于虚拟摇杆高级模式
     private boolean isDistanceLimitEnabled;//是否启用限远
     private int thermalDisplayMode;//红外模式 1仅红外  2红外分屏
     private String flightId;//航线id
@@ -98,6 +99,14 @@ public class Movement {
     private String maxTemperaturePointY;
     private String minTemperaturePointX;//最小位置的位置
     private String minTemperaturePointY;
+
+    public int getIsVirtualStickAdvancedModeEnabled() {
+        return isVirtualStickAdvancedModeEnabled;
+    }
+
+    public void setIsVirtualStickAdvancedModeEnabled(int isVirtualStickAdvancedModeEnabled) {
+        this.isVirtualStickAdvancedModeEnabled = isVirtualStickAdvancedModeEnabled;
+    }
 
     public String getSpotMetersureTemperature() {
         return spotMetersureTemperature;

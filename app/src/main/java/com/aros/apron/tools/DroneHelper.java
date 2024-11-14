@@ -93,6 +93,8 @@ public class DroneHelper {
                     LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
                     virtualStickEnable = true;
                     enableVirtualStickTimes = 0;
+                    VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+
 
                 }
 
