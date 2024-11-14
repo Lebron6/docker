@@ -20,7 +20,6 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
-import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -40,13 +39,16 @@ import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
-import com.aros.apron.tools.CameraControllerUtil
 import com.aros.apron.tools.DroneHelper
-import com.aros.apron.tools.FileUtil
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.util.CameraControllerUtil
+import com.aros.apron.util.FileUtil
+import com.aros.apron.util.VideoStreamThread
+import com.aros.apron.util.VideoStreamThread.SendVideoStream
 import com.google.gson.Gson
 import com.gosuncn.lib28181agent.GS28181SDKManager
+import com.gosuncn.lib28181agent.Jni28181AgentSDK
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -167,6 +169,11 @@ open class MainActivity : BaseActivity() {
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
     private var delay: Long = 0
+
+    private val cameraControllerUtil = CameraControllerUtil.getInstance()
+    private var mimeType = 4
+    private var videoStreamThread: VideoStreamThread? = null
+    var thread: Thread? = null
 
 
     override fun useEventBus(): Boolean {
@@ -343,6 +350,16 @@ open class MainActivity : BaseActivity() {
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
             ApronArucoDetect.getInstance().productType = productType!!.name
+            //启动发流线程
+            //        llTouch = activity.findViewById(R.id.relative_layout);
+            videoStreamThread = VideoStreamThread(FileUtil.getInstance()) //发流线程实现类
+            videoStreamThread!!.setStartListen(SendVideoStream {
+                cameraControllerUtil.sendVideoWithARInfoXFun(
+                    mimeType
+                )
+            })
+            thread = Thread(videoStreamThread)
+            thread!!.start()
         }
     }
 
@@ -355,52 +372,16 @@ open class MainActivity : BaseActivity() {
         ) { data, _, _, info ->
             if (data != null) {
 
-                startTime = System.currentTimeMillis()
-
-                CameraControllerUtil.getInstance().countPT(
-                    Movement.getInstance().gimbalPitch.toFloat(),
-                    Movement.getInstance().gimbalYaw.toFloat(),
-                    CameraControllerUtil.getInstance().debounceThresholdYaw,
-                    CameraControllerUtil.getInstance().debounceThresholdPitch
+                FileUtil.getInstance().enqueueFrameBuffer(
+                    data,
+                    data.size,
+                    if (info.isKeyFrame) 1 else FileUtil.getFrameType(data)
                 )
-                if (info.mimeType == ICameraStreamManager.MimeType.H264) {
-                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfo(
-                        System.currentTimeMillis(),
-                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
-                        data,
-                        Movement.getInstance().gimbalRoll.toFloat(),
-                        CameraControllerUtil.getInstance().preFramePitch +CameraControllerUtil.compensatePitch,
-                        CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
-                        Movement.getInstance().currentLongitude.toFloat(),
-                        Movement.getInstance().currentLatitude.toFloat(),
-                        Movement.getInstance().egm96Altitude.toFloat()
-                    )
 
+                mimeType = if (info.mimeType == ICameraStreamManager.MimeType.H264) {
+                    4
                 } else {
-                    val re: Int = GS28181SDKManager.getInstance().sendVideoWithARInfoH265(
-                        System.currentTimeMillis(),
-                        if (info.isKeyFrame) 1 else FileUtil.getFrameType(data),
-                        data,
-                        Movement.getInstance().gimbalRoll.toFloat(),
-                        CameraControllerUtil.getInstance().preFramePitch +CameraControllerUtil.compensatePitch,
-                        CameraControllerUtil.getInstance().preFrameYaw + CameraControllerUtil.compensateYaw,
-                        Movement.getInstance().currentLongitude.toFloat(),
-                        Movement.getInstance().currentLatitude.toFloat(),
-                        Movement.getInstance().egm96Altitude.toFloat()
-                    )
-                }
-
-                endTime = System.currentTimeMillis()
-//                    推太快就等待直到满足33ms推一帧，即30的帧率
-                //                    推太快就等待直到满足33ms推一帧，即30的帧率
-                delay = startTime - endTime
-                if (delay < 40) {
-                    try {
-                        //将上一次的推流耗时近似当做下一次的耗时，也就是两帧之间是（40-delay）+下次网络推流用时delay，即保证每两帧间隔40ms
-                        Thread.sleep(40L - delay)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
+                    5
                 }
             }
         }
@@ -742,5 +723,15 @@ open class MainActivity : BaseActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        GS28181SDKManager.getInstance().uninitSDK()
+        Jni28181AgentSDK.getInstance().unregister()
+        FileUtil.getInstance().stopHeartBeatTask() //停心跳包
+        GS28181SDKManager.getInstance().stopWriteStream()
+        GS28181SDKManager.getInstance().setListenerServer(null)
+        FileUtil.getInstance().onDestroy()
     }
 }

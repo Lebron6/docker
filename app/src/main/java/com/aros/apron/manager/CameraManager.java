@@ -6,9 +6,9 @@ import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
-import com.aros.apron.tools.FileUtil;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.util.FileUtil;
 import com.google.gson.Gson;
 import com.gosuncn.lib28181agent.bean.AngleEvent;
 

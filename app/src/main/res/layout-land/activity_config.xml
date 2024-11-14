@@ -394,7 +394,68 @@
                         android:textColor="@color/white" />
 
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
 
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="国标推流IP："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_gs28281_ip"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="国标推流端口："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_gs28281_port"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+android:inputType="number"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
             </LinearLayout>
 
             <View

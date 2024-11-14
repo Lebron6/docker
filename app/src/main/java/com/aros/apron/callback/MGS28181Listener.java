@@ -19,8 +19,8 @@ import androidx.annotation.NonNull;
 
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.CameraManager;
-import com.aros.apron.tools.CameraControllerUtil;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.util.CameraControllerUtil;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
 import com.gosuncn.lib28181agent.Jni28181AgentSDK;
 import com.gosuncn.lib28181agent.bean.MobilePosSubInfo;

@@ -1,28 +1,14 @@
-package com.aros.apron.tools;
+package com.aros.apron.util;
 
 import android.os.Environment;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.aros.apron.entity.H264Frame;
 import com.aros.apron.entity.Movement;
-import com.aros.apron.manager.RTKManager;
 import com.aros.apron.tools.LogUtil;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
 import com.gosuncn.lib28181agent.Types;
 
 import java.io.File;
-import java.util.List;
-
-import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraMode;
-import dji.sdk.keyvalue.value.camera.VideoBitrateMode;
-import dji.sdk.keyvalue.value.camera.VideoResolutionFrameRate;
-import dji.v5.common.callback.CommonCallbacks;
-import dji.v5.common.error.IDJIError;
-import dji.v5.manager.KeyManager;
 
 public class CameraControllerUtil {
 
@@ -34,7 +20,7 @@ public class CameraControllerUtil {
     }
 
     public static final CameraControllerUtil getInstance() {
-        return CameraControllerUtil.CameraControllerUtilHolder.INSTANCE;
+        return CameraControllerUtilHolder.INSTANCE;
     }
 
     private static final String TAG = "CameraControllerUtil";
@@ -173,7 +159,7 @@ public class CameraControllerUtil {
 //                                Float.parseFloat(Movement.getInstance().getCurrentLongitude())+" : "+
 //                                Float.parseFloat(Movement.getInstance().getCurrentLatitude())+" : "+
 //                                Movement.getInstance().getAltitude());
-	            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfo:" + re);
+            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfo:" + re);
         } else {
             re = manager.sendVideoWithARInfoH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
                     Float.parseFloat(Movement.getInstance().getGimbalRoll()),
@@ -182,7 +168,7 @@ public class CameraControllerUtil {
                     Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
                     Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
                     Movement.getInstance().getCurrentAltitude());
-	            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfoH265:" + re);
+            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfoH265:" + re);
         }
         return re;
     }
@@ -203,7 +189,7 @@ public class CameraControllerUtil {
                     Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
                     Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
                     Movement.getInstance().getCurrentAltitude());
-            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoX:" + re);
+//            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoX:" + re);
         } else {
             re = manager.sendVideoWithARInfoXH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
                     Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
@@ -212,7 +198,7 @@ public class CameraControllerUtil {
                     Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
                     Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
                     Movement.getInstance().getCurrentAltitude());
-            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoXH265:" + re);
+//            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoXH265:" + re);
         }
         return re;
     }

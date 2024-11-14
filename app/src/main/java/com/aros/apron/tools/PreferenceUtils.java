@@ -59,6 +59,8 @@ public class PreferenceUtils extends BasePreference {
     private String NAVIGATION_LEDS_ON = "navigation_LEDs_On"; //夜航灯
     private String CLOSE_OBS_ENABLE = "close_obstacle_enable"; //是否关闭避障
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
+    private String GS28181_IP = "gs28181_ip"; //国标推流地址
+    private String GS28181_PORT = "gs28181_port"; //国标推流ip
 
 
     public void setStreamAndMinIOConfig(MQMessage message) {
@@ -247,6 +249,24 @@ public class PreferenceUtils extends BasePreference {
     public void setMqttSn(String mqttSn) {
         setString(MQTT_SN, mqttSn);
     }
+
+
+    public String getGS28181Ip() {
+        return getString(GS28181_IP);
+    }
+
+    public void setGS28181Ip(String ip) {
+        setString(GS28181_IP, ip);
+    }
+
+    public String getGS28181Port() {
+        return getString(GS28181_PORT);
+    }
+
+    public void setGS28181Port(String port) {
+        setString(GS28181_PORT, port);
+    }
+
 
     public boolean getNeedUpLoadVideo() {
         return getBoolean(NEED_UPLOAD_VEDIO);

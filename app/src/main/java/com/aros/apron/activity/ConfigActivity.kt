@@ -72,6 +72,8 @@ class ConfigActivity : BaseActivity() {
         configBinding.etMqttUsername.setText(PreferenceUtils.getInstance().mqttUserName)
         configBinding.etMqttPassword.setText(PreferenceUtils.getInstance().mqttPassword)
         configBinding.etMqttSn.setText(PreferenceUtils.getInstance().mqttSn)
+        configBinding.etGs28281Ip.setText(PreferenceUtils.getInstance().gS28181Ip)
+        configBinding.etGs28281Port.setText(PreferenceUtils.getInstance().gS28181Port)
 
 //        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
@@ -184,6 +186,14 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置MQTT设备编号")
             return
         }
+        if (TextUtils.isEmpty(configBinding.etGs28281Ip.text)) {
+            ToastUtil.showToast("未配置国标推流ip")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etGs28281Port.text)) {
+            ToastUtil.showToast("未配置国标推流端口")
+            return
+        }
         if (!configBinding.rbAd2.isChecked && !configBinding.rbAd3.isChecked && !configBinding.rbArs350.isChecked) {
             ToastUtil.showToast("未配置机库类型")
             return
@@ -273,6 +283,10 @@ class ConfigActivity : BaseActivity() {
             configBinding.etMqttPassword.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().mqttSn =
             configBinding.etMqttSn.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().gS28181Ip =
+            configBinding.etGs28281Ip.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().gS28181Port =
+            configBinding.etGs28281Port.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
         if (configBinding.rbAd2.isChecked) {

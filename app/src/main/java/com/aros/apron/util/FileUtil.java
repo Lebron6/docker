@@ -1,4 +1,4 @@
-package com.aros.apron.tools;
+package com.aros.apron.util;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -50,7 +49,7 @@ public class FileUtil {
     }
 
     public static final FileUtil getInstance() {
-        return FileUtil.FileUtilHolder.INSTANCE;
+        return FileUtilHolder.INSTANCE;
     }
 
     /**
@@ -368,7 +367,7 @@ public class FileUtil {
     private final int BUFFER_QUEUE_SIZE = 120;
     private BlockingQueue<H264Frame> frameQueue = new LinkedBlockingQueue<>(BUFFER_QUEUE_SIZE);
     // 帧数据缓存池，每次回调的大小基本为2032
-	//    private final int FRAME_BUFFER_SIZE = 1024 * 1024;   // 最大不能超过1024*1024（1M），当前申请150K
+//    private final int FRAME_BUFFER_SIZE = 1024 * 1024;   // 最大不能超过1024*1024（1M），当前申请150K
 //    private final int FILE_BUFFER_SIZE = 1024 * 1024 * 30;
 //    private ByteBuffer frameBuffer = ByteBuffer.allocate(FRAME_BUFFER_SIZE);
 //    private ByteBuffer outputBuffer = null;
@@ -393,11 +392,10 @@ public class FileUtil {
         h264Frame.setFrameType(type);
 
 //        frameQueue.add(h264Frame);
-        if (!frameQueue.offer(h264Frame)) {
+        if (frameQueue!=null&&!frameQueue.offer(h264Frame)) {
             if (lock.tryLock()) {
                 try {
                     synchronized (frameQueue) {//防止丢帧时获取帧的线程获取到一帧需要丢的帧
-                        LogUtil.log(TAG, "队列满了，丢栈顶帧直到下一个I帧");
                         frameQueue.poll();
                         while (frameQueue.peek().getFrameType() != 1) {
                             frameQueue.poll();
@@ -414,7 +412,6 @@ public class FileUtil {
                 }//等待，直到获取帧方法的丢帧结束，这里正常add，因为获取帧方法的丢尾帧没有给队列加锁
             }
         }
-        LogUtil.log(TAG, "当前视频帧缓存队列长度-----" + frameQueue.size());
     }
 
     public H264Frame getEnqueueFrame() {
@@ -472,11 +469,9 @@ public class FileUtil {
         //即使插入时加锁丢帧了，到这里也不影响，当前判断为I帧，不会进入while
         if (gopNum > gopDropPer) {
             if (lock.tryLock()) {//获取到锁则采用丢尾帧
-//                LogUtil.log(TAG, "=--=-=-=-=-=-=--=队列要满了");
                 try {
                     while (frameQueue.peek().getFrameType() != 1) {
                         frameQueue.poll();
-//                        LogUtil.log(TAG, "丢掉一帧，队列要满了" + gopNum);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -514,7 +509,7 @@ public class FileUtil {
 
     // 判断帧类型
     public static int getFrameType(byte[] frame) {
-	        // 获取字节码流中的第一个NAL单元（假设视频帧数据是以NAL单元为基本单位）
+        // 获取字节码流中的第一个NAL单元（假设视频帧数据是以NAL单元为基本单位）
         byte[] nalUnit = getFirstNalUnit(frame);
         if (nalUnit == null) {
             return Unknown; // 未知
@@ -533,7 +528,7 @@ public class FileUtil {
                 return B_FRAME; // B帧
             default:
 //                LogUtil.log("帧格式","::::::::::"+Unknown);
-	                return Unknown; // 其他类型的NAL单元（例如SPS、PPS等）
+                return Unknown; // 其他类型的NAL单元（例如SPS、PPS等）
         }
     }
 
@@ -567,7 +562,6 @@ public class FileUtil {
                 @Override
                 public void run() {
                     int code = Jni28181AgentSDK.getInstance().sendHeartBeat();
-//                    LogUtil.log(TAG, "发送心跳信息：" + code);
                 }
             };
         }
@@ -586,6 +580,25 @@ public class FileUtil {
         }
     }
 
+    //    ip获取
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            // 处理异常
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     public AngleEvent countCmos(float cmosH, float cmosW, double currentZoom) {
         AngleEvent angleEvent = new AngleEvent();
         float angleH = (float)(2.0D * Math.atan((double)(cmosW / (float)(2 * currentZoom))) * 360.0D / 2.0D / 3.141592653589793D);
@@ -595,3 +608,6 @@ public class FileUtil {
         return angleEvent;
     }
 }
+
+
+

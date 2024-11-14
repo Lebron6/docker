@@ -19,12 +19,12 @@ import com.aros.apron.databinding.ActivityConnectionBinding
 import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.models.MSDKManagerVM
 import com.aros.apron.models.globalViewModels
-import com.aros.apron.tools.FileUtil
 import com.aros.apron.tools.IPAddressUtil
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
+import com.aros.apron.util.FileUtil
 import com.gosuncn.lib28181agent.GS28181SDKManager
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
@@ -93,11 +93,14 @@ class ConnectionActivity : BaseActivity() {
         var code= GS28181SDKManager.getInstance().initSDK(addr)
         if (code==0){
             Log.e(TAG, "初始化国标推流:$code 本地ip:$addr")
-//            GS28181SDKManager.getInstance().registerSDK("192.168.2.110", 15060)
-            GS28181SDKManager.getInstance().registerSDK("183.62.9.189", 15060)
-            FileUtil.getInstance().startHeartBeatTask()//开心跳包
-            //                开启监听
-            GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
+            if (!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Ip)&&!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Port)){
+                GS28181SDKManager.getInstance().registerSDK(PreferenceUtils.getInstance().gS28181Ip, PreferenceUtils.getInstance().gS28181Port.toInt())
+                FileUtil.getInstance().startHeartBeatTask()//开心跳包
+                GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
+            }else{
+                ToastUtil.showToast("未配置国标推流参数")
+            }
+
         }else{
             LogUtil.log(TAG, "初始化国标推流失败:$code 本地ip:$addr")
 
@@ -196,6 +199,9 @@ class ConnectionActivity : BaseActivity() {
                 }else if (PreferenceUtils.getInstance().customStreamEnable&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
                     ToastUtil.showToast("未配置自定义推流地址")
                     LogUtil.log(TAG, "未配置自定义推流地址")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Ip)||TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Port)) {
+                    ToastUtil.showToast("未配置国标参数")
+                    LogUtil.log(TAG, "未配置国标参数")
                 }
 //                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
 //                    ToastUtil.showToast("未设置备降点")
