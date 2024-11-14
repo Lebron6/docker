@@ -19,6 +19,7 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
+import com.gosuncn.lib28181agent.GS28181SDKManager;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -28,6 +29,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import dji.sdk.keyvalue.key.AirLinkKey;
+import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -201,7 +203,6 @@ public class FlightManager extends BaseManager {
 
 //                        Log.e(TAG,"海拔高度:"+Movement.getInstance().getEgm96Altitude());
 
-
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
 
@@ -320,7 +321,10 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable Attitude attitude, @Nullable Attitude t1) {
                     if (t1 != null) {
-//                        LogUtil.log(TAG,"偏航:"+t1.getYaw());
+                        Double aircraftHeading = KeyManager.getInstance().getValue(DJIKey.create(GimbalKey.KeyYawRelativeToAircraftHeading));
+                        if (aircraftHeading!=null){
+                            Movement.getInstance().setCountYaw(GS28181SDKManager.getInstance().countYaw(t1.getYaw().floatValue(), aircraftHeading.floatValue()));
+                        }
 
                         GISNeedDataEntity.getInstance().setPitch(String.valueOf(t1.getPitch()));
                         GISNeedDataEntity.getInstance().setYaw(String.valueOf(t1.getYaw()));
@@ -332,6 +336,7 @@ public class FlightManager extends BaseManager {
                     pushFlightAttitude();
                 }
             });
+
             KeyManager.getInstance().listen(KeyTools.createKey(AirLinkKey.KeyUpLinkQuality), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {

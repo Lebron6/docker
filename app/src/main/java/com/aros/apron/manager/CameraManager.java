@@ -10,6 +10,7 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.util.FileUtil;
 import com.google.gson.Gson;
+import com.gosuncn.lib28181agent.GS28181SDKManager;
 import com.gosuncn.lib28181agent.bean.AngleEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -227,35 +228,19 @@ public class CameraManager extends BaseManager {
             });
         }
 
-        //            获取当前镜头类型，禅思h20t之类的
-        Movement.getInstance().setCurCameraType(KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType)));
-//                    获取镜头类型后监听焦距计算视场角
+
         KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomFocalLength,
                 ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Integer>() {
             @Override
             public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                 if (t1 != null) {
-                    //测试视场角
-                    AngleEvent angleEvent = null;
-                    if (Movement.getInstance().getCameraTypeParameter().containsKey(Movement.getInstance().getCurCameraType())) {
-                        angleEvent = FileUtil.getInstance().countCmos(
-                                Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[0],
-                                Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[1],
-                                // TODO: 2024/9/27 计算视场角： 焦距采用广角镜头的焦距乘当前倍率
-                                Movement.getInstance().getCameraZoomRatios()
-                                        * Movement.getInstance().getCameraTypeParameter().get(Movement.getInstance().getCurCameraType())[2]);
-                    } else {
-                        LogUtil.log(TAG, "未被记录镜头参数的相机类型，无法计算视场角");
-                    }
-                    if (angleEvent != null) {
-                        Movement.getInstance().setAngleH(angleEvent.getAngleH());
-                        Movement.getInstance().setAngleV(angleEvent.getAngleV());
-                        LogUtil.log(TAG, "视场角水平垂直和焦距:" + angleEvent.getAngleH() + "==" + angleEvent.getAngleV() + "---" + t1);
-                    }
-                    Movement.getInstance().setFocalLenght(t1);
+                    AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f, t1);
+                    Movement.getInstance().setAngleH(angleEvent.getAngleH());
+                    Movement.getInstance().setAngleV(angleEvent.getAngleV());
                 }
             }
         });
+
         //        获取云台可变动的范围
         KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.KeyGimbalAttitudeRange), this, new CommonCallbacks.KeyListener<GimbalAttitudeRange>() {
             @Override

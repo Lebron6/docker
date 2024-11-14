@@ -93,6 +93,13 @@ public class Movement {
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
 
 
+
+    private float angleH = -1.0F;//FOV高
+    private float angleV = -1.0F;//FOV宽
+    private float countYaw;
+    private float altitude=0.0F;//RTK模式下的海拔高度
+
+
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
@@ -105,6 +112,14 @@ public class Movement {
     private String maxTemperaturePointY;
     private String minTemperaturePointX;//最小位置的位置
     private String minTemperaturePointY;
+
+    public float getCountYaw() {
+        return countYaw;
+    }
+
+    public void setCountYaw(float countYaw) {
+        this.countYaw = countYaw;
+    }
 
     public String getSpotMetersureTemperature() {
         return spotMetersureTemperature;
@@ -178,114 +193,8 @@ public class Movement {
         this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
     }
 
-    //    加的
-    private float currentAltitude = -1.0F;//当前高度
-    private boolean isFlightController = false;//飞控是否连接
-    private Boolean isCameraConnection = false; //相机是否连接
-    private List<ComponentIndexType> availableCameraList = null;
-    private double focalLenght = 0.0;//焦距
-    private CameraType curCameraType ;//当前镜头类型
-    //    三个值分别为传感器高宽和广角焦距
-    private Map<CameraType,float[]> cameraTypeParameter = new HashMap<CameraType,float[]>(){
-        {put(CameraType.M3T, new float[]{4.8f, 6.4f,4.4f});put(CameraType.ZENMUSE_H20T,new float[]{5.56f, 7.41f,4.5f});
-            put(CameraType.ZENMUSE_H30T,new float[]{5.539f,7.386f,6.72f});}
-    };
-
-    private double minFocalLenght = 0.0;//最小焦距
-    private DoubleMinMax gimbalYawRange = null;
-    private DoubleMinMax gimbalPitchRange = null;
-    private List<VideoResolutionFrameRate>  KeyVideoResolutionFrameRateRange = null;
-    private int width;
-    private int height;
-
-    //    加的
-    private String devieGBCode = null;//移动设备国际编码
-
-    private float angleH = -1.0F;//FOV高
-    private float angleV = -1.0F;//FOV宽
-    private float countYaw;
-    private float altitude=0.0F;//RTK模式下的海拔高度
-
-    public float getCurrentAltitude() {
-        return currentAltitude;
-    }
-
-    public void setCurrentAltitude(float currentAltitude) {
-        this.currentAltitude = currentAltitude;
-    }
 
 
-    public List<ComponentIndexType> getAvailableCameraList() {
-        return availableCameraList;
-    }
-
-    public void setAvailableCameraList(List<ComponentIndexType> availableCameraList) {
-        this.availableCameraList = availableCameraList;
-    }
-
-    public double getFocalLenght() {
-        return focalLenght;
-    }
-
-    public void setFocalLenght(double focalLenght) {
-        this.focalLenght = focalLenght;
-    }
-
-    public CameraType getCurCameraType() {
-        return curCameraType;
-    }
-
-    public void setCurCameraType(CameraType curCameraType) {
-        this.curCameraType = curCameraType;
-    }
-
-    public Map<CameraType, float[]> getCameraTypeParameter() {
-        return cameraTypeParameter;
-    }
-
-    public void setCameraTypeParameter(Map<CameraType, float[]> cameraTypeParameter) {
-        this.cameraTypeParameter = cameraTypeParameter;
-    }
-
-    public DoubleMinMax getGimbalYawRange() {
-        return gimbalYawRange;
-    }
-
-    public void setGimbalYawRange(DoubleMinMax gimbalYawRange) {
-        this.gimbalYawRange = gimbalYawRange;
-    }
-
-    public DoubleMinMax getGimbalPitchRange() {
-        return gimbalPitchRange;
-    }
-
-    public void setGimbalPitchRange(DoubleMinMax gimbalPitchRange) {
-        this.gimbalPitchRange = gimbalPitchRange;
-    }
-
-    public List<VideoResolutionFrameRate> getKeyVideoResolutionFrameRateRange() {
-        return KeyVideoResolutionFrameRateRange;
-    }
-
-    public void setKeyVideoResolutionFrameRateRange(List<VideoResolutionFrameRate> keyVideoResolutionFrameRateRange) {
-        KeyVideoResolutionFrameRateRange = keyVideoResolutionFrameRateRange;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
 
 
     public float getAngleH() {

@@ -42,10 +42,7 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
-import com.aros.apron.util.CameraControllerUtil
 import com.aros.apron.util.FileUtil
-import com.aros.apron.util.VideoStreamThread
-import com.aros.apron.util.VideoStreamThread.SendVideoStream
 import com.google.gson.Gson
 import com.gosuncn.lib28181agent.GS28181SDKManager
 import com.gosuncn.lib28181agent.Jni28181AgentSDK
@@ -168,12 +165,7 @@ open class MainActivity : BaseActivity() {
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
-    private var delay: Long = 0
 
-    private val cameraControllerUtil = CameraControllerUtil.getInstance()
-    private var mimeType = 4
-    private var videoStreamThread: VideoStreamThread? = null
-    var thread: Thread? = null
 
 
     override fun useEventBus(): Boolean {
@@ -350,16 +342,7 @@ open class MainActivity : BaseActivity() {
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
             ApronArucoDetect.getInstance().productType = productType!!.name
-            //启动发流线程
-            //        llTouch = activity.findViewById(R.id.relative_layout);
-            videoStreamThread = VideoStreamThread(FileUtil.getInstance()) //发流线程实现类
-            videoStreamThread!!.setStartListen(SendVideoStream {
-                cameraControllerUtil.sendVideoWithARInfoXFun(
-                    mimeType
-                )
-            })
-            thread = Thread(videoStreamThread)
-            thread!!.start()
+
         }
     }
 
@@ -370,20 +353,8 @@ open class MainActivity : BaseActivity() {
         cameraManager.addReceiveStreamListener(
             ComponentIndexType.LEFT_OR_MAIN
         ) { data, _, _, info ->
-            if (data != null) {
 
-                FileUtil.getInstance().enqueueFrameBuffer(
-                    data,
-                    data.size,
-                    if (info.isKeyFrame) 1 else FileUtil.getFrameType(data)
-                )
 
-                mimeType = if (info.mimeType == ICameraStreamManager.MimeType.H264) {
-                    4
-                } else {
-                    5
-                }
-            }
         }
         cameraManager.addFrameListener(
             ComponentIndexType.LEFT_OR_MAIN,
