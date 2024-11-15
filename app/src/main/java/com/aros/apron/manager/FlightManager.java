@@ -20,6 +20,7 @@ import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
+import com.gosuncn.lib28181agent.bean.PTEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -35,6 +36,7 @@ import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
 import dji.sdk.keyvalue.value.common.Attitude;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
@@ -45,7 +47,6 @@ import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
-import dji.v5.common.utils.GeoidManager;
 import dji.v5.common.utils.GpsUtils;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.PerceptionInfo;
@@ -92,12 +93,16 @@ public class FlightManager extends BaseManager {
             }
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
 
-            Boolean gimBalIsConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.KeyConnection, 0));
+            Boolean gimBalIsConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.KeyConnection, ComponentIndexType.LEFT_OR_MAIN));
             if (gimBalIsConnect != null && gimBalIsConnect) {
-                KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.KeyGimbalAttitude, 0), this, new CommonCallbacks.KeyListener<Attitude>() {
+                KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.KeyGimbalAttitude, ComponentIndexType.LEFT_OR_MAIN), this, new CommonCallbacks.KeyListener<Attitude>() {
                     @Override
                     public void onValueChange(@Nullable Attitude oldValue, @Nullable Attitude newValue) {
                         if (newValue != null) {
+                            PTEvent ptEvent = GS28181SDKManager.getInstance().countPT(newValue.getPitch().floatValue(), Movement.getInstance().getCountYaw(), 0, 0);
+                            PTEvent compensatePT = GS28181SDKManager.getInstance().compensatePT(ptEvent.getPitch(), ptEvent.getYaw(), 0, 0);
+                            Movement.getInstance().setCompensatePitch(compensatePT.getPitch());
+                            Movement.getInstance().setCompensateYaw(compensatePT.getYaw());
                             GISNeedDataEntity.getInstance().setGimbalYaw(String.valueOf(newValue.getYaw()));
                             GISNeedDataEntity.getInstance().setGimbalRoll(String.valueOf(newValue.getRoll()));
                             GISNeedDataEntity.getInstance().setGimbalPitch(String.valueOf(newValue.getPitch()));
@@ -321,15 +326,15 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable Attitude attitude, @Nullable Attitude t1) {
                     if (t1 != null) {
-                        Double aircraftHeading = KeyManager.getInstance().getValue(DJIKey.create(GimbalKey.KeyYawRelativeToAircraftHeading));
-                        if (aircraftHeading!=null){
-                            Movement.getInstance().setCountYaw(GS28181SDKManager.getInstance().countYaw(t1.getYaw().floatValue(), aircraftHeading.floatValue()));
+                        Double yawRelativeToAircraftHeading = KeyManager.getInstance().getValue(DJIKey.create(GimbalKey.KeyYawRelativeToAircraftHeading));
+                        if (yawRelativeToAircraftHeading != null) {
+                            Movement.getInstance().setCountYaw(GS28181SDKManager.getInstance().countYaw(t1.getYaw().floatValue(), yawRelativeToAircraftHeading.floatValue()));
                         }
                         GISNeedDataEntity.getInstance().setPitch(String.valueOf(t1.getPitch()));
                         GISNeedDataEntity.getInstance().setYaw(String.valueOf(t1.getYaw()));
                         GISNeedDataEntity.getInstance().setRoll(String.valueOf(t1.getRoll()));
                         Movement.getInstance().setPitch(String.valueOf(t1.getPitch()));
-                        Movement.getInstance().setYaw(String.valueOf(t1.getYaw().intValue()));
+                        Movement.getInstance().setYaw(String.valueOf(t1.getYaw()));
                         Movement.getInstance().setRoll(String.valueOf(t1.getRoll()));
                     }
                     pushFlightAttitude();

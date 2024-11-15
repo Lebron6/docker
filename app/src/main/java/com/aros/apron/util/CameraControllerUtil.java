@@ -1,7 +1,6 @@
 package com.aros.apron.util;
 
 import android.os.Environment;
-
 import com.aros.apron.entity.H264Frame;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;

@@ -91,15 +91,6 @@ public class Movement {
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
     private String aircraftTotalFlightTimes;//总体飞行次数，飞行器断电后不会清零。
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
-
-
-
-    private float angleH = -1.0F;//FOV高
-    private float angleV = -1.0F;//FOV宽
-    private float countYaw;
-    private float altitude=0.0F;//RTK模式下的海拔高度
-
-
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
@@ -112,6 +103,26 @@ public class Movement {
     private String maxTemperaturePointY;
     private String minTemperaturePointX;//最小位置的位置
     private String minTemperaturePointY;
+
+    private float countYaw;
+    private float compensatePitch;
+    private float compensateYaw;
+
+    public float getCompensatePitch() {
+        return compensatePitch;
+    }
+
+    public void setCompensatePitch(float compensatePitch) {
+        this.compensatePitch = compensatePitch;
+    }
+
+    public float getCompensateYaw() {
+        return compensateYaw;
+    }
+
+    public void setCompensateYaw(float compensateYaw) {
+        this.compensateYaw = compensateYaw;
+    }
 
     public float getCountYaw() {
         return countYaw;
@@ -194,33 +205,6 @@ public class Movement {
     }
 
 
-
-
-
-    public float getAngleH() {
-        return angleH;
-    }
-
-    public void setAngleH(float angleH) {
-        this.angleH = angleH;
-    }
-
-    public float getAngleV() {
-        return angleV;
-    }
-
-    public void setAngleV(float angleV) {
-        this.angleV = angleV;
-    }
-
-
-    public float getAltitude() {
-        return altitude;
-    }
-
-    public void setAltitude(float altitude) {
-        this.altitude = altitude;
-    }
     public double getRTKTakeoffAltitude() {
         return RTKTakeoffAltitude;
     }

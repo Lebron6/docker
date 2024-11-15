@@ -540,7 +540,8 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int cameraZoomRatios = message.getCameraZoomRatios();
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
