@@ -448,40 +448,40 @@ public class MissionManager extends BaseManager {
 //                return;
 //            }
 
-            KMZInfo kmzInfo = WPMZManager.getInstance().getKMZInfo(
-                    Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
-            if (kmzInfo != null) {
-                TemplateParseInfo waylineTemplatesParseInfo = kmzInfo.getWaylineTemplatesParseInfo();
-                if (waylineTemplatesParseInfo != null) {
-                    List<Template> templates = waylineTemplatesParseInfo.getTemplates();
-                    if (templates != null && templates.size() > 0) {
-                        WaylineTemplateWaypointInfo waypointInfo = templates.get(0).getWaypointInfo();
-                        if (waypointInfo != null) {
-                            Log.e(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
-                            List<WaylineActionGroup> actionGroups = waypointInfo.getActionGroups();
-                            if (actionGroups != null && actionGroups.size() > 0) {
-                                mActionGroups = actionGroups;
-                                Log.e(TAG, "该航线有" + actionGroups.size() + "个动作组");
-                                for (int i = 0; i < actionGroups.size(); i++) {
-                                    Log.e(TAG, "第" + i + "个动作组有" + actionGroups.get(i).getActions().size() + "个动作");
-                                }
-                            } else {
-                                LogUtil.log(TAG, "WPMZManager getActionGroups有误");
-                            }
-                        } else {
-                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误");
-                        }
-                    } else {
-                        LogUtil.log(TAG, "WPMZManager getTemplates有误");
-                    }
-
-                } else {
-                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
-                }
-            } else {
-                LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
-
-            }
+//            KMZInfo kmzInfo = WPMZManager.getInstance().getKMZInfo(
+//                    Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
+//            if (kmzInfo != null) {
+//                TemplateParseInfo waylineTemplatesParseInfo = kmzInfo.getWaylineTemplatesParseInfo();
+//                if (waylineTemplatesParseInfo != null) {
+//                    List<Template> templates = waylineTemplatesParseInfo.getTemplates();
+//                    if (templates != null && templates.size() > 0) {
+//                        WaylineTemplateWaypointInfo waypointInfo = templates.get(0).getWaypointInfo();
+//                        if (waypointInfo != null) {
+//                            Log.e(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
+//                            List<WaylineActionGroup> actionGroups = waypointInfo.getActionGroups();
+//                            if (actionGroups != null && actionGroups.size() > 0) {
+//                                mActionGroups = actionGroups;
+//                                Log.e(TAG, "该航线有" + actionGroups.size() + "个动作组");
+//                                for (int i = 0; i < actionGroups.size(); i++) {
+//                                    Log.e(TAG, "第" + i + "个动作组有" + actionGroups.get(i).getActions().size() + "个动作");
+//                                }
+//                            } else {
+//                                LogUtil.log(TAG, "WPMZManager getActionGroups有误");
+//                            }
+//                        } else {
+//                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误");
+//                        }
+//                    } else {
+//                        LogUtil.log(TAG, "WPMZManager getTemplates有误");
+//                    }
+//
+//                } else {
+//                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+//                }
+//            } else {
+//                LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+//
+//            }
 
             IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
 
