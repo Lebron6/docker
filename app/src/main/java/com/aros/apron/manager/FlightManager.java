@@ -325,7 +325,6 @@ public class FlightManager extends BaseManager {
                         if (aircraftHeading!=null){
                             Movement.getInstance().setCountYaw(GS28181SDKManager.getInstance().countYaw(t1.getYaw().floatValue(), aircraftHeading.floatValue()));
                         }
-
                         GISNeedDataEntity.getInstance().setPitch(String.valueOf(t1.getPitch()));
                         GISNeedDataEntity.getInstance().setYaw(String.valueOf(t1.getYaw()));
                         GISNeedDataEntity.getInstance().setRoll(String.valueOf(t1.getRoll()));
