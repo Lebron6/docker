@@ -86,6 +86,8 @@ public class FlightManager extends BaseManager {
 
     public void initFlightInfo(MqttAndroidClient mqttAndroidClient) {
         this.mqttAndroidClient = mqttAndroidClient;
+        Movement.getInstance().setAngleV(Float.parseFloat(PreferenceUtils.getInstance().getFovh()));
+        Movement.getInstance().setAngleH(Float.parseFloat(PreferenceUtils.getInstance().getFovw()));
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
@@ -469,13 +471,12 @@ public class FlightManager extends BaseManager {
         //触发入库
         droneStorage();
 
-        AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f,
-                Movement.getInstance().getFocalLenght());
+//        AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f,
+//                Movement.getInstance().getFocalLenght());
 //        Movement.getInstance().setAngleH(angleEvent.getAngleH());
 //        Movement.getInstance().setAngleV(angleEvent.getAngleV());
 
-        Movement.getInstance().setAngleH(38.0f);
-        Movement.getInstance().setAngleV(19.5f);
+
 
 
         PTEvent ptEvent = GS28181SDKManager.getInstance().countPT
@@ -488,7 +489,8 @@ public class FlightManager extends BaseManager {
 
 
         if (isFlyClickTime()) {
-
+            Movement.getInstance().setAngleV(Float.parseFloat(PreferenceUtils.getInstance().getFovh()));
+            Movement.getInstance().setAngleH(Float.parseFloat(PreferenceUtils.getInstance().getFovw()));
             XcFileLog.getInstace().e(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
                     + Movement.getInstance().getCurrentLatitude()
                     + "--altitude:" + Movement.getInstance().getFlyingHeight()

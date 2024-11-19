@@ -170,7 +170,8 @@ open class MainActivity : BaseActivity() {
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
-
+    var p:String? =null
+    var t:String?=null
 
 
     override fun useEventBus(): Boolean {
@@ -262,6 +263,7 @@ open class MainActivity : BaseActivity() {
         gimbalReset.setOnClickListener {
             GimbalManager.getInstance().gimbalReset();
         }
+        gimbalReset.visibility=View.GONE
         fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
         mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
         topBarPanel = findViewById<TopBarPanelWidget>(R.id.panel_top_bar)
@@ -316,6 +318,8 @@ open class MainActivity : BaseActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
         //实现RTK监测网络，并自动重连机制
         DJINetworkManager.getInstance().addNetworkStatusListener(networkStatusListener)
+         p = PreferenceUtils.getInstance().p
+         t = PreferenceUtils.getInstance().t
 
     }
 
@@ -364,8 +368,8 @@ open class MainActivity : BaseActivity() {
                                 System.currentTimeMillis(),
                                 Utils.getFrameType(videoData), videoData,
                                 Movement.getInstance().cameraZoomRatios.toFloat(),
-                                Movement.getInstance().compensatePitch,
-                                Movement.getInstance().compensateYaw,
+                                Movement.getInstance().compensatePitch+(t?.toInt()!!),
+                                Movement.getInstance().compensateYaw+(p?.toInt()!!),
                                 Movement.getInstance().angleH,
                                 Movement.getInstance().angleV,
                                 Movement.getInstance().currentLongitude.toFloat(),
@@ -377,8 +381,8 @@ open class MainActivity : BaseActivity() {
                                 System.currentTimeMillis(),
                                 Utils.getFrameType(videoData), videoData,
                                 Movement.getInstance().cameraZoomRatios.toFloat(),
-                                Movement.getInstance().compensatePitch,
-                                Movement.getInstance().compensateYaw,
+                                Movement.getInstance().compensatePitch+PreferenceUtils.getInstance().t.toInt(),
+                                Movement.getInstance().compensateYaw+PreferenceUtils.getInstance().p.toInt(),
                                 Movement.getInstance().angleH,
                                 Movement.getInstance().angleV,
                                 Movement.getInstance().currentLongitude.toFloat(),

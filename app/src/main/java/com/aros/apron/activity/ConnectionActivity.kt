@@ -202,6 +202,12 @@ class ConnectionActivity : BaseActivity() {
                 }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Ip)||TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Port)) {
                     ToastUtil.showToast("未配置国标参数")
                     LogUtil.log(TAG, "未配置国标参数")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().p)||TextUtils.isEmpty(PreferenceUtils.getInstance().t)) {
+                    ToastUtil.showToast("未配置pt补偿")
+                    LogUtil.log(TAG, "未配置pt补偿")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().fovh)||TextUtils.isEmpty(PreferenceUtils.getInstance().fovw)) {
+                    ToastUtil.showToast("未配置视场角")
+                    LogUtil.log(TAG, "未配置视场角")
                 }
 //                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
 //                    ToastUtil.showToast("未设置备降点")

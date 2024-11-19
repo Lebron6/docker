@@ -74,6 +74,10 @@ class ConfigActivity : BaseActivity() {
         configBinding.etMqttSn.setText(PreferenceUtils.getInstance().mqttSn)
         configBinding.etGs28281Ip.setText(PreferenceUtils.getInstance().gS28181Ip)
         configBinding.etGs28281Port.setText(PreferenceUtils.getInstance().gS28181Port)
+        configBinding.etP.setText(PreferenceUtils.getInstance().p)
+        configBinding.etT.setText(PreferenceUtils.getInstance().t)
+        configBinding.etFovh.setText(PreferenceUtils.getInstance().fovh)
+        configBinding.etFovw.setText(PreferenceUtils.getInstance().fovw)
 
 //        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
@@ -194,6 +198,22 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置国标推流端口")
             return
         }
+        if (TextUtils.isEmpty(configBinding.etP.text)) {
+            ToastUtil.showToast("未配置P补偿")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etT.text)) {
+            ToastUtil.showToast("未配置T补偿")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etFovh.text)) {
+            ToastUtil.showToast("未配置视场参数")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etFovw.text)) {
+            ToastUtil.showToast("未配置视场参数")
+            return
+        }
         if (!configBinding.rbAd2.isChecked && !configBinding.rbAd3.isChecked && !configBinding.rbArs350.isChecked) {
             ToastUtil.showToast("未配置机库类型")
             return
@@ -287,6 +307,14 @@ class ConfigActivity : BaseActivity() {
             configBinding.etGs28281Ip.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().gS28181Port =
             configBinding.etGs28281Port.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().p =
+            configBinding.etP.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().t =
+            configBinding.etT.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().fovw =
+            configBinding.etFovw.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().fovh =
+            configBinding.etFovh.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
         if (configBinding.rbAd2.isChecked) {

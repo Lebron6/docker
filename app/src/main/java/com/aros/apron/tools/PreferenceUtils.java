@@ -61,6 +61,10 @@ public class PreferenceUtils extends BasePreference {
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
     private String GS28181_IP = "gs28181_ip"; //国标推流地址
     private String GS28181_PORT = "gs28181_port"; //国标推流ip
+    private String P = "P"; //P补偿
+    private String T = "T"; //T补偿
+    private String FOVH = "FOVH"; //视场
+    private String FOVW = "FOVW";
 
 
     public void setStreamAndMinIOConfig(MQMessage message) {
@@ -265,6 +269,38 @@ public class PreferenceUtils extends BasePreference {
 
     public void setGS28181Port(String port) {
         setString(GS28181_PORT, port);
+    }
+
+    public String getP() {
+        return getString(P);
+    }
+
+    public void setP(String p) {
+        setString(P, p);
+    }
+
+    public String getT() {
+        return getString(T);
+    }
+
+    public void setT(String t) {
+        setString(T, t);
+    }
+
+    public String getFovh() {
+        return getString(FOVH);
+    }
+
+    public void setFovh(String fovh) {
+        setString(FOVH, fovh);
+    }
+
+    public String getFovw() {
+        return getString(FOVW);
+    }
+
+    public void setFovw(String fovw) {
+        setString(FOVW, fovw);
     }
 
 

@@ -244,8 +244,8 @@ public class CameraManager extends BaseManager {
 //                    double v = Math.atan(5.56 / (2 * t1)) * 2;
 //                    Movement.getInstance().setAngleH(Float.parseFloat(h+""));
 //                    Movement.getInstance().setAngleV(Float.parseFloat(v+""));
-                    Movement.getInstance().setAngleH(38.0f);
-                    Movement.getInstance().setAngleV(19.5f);
+//                    Movement.getInstance().setAngleH(38.0f);
+//                    Movement.getInstance().setAngleV(19.5f);
                     Movement.getInstance().setFocalLenght(t1);
 
                 }
