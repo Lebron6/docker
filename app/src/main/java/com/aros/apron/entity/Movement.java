@@ -28,7 +28,7 @@ public class Movement {
     private String homepointLong;
 
     private int distance;//距离航点
-    private double egm96Altitude;//海拔高度
+    private double egm96Altitude=0.0;//海拔高度
     private double takeoffLocationAltitude;//起飞高度
     private double RTKTakeoffAltitude;//RTK起飞高度
     private String horizontalSpeed;//水平速度
@@ -59,7 +59,7 @@ public class Movement {
     private int isRecording;//是否正在录像 1正在录像 0未录像
     private int recordingTime;//录像时间 单位s
     private int cameraVideoStreamSource;//当前视频源 1广角 2变焦 3红外
-    private double cameraZoomRatios;//镜头变焦倍数
+    private double cameraZoomRatios=0.0;//镜头变焦倍数
     private double thermalZoomRatios;//红外镜头变焦倍数
     private boolean continuous;//变焦档位是否连续 (true表示gears最小值-最大值都可使用，false表示只支持数组内关键档位)
     private int[] gears;//变焦倍率范围的关键档位
@@ -82,11 +82,11 @@ public class Movement {
     private String currentLatitude="0.0";//当前纬度
     private double flyingHeight=0.0;//飞行高度
     private String roll;//机身姿态
-    private String pitch;
+    private String pitch="0";
     private String yaw="0";
     private String gimbalRoll;//云台角度
-    private String gimbalPitch;
-    private String gimbalYaw;
+    private String gimbalPitch="0.0";
+    private String gimbalYaw="0.0";
     private boolean planeWing;//当前飞机的桨叶是否转动
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
     private String aircraftTotalFlightTimes;//总体飞行次数，飞行器断电后不会清零。
@@ -105,8 +105,35 @@ public class Movement {
     private String minTemperaturePointY;
 
     private float countYaw;
-    private float compensatePitch;
-    private float compensateYaw;
+    private float compensatePitch=0;
+    private float compensateYaw=0;
+    private float AngleH=0;//视场角宽高
+    private float AngleV=0;
+    private int focalLenght = 0;//焦距
+
+    public int getFocalLenght() {
+        return focalLenght;
+    }
+
+    public void setFocalLenght(int focalLenght) {
+        this.focalLenght = focalLenght;
+    }
+
+    public float getAngleH() {
+        return AngleH;
+    }
+
+    public void setAngleH(float angleH) {
+        AngleH = angleH;
+    }
+
+    public float getAngleV() {
+        return AngleV;
+    }
+
+    public void setAngleV(float angleV) {
+        AngleV = angleV;
+    }
 
     public float getCompensatePitch() {
         return compensatePitch;

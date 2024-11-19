@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -20,6 +21,7 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
+import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -42,6 +44,7 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.Utils
 import com.aros.apron.util.FileUtil
 import com.google.gson.Gson
 import com.gosuncn.lib28181agent.GS28181SDKManager
@@ -105,6 +108,8 @@ import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.aruco.Aruco
 import org.opencv.aruco.Dictionary
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 
@@ -253,6 +258,10 @@ open class MainActivity : BaseActivity() {
     }
 
     private fun initView() {
+       val gimbalReset = findViewById<Button>(R.id.gimbal_reset)
+        gimbalReset.setOnClickListener {
+            GimbalManager.getInstance().gimbalReset();
+        }
         fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
         mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
         topBarPanel = findViewById<TopBarPanelWidget>(R.id.panel_top_bar)
@@ -343,19 +352,73 @@ open class MainActivity : BaseActivity() {
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
             ApronArucoDetect.getInstance().productType = productType!!.name
 
+            // 启动发送线程
+            executor.execute {
+                while (true) {
+                    try {
+                        // 从缓存队列中获取视频帧数据
+                        val videoData = videoBuffer.take()
+                        // 发送视频帧数据
+                        if (streamType == 0) {
+                            GS28181SDKManager.getInstance().sendVideoWithARInfoX(
+                                System.currentTimeMillis(),
+                                Utils.getFrameType(videoData), videoData,
+                                Movement.getInstance().cameraZoomRatios.toFloat(),
+                                Movement.getInstance().compensatePitch,
+                                Movement.getInstance().compensateYaw,
+                                Movement.getInstance().angleH,
+                                Movement.getInstance().angleV,
+                                Movement.getInstance().currentLongitude.toFloat(),
+                                Movement.getInstance().currentLatitude.toFloat(),
+                                Movement.getInstance().egm96Altitude.toFloat()
+                            )
+                        } else {
+                            GS28181SDKManager.getInstance().sendVideoWithARInfoXH265(
+                                System.currentTimeMillis(),
+                                Utils.getFrameType(videoData), videoData,
+                                Movement.getInstance().cameraZoomRatios.toFloat(),
+                                Movement.getInstance().compensatePitch,
+                                Movement.getInstance().compensateYaw,
+                                Movement.getInstance().angleH,
+                                Movement.getInstance().angleV,
+                                Movement.getInstance().currentLongitude.toFloat(),
+                                Movement.getInstance().currentLatitude.toFloat(),
+                                Movement.getInstance().egm96Altitude.toFloat()
+                            )
+                        }
+                    } catch (e: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        break
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
-    private var startTime: Long = 0
-    private var endTime: Long = 90
+    // 缓存队列
+    private val videoBuffer = ArrayBlockingQueue<ByteArray>(100)
 
+    // 创建一个单线程的线程池来处理发送逻辑
+    private val executor =
+        ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue<Runnable>(10))
+    private val streamType = 0
     private fun initCameraStream() {
         cameraManager.addReceiveStreamListener(
             ComponentIndexType.LEFT_OR_MAIN
-        ) { data, _, _, info ->
-
-
+        ) { data, offset, length, info ->
+            // 将接收到的数据添加到缓存队列
+            info.isKeyFrame
+            if (info.mimeType == ICameraStreamManager.MimeType.H264) {
+                streamType == 0
+            } else {
+                streamType == 1
+            }
+            val frameData = data.copyOfRange(offset, offset + length)
+            videoBuffer.offer(frameData)
         }
+
         cameraManager.addFrameListener(
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
@@ -698,7 +761,19 @@ open class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        GS28181SDKManager.getInstance().uninitSDK()
+// 关闭线程池
+        executor.shutdownNow()
+        try {
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow()
+            }
+        } catch (e: InterruptedException) {
+            executor.shutdownNow()
+        }
+
+        // 清空缓存队列
+        videoBuffer.clear()
+        GS28181SDKManager . getInstance ().uninitSDK()
         Jni28181AgentSDK.getInstance().unregister()
         FileUtil.getInstance().stopHeartBeatTask() //停心跳包
         GS28181SDKManager.getInstance().stopWriteStream()

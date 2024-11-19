@@ -17,9 +17,11 @@ import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.tools.Utils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
+import com.gosuncn.lib28181agent.bean.AngleEvent;
 import com.gosuncn.lib28181agent.bean.PTEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -99,10 +101,6 @@ public class FlightManager extends BaseManager {
                     @Override
                     public void onValueChange(@Nullable Attitude oldValue, @Nullable Attitude newValue) {
                         if (newValue != null) {
-                            PTEvent ptEvent = GS28181SDKManager.getInstance().countPT(newValue.getPitch().floatValue(), Movement.getInstance().getCountYaw(), 0, 0);
-                            PTEvent compensatePT = GS28181SDKManager.getInstance().compensatePT(ptEvent.getPitch(), ptEvent.getYaw(), 0, 0);
-                            Movement.getInstance().setCompensatePitch(compensatePT.getPitch());
-                            Movement.getInstance().setCompensateYaw(compensatePT.getYaw());
                             GISNeedDataEntity.getInstance().setGimbalYaw(String.valueOf(newValue.getYaw()));
                             GISNeedDataEntity.getInstance().setGimbalRoll(String.valueOf(newValue.getRoll()));
                             GISNeedDataEntity.getInstance().setGimbalPitch(String.valueOf(newValue.getPitch()));
@@ -470,6 +468,24 @@ public class FlightManager extends BaseManager {
         checkAndStartVisionLanding();
         //触发入库
         droneStorage();
+
+        AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f,
+                Movement.getInstance().getFocalLenght());
+//        Movement.getInstance().setAngleH(angleEvent.getAngleH());
+//        Movement.getInstance().setAngleV(angleEvent.getAngleV());
+
+        Movement.getInstance().setAngleH(38.0f);
+        Movement.getInstance().setAngleV(19.5f);
+
+
+        PTEvent ptEvent = GS28181SDKManager.getInstance().countPT
+                (Float.parseFloat(Movement.getInstance().getGimbalPitch()), Float.parseFloat(Movement.getInstance().getGimbalYaw()),
+                        0, 0);
+        PTEvent compensatePT = GS28181SDKManager.getInstance().compensatePT(ptEvent.getPitch(),
+                ptEvent.getYaw(), 0, 0);
+        Movement.getInstance().setCompensatePitch(compensatePT.getPitch());
+        Movement.getInstance().setCompensateYaw(compensatePT.getYaw());
+
 
         if (isFlyClickTime()) {
 

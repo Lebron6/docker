@@ -84,19 +84,24 @@ public class CameraControllerUtil {
     }
     //    返回最接近的值的下标，自身也算
     public static int getNumberThree(int[] intarray, double number) {
-        double temp = Math.abs(number - intarray[0]);
-        int result = intarray[0];
-        int j = 0;
-        for (int i = 0 ;i<intarray.length;i++){
-            double abs = Math.abs(number - intarray[i]);
-            if (abs <= temp) {
-                temp = abs;
-                result = intarray[i];
-                j = i;
+        if (intarray!=null&&intarray.length>0){
+            double temp = Math.abs(number - intarray[0]);
+            int result = intarray[0];
+            int j = 0;
+            for (int i = 0 ;i<intarray.length;i++){
+                double abs = Math.abs(number - intarray[i]);
+                if (abs <= temp) {
+                    temp = abs;
+                    result = intarray[i];
+                    j = i;
+                }
             }
+            LogUtil.log(TAG, "当前倍率为：" + number + "最接近的数为：" + result + "下标为：" + j);
+            return j;
+        }else{
+            return 1;
         }
-        LogUtil.log(TAG, "当前倍率为：" + number + "最接近的数为：" + result + "下标为：" + j);
-        return j;
+
     }
     public static boolean isEqual(double a,double b)
     {
@@ -134,104 +139,104 @@ public class CameraControllerUtil {
         }
         return re;
     }
-    public int sendVideoWithARInfoFun(int mimeType) {
-        int re;
-        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
-        if (enqueueFrame == null) {
-            return 2;
-        }
-
-        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
-                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
-                debounceThresholdYaw, debounceThresholdPitch);
-        if (mimeType == 4) {
-            re = manager.sendVideoWithARInfo(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(Movement.getInstance().getGimbalRoll()),
-                    preFramePitch+ compensatePitch,
-                    preFrameYaw+compensateYaw,
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude());
-//                        LogUtil.log(TAG,"经度纬度高度111111"+Float.parseFloat(Movement.getInstance().getGimbalRoll())+" : "+
-//                                Float.parseFloat(Movement.getInstance().getGimbalPitch())+" : "+
-//                                Float.parseFloat(Movement.getInstance().getGimbalYaw())+" : "+
-//                                Float.parseFloat(Movement.getInstance().getCurrentLongitude())+" : "+
-//                                Float.parseFloat(Movement.getInstance().getCurrentLatitude())+" : "+
-//                                Movement.getInstance().getAltitude());
-            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfo:" + re);
-        } else {
-            re = manager.sendVideoWithARInfoH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(Movement.getInstance().getGimbalRoll()),
-                    preFramePitch+compensatePitch,
-                    preFrameYaw+compensateYaw,
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude());
-            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfoH265:" + re);
-        }
-        return re;
-    }
-    public int sendVideoWithARInfoXFun(int mimeType){
-        int re;
-        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
-        if (enqueueFrame == null) {
-            return 2;
-        }
-        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
-                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
-                debounceThresholdYaw, debounceThresholdPitch);
-        if (mimeType == 4) {
-            re = manager.sendVideoWithARInfoX(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
-                    preFramePitch+compensatePitch, preFrameYaw+compensateYaw,
-                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude());
-//            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoX:" + re);
-        } else {
-            re = manager.sendVideoWithARInfoXH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
-                    preFramePitch+compensatePitch, preFrameYaw+compensateYaw,
-                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude());
-//            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoXH265:" + re);
-        }
-        return re;
-    }
-    public int sendVideoWithARInfoToLocalFun(int mimeType) {
-        int re;
-        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
-        if (enqueueFrame == null) {
-            return 2;
-        }
-        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
-                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
-                debounceThresholdYaw, debounceThresholdPitch);
-        if (mimeType == 4) {
-            LogUtil.log(TAG, "h264格式");
-            re = manager.sendVideoWithARInfoToLocal(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
-                    preFramePitch+compensatePitch,
-                    preFrameYaw+compensateYaw,
-                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude(), absolutePath + File.separator+"111.h264");
-            LogUtil.log(TAG, "传输视频流与 AR 信息流，直接上传到指定路径 sendVideoWithARInfoToLocal:re=" + re);
-        } else {
-            re = manager.sendVideoWithARInfoToLocalH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
-                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
-                    preFramePitch+compensatePitch,
-                    preFrameYaw+compensateYaw,
-                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
-                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
-                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
-                    Movement.getInstance().getCurrentAltitude(), absolutePath + File.separator+ "111.h265");
-            LogUtil.log(TAG, "传输视频流与 AR 信息流，直接上传到指定路径 sendVideoWithARInfoToLocalH265:" + absolutePath + re);
-        }
-        return re;
-    }
+//    public int sendVideoWithARInfoFun(int mimeType) {
+//        int re;
+//        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
+//        if (enqueueFrame == null) {
+//            return 2;
+//        }
+//
+//        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
+//                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
+//                debounceThresholdYaw, debounceThresholdPitch);
+//        if (mimeType == 4) {
+//            re = manager.sendVideoWithARInfo(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(Movement.getInstance().getGimbalRoll()),
+//                    preFramePitch+ compensatePitch,
+//                    preFrameYaw+compensateYaw,
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude());
+////                        LogUtil.log(TAG,"经度纬度高度111111"+Float.parseFloat(Movement.getInstance().getGimbalRoll())+" : "+
+////                                Float.parseFloat(Movement.getInstance().getGimbalPitch())+" : "+
+////                                Float.parseFloat(Movement.getInstance().getGimbalYaw())+" : "+
+////                                Float.parseFloat(Movement.getInstance().getCurrentLongitude())+" : "+
+////                                Float.parseFloat(Movement.getInstance().getCurrentLatitude())+" : "+
+////                                Movement.getInstance().getAltitude());
+//            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfo:" + re);
+//        } else {
+//            re = manager.sendVideoWithARInfoH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(Movement.getInstance().getGimbalRoll()),
+//                    preFramePitch+compensatePitch,
+//                    preFrameYaw+compensateYaw,
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude());
+//            LogUtil.log(TAG, "发送完整的帧 + 摄像机姿态信息（ AR 信息）sendVideoWithARInfoH265:" + re);
+//        }
+//        return re;
+//    }
+//    public int sendVideoWithARInfoXFun(int mimeType){
+//        int re;
+//        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
+//        if (enqueueFrame == null) {
+//            return 2;
+//        }
+//        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
+//                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
+//                debounceThresholdYaw, debounceThresholdPitch);
+//        if (mimeType == 4) {
+//            re = manager.sendVideoWithARInfoX(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
+//                    preFramePitch+compensatePitch, preFrameYaw+compensateYaw,
+//                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude());
+////            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoX:" + re);
+//        } else {
+//            re = manager.sendVideoWithARInfoXH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
+//                    preFramePitch+compensatePitch, preFrameYaw+compensateYaw,
+//                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude());
+////            LogUtil.log(TAG, "发送 视频流与 AR信息流 上传sendVideoWithARInfoXH265:" + re);
+//        }
+//        return re;
+//    }
+//    public int sendVideoWithARInfoToLocalFun(int mimeType) {
+//        int re;
+//        H264Frame enqueueFrame = mFileUtil.getEnqueueFrame();
+//        if (enqueueFrame == null) {
+//            return 2;
+//        }
+//        countPT(Float.parseFloat(Movement.getInstance().getGimbalPitch()),
+//                Float.parseFloat(Movement.getInstance().getGimbalYaw()),
+//                debounceThresholdYaw, debounceThresholdPitch);
+//        if (mimeType == 4) {
+//            LogUtil.log(TAG, "h264格式");
+//            re = manager.sendVideoWithARInfoToLocal(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
+//                    preFramePitch+compensatePitch,
+//                    preFrameYaw+compensateYaw,
+//                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude(), absolutePath + File.separator+"111.h264");
+//            LogUtil.log(TAG, "传输视频流与 AR 信息流，直接上传到指定路径 sendVideoWithARInfoToLocal:re=" + re);
+//        } else {
+//            re = manager.sendVideoWithARInfoToLocalH265(System.currentTimeMillis(), enqueueFrame.getFrameType(), enqueueFrame.getFrameData(),
+//                    Float.parseFloat(String.valueOf(Movement.getInstance().getCameraZoomRatios())),//double转float
+//                    preFramePitch+compensatePitch,
+//                    preFrameYaw+compensateYaw,
+//                    Movement.getInstance().getAngleH(), Movement.getInstance().getAngleV(),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLongitude()),
+//                    Float.parseFloat(Movement.getInstance().getCurrentLatitude()),
+//                    Movement.getInstance().getCurrentAltitude(), absolutePath + File.separator+ "111.h265");
+//            LogUtil.log(TAG, "传输视频流与 AR 信息流，直接上传到指定路径 sendVideoWithARInfoToLocalH265:" + absolutePath + re);
+//        }
+//        return re;
+//    }
 }

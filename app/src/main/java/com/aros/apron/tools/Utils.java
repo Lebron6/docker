@@ -3,9 +3,13 @@ package com.aros.apron.tools;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+
+import com.gosuncn.lib28181agent.bean.AngleEvent;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Utils {
@@ -87,6 +91,69 @@ return Double.parseDouble(latLonStr);        }
         }
 
         return number;
+    }
+
+    // NAL单元类型
+    private static final int NAL_P = 1;
+    private static final int NAL_B = 2;
+    private static final int NAL_I = 5;
+
+    private static final int NULL_FRAME = -1;
+    private static final int I_FRAME = 1;
+    private static final int P_FRAME = 2;
+    private static final int B_FRAME = 3;
+    private static final int Unknown = -1;
+
+    // 判断帧类型
+    public static int getFrameType(byte[] frame) {
+        // 获取字节码流中的第一个NAL单元（假设视频帧数据是以NAL单元为基本单位）
+        byte[] nalUnit = getFirstNalUnit(frame);
+        if (nalUnit == null) {
+            return Unknown; // 未知
+        }
+
+        int nalType = getNalType(nalUnit);
+        switch (nalType) {
+            case NAL_I:
+                return I_FRAME; // I帧
+            case NAL_P:
+                return P_FRAME; // P帧
+            case NAL_B:
+                return B_FRAME; // B帧
+            default:
+                return Unknown; // 其他类型的NAL单元（例如SPS、PPS等）
+        }
+    }
+
+    // 获取NAL单元类型
+    private static int getNalType(byte[] nalUnit) {
+        // H.264 NAL单元的类型位于起始字节的第1位到第5位
+        return (nalUnit[0] & 0x1F);
+    }
+
+    // 从视频帧数据中提取第一个NAL单元
+    private static byte[] getFirstNalUnit(byte[] frame) {
+        // 这里简化处理，实际情况可能需要更复杂的逻辑来处理起始码
+        int startCodeLength = 3;
+        if (frame != null && frame.length >= startCodeLength) {
+            // 查找起始码0x000001或0x00000001
+            for (int i = 0; i < frame.length - startCodeLength; i++) {
+                if ((frame[i] == 0x00 && frame[i + 1] == 0x00 && frame[i + 2] == 0x01) ||
+                        (frame[i] == 0x00 && frame[i + 1] == 0x00 && frame[i + 2] == 0x00 && frame[i + 3] == 0x01)) {
+                    return Arrays.copyOfRange(frame, i + startCodeLength, frame.length);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static AngleEvent countCmos(float cmosH, float cmosW, double currentZoom) {
+        AngleEvent angleEvent = new AngleEvent();
+        float angleH = (float)(2.0D * Math.atan((double)(cmosW / (float)(2 * currentZoom))) * 360.0D / 2.0D / 3.141592653589793D);
+        float angleV = (float)(2.0D * Math.atan((double)(cmosH / (float)(2 * currentZoom))) * 360.0D / 2.0D / 3.141592653589793D);
+        angleEvent.setAngleH(angleH);
+        angleEvent.setAngleV(angleV);
+        return angleEvent;
     }
 
 }

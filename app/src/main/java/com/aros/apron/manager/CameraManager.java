@@ -8,6 +8,7 @@ import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.tools.Utils;
 import com.aros.apron.util.FileUtil;
 import com.google.gson.Gson;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
@@ -230,13 +231,23 @@ public class CameraManager extends BaseManager {
 
 
         KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomFocalLength,
-                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Integer>() {
+                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                this, new CommonCallbacks.KeyListener<Integer>() {
             @Override
             public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                 if (t1 != null) {
-                    AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f, t1);
-                    Movement.getInstance().setAngleH(angleEvent.getAngleH());
-                    Movement.getInstance().setAngleV(angleEvent.getAngleV());
+//                    AngleEvent angleEvent = GS28181SDKManager.getInstance().countCmos(5.56f, 7.41f,
+//                            t1);
+
+//                    Movement.getInstance().setAngleH(angleEvent.getAngleH());
+//                    double h = Math.atan(7.41 / (2 * t1)) * 2;
+//                    double v = Math.atan(5.56 / (2 * t1)) * 2;
+//                    Movement.getInstance().setAngleH(Float.parseFloat(h+""));
+//                    Movement.getInstance().setAngleV(Float.parseFloat(v+""));
+                    Movement.getInstance().setAngleH(38.0f);
+                    Movement.getInstance().setAngleV(19.5f);
+                    Movement.getInstance().setFocalLenght(t1);
+
                 }
             }
         });
@@ -246,8 +257,8 @@ public class CameraManager extends BaseManager {
             @Override
             public void onValueChange(@Nullable GimbalAttitudeRange gimbalAttitudeRange, @Nullable GimbalAttitudeRange t1) {
                 if (t1 != null) {
-                    Movement.getInstance().setGimbalPitchRange(t1.getPitch());
-                    Movement.getInstance().setGimbalYawRange(t1.getYaw());
+//                    Movement.getInstance().setGimbalPitchRange(t1.getPitch());
+//                    Movement.getInstance().setGimbalYawRange(t1.getYaw());
                 }
             }
         });
@@ -255,9 +266,8 @@ public class CameraManager extends BaseManager {
         KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyVideoResolutionFrameRateRange), new CommonCallbacks.CompletionCallbackWithParam<List<VideoResolutionFrameRate>>() {
             @Override
             public void onSuccess(List<VideoResolutionFrameRate> videoResolutionFrameRates) {
-                LogUtil.log(TAG, "获取分辨率为：" + videoResolutionFrameRates);
-                Movement.getInstance().setKeyVideoResolutionFrameRateRange(videoResolutionFrameRates);
-                setBitRate();//设置分辨率
+//                Movement.getInstance().setKeyVideoResolutionFrameRateRange(videoResolutionFrameRates);
+//                setBitRate();//设置分辨率
 
             }
 
@@ -279,38 +289,38 @@ public class CameraManager extends BaseManager {
             }
         });
     }
-    public void setBitRate() {
-        //        设置录像模式
-        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode), CameraMode.VIDEO_NORMAL, null);
-//        设置镜头分辨率，降低分辨率
-        List<VideoResolutionFrameRate> VList = Movement.getInstance().getKeyVideoResolutionFrameRateRange();
-        LogUtil.log(TAG, VList + "==============");
+//    public void setBitRate() {
+//        //        设置录像模式
+//        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode), CameraMode.VIDEO_NORMAL, null);
+////        设置镜头分辨率，降低分辨率
+//        List<VideoResolutionFrameRate> VList = Movement.getInstance().getKeyVideoResolutionFrameRateRange();
+//        LogUtil.log(TAG, VList + "==============");
+////
+//        VideoResolutionFrameRate v = VList.get(0);
+//        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoResolutionFrameRate), v, new CommonCallbacks.CompletionCallback() {
+//            @Override
+//            public void onSuccess() {
+//                LogUtil.log(TAG, "设置镜头分辨率和帧率成功：" + v);
+//            }
 //
-        VideoResolutionFrameRate v = VList.get(0);
-        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoResolutionFrameRate), v, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                LogUtil.log(TAG, "设置镜头分辨率和帧率成功：" + v);
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError idjiError) {
-                LogUtil.log(TAG, "设置镜头分辨率和帧率失败：" + idjiError);
-            }
-        });
-//        设置码率,降低码率
-        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoBitrateMode), VideoBitrateMode.VBR, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                LogUtil.log(TAG, "相机码率设置VBR成功");
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError idjiError) {
-                LogUtil.log(TAG, "相机码率设置VBR失败");
-            }
-        });
-    }
+//            @Override
+//            public void onFailure(@NonNull IDJIError idjiError) {
+//                LogUtil.log(TAG, "设置镜头分辨率和帧率失败：" + idjiError);
+//            }
+//        });
+////        设置码率,降低码率
+//        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyVideoBitrateMode), VideoBitrateMode.VBR, new CommonCallbacks.CompletionCallback() {
+//            @Override
+//            public void onSuccess() {
+//                LogUtil.log(TAG, "相机码率设置VBR成功");
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull IDJIError idjiError) {
+//                LogUtil.log(TAG, "相机码率设置VBR失败");
+//            }
+//        });
+//    }
     public void gimbalFollow(){
         // 设置无人机的云台跟踪模式
         KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,ComponentIndexType.LEFT_OR_MAIN), GimbalMode.FPV, new CommonCallbacks.CompletionCallback() {

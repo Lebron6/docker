@@ -68,10 +68,10 @@ public class AsyncTaskUtil {
             heartBeatTask = new TimerTask() {
                 @Override
                 public void run() {
-                    int re = CameraControllerUtil.getInstance().sendVideoWithARInfoXFun(0);
-                    if (re != 0 && re != 10){
-                        LogUtil.log("TAG","发送失败");
-                    }
+//                    int re = CameraControllerUtil.getInstance().sendVideoWithARInfoXFun(0);
+//                    if (re != 0 && re != 10){
+//                        LogUtil.log("TAG","发送失败");
+//                    }
                 }
             };
         }
