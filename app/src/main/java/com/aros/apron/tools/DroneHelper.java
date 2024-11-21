@@ -6,14 +6,9 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraFocusMode;
-import dji.sdk.keyvalue.value.common.CameraLensType;
-import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
@@ -172,13 +167,18 @@ public class DroneHelper {
 //        }
     }
 
-
+    public boolean isSendVirtualStickFlightControlParam = false;
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {
+        if (isSendVirtualStickFlightControlParam) {
+            return;
+        }
+        isSendVirtualStickFlightControlParam = true;
         virtualStickFlightControlParam.setPitch(mPitch);//左右
         virtualStickFlightControlParam.setRoll(mRoll);//前后
         virtualStickFlightControlParam.setYaw(mYaw);
         virtualStickFlightControlParam.setVerticalThrottle(mThrottle);//上下
         sendMovementCommand(virtualStickFlightControlParam);
+        isSendVirtualStickFlightControlParam = false;
     }
 
     public void sendMovementCommand(VirtualStickFlightControlParam param) {

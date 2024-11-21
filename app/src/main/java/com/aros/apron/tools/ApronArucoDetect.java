@@ -31,7 +31,7 @@ public class ApronArucoDetect {
     //没识别到二维码
     private boolean arucoNotFoundTag;
 
-    private boolean isStartAruco;
+    private boolean isStartAruco=false;
     public ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
     private String TAG = getClass().getSimpleName();
     Double resultYaw = 0.0;
