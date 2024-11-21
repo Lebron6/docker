@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ApronArucoDetect {
 
@@ -32,7 +35,10 @@ public class ApronArucoDetect {
     private boolean arucoNotFoundTag;
 
     private boolean isStartAruco=false;
-    public ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
+//    public ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    Future<?> lastFuture = null;
+
     private String TAG = getClass().getSimpleName();
     Double resultYaw = 0.0;
     private String productType;
@@ -88,7 +94,11 @@ public class ApronArucoDetect {
             return;
         }
         isStartAruco = true;
-        mThreadPool.execute(new Runnable() {
+        if (lastFuture != null && !lastFuture.isDone()) {
+            LogUtil.log(TAG,"break---");
+            lastFuture.cancel(true);
+        }
+        lastFuture =executor.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -131,7 +141,7 @@ public class ApronArucoDetect {
                                     double width = calculateDistance(points[0], points[1]);
                                     // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
-                                    if (width >= 260) {
+                                    if (width >= 260&&idArray.length>3) {
                                         String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
                                                 " Flying Height:" + flyingHeight + "--" +
                                                 " Ultrasonic Height:" + ultrasonicHeight ;
@@ -221,7 +231,8 @@ public class ApronArucoDetect {
                     mArucoCornerList.clear();
                 }
             }
-        });
+        },0, TimeUnit.MILLISECONDS);
+
 
     }
 
