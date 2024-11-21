@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ApronArucoDetect {
 
@@ -32,7 +35,8 @@ public class ApronArucoDetect {
     private boolean arucoNotFoundTag;
 
     private boolean isStartAruco;
-    public ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    Future<?> lastFuture = null;
     private String TAG = getClass().getSimpleName();
     Double resultYaw = 0.0;
     private String productType;
@@ -88,7 +92,12 @@ public class ApronArucoDetect {
             return;
         }
         isStartAruco = true;
-        mThreadPool.execute(new Runnable() {
+        // 取消之前的任务
+        if (lastFuture != null && !lastFuture.isDone()) {
+            lastFuture.cancel(true);
+        }
+        // 提交新任务
+        lastFuture = executor.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -221,7 +230,7 @@ public class ApronArucoDetect {
                     mArucoCornerList.clear();
                 }
             }
-        });
+        }, 0, TimeUnit.MILLISECONDS);
 
     }
 
