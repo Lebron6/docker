@@ -726,7 +726,7 @@ public class ApronArucoDetect {
             if (ultrasonicHeight > 9) {
                 return 0;
             } else if (ultrasonicHeight > 3 && ultrasonicHeight <= 9) {
-                return 0.045;
+                return 0.065;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 3) {
                 return 0.0;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
@@ -744,9 +744,9 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 2) {
-            return -0.375;
+            return -0.475;
         } else if (flyingHeight <= 2 && flyingHeight > 0.5) {
-            return -0.295;
+            return -0.375;
 //        } else if (flyingHeight <= 1.0 && flyingHeight >= -2) {
         } else {
             return -0.175;
