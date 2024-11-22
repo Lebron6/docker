@@ -85,7 +85,7 @@ public class DroneShutdownManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDroneShutDownSuccess && sendDroneShutDownSuccessTimes < maxRetries) {
             sendDroneShutDownSuccessTimes++;
-            new Handler().postDelayed(() -> sendDroneShutDownMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDroneShutDownMsg2Server(client), 2000);
             LogUtil.log(TAG, "关机发送失败：mqtt未连接" + "--" + sendDroneShutDownSuccessTimes);
         } else {
             LogUtil.log(TAG, "关机发送失败：" + sendDroneShutDownSuccessTimes);
