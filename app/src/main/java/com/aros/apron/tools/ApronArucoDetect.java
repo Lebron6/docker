@@ -153,8 +153,6 @@ public class ApronArucoDetect {
                                     }
                                 }
                             }
-
-
                         }
 
                         findAruco(idArray);
