@@ -130,7 +130,7 @@ public class GimbalManager extends BaseManager {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "云台复位成功");
+                            LogUtil.log(TAG, "云台复位");
                         }
 
                         @Override

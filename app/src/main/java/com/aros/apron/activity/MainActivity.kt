@@ -1,5 +1,4 @@
 package com.aros.apron.activity
-
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -115,12 +114,12 @@ open class MainActivity : BaseActivity() {
     private var secondaryFPVWidget: FPVWidget? = null
     private var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
     private var simulatorControlWidget: SimulatorControlWidget? = null
-//    private var lensControlWidget: LensControlWidget? = null
+    //    private var lensControlWidget: LensControlWidget? = null
     private var autoExposureLockWidget: AutoExposureLockWidget? = null
     private var focusModeWidget: FocusModeWidget? = null
     private var focusExposureSwitchWidget: FocusExposureSwitchWidget? = null
     private var cameraControlsWidget: CameraControlsWidget? = null
-//    private var takeOffWidget: TakeOffWidget? = null
+    //    private var takeOffWidget: TakeOffWidget? = null
 //    private var returnHomeWidget: ReturnHomeWidget? = null
     private var horizontalSituationIndicatorWidget: HorizontalSituationIndicatorWidget? = null
     private var pfvFlightDisplayWidget: PrimaryFlightDisplayWidget? = null
@@ -588,7 +587,7 @@ open class MainActivity : BaseActivity() {
         }
         lastDevicePosition = devicePosition
         lastLensType = lensType
-            updateViewVisibility(devicePosition, lensType)
+        updateViewVisibility(devicePosition, lensType)
         updateInteractionEnabled()
         //如果无需使能或者显示的，也就没有必要切换了。
         if (fpvInteractionWidget!!.isInteractionEnabled) {

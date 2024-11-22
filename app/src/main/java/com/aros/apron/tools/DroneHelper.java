@@ -6,14 +6,9 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraFocusMode;
-import dji.sdk.keyvalue.value.common.CameraLensType;
-import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
@@ -93,6 +88,8 @@ public class DroneHelper {
                     LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
                     virtualStickEnable = true;
                     enableVirtualStickTimes = 0;
+                    VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+
 
                 }
 
@@ -170,7 +167,6 @@ public class DroneHelper {
 //        }
     }
 
-
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {
         virtualStickFlightControlParam.setPitch(mPitch);//左右
         virtualStickFlightControlParam.setRoll(mRoll);//前后
@@ -178,9 +174,12 @@ public class DroneHelper {
         virtualStickFlightControlParam.setVerticalThrottle(mThrottle);//上下
         sendMovementCommand(virtualStickFlightControlParam);
     }
-
+    public boolean shouldExecute = true;
     public void sendMovementCommand(VirtualStickFlightControlParam param) {
-        VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+        if (shouldExecute) {
+            VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+        }
+        shouldExecute = !shouldExecute;
     }
 
     //设置备降点

@@ -59,7 +59,7 @@ public class DroneShutdownManager extends BaseManager {
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "关机发送成功：60011---"+sendDroneShutDownSuccessTimes);
+                LogUtil.log(TAG, "关机发送成功：60011---"+sendDroneShutDownSuccessTimes+"clientId:"+client.getClientId());
                 sendMissionExecuteEvents(client, "AMS通知机库执行无人机关机");
                 isSendDroneShutDownSuccess = true;
             }
@@ -85,7 +85,7 @@ public class DroneShutdownManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDroneShutDownSuccess && sendDroneShutDownSuccessTimes < maxRetries) {
             sendDroneShutDownSuccessTimes++;
-            new Handler().postDelayed(() -> sendDroneShutDownMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDroneShutDownMsg2Server(client), 2000);
             LogUtil.log(TAG, "关机发送失败：mqtt未连接" + "--" + sendDroneShutDownSuccessTimes);
         } else {
             LogUtil.log(TAG, "关机发送失败：" + sendDroneShutDownSuccessTimes);

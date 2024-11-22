@@ -62,7 +62,7 @@ public class DockCloseManager extends BaseManager {
         client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
             @Override
             public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes);
+                LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
                 sendMissionExecuteEvents(client, "AMS通知机库关舱");
                 isSendDockCloseSuccess = true;
             }
@@ -88,7 +88,7 @@ public class DockCloseManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDockCloseSuccess && sendDockCloseSuccessTimes < maxRetries) {
             sendDockCloseSuccessTimes++;
-            new Handler().postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
             LogUtil.log(TAG, "关舱发送失败：mqtt未连接" + "--" + sendDockCloseSuccessTimes);
         } else {
             LogUtil.log(TAG, "关舱发送失败：" + sendDockCloseSuccessTimes);

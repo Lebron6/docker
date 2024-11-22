@@ -53,8 +53,9 @@ public class StickManager extends BaseManager {
                 @Override
                 public void onVirtualStickStateUpdate(@NonNull VirtualStickState stickState) {
                     if (stickState!=null){
-                        LogUtil.log(TAG,"控制权获取状态:"+stickState.isVirtualStickEnable());
+                        LogUtil.log(TAG,"控制权:"+stickState.isVirtualStickEnable()+"-高级模式:"+stickState.isVirtualStickAdvancedModeEnabled());
                         Movement.getInstance().setIsVirtualStickEnable(stickState.isVirtualStickEnable()?1:0);
+                        Movement.getInstance().setIsVirtualStickAdvancedModeEnabled(stickState.isVirtualStickAdvancedModeEnabled()?1:0);
                     }
                 }
 
