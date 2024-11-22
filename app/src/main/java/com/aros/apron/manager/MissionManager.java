@@ -57,7 +57,6 @@ public class MissionManager extends BaseManager {
 
     private MqttAndroidClient client;
     private MQMessage message;
-    private IWaypointMissionManager missionManager;
     private int missionStateCode;
 
     private MissionManager() {
@@ -81,8 +80,8 @@ public class MissionManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
-            missionManager = WaypointMissionManager.getInstance();
-            missionManager.addWaypointActionListener(new WaypointActionListener() {
+            WaypointMissionManager waypointMissionManager = WaypointMissionManager.getInstance();
+            waypointMissionManager.addWaypointActionListener(new WaypointActionListener() {
                 @Override
                 public void onExecutionStart(int actionId) {
 //CameraManager.getInstance().setCustomExpandNameSetting();
@@ -107,7 +106,7 @@ public class MissionManager extends BaseManager {
                         }
 
                     }else{
-                        LogUtil.log(TAG,"动作组下标异常:mActionGroups.size()= "+mActionGroups.size() +"actionGroup="+actionGroup);
+                        LogUtil.log(TAG,"动作组下标异常");
                     }
 
                 }
@@ -136,8 +135,8 @@ public class MissionManager extends BaseManager {
                     }
                 }
             });
-            missionManager.addWaylineExecutingInfoListener(waylineExecutingInfoListener);
-            missionManager.addWaypointMissionExecuteStateListener(new WaypointMissionExecuteStateListener() {
+            waypointMissionManager.addWaylineExecutingInfoListener(waylineExecutingInfoListener);
+            waypointMissionManager.addWaypointMissionExecuteStateListener(new WaypointMissionExecuteStateListener() {
                 @Override
                 public void onMissionStateUpdate(WaypointMissionExecuteState missionState) {
                     if (missionState != null) {

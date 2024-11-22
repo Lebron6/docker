@@ -7,10 +7,12 @@ import com.aros.apron.models.globalViewModels
 import com.aros.apron.xclog.CrashHandler
 import com.aros.apron.xclog.XcFileLog
 import com.aros.apron.xclog.XcLogConfig
+import com.dji.wpmzsdk.manager.WPMZManager
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import dji.v5.common.utils.GeoidManager
+import dji.v5.utils.common.ContextUtil
 
 
 open class ApronApp : Application() {
@@ -36,7 +38,10 @@ open class ApronApp : Application() {
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         com.cySdkyc.clx.Helper.install(this)
-        GeoidManager.getInstance().init(this)}
+        GeoidManager.getInstance().init(this)
+        WPMZManager.getInstance().init(this)
+
+    }
 
 
     /**
