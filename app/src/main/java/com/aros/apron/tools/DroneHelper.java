@@ -167,22 +167,19 @@ public class DroneHelper {
 //        }
     }
 
-    public boolean isSendVirtualStickFlightControlParam = false;
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {
-        if (isSendVirtualStickFlightControlParam) {
-            return;
-        }
-        isSendVirtualStickFlightControlParam = true;
         virtualStickFlightControlParam.setPitch(mPitch);//左右
         virtualStickFlightControlParam.setRoll(mRoll);//前后
         virtualStickFlightControlParam.setYaw(mYaw);
         virtualStickFlightControlParam.setVerticalThrottle(mThrottle);//上下
         sendMovementCommand(virtualStickFlightControlParam);
-        isSendVirtualStickFlightControlParam = false;
     }
-
+    public boolean shouldExecute = true;
     public void sendMovementCommand(VirtualStickFlightControlParam param) {
-        VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+        if (shouldExecute) {
+            VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+        }
+        shouldExecute = !shouldExecute;
     }
 
     //设置备降点

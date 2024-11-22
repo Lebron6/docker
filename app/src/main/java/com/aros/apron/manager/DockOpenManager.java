@@ -87,7 +87,7 @@ public class DockOpenManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDockOpenSuccess && sendDockOpenSuccessTimes < maxRetries) {
             sendDockOpenSuccessTimes++;
-            new Handler().postDelayed(() -> sendDockOpenMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockOpenMsg2Server(client), 2000);
             LogUtil.log(TAG, "开舱发送失败：mqtt未连接" + "--" + sendDockOpenSuccessTimes);
         } else {
             LogUtil.log(TAG, "开舱发送失败：" + sendDockOpenSuccessTimes);

@@ -1,13 +1,10 @@
 package com.aros.apron.activity
-
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -112,17 +109,17 @@ import java.util.concurrent.TimeUnit
 
 open class MainActivity : BaseActivity() {
 
-    private var primaryFpvWidget: SurfaceView? = null
-//    private var fpvInteractionWidget: FPVInteractionWidget? = null
-    private var secondaryFPVWidget: SurfaceView? = null
+    private var primaryFpvWidget: FPVWidget? = null
+    private var fpvInteractionWidget: FPVInteractionWidget? = null
+    private var secondaryFPVWidget: FPVWidget? = null
     private var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
     private var simulatorControlWidget: SimulatorControlWidget? = null
-//    private var lensControlWidget: LensControlWidget? = null
+    //    private var lensControlWidget: LensControlWidget? = null
     private var autoExposureLockWidget: AutoExposureLockWidget? = null
     private var focusModeWidget: FocusModeWidget? = null
     private var focusExposureSwitchWidget: FocusExposureSwitchWidget? = null
     private var cameraControlsWidget: CameraControlsWidget? = null
-//    private var takeOffWidget: TakeOffWidget? = null
+    //    private var takeOffWidget: TakeOffWidget? = null
 //    private var returnHomeWidget: ReturnHomeWidget? = null
     private var horizontalSituationIndicatorWidget: HorizontalSituationIndicatorWidget? = null
     private var pfvFlightDisplayWidget: PrimaryFlightDisplayWidget? = null
@@ -134,7 +131,7 @@ open class MainActivity : BaseActivity() {
     //    private var mapWidget: MapWidget? = null
     private var topBarPanel: TopBarPanelWidget? = null
     private var remainingFlightTimeWidget: RemainingFlightTimeWidget? = null
-//    private var fpvParentView: ConstraintLayout? = null
+    private var fpvParentView: ConstraintLayout? = null
     private var mDrawerLayout: DrawerLayout? = null
     private var gimbalAdjustDone: TextView? = null
     private var gimbalFineTuneWidget: GimbalFineTuneWidget? = null
@@ -156,10 +153,13 @@ open class MainActivity : BaseActivity() {
                 startRtkService(false)
             }
         }
+    private val availableCameraUpdatedListener =
+        AvailableCameraUpdatedListener { availableCameraList: List<ComponentIndexType> ->
+            runOnUiThread { updateFPVWidgetSource(availableCameraList) }
+        }
 
 
-
-    var cameraManager: ICameraStreamManager = MediaDataCenter.getInstance().cameraStreamManager
+    var cameraManager = MediaDataCenter.getInstance().cameraStreamManager
     private var mainBinding: ActivityMainBinding? = null
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
@@ -245,23 +245,23 @@ open class MainActivity : BaseActivity() {
 //        mapWidget?.onCreate(savedInstanceState)
         needConnect()
         initDJIManager()
-        initView()
         initCameraStream()
-
+        initView()
     }
 
     private fun initView() {
-//        fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
+        fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
         mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
         topBarPanel = findViewById<TopBarPanelWidget>(R.id.panel_top_bar)
         remainingFlightTimeWidget =
             findViewById<RemainingFlightTimeWidget>(R.id.widget_remaining_flight_time)
         settingWidget = topBarPanel?.settingWidget
+        primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
 //        takeOffWidget = findViewById<TakeOffWidget>(R.id.widget_take_off)
 //        returnHomeWidget = findViewById<ReturnHomeWidget>(R.id.widget_return_to_home)
-        primaryFpvWidget = findViewById<SurfaceView>(R.id.widget_primary_fpv)
-//        fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
-        secondaryFPVWidget = findViewById<SurfaceView>(R.id.widget_secondary_fpv)
+        primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
+        fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
+        secondaryFPVWidget = findViewById<FPVWidget>(R.id.widget_secondary_fpv)
         systemStatusListPanelWidget =
             findViewById<SystemStatusListPanelWidget>(R.id.widget_panel_system_status_list)
         simulatorControlWidget = findViewById<SimulatorControlWidget>(R.id.widget_simulator_control)
@@ -284,8 +284,23 @@ open class MainActivity : BaseActivity() {
             findViewById<GimbalFineTuneWidget>(R.id.setting_menu_gimbal_fine_tune)
 
         initClickListener()
+        MediaDataCenter.getInstance().cameraStreamManager.addAvailableCameraUpdatedListener(
+            availableCameraUpdatedListener
+        )
+        primaryFpvWidget?.setOnFPVStreamSourceListener(object : FPVStreamSourceListener {
+            override fun onStreamSourceUpdated(
+                devicePosition: ComponentIndexType,
+                lensType: CameraLensType
+            ) {
+                cameraSourceProcessor.onNext(
+                    CameraSource(devicePosition, lensType)
+                )
+            }
+        })
 
-
+        //小surfaceView放置在顶部，避免被大的遮挡
+        secondaryFPVWidget?.setSurfaceViewZOrderOnTop(true)
+        secondaryFPVWidget?.setSurfaceViewZOrderMediaOverlay(true)
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
         //实现RTK监测网络，并自动重连机制
         DJINetworkManager.getInstance().addNetworkStatusListener(networkStatusListener)
@@ -329,49 +344,27 @@ open class MainActivity : BaseActivity() {
 
 
     private fun initCameraStream() {
-        primaryFpvWidget?.holder?.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(holder: SurfaceHolder) {}
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                cameraManager.putCameraStreamSurface(
-                    ComponentIndexType.LEFT_OR_MAIN,
-                    holder.surface,
-                    width,
-                    height,
-                    ICameraStreamManager.ScaleType.FIX_XY
-                )
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                cameraManager.removeCameraStreamSurface(holder.surface)
-            }
-        })
-
-        secondaryFPVWidget?.holder?.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(holder: SurfaceHolder) {}
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                cameraManager.putCameraStreamSurface(
-                    ComponentIndexType.FPV,
-                    holder.surface,
-                    width,
-                    height,
-                    ICameraStreamManager.ScaleType.FIX_XY
-                )
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                cameraManager.removeCameraStreamSurface(holder.surface)
-            }
-        })
+//        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
+//            override fun surfaceCreated(holder: SurfaceHolder) {}
+//            override fun surfaceChanged(
+//                holder: SurfaceHolder,
+//                format: Int,
+//                width: Int,
+//                height: Int
+//            ) {
+//                cameraManager.putCameraStreamSurface(
+//                    ComponentIndexType.LEFT_OR_MAIN,
+//                    holder.surface,
+//                    width,
+//                    height,
+//                    ICameraStreamManager.ScaleType.FIX_XY
+//                )
+//            }
+//
+//            override fun surfaceDestroyed(holder: SurfaceHolder) {
+//                cameraManager.removeCameraStreamSurface(holder.surface)
+//            }
+//        })
 
         cameraManager.addFrameListener(
             ComponentIndexType.LEFT_OR_MAIN,
@@ -506,6 +499,7 @@ open class MainActivity : BaseActivity() {
     }
 
     private fun initClickListener() {
+        secondaryFPVWidget!!.setOnClickListener { v: View? -> swapVideoSource() }
         if (settingWidget != null) {
             settingWidget!!.setOnClickListener { v: View? -> toggleRightDrawer() }
         }
@@ -540,6 +534,35 @@ open class MainActivity : BaseActivity() {
         }
     }
 
+    private fun updateFPVWidgetSource(availableCameraList: List<ComponentIndexType>) {
+        LogUtils.i(TAG, JsonUtil.toJson(availableCameraList))
+        if (availableCameraList == null) {
+            return
+        }
+        val cameraList = ArrayList(availableCameraList)
+
+        //没有数据
+        if (cameraList.isEmpty()) {
+            secondaryFPVWidget!!.visibility = View.GONE
+            return
+        }
+
+        //仅一路数据
+        if (cameraList.size == 1) {
+            primaryFpvWidget!!.updateVideoSource(availableCameraList[0])
+            secondaryFPVWidget!!.visibility = View.GONE
+            return
+        }
+
+        //大于两路数据
+        val primarySource = getSuitableSource(cameraList, ComponentIndexType.LEFT_OR_MAIN)
+        primaryFpvWidget!!.updateVideoSource(primarySource)
+        cameraList.remove(primarySource)
+        val secondarySource = getSuitableSource(cameraList, ComponentIndexType.FPV)
+        secondaryFPVWidget!!.updateVideoSource(secondarySource)
+        secondaryFPVWidget!!.visibility = View.VISIBLE
+    }
+
     private fun getSuitableSource(
         cameraList: List<ComponentIndexType>,
         defaultSource: ComponentIndexType
@@ -564,8 +587,13 @@ open class MainActivity : BaseActivity() {
         }
         lastDevicePosition = devicePosition
         lastLensType = lensType
-            updateViewVisibility(devicePosition, lensType)
-
+        updateViewVisibility(devicePosition, lensType)
+        updateInteractionEnabled()
+        //如果无需使能或者显示的，也就没有必要切换了。
+        if (fpvInteractionWidget!!.isInteractionEnabled) {
+            fpvInteractionWidget!!.updateCameraSource(devicePosition, lensType)
+            fpvInteractionWidget!!.updateGimbalIndex(CommonUtils.getGimbalIndex(devicePosition))
+        }
 //        if (lensControlWidget!!.visibility == View.VISIBLE) {
 //            lensControlWidget!!.updateCameraSource(devicePosition, lensType)
 //        }
@@ -598,7 +626,7 @@ open class MainActivity : BaseActivity() {
 
     private fun setViewVisibilityWithCleanMode() {
         if (PreferenceUtils.getInstance().isCleanMode) {
-//            fpvInteractionWidget?.visibility = View.GONE
+            fpvInteractionWidget?.visibility = View.GONE
             horizontalSituationIndicatorWidget?.visibility = View.GONE
             remainingFlightTimeWidget?.visibility=View.GONE
             gimbalFineTuneWidget?.visibility = View.GONE
@@ -621,8 +649,8 @@ open class MainActivity : BaseActivity() {
 
     private fun updateViewVisibility(devicePosition: ComponentIndexType, lensType: CameraLensType) {
         //只在fpv下显示
-//        pfvFlightDisplayWidget!!.visibility =
-//            if (devicePosition == ComponentIndexType.FPV) View.VISIBLE else View.INVISIBLE
+        pfvFlightDisplayWidget!!.visibility =
+            if (devicePosition == ComponentIndexType.FPV) View.VISIBLE else View.INVISIBLE
 
         //fpv下不显示
 //        lensControlWidget!!.visibility =
@@ -650,7 +678,23 @@ open class MainActivity : BaseActivity() {
 
     }
 
+    /**
+     * Swap the video sources of the FPV and secondary FPV widgets.
+     */
+    private fun swapVideoSource() {
+        val primarySource = primaryFpvWidget!!.widgetModel.getCameraIndex()
+        val secondarySource = secondaryFPVWidget!!.widgetModel.getCameraIndex()
+        //两个source都存在的情况下才进行切换
+        if (primarySource != ComponentIndexType.UNKNOWN && secondarySource != ComponentIndexType.UNKNOWN) {
+            primaryFpvWidget!!.updateVideoSource(secondarySource)
+            secondaryFPVWidget!!.updateVideoSource(primarySource)
+        }
+    }
 
+    private fun updateInteractionEnabled() {
+        fpvInteractionWidget!!.isInteractionEnabled =
+            primaryFpvWidget!!.widgetModel.getCameraIndex() != ComponentIndexType.FPV
+    }
 
     private class CameraSource(var devicePosition: ComponentIndexType, var lensType: CameraLensType)
 

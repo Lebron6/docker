@@ -87,7 +87,7 @@ public class DroneStorageManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client,int result) {
         if (!isSendDroneStorageSuccess && sendDroneStorageSuccessTimes < maxRetries) {
             sendDroneStorageSuccessTimes++;
-            new Handler().postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
+            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
             LogUtil.log(TAG, "入库发送失败：mqtt未连接" + "--" + sendDroneStorageSuccessTimes);
         } else {
             LogUtil.log(TAG, "入库发送失败：" + sendDroneStorageSuccessTimes);
