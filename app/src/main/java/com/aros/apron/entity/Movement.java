@@ -92,6 +92,7 @@ public class Movement {
     private String aircraftTotalFlightTimes;//总体飞行次数，飞行器断电后不会清零。
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
     public int flightControlAuthority;//当前控制权所属
+    private int isVirtualStickAdvancedModeEnabled;//是否处于虚拟摇杆高级模式
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
     private int thermalTemperatureMeasureMode;//测温模式
@@ -110,6 +111,14 @@ public class Movement {
     private float AngleH=0;//视场角宽高
     private float AngleV=0;
     private int focalLenght = 0;//焦距
+
+    public int getIsVirtualStickAdvancedModeEnabled() {
+        return isVirtualStickAdvancedModeEnabled;
+    }
+
+    public void setIsVirtualStickAdvancedModeEnabled(int isVirtualStickAdvancedModeEnabled) {
+        this.isVirtualStickAdvancedModeEnabled = isVirtualStickAdvancedModeEnabled;
+    }
 
     public int getFocalLenght() {
         return focalLenght;
