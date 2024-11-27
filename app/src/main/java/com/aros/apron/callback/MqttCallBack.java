@@ -2,6 +2,7 @@ package com.aros.apron.callback;
 
 
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -49,7 +50,7 @@ public class MqttCallBack implements MqttCallbackExtended {
     @Override
     public void connectionLost(Throwable cause) {
         LogUtil.log(TAG, "MQtt connectionLost-----");
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -113,7 +114,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                             PerceptionManager.getInstance().setPerceptionEnable(false);
                             // 5.清空sd卡
                             CameraManager.getInstance().formatStorage(null,null);
-                            new Handler().postDelayed(new Runnable() {
+                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
@@ -403,6 +404,11 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60140:
                 LogUtil.log(TAG, "收到命令：设置测温区域" + jsonString);
                 CameraManager.getInstance().setThermalRegionMetersureArea(mqttClient,message);
+                break;
+            //切换直播视角
+            case 60141:
+                LogUtil.log(TAG, "收到命令：切换直播视角" + jsonString);
+                StreamManager.getInstance().switchCurrentView(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:

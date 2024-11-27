@@ -58,6 +58,15 @@ public class MQMessage {
     private String metersureAreaY;
     private String metersureAreaWidth;//测温矩形长度
     private String metersureAreaHeight;//测温矩形宽度
+    private int currentView;//直播视频源
+
+    public int getCurrentView() {
+        return currentView;
+    }
+
+    public void setCurrentView(int currentView) {
+        this.currentView = currentView;
+    }
 
     public String getMetersurePointX() {
         return metersurePointX;

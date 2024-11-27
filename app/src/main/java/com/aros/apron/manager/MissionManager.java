@@ -185,7 +185,7 @@ public class MissionManager extends BaseManager {
                             case FINISHED:
                                 finishWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(false);
-                                new Handler().postDelayed(new Runnable() {
+                                mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing()) {
@@ -236,7 +236,7 @@ public class MissionManager extends BaseManager {
                     } else {
                         if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
                             if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
-                                new Handler().post(new Runnable() {
+                                mainHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         resumeMission(null,null);
@@ -498,7 +498,7 @@ public class MissionManager extends BaseManager {
                     sendMissionExecuteEvents(client, "开始执行任务");
                     isPushKMZSuccess = true;
 
-                    new Handler().postDelayed(new Runnable() {
+                    mainHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             startMission(client, message);
@@ -514,7 +514,7 @@ public class MissionManager extends BaseManager {
 
                         if (pushKMZFileTimes < 10) {
                             if (isPushKMZFailTimes()) {
-                                new Handler().postDelayed(new Runnable() {
+                                mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         LogUtil.log(TAG, "上传航线第" + pushKMZFileTimes + "次失败,重新上传" + ":" + new Gson().toJson(error));
@@ -579,7 +579,7 @@ public class MissionManager extends BaseManager {
                         if (missionStateCode != 3 && missionStateCode != 4 && missionStateCode != 5 && missionStateCode != 6
                                 && missionStateCode != 7 && missionStateCode != 8 && missionStateCode != 9 && missionStateCode != 10) {
                             if (startMissionFailTimes < 10) {
-                                new Handler().postDelayed(new Runnable() {
+                                mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         startMission(client, message);
