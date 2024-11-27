@@ -139,21 +139,21 @@ public class StreamManager extends BaseManager {
     }
 
 
-//    public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
-//        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-//        if (isAircraftConnected == null || !isAircraftConnected) {
-//            sendMsg2Server(mqttAndroidClient, message, "飞行器未连接");
-//        } else {
-//            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-//            Movement.getInstance().setCurrentView(message.getData().getCurrentView());
-//            if (message.getData().getCurrentView()==1){
-//                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-//            }else{
-//                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
-//            }
-//
-//        }
-//    }
+    public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
+        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
+        if (isAircraftConnected == null || !isAircraftConnected) {
+            sendMsg2Server(mqttAndroidClient, message, "飞行器未连接");
+        } else {
+            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+            Movement.getInstance().setCurrentView(message.getCurrentView());
+            if (message.getCurrentView()==1){
+                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+            }else{
+                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+            }
+
+        }
+    }
 
 
     public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
