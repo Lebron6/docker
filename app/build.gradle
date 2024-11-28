@@ -11,8 +11,8 @@ android {
         applicationId "com.aros.apron"
         minSdk 23
         targetSdk 32
-        versionCode 26
-        versionName "v1.5.7"
+        versionCode 27
+        versionName "v1.6.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -31,14 +31,14 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true      // 是否进行混淆
+            minifyEnabled false      // 是否进行混淆
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // 混淆文件的位置
         }
 
         debug {
-            minifyEnabled true
+            minifyEnabled false
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
