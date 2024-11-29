@@ -388,16 +388,19 @@ public class CameraManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
-                    }
-                    @Override
-                    public void onFailure(@NonNull IDJIError idjiError) {
-                        sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + new Gson().toJson(idjiError));
-                    }
-                });
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue,
+                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                        message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server(mqttAndroidClient, message);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError idjiError) {
+                                sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + new Gson().toJson(idjiError));
+                            }
+                        });
             } else {
                 sendMsg2Server(mqttAndroidClient, message, "参数有误");
             }
@@ -575,7 +578,8 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int type = message.getThermalZoomRatios();
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
+                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -691,17 +695,19 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
             KeyConnection));
     if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
         if (message != null) {
-            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
-                }
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" +new Gson().toJson(error));
-                }
-            });
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" + new Gson().toJson(error));
+                        }
+                    });
         } else {
             sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:参数有误");
         }
@@ -748,7 +754,9 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "曝光模式切换成功");
@@ -773,21 +781,21 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureCompensation,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "设置曝光补偿数值成功");
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
 
-                @Override
-                public void onSuccess() {
-                    LogUtil.log(TAG, "设置曝光补偿数值成功");
-                    sendMsg2Server(mqttAndroidClient, message);
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
-                    sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
-                }
-            });
-
+                        @Override
+                        public void onFailure(@NonNull IDJIError idjiError) {
+                            LogUtil.log(TAG, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                            sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                        }
+                    });
         } else {
             LogUtil.log(TAG, "设置曝光补偿数值失败:相机未连接");
         }
@@ -822,10 +830,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             ZoomTargetPointInfo zoomPointTargetMsg = new ZoomTargetPointInfo();
             zoomPointTargetMsg.setX(message.getZoomTargetX());
             zoomPointTargetMsg.setX(message.getZoomTargetY());
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyTapZoomAtTarget),zoomPointTargetMsg, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), zoomPointTargetMsg, new CommonCallbacks.CompletionCallback() {
                 @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
+                public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
+
                 }
 
                 @Override
@@ -833,6 +844,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     sendMsg2Server(mqttAndroidClient, message, "指点对焦失败:" + new Gson().toJson(error));
                 }
             });
+
         } else {
             sendMsg2Server(mqttAndroidClient, message, "相机未连接");
         }
@@ -901,12 +913,14 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                 KeyConnection));
         if (isConnect != null && isConnect) {
 
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.PROGRAM, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode),
+                    CameraExposureMode.PROGRAM, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "降落后切换曝光模式为自动成功");
 
-                    KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.POS_1P0EV, new CommonCallbacks.CompletionCallback() {
+                    KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation),
+                            CameraExposureCompensation.POS_1P0EV, new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "降落后设置曝光补偿数值成功");
@@ -933,8 +947,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
-
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyThermalTemperatureMeasureMode),
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),
                     ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
@@ -959,7 +973,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             DoublePoint2D doublePoint2D = new DoublePoint2D();
             doublePoint2D.setX(Double.parseDouble(message.getMetersurePointX()));
             doublePoint2D.setY(Double.parseDouble(message.getMetersurePointY()));
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyThermalSpotMetersurePoint), doublePoint2D, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalSpotMetersurePoint,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doublePoint2D, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
@@ -971,6 +986,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
                 }
             });
+
         } else {
             LogUtil.log(TAG, "测温点设置失败：相机未连接");
         }
@@ -986,11 +1002,11 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             doubleRect.setY(Double.parseDouble(message.getMetersureAreaY()));
             doubleRect.setHeight(Double.parseDouble(message.getMetersureAreaHeight()));
             doubleRect.setWidth(Double.parseDouble(message.getMetersureAreaWidth()));
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyThermalRegionMetersureArea), doubleRect, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalRegionMetersureArea,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doubleRect, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
-
                 }
 
                 @Override
