@@ -453,7 +453,7 @@ public class FlightManager extends BaseManager {
 
         if (isFlyClickTime()) {
 
-            XcFileLog.getInstace().e(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
                     + Movement.getInstance().getCurrentLatitude()
                     + "--altitude:" + Movement.getInstance().getFlyingHeight()
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
