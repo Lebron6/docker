@@ -491,7 +491,7 @@ public class FlightManager extends BaseManager {
         if (isFlyClickTime()) {
             Movement.getInstance().setAngleV(Float.parseFloat(PreferenceUtils.getInstance().getFovh()));
             Movement.getInstance().setAngleH(Float.parseFloat(PreferenceUtils.getInstance().getFovw()));
-            XcFileLog.getInstace().e(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
                     + Movement.getInstance().getCurrentLatitude()
                     + "--altitude:" + Movement.getInstance().getFlyingHeight()
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
