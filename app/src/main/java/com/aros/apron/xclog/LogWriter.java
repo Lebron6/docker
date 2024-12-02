@@ -51,7 +51,7 @@ public class LogWriter {
     /**
      * 开启新线程写数据
      * */
-    public void writerLog(final String msg){
+    public void writerLog(final String level, String msg){
         mThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -63,7 +63,11 @@ public class LogWriter {
                     if(!mDir.exists()){
                         mDir.mkdirs();
                     }
-                    mFileName=new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
+                    if (level.equals("F")){
+                        mFileName="state_"+new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
+                    }else{
+                        mFileName=new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
+                    }
                     File logFile = new File(mDir+"/"+mFileName);
                     if(!logFile.exists()){ // 文件不存在，创建文件
                         createFile(logFile);
