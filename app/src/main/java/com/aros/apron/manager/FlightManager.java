@@ -550,8 +550,6 @@ public class FlightManager extends BaseManager {
             GimbalManager.getInstance().gimbalReset();
             CameraManager.getInstance().resumeLensToWideISOManual();
             isGimbalReset = true;
-            sendMissionExecuteEvents(mqttAndroidClient, "降落重置云台");
-
         }
     }
 

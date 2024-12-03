@@ -292,7 +292,7 @@ public class MissionManager extends BaseManager {
 
     //等待航线任务状态更新或RTK健康状态刷新
     private void verifyAircraftStatus(MqttAndroidClient client, MQMessage message) {
-        if (checkMissionStateTimes < 20) {
+        if (checkMissionStateTimes < 50) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
