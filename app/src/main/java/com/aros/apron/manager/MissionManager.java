@@ -236,12 +236,12 @@ public class MissionManager extends BaseManager {
                     } else {
                         if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
                             if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
-                                mainHandler.post(new Runnable() {
+                                mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         resumeMission(null,null);
                                     }
-                                });
+                                },1000);
                             }else{
                                 WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                             }
