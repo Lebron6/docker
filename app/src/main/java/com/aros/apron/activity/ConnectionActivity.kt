@@ -239,8 +239,6 @@ class ConnectionActivity : BaseActivity() {
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_services_reply"
                     AMSConfig.getInstance().mqttMsdkPushMessage2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
-                    AMSConfig.getInstance().mqttMsdkPushGisMessage2ServerTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/uav_gis_message"
                     AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/events"
                     if (PreferenceUtils.getInstance().airPortType == 1) {

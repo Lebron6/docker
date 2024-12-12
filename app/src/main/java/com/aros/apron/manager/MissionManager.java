@@ -236,12 +236,12 @@ public class MissionManager extends BaseManager {
                     } else {
                         if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
                             if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
-                                mainHandler.post(new Runnable() {
+                                mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         resumeMission(null,null);
                                     }
-                                });
+                                },1000);
                             }else{
                                 WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                             }
@@ -292,7 +292,7 @@ public class MissionManager extends BaseManager {
 
     //等待航线任务状态更新或RTK健康状态刷新
     private void verifyAircraftStatus(MqttAndroidClient client, MQMessage message) {
-        if (checkMissionStateTimes < 20) {
+        if (checkMissionStateTimes < 50) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
