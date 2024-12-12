@@ -33,8 +33,6 @@ public class AlternateArucoDetect {
     private List<ArucoMarker> mFindArucoList = new ArrayList<>();
     List<Mat> mArucoCornerList = new ArrayList<>();
 
-    long startTime;
-    long endTime;
 
 
     private AlternateArucoDetect() {

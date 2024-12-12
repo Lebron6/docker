@@ -41,7 +41,8 @@ public class LEDsSettingsManager extends BaseManager {
 //            leDsSettings.setRearLEDsOn(true);
 //            leDsSettings.setStatusIndicatorLEDsOn(true);
             boolean navigationLEDsOn = PreferenceUtils.getInstance().getNavigationLEDsOn();
-            KeyManager.getInstance().setValue(KeyTools.createKey(FlightAssistantKey.KeyBottomAuxiliaryLightMode), navigationLEDsOn ? AuxiliaryLightMode.ON : AuxiliaryLightMode.OFF, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createKey(FlightAssistantKey.KeyBottomAuxiliaryLightMode),
+                    navigationLEDsOn ? AuxiliaryLightMode.ON : AuxiliaryLightMode.OFF, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "设置夜航灯使能:" + PreferenceUtils.getInstance().getNavigationLEDsOn());
