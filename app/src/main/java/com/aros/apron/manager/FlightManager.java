@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
-import com.aros.apron.entity.GISNeedDataEntity;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
@@ -103,9 +102,6 @@ public class FlightManager extends BaseManager {
                     @Override
                     public void onValueChange(@Nullable Attitude oldValue, @Nullable Attitude newValue) {
                         if (newValue != null) {
-                            GISNeedDataEntity.getInstance().setGimbalYaw(String.valueOf(newValue.getYaw()));
-                            GISNeedDataEntity.getInstance().setGimbalRoll(String.valueOf(newValue.getRoll()));
-                            GISNeedDataEntity.getInstance().setGimbalPitch(String.valueOf(newValue.getPitch()));
                             Movement.getInstance().setGimbalYaw(String.valueOf(newValue.getYaw()));
                             Movement.getInstance().setGimbalRoll(String.valueOf(newValue.getRoll()));
                             Movement.getInstance().setGimbalPitch(String.valueOf(newValue.getPitch()));
@@ -159,7 +155,6 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
                         isFlying = newValue;
-                        GISNeedDataEntity.getInstance().setPlaneWing(newValue);
                         Movement.getInstance().setPlaneWing(newValue);
                         pushFlightAttitude();
                     }
@@ -214,10 +209,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setEgm96Altitude( GpsUtils.egm96Altitude(newValue.getAltitude(),
                                 newValue.getLatitude(), newValue.getLongitude()));
 
-
-                        GISNeedDataEntity.getInstance().setFlyingHeight(newValue.getAltitude().intValue());
-                        GISNeedDataEntity.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
-                        GISNeedDataEntity.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
 
                         if (newValue.getAltitude() != null) {
                             Movement.getInstance().setFlyingHeight(Double.parseDouble(decimalFormat.format(newValue.getAltitude())));
@@ -330,9 +321,6 @@ public class FlightManager extends BaseManager {
                         if (yawRelativeToAircraftHeading != null) {
                             Movement.getInstance().setCountYaw(GS28181SDKManager.getInstance().countYaw(t1.getYaw().floatValue(), yawRelativeToAircraftHeading.floatValue()));
                         }
-                        GISNeedDataEntity.getInstance().setPitch(String.valueOf(t1.getPitch()));
-                        GISNeedDataEntity.getInstance().setYaw(String.valueOf(t1.getYaw()));
-                        GISNeedDataEntity.getInstance().setRoll(String.valueOf(t1.getRoll()));
                         Movement.getInstance().setPitch(String.valueOf(t1.getPitch()));
                         Movement.getInstance().setYaw(String.valueOf(t1.getYaw()));
                         Movement.getInstance().setRoll(String.valueOf(t1.getRoll()));
@@ -478,7 +466,6 @@ public class FlightManager extends BaseManager {
 
 
 
-
         PTEvent ptEvent = GS28181SDKManager.getInstance().countPT
                 (Float.parseFloat(Movement.getInstance().getGimbalPitch()), Float.parseFloat(Movement.getInstance().getGimbalYaw()),
                         0, 0);
@@ -487,8 +474,22 @@ public class FlightManager extends BaseManager {
         Movement.getInstance().setCompensatePitch(compensatePT.getPitch());
         Movement.getInstance().setCompensateYaw(compensatePT.getYaw());
 
+        if (isGisFlyClickTime()){
+            GS28181SDKManager.getInstance().sendMobilePos(Movement.getInstance().getSubId(),
+                    PreferenceUtils.getInstance().getClientCode(),
+                    Utils.getTime(System.currentTimeMillis()/1000),
+                    Double.valueOf(Movement.getInstance().getCurrentLongitude()),
+                    Double.valueOf(Movement.getInstance().getCurrentLatitude()),
+                    Double.valueOf(Movement.getInstance().getHorizontalSpeed()),
+                    Movement.getInstance().getAngleYaw(),
+                    Float.valueOf(Movement.getInstance().getFlyingHeight()+"")+
+                            Float.parseFloat(PreferenceUtils.getInstance().getAltitudeCompensation()));
+            Log.e(TAG,"sub gs28281:"+Movement.getInstance().getSubId()+
+                    "time:"+(System.currentTimeMillis() / 1000)+"");
+        }
 
         if (isFlyClickTime()) {
+
             Movement.getInstance().setAngleV(Float.parseFloat(PreferenceUtils.getInstance().getFovh()));
             Movement.getInstance().setAngleH(Float.parseFloat(PreferenceUtils.getInstance().getFovw()));
             XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
@@ -513,17 +514,6 @@ public class FlightManager extends BaseManager {
             publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
         }
 
-        if (isGisFlyClickTime()) {
-            //推送飞行状态
-            MqttMessage flightMessage = null;
-            try {
-                flightMessage = new MqttMessage(new Gson().toJson(GISNeedDataEntity.getInstance()).getBytes("UTF-8"));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            flightMessage.setQos(0);
-            publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushGisMessage2ServerTopic(), flightMessage);
-        }
     }
 
     private void closeCabinDoor() {

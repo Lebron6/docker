@@ -89,6 +89,7 @@ class ConnectionActivity : BaseActivity() {
 //            startService(it)
 //        }
         initBugly()
+        GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
         var addr= IPAddressUtil.getLocalIPv4Address()
         var code= GS28181SDKManager.getInstance().initSDK(addr)
         if (code==0){
@@ -96,7 +97,6 @@ class ConnectionActivity : BaseActivity() {
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Ip)&&!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Port)){
                 GS28181SDKManager.getInstance().registerSDK(PreferenceUtils.getInstance().gS28181Ip, PreferenceUtils.getInstance().gS28181Port.toInt())
                 FileUtil.getInstance().startHeartBeatTask()//开心跳包
-                GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
             }else{
                 ToastUtil.showToast("未配置国标推流参数")
             }

@@ -18,6 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.aros.apron.BuildConfig
 import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
+import com.aros.apron.callback.MGS28181Listener
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
@@ -346,6 +347,8 @@ open class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
+            GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
+
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()
@@ -374,7 +377,8 @@ open class MainActivity : BaseActivity() {
                                 Movement.getInstance().angleV,
                                 Movement.getInstance().currentLongitude.toFloat(),
                                 Movement.getInstance().currentLatitude.toFloat(),
-                                Movement.getInstance().egm96Altitude.toFloat()
+                                Movement.getInstance().flyingHeight.toFloat()
+                                        +PreferenceUtils.getInstance().altitudeCompensation.toFloat()
                             )
                         } else {
                             GS28181SDKManager.getInstance().sendVideoWithARInfoXH265(
@@ -387,7 +391,8 @@ open class MainActivity : BaseActivity() {
                                 Movement.getInstance().angleV,
                                 Movement.getInstance().currentLongitude.toFloat(),
                                 Movement.getInstance().currentLatitude.toFloat(),
-                                Movement.getInstance().egm96Altitude.toFloat()
+                                Movement.getInstance().flyingHeight.toFloat()
+                                        +PreferenceUtils.getInstance().altitudeCompensation.toFloat()
                             )
                         }
                     } catch (e: InterruptedException) {

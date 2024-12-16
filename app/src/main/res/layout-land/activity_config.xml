@@ -471,6 +471,68 @@ android:inputType="number"
                         android:layout_centerVertical="true"
                         android:layout_weight="3"
                         android:gravity="center_vertical"
+                        android:text="代理端编码："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_clientCode"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:inputType="number"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="服务端编码："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_serverCode"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:inputType="number"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
                         android:text="P补偿："
                         android:textSize="10sp" />
 
@@ -507,6 +569,36 @@ android:inputType="number"
 
                     <EditText
                         android:id="@+id/et_t"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="高度补偿："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_au"
                         android:layout_width="0dp"
                         android:textSize="10sp"
                         android:layout_height="match_parent"

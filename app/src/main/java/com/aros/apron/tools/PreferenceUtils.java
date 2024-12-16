@@ -65,6 +65,9 @@ public class PreferenceUtils extends BasePreference {
     private String T = "T"; //T补偿
     private String FOVH = "FOVH"; //视场
     private String FOVW = "FOVW";
+    private String ALTITUDE_COMPENSATION = "altitude_compensation";//高度补偿
+    private String CLIENT_CODE = "client_code";//代理端编码
+    private String SERVER_CODE = "server_code";//服务端编码
 
 
     public void setStreamAndMinIOConfig(MQMessage message) {
@@ -301,6 +304,30 @@ public class PreferenceUtils extends BasePreference {
 
     public void setFovw(String fovw) {
         setString(FOVW, fovw);
+    }
+
+    public String getAltitudeCompensation() {
+        return getString(ALTITUDE_COMPENSATION);
+    }
+
+    public void setAltitudeCompensation(String altitudeCompensation) {
+        setString(ALTITUDE_COMPENSATION, altitudeCompensation);
+    }
+
+    public String getServerCode() {
+        return getString(SERVER_CODE);
+    }
+
+    public void setServerCode(String serverCode) {
+        setString(SERVER_CODE, serverCode);
+    }
+
+    public String getClientCode() {
+        return getString(CLIENT_CODE);
+    }
+
+    public void setClientCode(String clientCode) {
+        setString(CLIENT_CODE, clientCode);
     }
 
 

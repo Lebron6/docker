@@ -70,7 +70,7 @@ public abstract class BaseManager {
 
     public boolean isGisFlyClickTime() {
         long time = System.currentTimeMillis();
-        if (time - lastGisTime > 2000) {
+        if (time - lastGisTime > 5000) {
             lastGisTime = time;
             return true;
         }

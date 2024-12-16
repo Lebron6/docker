@@ -9,7 +9,9 @@ import com.gosuncn.lib28181agent.bean.AngleEvent;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 
 public class Utils {
@@ -156,4 +158,10 @@ return Double.parseDouble(latLonStr);        }
         return angleEvent;
     }
 
+public static String getTime(long timeS) {
+    Date date = new Date(timeS);
+// 定义日期格式
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return sdf.format(date);
+}
 }

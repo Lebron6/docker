@@ -31,8 +31,8 @@ public class Movement {
     private double egm96Altitude=0.0;//海拔高度
     private double takeoffLocationAltitude;//起飞高度
     private double RTKTakeoffAltitude;//RTK起飞高度
-    private String horizontalSpeed;//水平速度
-    private String verticalSpeed;//垂直速度
+    private String horizontalSpeed="0.0";//水平速度
+    private String verticalSpeed="0.0";//垂直速度
     private int windSpeed;//风速
     private int ultrasonicHeight;//超声波测高，只在飞行高度5m时奏效,单位/分米
     private boolean rtkSign;//rtk标志
@@ -111,6 +111,24 @@ public class Movement {
     private float AngleH=0;//视场角宽高
     private float AngleV=0;
     private int focalLenght = 0;//焦距
+    private int subId = 0;//国标subId
+    private String czGBCode = ""+0;//国标编码
+
+    public String getCzGBCode() {
+        return czGBCode;
+    }
+
+    public void setCzGBCode(String czGBCode) {
+        this.czGBCode = czGBCode;
+    }
+
+    public int getSubId() {
+        return subId;
+    }
+
+    public void setSubId(int subId) {
+        this.subId = subId;
+    }
 
     public int getIsVirtualStickAdvancedModeEnabled() {
         return isVirtualStickAdvancedModeEnabled;

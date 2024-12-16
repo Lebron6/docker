@@ -78,6 +78,9 @@ class ConfigActivity : BaseActivity() {
         configBinding.etT.setText(PreferenceUtils.getInstance().t)
         configBinding.etFovh.setText(PreferenceUtils.getInstance().fovh)
         configBinding.etFovw.setText(PreferenceUtils.getInstance().fovw)
+        configBinding.etServerCode.setText(PreferenceUtils.getInstance().serverCode)
+        configBinding.etClientCode.setText(PreferenceUtils.getInstance().clientCode)
+        configBinding.etAu.setText(PreferenceUtils.getInstance().altitudeCompensation)
 
 //        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
@@ -206,6 +209,19 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置T补偿")
             return
         }
+
+        if (TextUtils.isEmpty(configBinding.etServerCode.text)) {
+            ToastUtil.showToast("未配置服务端编码")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etClientCode.text)) {
+            ToastUtil.showToast("未配置客户端编码")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etAu.text)) {
+            ToastUtil.showToast("未配置高度补偿")
+            return
+        }
         if (TextUtils.isEmpty(configBinding.etFovh.text)) {
             ToastUtil.showToast("未配置视场参数")
             return
@@ -315,6 +331,16 @@ class ConfigActivity : BaseActivity() {
             configBinding.etFovw.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().fovh =
             configBinding.etFovh.text.toString().replace(" ", "")
+
+        PreferenceUtils.getInstance().serverCode =
+            configBinding.etServerCode.text.toString().replace(" ", "")
+
+        PreferenceUtils.getInstance().clientCode =
+            configBinding.etClientCode.text.toString().replace(" ", "")
+
+        PreferenceUtils.getInstance().altitudeCompensation =
+            configBinding.etAu.text.toString().replace(" ", "")
+
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
         if (configBinding.rbAd2.isChecked) {
