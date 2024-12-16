@@ -235,7 +235,8 @@ public class MissionManager extends BaseManager {
                         isManualPause = false;
                     } else {
                         if (PreferenceUtils.getInstance().getMissionInterruptAction()==2){
-                            if (error.errorCode().equals("INTERRUPT_REASON_AVOID")){
+                            if (error.errorCode().equals("INTERRUPT_REASON_AVOID")||
+                                    error.errorCode().equals("INTERRUPT_REASON_AVOID_HEIGHT_LIMIT")){
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
