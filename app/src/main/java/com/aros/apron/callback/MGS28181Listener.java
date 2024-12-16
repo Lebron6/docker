@@ -13,7 +13,6 @@ import static com.gosuncn.lib28181agent.Types.PTZ_ZOOM_OUT;
 import static com.gosuncn.lib28181agent.Types.ZOOM_IN_CTRL;
 import static com.gosuncn.lib28181agent.Types.ZOOM_OUT_CTRL;
 
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -21,7 +20,9 @@ import androidx.annotation.NonNull;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.CameraManager;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.util.CameraControllerUtil;
+import com.google.gson.Gson;
 import com.gosuncn.lib28181agent.GS28181SDKManager;
 import com.gosuncn.lib28181agent.Jni28181AgentSDK;
 import com.gosuncn.lib28181agent.bean.MobilePosSubInfo;
@@ -60,12 +61,11 @@ public class MGS28181Listener implements GS28181SDKManager.listenerServerControl
      * @param channel         视频输入通道数
      * @return 错误码
      */
-//    应该是调用某个查询方法，回调方法就是这个，数据给我们自己用
     @Override
     public void onQueryDevInfoAll(long sessionHandle, String deviceGBCode, String deviceName, String devManufacturer,
                                   String devModel, String devFirmware, int channel) {
 
-        Jni28181AgentSDK.getInstance().responseDevInfoQuery(sessionHandle, deviceGBCode, deviceName,
+        Jni28181AgentSDK.getInstance().responseDevInfoQuery(sessionHandle, PreferenceUtils.getInstance().getClientCode(), deviceName,
                 devManufacturer, devModel, devFirmware, channel);
     }
 
@@ -88,7 +88,9 @@ public class MGS28181Listener implements GS28181SDKManager.listenerServerControl
     @Override
     public void onQueryDevStatus(long sessionHandle, String deviceGBCode, String dateTime, String errReason,
                                  boolean isEncode, boolean isRecord, boolean isOnline, boolean isStatusOK) {
-        Jni28181AgentSDK.getInstance().responseDevStatusQuery(sessionHandle, deviceGBCode, dateTime, errReason, isEncode, isRecord, isOnline, isStatusOK);
+
+        Jni28181AgentSDK.getInstance().responseDevStatusQuery(sessionHandle, PreferenceUtils.getInstance().getClientCode(), dateTime,
+                errReason, isEncode, isRecord, isOnline, isStatusOK);
     }
 
     /**
@@ -289,7 +291,8 @@ public class MGS28181Listener implements GS28181SDKManager.listenerServerControl
 
     @Override
     public void onMobilePosSub(MobilePosSubInfo mobilePosSubInfo) {
-
+        Log.e(TAG,"收到开始订阅的通知:"+new Gson().toJson(mobilePosSubInfo));
+        Movement.getInstance().setSubId(mobilePosSubInfo.getiSubID());
     }
 
     //    获取水平视场角
