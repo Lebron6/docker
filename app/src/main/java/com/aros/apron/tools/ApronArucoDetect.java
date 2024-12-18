@@ -23,7 +23,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -250,11 +249,13 @@ public class ApronArucoDetect {
 
     public void findAruco(int[] idArray) {
         if (Movement.getInstance().getFlyingHeight()<7){
-            if (Movement.getInstance().getFlyingHeight() <= 1.5) {
+            if ((Movement.getInstance().getFlyingHeight() <= 1.5) ||
+                    (Movement.getInstance().getUltrasonicHeight() < 15
+                            && Movement.getInstance().getFlyingHeight() <5)) {
                 if (isDoublePayload()) {
                     for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i]==11|| idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
-                                || idArray[i] == 16){
+                        if (idArray[i] == 11 || idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
+                                || idArray[i] == 16) {
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
                         }
                     }
