@@ -264,7 +264,8 @@ public class MissionManager extends BaseManager {
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
         if (PreferenceUtils.getInstance().getHaveRTK()) {
-            if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() && !Movement.getInstance().getPlaneMessage().equals("无法起飞")) {
+            if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() &&
+                    (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(client, message);
                 sendMissionExecuteEvents(client, "执行任务下载 ");
             } else {
@@ -273,7 +274,8 @@ public class MissionManager extends BaseManager {
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
-            if ((missionStateCode == 2 || missionStateCode == 0) && !Movement.getInstance().getPlaneMessage().equals("无法起飞")) {
+            if ((missionStateCode == 2 || missionStateCode == 0) && (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))
+                    ) {
                 if (message.getIsGuidingFlight() == 0) {
                     new Handler().postDelayed(new Runnable() {
                         @Override

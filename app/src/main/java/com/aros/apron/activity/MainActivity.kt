@@ -60,6 +60,7 @@ import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
 import dji.v5.manager.KeyManager
+import dji.v5.manager.aircraft.virtualstick.VirtualStickManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
@@ -432,8 +433,8 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-            when (startArucoType) {
-                1 ->
+            if (startArucoType==1){
+
                     ApronArucoDetect.getInstance()?.detectArucoTags(
                         height,
                         width,
@@ -441,13 +442,14 @@ open class MainActivity : BaseActivity() {
                         dictionary,
                     )
 
-                2 ->
-                    AlternateArucoDetect.getInstance()?.detectArucoTags(
-                        height,
-                        width,
-                        frameData,
-                        dictionary,
-                    )
+
+            }else if (startArucoType==2){
+                AlternateArucoDetect.getInstance()?.detectArucoTags(
+                    height,
+                    width,
+                    frameData,
+                    dictionary,
+                )
             }
         }
     }
