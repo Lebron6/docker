@@ -340,7 +340,6 @@ open class MainActivity : BaseActivity() {
         }
     }
 
-    private var shouldExecute = true
 
     private fun initCameraStream() {
 //        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
@@ -370,7 +369,6 @@ open class MainActivity : BaseActivity() {
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
             if (startArucoType==1){
-                if (shouldExecute){
 
                     ApronArucoDetect.getInstance()?.detectArucoTags(
                         height,
@@ -378,8 +376,7 @@ open class MainActivity : BaseActivity() {
                         frameData,
                         dictionary,
                     )
-                }
-                shouldExecute = !shouldExecute
+
 
             }else if (startArucoType==2){
                 AlternateArucoDetect.getInstance()?.detectArucoTags(
