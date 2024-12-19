@@ -518,11 +518,11 @@ public class ApronArucoDetect {
 
         }
 
-        LogUtil.log(TAG, "Aruco=" + id + " arucoR=" +
-
-                " 尺寸:=" + arucoWidth+
-                " 相对高度:=" + Movement.getInstance().getFlyingHeight()+
-                " 融合高度:=" + Movement.getInstance().getUltrasonicHeight());
+//        LogUtil.log(TAG, "Aruco=" + id + " arucoR=" +
+//
+//                " 尺寸:=" + arucoWidth+
+//                " 相对高度:=" + Movement.getInstance().getFlyingHeight()+
+//                " 融合高度:=" + Movement.getInstance().getUltrasonicHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
