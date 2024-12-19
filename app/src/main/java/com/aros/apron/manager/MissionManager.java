@@ -264,7 +264,8 @@ public class MissionManager extends BaseManager {
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
         if (PreferenceUtils.getInstance().getHaveRTK()) {
-            if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() && !Movement.getInstance().getPlaneMessage().equals("无法起飞")) {
+            if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() &&
+                    (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(client, message);
                 sendMissionExecuteEvents(client, "执行任务下载 ");
             } else {
