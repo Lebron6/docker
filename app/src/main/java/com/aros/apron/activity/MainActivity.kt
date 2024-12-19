@@ -52,6 +52,7 @@ import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
 import dji.v5.manager.KeyManager
+import dji.v5.manager.aircraft.virtualstick.VirtualStickManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
@@ -62,7 +63,6 @@ import dji.v5.utils.common.LogUtils
 import dji.v5.ux.accessory.RTKStartServiceHelper.startRtkService
 import dji.v5.ux.cameracore.widget.autoexposurelock.AutoExposureLockWidget
 import dji.v5.ux.cameracore.widget.cameracontrols.CameraControlsWidget
-import dji.v5.ux.cameracore.widget.cameracontrols.lenscontrol.LensControlWidget
 import dji.v5.ux.cameracore.widget.focusexposureswitch.FocusExposureSwitchWidget
 import dji.v5.ux.cameracore.widget.focusmode.FocusModeWidget
 import dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget
@@ -86,8 +86,6 @@ import dji.v5.ux.core.widget.hsi.HorizontalSituationIndicatorWidget
 import dji.v5.ux.core.widget.hsi.PrimaryFlightDisplayWidget
 import dji.v5.ux.core.widget.remainingflighttime.RemainingFlightTimeWidget
 import dji.v5.ux.core.widget.setting.SettingWidget
-import dji.v5.ux.flight.returnhome.ReturnHomeWidget
-import dji.v5.ux.flight.takeoff.TakeOffWidget
 import dji.v5.ux.gimbal.GimbalFineTuneWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget.UIState.VisibilityUpdated
@@ -342,6 +340,7 @@ open class MainActivity : BaseActivity() {
         }
     }
 
+    private var shouldExecute = true
 
     private fun initCameraStream() {
 //        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
@@ -370,22 +369,25 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-            when (startArucoType) {
-                1 ->
+            if (startArucoType==1){
+                if (shouldExecute){
+
                     ApronArucoDetect.getInstance()?.detectArucoTags(
                         height,
                         width,
                         frameData,
                         dictionary,
                     )
+                }
+                shouldExecute = !shouldExecute
 
-                2 ->
-                    AlternateArucoDetect.getInstance()?.detectArucoTags(
-                        height,
-                        width,
-                        frameData,
-                        dictionary,
-                    )
+            }else if (startArucoType==2){
+                AlternateArucoDetect.getInstance()?.detectArucoTags(
+                    height,
+                    width,
+                    frameData,
+                    dictionary,
+                )
             }
         }
     }
