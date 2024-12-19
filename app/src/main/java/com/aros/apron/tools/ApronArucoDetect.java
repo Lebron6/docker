@@ -257,7 +257,6 @@ public class ApronArucoDetect {
                         if (idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 11 || idArray[i] == 15 || idArray[i] == 16
                                 || idArray[i] == 14) {
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            return;
                         }
                     }
 
@@ -267,7 +266,6 @@ public class ApronArucoDetect {
                                 || idArray[i] == 12
                                 || idArray[i] == 11 || idArray[i] == 19 || idArray[i] == 18 || idArray[i] == 17) {
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                            return;
                         }
                     }
                 }
