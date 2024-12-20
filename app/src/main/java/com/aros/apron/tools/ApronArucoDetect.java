@@ -220,6 +220,14 @@ public class ApronArucoDetect {
             }
             if (mFindArucoList.isEmpty()  ) {
                 for (int i = 0; i < idArray.length; i++) {
+                    if (idArray[i] == 16) {
+                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                        return;
+                    }
+                }
+            }
+            if (mFindArucoList.isEmpty()  ) {
+                for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 13) {
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
                         return;
@@ -227,22 +235,13 @@ public class ApronArucoDetect {
                 }
             }
             if (mFindArucoList.isEmpty()  ) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 5) {
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
-                        return;
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 5) {
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
+                            return;
+                        }
                     }
-                }
             }
-            if (mFindArucoList.isEmpty()  ) {
-                for (int i = 0; i < idArray.length; i++) {
-                    if (idArray[i] == 16) {
-                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                        return;
-                    }
-                }
-            }
-
 
             if (flyingHeight > 2.5) {
                 if (mFindArucoList.isEmpty() ) {
