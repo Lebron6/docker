@@ -47,10 +47,6 @@ public class ApronArucoDetect {
     private boolean triggerToAlternateLandingPoint;
     long startTime;
     long endTime;
-    private int detectedBigMarkerId;
-    private int detectedSmallMarkerId;
-    private boolean detectedMediumMarkers;
-    private boolean detectedSmallMarkers;
     //当确认识别单一的二维码后，有概率下降途中识别不到，此时次数超过15次,可以控制识别别的二维码
     private int sigleMarkerDetectFailsTimes;
     //复降触发条件
@@ -121,28 +117,26 @@ public class ApronArucoDetect {
                         int[] idArray = ids.toArray();
                         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
                         double flyingHeight = Movement.getInstance().getFlyingHeight();
-                        if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
-                                idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17 || idArray[0] == 18 || idArray[0] == 19) {
-                            if (!startFastStick){
-                                if ((idArray.length >= 4 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
-
+                        if ( idArray[0] == 13 ||
+                                 idArray[0] == 16) {
+                            if (!startFastStick) {
+                                if ((idArray.length >= 2 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
                                     String logMessage = "参考Aurco数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
                                     startFastStick = true;
-
                                     handler.post(runnable);
-
                                     LogUtil.log(TAG, logMessage);
                                 } else {
                                     Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                                    Point[] points = corner.toArray();
                                     // 计算宽度（两个相邻角点之间的距离）
-                                    double width = calculateDistance(points[0], points[1]);
                                     // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
-                                    if (width >= 260&&idArray.length>3) {
-                                        String logMessage = "参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
+                                    Point[] points = corner.toArray();
+                                    double arucoWidth = calculateDistance(points[0], points[1]);
+
+                                    if (arucoWidth >= 270&&idArray.length>=2) {
+                                        String logMessage = "参考Aurco尺寸降落:" + idArray[0] + " arucoW" + arucoWidth +
                                                 " Flying Height:" + flyingHeight + "--" +
                                                 " Ultrasonic Height:" + ultrasonicHeight;
                                         startFastStick = true;
@@ -167,13 +161,11 @@ public class ApronArucoDetect {
                         } else {
                             sigleMarkerDetectFailsTimes = 0;
                             Core.extractChannel(mFindArucoList.get(0).getConner(), corner, 0);
-                            Point[] points = corner.toArray();
-                            // 计算宽度（两个相邻角点之间的距离）
-                            double width = calculateDistance(points[0], points[1]);
                             // 计算高度（另外两个相邻角点之间的距离）
-                            double height = calculateDistance(points[1], points[2]);
-
-                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(),width,height);
+//                            double height = calculateDistance(points[1], points[2]);
+                            Point[] points = corner.toArray();
+                            double arucoWidth = calculateDistance(points[0], points[1]);
+                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(),arucoWidth);
                         }
                         dropTimesTag = true;
                     }
@@ -250,101 +242,61 @@ public class ApronArucoDetect {
 
     public void findAruco(int[] idArray) {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        if (flyingHeight < 7) {
-            if (flyingHeight <= 1.5) {
-                if (isDoublePayload()) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 11 || idArray[i] == 15 || idArray[i] == 16
-                                || idArray[i] == 14) {
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                        }
-                    }
-
-                } else {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 15 || idArray[i] == 16 || idArray[i] == 14 || idArray[i] == 13
-                                || idArray[i] == 12
-                                || idArray[i] == 11 || idArray[i] == 19 || idArray[i] == 18 || idArray[i] == 17) {
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                        }
+        if (flyingHeight < 5) {
+            if (mFindArucoList.isEmpty()  ) {
+                for (int i = 0; i < idArray.length; i++) {
+                    if (idArray[i] == 16) {
+                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                        return;
                     }
                 }
             }
-
-            if (mFindArucoList.isEmpty() && flyingHeight > 0.7 && !detectedSmallMarkers) {
-
-                if (
-                        (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
-                                || detectedBigMarkerId == 1
-                                || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3
-                                || detectedBigMarkerId == 4
-                                || detectedBigMarkerId == 6
-                        )) {
+            if (mFindArucoList.isEmpty()  ) {
+                for (int i = 0; i < idArray.length; i++) {
+                    if (idArray[i] == 13) {
+                        mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                        return;
+                    }
+                }
+            }
+            if (mFindArucoList.isEmpty()  ) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 5) {
-                            detectedBigMarkerId = 5;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
                             return;
                         }
                     }
-                }
-//如果识别到小Aruco,则不再触发识别大Aruco
-                if (
-                        (detectedBigMarkerId == 0 || detectedBigMarkerId == 6
-                                || detectedBigMarkerId == 1
-                                || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3
-                                || detectedBigMarkerId == 4
-                        )) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 6) {
-                            detectedBigMarkerId = 6;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                            return;
-                        }
-                    }
-                }
-
-
             }
 
             if (flyingHeight > 2.5) {
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers &&
-                        (detectedBigMarkerId == 0 || detectedBigMarkerId == 1 || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
+                if (mFindArucoList.isEmpty() ) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 1) {
-                            detectedBigMarkerId = 1;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
                             return;
                         }
                     }
                 }
 
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 ||
-                        detectedBigMarkerId == 2 || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
+                if (mFindArucoList.isEmpty() ) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 2) {
-                            detectedBigMarkerId = 2;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
                             return;
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
+                if (mFindArucoList.isEmpty() ) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 3) {
-                            detectedBigMarkerId = 3;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
                             return;
                         }
                     }
                 }
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
+                if (mFindArucoList.isEmpty() ) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 4) {
-                            detectedBigMarkerId = 4;
                             mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
                             return;
                         }
@@ -355,30 +307,21 @@ public class ApronArucoDetect {
         } else {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 1 || idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 5
-                            || idArray[i] == 6) {
+                    ) {
                         mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
                     }
                 }
-
-
         }
-
-
-
     }
 
 
     public void setDetectedBigMarkers() {
-        detectedBigMarkerId = 0;
-        detectedSmallMarkerId = 0;
-        detectedMediumMarkers = false;
-        detectedSmallMarkers = false;
-        startFastStick=false;
 
+        startFastStick=false;
     }
 
     //根据识别到的二维码移动无人机
-    private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight, double arucoWidth, double arucoHeight) {
+    private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight, double arucoWidth) {
 
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         int id = arucoMarkers.get(0).getId();
@@ -500,7 +443,7 @@ public class ApronArucoDetect {
                     : -updateOutXYSpeed(absY);
             if (flyingHeight > 9) {
                 outZ = (absX < 150)
-                        && (absY < 100)
+                        && (absY <= 100)
                         ? -0.675 : 0f;
             } else {
                 int xf, yf;
@@ -518,18 +461,18 @@ public class ApronArucoDetect {
 
         }
 
-//        LogUtil.log(TAG, "Aruco=" + id + " arucoR=" +
-//
-//                " 尺寸:=" + arucoWidth+
-//                " 相对高度:=" + Movement.getInstance().getFlyingHeight()+
-//                " 融合高度:=" + Movement.getInstance().getUltrasonicHeight());
+        LogUtil.log(TAG, "Aruco=" + id +
+                    "数量=" + arucoMarkers.size() +
+                " 尺寸:=" + arucoWidth+
+                " 相对高度:=" + Movement.getInstance().getFlyingHeight()+
+                " 融合高度:=" + Movement.getInstance().getUltrasonicHeight());
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);
 
-        if (id == 11 || id == 12 || id == 13 || id == 14 || id == 15
-                || id == 16 || id == 17 || id == 18 || id == 19 || id == 5) {
+        if (id == 13
+                || id == 16 || id == 5) {
             checkConditions(absX, absY, id, arucoWidth);
         } else {
             canLanding = false;
@@ -607,7 +550,7 @@ public class ApronArucoDetect {
         } else if (d > 100) {
             speed = getSpeedForHeight(flyingHeight, 0.175, 0.145, 0.145, 0.145, 0.145);
         } else if (d > 79) {
-            speed = getSpeedForHeight(flyingHeight, 0.0, 0.145, 0.0, 0.0, 0.0);
+            speed = getSpeedForHeight(flyingHeight, 0.0, 0.065, 0.065, 0.0, 0.0);
         } else {
             speed = 0.0;  // If distance is 79 or below, return 0 speed
         }
@@ -632,12 +575,12 @@ public class ApronArucoDetect {
     //根据不同高度决定下降多快
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        if (flyingHeight > 1) {
-            return -0.675;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= 0.5) {
-            return -0.575;
+        if (flyingHeight > 2) {
+            return -0.6;
+        } else if (flyingHeight <= 2 && flyingHeight >= 1) {
+            return -0.4;
         } else {
-            return -0.335;
+            return -0.3;
         }
     }
 
@@ -647,7 +590,7 @@ public class ApronArucoDetect {
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 10) {
+            if (handlerCallbackCount < 20) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
@@ -656,7 +599,7 @@ public class ApronArucoDetect {
     };
 
     private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -4);
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -2);
         handlerCallbackCount++; // 增加计数器
     }
 
