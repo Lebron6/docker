@@ -209,7 +209,7 @@ public class ApronArucoDetect {
 
     public void findAruco(int[] idArray) {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        if (flyingHeight < 5) {
+        if (flyingHeight < 7) {
             if (mFindArucoList.isEmpty()  ) {
                 for (int i = 0; i < idArray.length; i++) {
                     if (idArray[i] == 19) {
@@ -587,10 +587,10 @@ public class ApronArucoDetect {
                 return 0.065;
             }
         } else if (d <= 100 && d > 79) {
-            if (ultrasonicHeight > 9) {
+            if (ultrasonicHeight > 5) {
                 return 0;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.045;
+            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 5) {
+                return 0.065;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
                 return 0.0;
             } else  {
