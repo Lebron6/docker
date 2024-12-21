@@ -123,8 +123,8 @@ public class ApronArucoDetect {
                         double width = calculateDistance(points[0], points[1]);
                         // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
-                        if (ultrasonicHeight<=4&&flyingHeight<=4&&idArray[0]==5&&width>=1100){
-                            String logMessage = "A参考5号二维码降落:" + idArray[0] + " arucoW" + width +
+                        if (ultrasonicHeight<=4&&idArray[0]==5&&width>=1100){
+                            String logMessage = "参考5号二维码降落:" + idArray[0] + " arucoW" + width +
                                     " Flying Height:" + flyingHeight + "--" +
                                     " Ultrasonic Height:" + ultrasonicHeight ;
                             startFastStick = true;
@@ -136,7 +136,7 @@ public class ApronArucoDetect {
                             if (!startFastStick){
                                 if ((idArray.length >= 6 &&ultrasonicHeight <=3&& flyingHeight <1.7)) {
 
-                                    String logMessage = "A参考Aurco数目降落:" + idArray.length +
+                                    String logMessage = "参考Aurco数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
                                     startFastStick = true;
@@ -244,8 +244,8 @@ public class ApronArucoDetect {
     public void findAruco(int[] idArray) {
         if (Movement.getInstance().getFlyingHeight()<7){
             if ((Movement.getInstance().getFlyingHeight() <= 1.5) ||
-                    (Movement.getInstance().getUltrasonicHeight() < 15
-                            && Movement.getInstance().getFlyingHeight() <5)) {
+                    Movement.getInstance().getUltrasonicHeight() < 15
+                            ) {
                 if (isDoublePayload()) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11 || idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
