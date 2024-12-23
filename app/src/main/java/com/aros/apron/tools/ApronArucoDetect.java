@@ -117,25 +117,28 @@ public class ApronArucoDetect {
                         int[] idArray = ids.toArray();
                         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
                         double flyingHeight = Movement.getInstance().getFlyingHeight();
-                        Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                        Point[] points = corner.toArray();
-                        // 计算宽度（两个相邻角点之间的距离）
-                        double width = calculateDistance(points[0], points[1]);
-                        // 计算高度（另外两个相邻角点之间的距离）
+
+                        if (ultrasonicHeight<=4&&idArray[0]==5){
+                            Core.extractChannel(mArucoCornerList.get(0), corner, 0);
+                            Point[] points = corner.toArray();
+                            // 计算宽度（两个相邻角点之间的距离）
+                            double arucoWidth = calculateDistance(points[0], points[1]);
+                            // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
-                        if (ultrasonicHeight<=4&&idArray[0]==5&&width>=1100){
-                            String logMessage = "参考5号二维码降落:" + idArray[0] + " arucoW" + width +
-                                    " Flying Height:" + flyingHeight + "--" +
-                                    " Ultrasonic Height:" + ultrasonicHeight ;
-                            startFastStick = true;
-                            handler.post(runnable);
-                            LogUtil.log(TAG, logMessage);
+                            if (arucoWidth>=1100){
+                                String logMessage = "参考5号二维码降落:" + idArray[0] + " arucoW" + width +
+                                        " Flying Height:" + flyingHeight + "--" +
+                                        " Ultrasonic Height:" + ultrasonicHeight ;
+                                startFastStick = true;
+                                handler.post(runnable);
+                                LogUtil.log(TAG, logMessage);
+                            }
+
                         }
                         if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
                                 idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17 || idArray[0] == 18 || idArray[0] == 19) {
                             if (!startFastStick){
-                                if ((idArray.length >= 6 &&ultrasonicHeight <=3&& flyingHeight <1.7)) {
-
+                                if (idArray.length >= 6 &&ultrasonicHeight <=3&& flyingHeight <3) {
                                     String logMessage = "参考Aurco数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
@@ -143,8 +146,14 @@ public class ApronArucoDetect {
                                     handler.post(runnable);
                                     LogUtil.log(TAG, logMessage);
                                 }else{
-                                    if (width >= 260&&idArray.length>3) {
-                                        String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + width +
+                                    Core.extractChannel(mArucoCornerList.get(0), corner, 0);
+                                    Point[] points = corner.toArray();
+                                    // 计算宽度（两个相邻角点之间的距离）
+                                    double arucoWidth = calculateDistance(points[0], points[1]);
+                                    // 计算高度（另外两个相邻角点之间的距离）
+//                                double height = calculateDistance(points[1], points[2]);
+                                    if (arucoWidth >= 260&&idArray.length>=2) {
+                                        String logMessage = "A参考Aurco尺寸降落:" + idArray[0] + " arucoW" + arucoWidth +
                                                 " Flying Height:" + flyingHeight + "--" +
                                                 " Ultrasonic Height:" + ultrasonicHeight ;
                                         startFastStick = true;
@@ -166,7 +175,7 @@ public class ApronArucoDetect {
                             }
                         } else {
                             sigleMarkerDetectFailsTimes = 0;
-                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(),width,height);
+                            moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(),arucoWidth,arucoHeight);
                         }
                         dropTimesTag = true;
                     }
@@ -265,7 +274,6 @@ public class ApronArucoDetect {
             }
 
             if (Movement.getInstance().getFlyingHeight() > 0.7 && mFindArucoList.isEmpty() ) {
-
 
                 if (
                         (detectedBigMarkerId == 0 || detectedBigMarkerId == 5
@@ -588,7 +596,7 @@ public class ApronArucoDetect {
         String logMessage = "";
         if (!startFastStick) {
 
-            if (xy && ultrasonicHeight <= 3 && flyingHeight <= 1.7) {
+            if (xy && ultrasonicHeight <= 3 && flyingHeight <= 3) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
