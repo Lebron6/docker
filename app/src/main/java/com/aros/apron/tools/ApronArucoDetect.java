@@ -90,10 +90,8 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
-        if (startFastStick) {
-            LogUtil.log(TAG, "速降中");
-        }
         if (isStartAruco || startFastStick) {
+            LogUtil.log(TAG, "过滤:"+isStartAruco+startFastStick);
             return;
         }
         isStartAruco = true;
@@ -404,7 +402,7 @@ public class ApronArucoDetect {
         detectedMediumMarkers = false;
         detectedSmallMarkers = false;
         startFastStick = false;
-
+        isStartAruco = false;
     }
 
     //根据识别到的二维码移动无人机
