@@ -1,16 +1,29 @@
 package com.aros.apron.manager;
 
 
+import android.os.Environment;
 import android.text.TextUtils;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import org.eclipse.paho.android.service.MqttAndroidClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.RemoteControllerKey;
 import dji.v5.manager.KeyManager;
+import dji.v5.manager.aircraft.waypoint3.model.WaypointMissionExecuteState;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class SystemManager extends BaseManager {
@@ -35,6 +48,8 @@ public class SystemManager extends BaseManager {
 //        } else {
 //            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
 //        }
+
+
     }
 
     public void checkAircraftPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {
