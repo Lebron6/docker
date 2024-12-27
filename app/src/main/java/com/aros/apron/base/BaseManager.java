@@ -32,7 +32,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "回复异常：" + e.toString());
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "回复异常：" + e.toString());
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -70,7 +70,7 @@ public abstract class BaseManager {
 
     public boolean isGisFlyClickTime() {
         long time = System.currentTimeMillis();
-        if (time - lastGisTime > 2000) {
+        if (time - lastGisTime > 5000) {
             lastGisTime = time;
             return true;
         }
@@ -107,7 +107,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "流程发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -130,7 +130,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "文件上传发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -154,7 +154,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "推送航点动作组发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -176,7 +176,7 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "总飞行里程发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

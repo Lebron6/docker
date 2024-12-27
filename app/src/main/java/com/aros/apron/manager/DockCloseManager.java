@@ -30,7 +30,7 @@ public class DockCloseManager extends BaseManager {
     }
 
     public static DockCloseManager getInstance() {
-        return DockCloseManager.DockCloseHolder.INSTANCE;
+        return DockCloseHolder.INSTANCE;
     }
 
 
@@ -47,32 +47,37 @@ public class DockCloseManager extends BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "关舱发送异常：" + e.getMessage());
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
-    private void sendDockCloseMessage(MqttAndroidClient client) throws Exception {
+    private void sendDockCloseMessage(MqttAndroidClient client){
         MessageReply message = new MessageReply();
         message.setMsg_type(60107);
         message.setResult(1);
 
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
         mqttMessage.setQos(0);
+        try {
+            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
+                    sendMissionExecuteEvents(client, "AMS通知机库关舱");
+                    isSendDockCloseSuccess = true;
+                }
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    LogUtil.log(TAG, "关舱发送回调失败：" + exception.toString());
+                    retrySend(client);
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.log(TAG, "关舱发送异常：" + e.toString());
+            e.printStackTrace();
+        }
 
-        client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
-                sendMissionExecuteEvents(client, "AMS通知机库关舱");
-                isSendDockCloseSuccess = true;
-            }
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                LogUtil.log(TAG, "关舱发送回调失败：" + exception.toString());
-                retrySend(client);
-            }
-        });
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
