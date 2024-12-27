@@ -118,7 +118,7 @@ public class MediaManager extends BaseManager {
                                 if (mState == MediaFileListState.UP_TO_DATE) {
                                     mediaFiles =
                                             MediaDataCenter.getInstance().getMediaManager().getMediaFileListData().getData();
-                                    if (mediaFiles != null) {
+                                    if (mediaFiles != null&&mediaFiles.size()>0) {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             pullOriginalMediaFileFromCamera();
                                         }
