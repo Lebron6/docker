@@ -45,12 +45,12 @@ public class DroneStorageManager extends BaseManager {
                 handleNotConnected(client,result);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "入库发送异常：" + e.getMessage());
-            throw new RuntimeException(e);
+            LogUtil.log(TAG, "入库发送异常：" + e.toString());
+            e.printStackTrace();
         }
     }
 
-    private void sendDroneStorageMessage(MqttAndroidClient client,int result) throws Exception {
+    private void sendDroneStorageMessage(MqttAndroidClient client,int result){
         MessageReply message = new MessageReply();
         message.setMsg_type(60010);
         message.setResult(result);
@@ -58,20 +58,25 @@ public class DroneStorageManager extends BaseManager {
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
         mqttMessage.setQos(0);
 
-        client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes+"clientId:"+client.getClientId());
-                sendMissionExecuteEvents(client, "AMS通知机库入库");
-                isSendDroneStorageSuccess = true;
-            }
+        try {
+            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes+"clientId:"+client.getClientId());
+                    sendMissionExecuteEvents(client, "AMS通知机库入库");
+                    isSendDroneStorageSuccess = true;
+                }
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                LogUtil.log(TAG, "入库发送回调失败：" + exception.toString());
-                retrySend(client,result);
-            }
-        });
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    LogUtil.log(TAG, "入库发送回调失败：" + exception.toString());
+                    retrySend(client,result);
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.log(TAG, "入库发送异常：" + e.toString());
+            e.printStackTrace();
+        }
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 

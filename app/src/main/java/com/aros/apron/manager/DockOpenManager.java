@@ -45,33 +45,38 @@ public class DockOpenManager extends BaseManager {
                 handleNotConnected(client);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "开舱发送异常：" + e.getMessage());
-            throw new RuntimeException(e);
+            LogUtil.log(TAG, "开舱发送异常：" + e.toString());
+            e.printStackTrace();
         }
     }
 
-    private void sendDockOpenMessage(MqttAndroidClient client) throws Exception {
+    private void sendDockOpenMessage(MqttAndroidClient client){
         MessageReply message = new MessageReply();
         message.setMsg_type(60108);
         message.setResult(1);
 
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(0);
+        mqttMessage.setQos(2);
+        try {
+            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes+"clientId:"+client.getClientId());
+                    sendMissionExecuteEvents(client, "AMS通知机库开舱");
+                    isSendDockOpenSuccess = true;
+                }
 
-        client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes+"clientId:"+client.getClientId());
-                sendMissionExecuteEvents(client, "AMS通知机库开舱");
-                isSendDockOpenSuccess = true;
-            }
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    LogUtil.log(TAG, "开舱发送回调失败：" + exception.toString());
+                    retrySend(client);
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.log(TAG, "开舱发送异常：" + e.toString());
+            e.printStackTrace();
+        }
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                LogUtil.log(TAG, "开舱发送回调失败：" + exception.toString());
-                retrySend(client);
-            }
-        });
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
