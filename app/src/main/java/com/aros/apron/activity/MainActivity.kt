@@ -60,7 +60,6 @@ import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
 import dji.v5.manager.KeyManager
-import dji.v5.manager.aircraft.virtualstick.VirtualStickManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
@@ -340,7 +339,7 @@ open class MainActivity : BaseActivity() {
             FlightManager.getInstance().initFlightInfo(mqttAndroidClient)
             MissionManager.getInstance().initMissionManager(mqttAndroidClient)
             BatteryManager.getInstance().initBatteryInfo(mqttAndroidClient)
-            MediaManager.init(mqttAndroidClient)
+            MediaManager.getInstance().init(mqttAndroidClient)
             LEDsSettingsManager.getInstance().initLEDsInfo()
             AlternateLandingManager.getInstance().initAlterLandingInfo(mqttAndroidClient)
             WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)

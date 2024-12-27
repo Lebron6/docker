@@ -337,7 +337,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //设置照片xmp写入
             case 60126:
                 LogUtil.log(TAG, "收到命令：写入exif" + jsonString);
-                MediaManager.INSTANCE.setMediaFileXMPCustomInfo(mqttClient, message);
+                MediaManager.getInstance().setMediaFileXMPCustomInfo(mqttClient, message);
                 break;
             //设置曝光模式
             case 60127:
