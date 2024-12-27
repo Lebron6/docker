@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityGalleryBinding
-import com.aros.apron.manager.MediaManager
 import com.aros.apron.tools.GalleryAdapter
 import com.aros.apron.tools.RecyclerViewHelper
 import dji.sdk.keyvalue.key.FlightControllerKey
