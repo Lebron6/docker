@@ -44,7 +44,7 @@ public class DroneShutdownManager extends BaseManager {
                 handleNotConnected(client);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "关机发送异常：" + e.getMessage());
+            LogUtil.log(TAG, "关机发送异常：" + e.toString());
             e.printStackTrace();
         }
     }

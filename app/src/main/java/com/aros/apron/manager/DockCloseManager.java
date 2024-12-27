@@ -46,7 +46,7 @@ public class DockCloseManager extends BaseManager {
                 handleNotConnected(client);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "关舱发送异常：" + e.getMessage());
+            LogUtil.log(TAG, "关舱异常：" + e.toString());
             e.printStackTrace();
         }
     }

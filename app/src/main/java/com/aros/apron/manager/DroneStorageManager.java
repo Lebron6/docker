@@ -45,7 +45,7 @@ public class DroneStorageManager extends BaseManager {
                 handleNotConnected(client,result);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "入库发送异常：" + e.getMessage());
+            LogUtil.log(TAG, "入库发送异常：" + e.toString());
             e.printStackTrace();
         }
     }
