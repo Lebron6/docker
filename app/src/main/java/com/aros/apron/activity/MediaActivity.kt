@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.databinding.ActivityGalleryBinding
+import com.aros.apron.manager.MediaManager
 import com.aros.apron.tools.GalleryAdapter
 import com.aros.apron.tools.RecyclerViewHelper
 import dji.sdk.keyvalue.key.FlightControllerKey
@@ -31,10 +32,10 @@ class MediaActivity : BaseActivity() {
         galleryBinding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(galleryBinding.root)
         galleryBinding.btnDisable?.setOnClickListener {
-            MediaManager.disablePlayback()
+            MediaManager.getInstance().disablePlayback()
         }
         galleryBinding.btnEnable?.setOnClickListener {
-            MediaManager.enablePlayback()
+            MediaManager.getInstance().enablePlayback()
         }
         galleryBinding.btnRemoveAll?.setOnClickListener {
             deleteMediaFiles()
