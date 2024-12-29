@@ -101,9 +101,9 @@ public class MediaManager extends BaseManager {
 
            @Override
            public void onFailure(@NonNull IDJIError idjiError) {
-               LogUtil.log(TAG, "进入媒体模式失败:"+new Gson().toJson(idjiError));
-               sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
+               LogUtil.log(TAG, "enablePlayback fail:"+new Gson().toJson(idjiError));
                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+               sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
            }
        });
     }
@@ -124,16 +124,16 @@ public class MediaManager extends BaseManager {
                                         }
                                     } else {
                                         LogUtil.log(TAG, "拉取媒体文件为空");
+                                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                                         sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空");
                                         disablePlayback();
-                                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                                         LogUtil.log(TAG, "发送关闭无人机");
                                     }
                                 } else {
+                                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                                     sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败,当前状态:"+mState);
                                     LogUtil.log(TAG, "拉取媒体文件失败,当前状态:"+mState);
                                     disablePlayback();
-                                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                                     LogUtil.log(TAG, "发送关闭无人机");
                                 }
                             }
@@ -143,9 +143,9 @@ public class MediaManager extends BaseManager {
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
                         LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
+                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                         sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败");
                         disablePlayback();
-                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                         LogUtil.log(TAG, "发送关闭无人机");
                     }
                 }
@@ -230,9 +230,9 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
+                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                     sendMissionExecuteEvents(mqttClient, "File " + downLoadMediaFileIndex + " download failed.");
                     downLoadMediaFileIndex = 0;
-                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                 }
             });
 
@@ -377,18 +377,18 @@ public class MediaManager extends BaseManager {
         MediaDataCenter.getInstance().getMediaManager().deleteMediaFiles(mediaFiles, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                 LogUtil.log(TAG, "清除文件成功 ");
                 sendMissionExecuteEvents(mqttClient,"媒体文件已清除");
                 disablePlayback();
-                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                 LogUtil.log(TAG, "发送关闭无人机");
             }
 
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                 LogUtil.log(TAG, "清除文件失败: "+new Gson().toJson(idjiError));
                 sendMissionExecuteEvents(mqttClient, "媒体文件清除失败");
-                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
                 LogUtil.log(TAG, "发送关闭无人机");
             }
         });
@@ -400,12 +400,10 @@ public class MediaManager extends BaseManager {
             @Override
             public void onSuccess() {
                 LogUtil.log(TAG, "退出媒体模式成功");
-                sendMissionExecuteEvents(mqttClient,"退出媒体模式");
             }
 
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
-                sendMissionExecuteEvents(mqttClient,"退出媒体模式失败");
                 LogUtil.log(TAG, "退出媒体模式失败:"+new Gson().toJson(idjiError));
             }
         });
