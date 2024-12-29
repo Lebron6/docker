@@ -95,7 +95,7 @@ public class MediaManager extends BaseManager {
        MediaDataCenter.getInstance().getMediaManager().enable(new CommonCallbacks.CompletionCallback() {
            @Override
            public void onSuccess() {
-               Log.e(TAG, "enablePlayback Success");
+               LogUtil.log(TAG, "进入媒体模式成功");
                pullMediaFileListFromCamera();
            }
 
