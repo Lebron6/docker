@@ -2,6 +2,8 @@ package com.aros.apron.manager;
 
 
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
@@ -71,7 +73,13 @@ public class SystemManager extends BaseManager {
         if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
-            MediaManager.getInstance().enablePlayback();
+            Handler handler=new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MediaManager.getInstance().enablePlayback();
+                }
+            },1000);
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
                 DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);

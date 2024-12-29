@@ -31,8 +31,8 @@ public abstract class BaseManager {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "回复异常：" + e.toString());
             e.printStackTrace();
+            LogUtil.log(TAG, "回复异常：" + e.toString());
         }
     }
 
@@ -106,7 +106,7 @@ public abstract class BaseManager {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "流程发送异常：mqtt 未连接");
+            LogUtil.log(TAG, "流程发送异常："+e.toString());
             e.printStackTrace();
         }
     }
