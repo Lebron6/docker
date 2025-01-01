@@ -31,6 +31,7 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -50,16 +51,37 @@ public class MqttCallBack implements MqttCallbackExtended {
     @Override
     public void connectionLost(Throwable cause) {
         LogUtil.log(TAG, "MQtt connectionLost-----");
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    reConnect();
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        }, 1000);
+        new Thread(() -> {
+            while (true) {
                 try {
-                    reConnect();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    if (mqttClient!=null&&!mqttClient.isConnected()) {
+                        LogUtil.log(TAG,"Attempting to reconnect...");
+                        mqttClient.connect(mMqttConnectOptions);
+                        LogUtil.log(TAG,"Reconnected!");
+                        break; // 成功连接，退出循环
+                    }
+                } catch (MqttException e) {
+                    LogUtil.log(TAG,"Reconnect failed. Retrying in a few seconds...");
+                    try {
+                        // 等待一段时间后再次尝试重连
+                        Thread.sleep(3000); // 等待5秒
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
                 }
             }
-        }, 1000);
+        }).start();
 
     }
 

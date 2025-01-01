@@ -106,6 +106,11 @@ import java.util.concurrent.TimeUnit
 
 open class MainActivity : BaseActivity() {
 
+
+    companion object {
+        // 如果不需要改变 isAppStarted 的值，可以直接这样声明
+        var isAppStarted: Boolean = false
+    }
     private var primaryFpvWidget: FPVWidget? = null
     private var fpvInteractionWidget: FPVInteractionWidget? = null
     private var secondaryFPVWidget: FPVWidget? = null
@@ -226,6 +231,8 @@ open class MainActivity : BaseActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isAppStarted = true
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 //        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.setFlags(
@@ -703,4 +710,11 @@ open class MainActivity : BaseActivity() {
             super.onBackPressed()
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isAppStarted = false
+    }
+
+
 }

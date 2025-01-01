@@ -35,8 +35,9 @@ public class DockCloseManager extends BaseManager {
 
 
     public void sendDockCloseMsg2Server(MqttAndroidClient client) {
-        if (isSendDockCloseSuccess||sendDockCloseSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送关舱");
+//        if (isSendDockCloseSuccess||sendDockCloseSuccessTimes >= maxRetries) {
+        if (sendDockCloseSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送关舱"+isSendDockCloseSuccess+sendDockCloseSuccessTimes);
             return;
         }
         try {

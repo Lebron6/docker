@@ -34,8 +34,9 @@ public class DockOpenManager extends BaseManager {
 
 
     public void sendDockOpenMsg2Server(MqttAndroidClient client) {
-        if (isSendDockOpenSuccess||sendDockOpenSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送开舱");
+//        if (isSendDockOpenSuccess||sendDockOpenSuccessTimes >= maxRetries) {
+        if (sendDockOpenSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送开舱"+isSendDockOpenSuccess+sendDockOpenSuccessTimes);
             return;
         }
         try {
