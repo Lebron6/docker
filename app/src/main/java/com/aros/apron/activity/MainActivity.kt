@@ -115,7 +115,10 @@ import java.util.concurrent.TimeUnit
 
 
 open class MainActivity : BaseActivity() {
-
+    companion object {
+        // 如果不需要改变 isAppStarted 的值，可以直接这样声明
+        var isAppStarted: Boolean = false
+    }
     private var primaryFpvWidget: FPVWidget? = null
     private var fpvInteractionWidget: FPVInteractionWidget? = null
     private var secondaryFPVWidget: FPVWidget? = null
@@ -239,6 +242,8 @@ open class MainActivity : BaseActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isAppStarted = true
+
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 //        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.setFlags(
@@ -405,6 +410,7 @@ open class MainActivity : BaseActivity() {
             }
         }
     }
+    var shouldExecute = true
 
     // 缓存队列
     private val videoBuffer = ArrayBlockingQueue<ByteArray>(100)
@@ -432,7 +438,8 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-            if (startArucoType==1){
+            if (shouldExecute) {
+                if (startArucoType == 1) {
 
                     ApronArucoDetect.getInstance()?.detectArucoTags(
                         height,
@@ -442,14 +449,17 @@ open class MainActivity : BaseActivity() {
                     )
 
 
-            }else if (startArucoType==2){
-                AlternateArucoDetect.getInstance()?.detectArucoTags(
-                    height,
-                    width,
-                    frameData,
-                    dictionary,
-                )
+                } else if (startArucoType == 2) {
+                    AlternateArucoDetect.getInstance()?.detectArucoTags(
+                        height,
+                        width,
+                        frameData,
+                        dictionary,
+                    )
+                }
             }
+            shouldExecute = !shouldExecute
+
         }
     }
 

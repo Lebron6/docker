@@ -10,6 +10,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.aros.apron.R
 import com.aros.apron.app.ApronApp
 import com.aros.apron.base.BaseActivity
@@ -30,7 +31,7 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.v5.utils.common.StringUtils
 
-class ConnectionActivity : BaseActivity() {
+class ConnectionActivity : AppCompatActivity() {
 
     private val REQUIRED_PERMISSION_LIST = arrayOf(
         Manifest.permission.VIBRATE,
@@ -57,10 +58,8 @@ class ConnectionActivity : BaseActivity() {
     private val msdkManagerVM: MSDKManagerVM by globalViewModels()
     private lateinit var connectionBinding: ActivityConnectionBinding
     private val handler: Handler = Handler(Looper.getMainLooper())
+    private val TAG="ConnectionActivity"
 
-    override fun useEventBus(): Boolean {
-        return false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,11 +162,6 @@ class ConnectionActivity : BaseActivity() {
                 Log.e(TAG, "飞行器已连接")
                 statusText = StringUtils.getResStr(this, R.string.registered)
                 msdkInfoVm.initListener()
-                connectionBinding.defaultLayoutButton.isEnabled = true
-                enableShowCaseButton(
-                    connectionBinding.defaultLayoutButton,
-                    MainActivity::class.java
-                )
                 if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttPassword)
@@ -252,11 +246,12 @@ class ConnectionActivity : BaseActivity() {
                         AMSConfig.getInstance().descentAltitude = 0.5
                     }
 
-                    Handler().postDelayed(Runnable {
-                        Intent(this, MainActivity::class.java).also {
-                            startActivity(it)
-                        }
-                    }, 1000)
+                    if (!MainActivity.isAppStarted) {
+                        Handler().postDelayed(Runnable {
+                            startActivity(Intent(this, MainActivity::class.java))
+                        },2000)
+
+                    }
                 }
             } else {
                 ToastUtil.showToast("Register Failure: ${resultPair.second}")
