@@ -33,8 +33,9 @@ public class DroneShutdownManager extends BaseManager {
 
 
     public void sendDroneShutDownMsg2Server(MqttAndroidClient client) {
-        if (isSendDroneShutDownSuccess||sendDroneShutDownSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送关机");
+//        if (isSendDroneShutDownSuccess||sendDroneShutDownSuccessTimes >= maxRetries) {
+        if (sendDroneShutDownSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送关机"+isSendDroneShutDownSuccess+sendDroneShutDownSuccessTimes);
             return;
         }
         try {

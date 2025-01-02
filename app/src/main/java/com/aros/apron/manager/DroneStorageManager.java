@@ -34,8 +34,9 @@ public class DroneStorageManager extends BaseManager {
     }
 
     public void sendDroneStorageMsg2Server(MqttAndroidClient client,int result) {
-        if (isSendDroneStorageSuccess||sendDroneStorageSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送入库");
+//        if (isSendDroneStorageSuccess||sendDroneStorageSuccessTimes >= maxRetries) {
+        if (sendDroneStorageSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送入库"+isSendDroneStorageSuccess+sendDroneStorageSuccessTimes);
             return;
         }
         try {

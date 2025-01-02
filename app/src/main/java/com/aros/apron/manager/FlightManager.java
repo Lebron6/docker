@@ -522,13 +522,14 @@ public class FlightManager extends BaseManager {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         String missionState = Movement.getInstance().getWaypointMissionExecuteState();
         boolean isMissionExecuting = (!TextUtils.isEmpty(missionState) &&
-                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"))||(!TextUtils.isEmpty(Movement.getInstance().getPlaneMode()) &&Movement.getInstance().getPlaneMode().equals("WAYPOINT")));
+                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"))
+                ||(!TextUtils.isEmpty(Movement.getInstance().getPlaneMode()) &&Movement.getInstance().getPlaneMode().equals("WAYPOINT")));
 
-        // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启避障
+        // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启水平避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
             DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
-            PerceptionManager.getInstance().setPerceptionEnable(true);
+            PerceptionManager.getInstance().setObstacleAvoidanceHorizontalEnabled();
         }
     }
 
