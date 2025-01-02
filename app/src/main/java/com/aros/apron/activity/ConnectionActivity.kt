@@ -139,7 +139,6 @@ class ConnectionActivity : AppCompatActivity() {
         msdkManagerVM.lvRegisterState.observe(this) { resultPair ->
             val statusText: String?
             if (resultPair.first) {
-                Log.e(TAG, "飞行器已连接")
                 statusText = StringUtils.getResStr(this, R.string.registered)
                 msdkInfoVm.initListener()
 //                connectionBinding.defaultLayoutButton.isEnabled = true
@@ -222,7 +221,10 @@ class ConnectionActivity : AppCompatActivity() {
                         AMSConfig.getInstance().descentAltitude = 0.5
                     }
                     if (!MainActivity.isAppStarted) {
-                        startActivity(Intent(this, MainActivity::class.java))
+                        Handler().postDelayed(Runnable {
+                            startActivity(Intent(this, MainActivity::class.java))
+                        },2000)
+
                     }
 
                 }
@@ -236,15 +238,12 @@ class ConnectionActivity : AppCompatActivity() {
                 StringUtils.getResStr(R.string.registration_status, statusText)
         }
         msdkManagerVM.lvProductConnectionState.observe(this) { isConnect ->
-//            if (isConnect) {
-//                LogUtil.log(TAG,"SDK已连接----------")
-//            }else{
-//                LogUtil.log(TAG,"SDK断开连接----------")
-//            }
+
         }
 
         msdkManagerVM.lvProductChanges.observe(this) { productId ->
             ToastUtil.showToast("Product: $productId Changed")
+
         }
 
         msdkManagerVM.lvInitProcess.observe(this) { processPair ->

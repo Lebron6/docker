@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -312,7 +313,7 @@ open class MainActivity : BaseActivity() {
     }
 
     private val handler: Handler = Handler(Looper.getMainLooper())
-
+    var initTimes=0
     private fun initDJIManager() {
         val isFlightControllerConnect =
             KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
@@ -321,6 +322,8 @@ open class MainActivity : BaseActivity() {
                 initDJIManager()
             }, 1000)
         } else {
+            initTimes++
+            Log.e(TAG,"初始化"+initTimes)
             RTKManager.getInstance().initRTKInfo()
             StreamManager.getInstance().initStreamManager(mqttAndroidClient)
             FlightManager.getInstance().initFlightInfo(mqttAndroidClient)
