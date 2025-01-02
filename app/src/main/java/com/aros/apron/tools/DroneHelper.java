@@ -176,10 +176,10 @@ public class DroneHelper {
     }
     public boolean shouldExecute = true;
     public void sendMovementCommand(VirtualStickFlightControlParam param) {
-        if (shouldExecute) {
+//        if (shouldExecute) {
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
-        }
-        shouldExecute = !shouldExecute;
+//        }
+//        shouldExecute = !shouldExecute;
     }
 
     //设置备降点
