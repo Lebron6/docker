@@ -530,16 +530,16 @@ public class ApronArucoDetect {
                         && (absY < 100)
                         ? -0.675 : 0f;
             } else {
-                int xf,yf;
-                if (Movement.getInstance().getFlyingHeight()<=3&&Movement.getInstance().getUltrasonicHeight()<=4){
-                    xf=180;
-                    yf=160;
-                }else{
-                    xf = 200;
-                    yf = 200;
-                }
-                outZ = (absX < xf)
-                        && (absY < yf)
+//                int xf,yf;
+//                if (Movement.getInstance().getFlyingHeight()<=3&&Movement.getInstance().getUltrasonicHeight()<=4){
+//                    xf=180;
+//                    yf=160;
+//                }else{
+//                    xf = 200;
+//                    yf = 200;
+//                }
+                outZ = (absX < 200)
+                        && (absY < 200)
                         ? updateOutDownSpeed() : 0f;
             }
 
@@ -569,7 +569,7 @@ public class ApronArucoDetect {
     private void checkConditions(double absX, double absY, int id, double arucoWidth) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        boolean xy = absX <= 180 && absY <= 160;
+        boolean xy = absX <= 200 && absY <= 200;
         String logMessage = "";
         if (!startFastStick) {
 
