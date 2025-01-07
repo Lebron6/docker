@@ -117,7 +117,6 @@ public class ApronArucoDetect {
 
                     Aruco.detectMarkers(grayImgMat, dictionary, mArucoCornerList, ids);
                     if (ids.depth() > 0) {
-
                         arucoNotFoundTag = false;
                         int[] idArray = ids.toArray();
                         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
@@ -217,7 +216,7 @@ public class ApronArucoDetect {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
-                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.5);
+                                DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);
                                 if (dropTimes > Integer.parseInt(AMSConfig.getInstance().getAlternateLandingTimes())) {
                                     LogUtil.log(TAG, "超过复降限制,去备降点");
                                     AlternateLandingManager.getInstance().startTaskProcess(null);
@@ -226,6 +225,7 @@ public class ApronArucoDetect {
                                 if (dropTimesTag) {
                                     dropTimesTag = false;
                                     dropTimes++;
+//                                    virtualStickAdvancedParam=0.145;
                                     LogUtil.log(TAG, "复降第:" + dropTimes + "次");
                                 }
                             } else if (Movement.getInstance().getFlyingHeight() > 7) {
@@ -608,7 +608,7 @@ public class ApronArucoDetect {
 
     }
 
-
+    private double virtualStickAdvancedParam = 0.145;
     //根据偏移量和高度决定X/Y轴移动速度
     private double updateOutXYSpeed(double d) {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
@@ -616,93 +616,93 @@ public class ApronArucoDetect {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 300 && d > 250) {
             if (ultrasonicHeight > 9) {
                 return 0.295;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 250 && d > 200) {
             if (ultrasonicHeight > 9) {
                 return 0.295;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
             else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         }else if (d <= 200 && d > 150) {
             if (ultrasonicHeight > 9) {
                 return 0.275;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
             else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 150 && d > 100) {
             if (ultrasonicHeight > 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else {
-                return 0.1;
+                return virtualStickAdvancedParam;
             }
         } else if (d <= 100 && d > 79) {
             if (ultrasonicHeight > 9) {
                 return 0;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.1;
+                return virtualStickAdvancedParam;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
                 return 0.0;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
