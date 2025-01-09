@@ -141,7 +141,7 @@ public class ApronArucoDetect {
                             Point[] points = corner.toArray();
                             // 计算宽度（两个相邻角点之间的距离）
                             double width = calculateDistance(points[0], points[1]);
-                            if (!startFastStick&&width >= 1250 && ultrasonicHeight <= 3) {
+                            if (!startFastStick&&width >= 900 && ultrasonicHeight <= 3) {
                                 String logMessage = "参考6号Marker尺寸降落:" + idArray[0] + " arucoW" + width +
                                         " Flying Height:" + flyingHeight + "--" +
                                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -459,7 +459,8 @@ public class ApronArucoDetect {
 
         Mat tvec = tvecs.row(0);
         double z = tvec.get(0, 0)[2];
-//        LogUtil.log(TAG, "z坐标:" + z + "融合高:" + Movement.getInstance().getUltrasonicHeight());
+        double x = tvec.get(0,0)[0];
+        double y = tvec.get(0,0)[1];
         if (Movement.getInstance().getFlyingHeight() > 3 && (
                 id == 1
                         || id == 2
@@ -545,12 +546,17 @@ public class ApronArucoDetect {
 
         }
 
-        LogUtil.log(TAG, "MarkerId=" + id +
+        LogUtil.log(TAG, "Id=" + id +
+                " Size=" + arucoMarkers.size() +
                 " 宽度=" + arucoWidth +
                 " 杆量x=" + outX +
-                " 偏移=" + imageVector.val[0] +
+                " 杆量y=" + outY +
+                " 偏移x=" + imageVector.val[0] +
                 " 椭球=" + Movement.getInstance().getFlyingHeight() +
-                " 融合=" + Movement.getInstance().getUltrasonicHeight()
+                " 融合=" + Movement.getInstance().getUltrasonicHeight()+
+                " X=" + x+
+                " Y=" + y+
+                " Z=" + z
         );
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
