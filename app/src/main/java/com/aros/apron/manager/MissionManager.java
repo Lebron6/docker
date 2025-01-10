@@ -74,6 +74,8 @@ public class MissionManager extends BaseManager {
     private long enterWayLineTime;
     private long finishWayLineTime;
     private int retryPushKmzTime;
+    private int mStartGroupId=9999;//默认第一个动作组id
+    private int mFinishGroupId=0;//默认第一个动作组id
 
     public void initMissionManager(MqttAndroidClient client) {
         this.client = client;
@@ -94,19 +96,13 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onExecutionStart(int actionGroup, int actionId) {
-                    if (mActionGroups != null && mActionGroups.size() > actionGroup) {
-                        //判断是否是该动作组第一个动作
-                        if (actionId == 0) {
-                            //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
-//                            if (actionGroupStartIndex != actionGroup) {
-//                                actionGroupStartIndex = actionGroup;
-                                sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
-                                LogUtil.log(TAG, "航点动作组开始:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
-//                            }
-                        }
+                    LogUtil.log(TAG,"onExecutionStart:"+actionGroup);
+                    if (mStartGroupId!=actionGroup){
+                        mStartGroupId=actionGroup;
+                        sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
+                        LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + actionGroup+1 + "actionId--"
+                                + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
 
-                    }else{
-                        LogUtil.log(TAG,"动作组下标异常");
                     }
 
                 }
@@ -114,6 +110,16 @@ public class MissionManager extends BaseManager {
                 @Override
                 public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
 //                    sendMsgWaypointActionState2Server(client, "1");
+                    if (error!=null){
+                        LogUtil.log(TAG,"动作结束异常:"+new Gson().toJson(error));
+                    }
+//                    if (mFinishGroupId!=actionGroup){
+//                        mFinishGroupId=actionGroup;
+//                        sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
+//                        LogUtil.log(TAG, "动作组结束:" + " actionGroup=" + (actionGroup+1) + "  actionId="
+//                                + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
+//                    }
+
                     if (mActionGroups != null && mActionGroups.size() > actionGroup) {
                         if (mActionGroups.get(actionGroup).getActions().size()>actionId){
                             //判断是否是该动作组第一个动作
@@ -122,7 +128,8 @@ public class MissionManager extends BaseManager {
 //                                if (actionGroupEndIndex != actionGroup) {
 //                                    actionGroupEndIndex = actionGroup;
                                 sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
-                                    LogUtil.log(TAG, "航点动作组结束:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
+                                LogUtil.log(TAG, "航点动作组结束:" + "actionGroup=" + (actionGroup+1) + "  actionId="
+                                        + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
 //                                }
                             }
 

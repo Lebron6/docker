@@ -726,9 +726,9 @@ public class ApronArucoDetect {
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 1) {
-            return -0.675;
+            return -0.5;
         } else if (flyingHeight <= 1.0 && flyingHeight >= 0.5) {
-            return -0.475;
+            return -0.4;
         } else {
             return -0.235;
         }
