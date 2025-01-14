@@ -146,7 +146,7 @@ public class RTKManager extends BaseManager {
                                     startNetworkRTKService();
                                 }
                             }
-                        }, 3);
+                        }, 200);
                     }
                 }
             });
@@ -172,7 +172,7 @@ public class RTKManager extends BaseManager {
                                     startNetworkRTKService();
                                 }
                             }
-                        }, 3);
+                        }, 200);
                     }
                 }
             });
