@@ -141,6 +141,9 @@ public class DroneHelper {
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
+
+
+
 //        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
 //                KeyConnection, 0));
 //        if (cameraConnect!=null&&cameraConnect) {

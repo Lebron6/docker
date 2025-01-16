@@ -337,6 +337,7 @@ open class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
+            ApronArucoDetect.getInstance().init()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

@@ -61,6 +61,10 @@ public class ApronArucoDetect {
     //是否双挂
     private boolean isDoublePayload;
 
+    public PIDControl pidControlX = null;
+    public PIDControl pidControlY = null;
+
+
     public boolean isDoublePayload() {
         return isDoublePayload;
     }
@@ -88,15 +92,22 @@ public class ApronArucoDetect {
         return OpenCVHelperHolder.INSTANCE;
     }
 
+    public void init() {
+        pidControlX = new PIDControl(0.8f, 0.008f, 0.03f, 0.05f, 2.0f, 0.1f);
+        pidControlY = new PIDControl(0.8f, 0.008f, 0.03f, 0.05f, 2.0f, 0.1f);
+        pidControlX.reset();
+        pidControlY.reset();
+    }
+
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
         if (isStartAruco || startFastStick) {
-            LogUtil.log(TAG, "过滤:"+isStartAruco+startFastStick);
+            LogUtil.log(TAG, "过滤:" + isStartAruco + startFastStick);
             return;
         }
         isStartAruco = true;
         if (lastFuture != null && !lastFuture.isDone()) {
-            LogUtil.log(TAG,"break---");
+            LogUtil.log(TAG, "break---");
             lastFuture.cancel(true);
         }
         lastFuture =executor.schedule(new Runnable() {
@@ -529,7 +540,7 @@ public class ApronArucoDetect {
             if (Movement.getInstance().getFlyingHeight() > 9) {
                 outZ = (absX < 150)
                         && (absY < 100)
-                        ? -0.675 : 0f;
+                        ? -0.5 : 0f;
             } else {
 //                int xf,yf;
 //                if (Movement.getInstance().getFlyingHeight()<=3&&Movement.getInstance().getUltrasonicHeight()<=4){
@@ -546,16 +557,21 @@ public class ApronArucoDetect {
 
         }
 
-        LogUtil.log(TAG, "Id=" + id +
+        pidControlX.setInputFilterAll((float)imageVector.val[0]/1150);
+        pidControlY.setInputFilterAll((float)imageVector.val[1]/1150);
+//        pidControlX.setInputFilterAll((float) outX);
+//        pidControlY.setInputFilterAll((float) outY);
+
+        LogUtil.log(TAG,  " pidX=" + pidControlX.get_pid() +
+                " pidY=" +pidControlY.get_pid() +
+                " 偏移x=" + imageVector.val[0] +
+                " 杆量x=" + outX +
+                " Id=" + id +
                 " Size=" + arucoMarkers.size() +
                 " 宽度=" + arucoWidth +
-                " 杆量x=" + outX +
-                " 杆量y=" + outY +
-                " 偏移x=" + imageVector.val[0] +
                 " 椭球=" + Movement.getInstance().getFlyingHeight() +
-                " 融合=" + Movement.getInstance().getUltrasonicHeight()+
-                " X=" + x+
-                " Y=" + y+
+                " 融合=" + Movement.getInstance().getUltrasonicHeight() +
+                " X=" + x +
                 " Z=" + z
         );
 
@@ -614,7 +630,6 @@ public class ApronArucoDetect {
 
     }
 
-    private double virtualStickAdvancedParam = 0.145;
     //根据偏移量和高度决定X/Y轴移动速度
     private double updateOutXYSpeed(double d) {
         double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
@@ -622,102 +637,102 @@ public class ApronArucoDetect {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 500 && d > 400) {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 400 && d > 300) {
             if (ultrasonicHeight > 9) {
                 return 0.325;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 300 && d > 250) {
             if (ultrasonicHeight > 9) {
                 return 0.295;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 250 && d > 200) {
             if (ultrasonicHeight > 9) {
                 return 0.295;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
             else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         }else if (d <= 200 && d > 150) {
             if (ultrasonicHeight > 9) {
                 return 0.275;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
             else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 150 && d > 100) {
             if (ultrasonicHeight > 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else {
-                return virtualStickAdvancedParam;
+                return 0.145;
             }
         } else if (d <= 100 && d > 79) {
             if (ultrasonicHeight > 9) {
                 return 0;
             } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return virtualStickAdvancedParam;
+                return 0.145;
             } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.0;
+                return 0;
             } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.0;
+                return 0;
             } else {
-                return 0.0;
+                return 0;
             }
         } else {
-            return 0.0;
+            return 0;
         }
     }
 
