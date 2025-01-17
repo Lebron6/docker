@@ -538,13 +538,13 @@ public class ApronArucoDetect {
             if (Movement.getInstance().getFlyingHeight() > 9) {
 //                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/650);
 //                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/650);
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
-                outX = absX<130?0:pidControlX.get_pid();
-                outY = absY<150?0:pidControlY.get_pid();
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/750);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/750);
+                outX = absX<80?0:pidControlX.get_pid();
+                outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 130)
                         && (absY < 150)
-                        ? -0.6 : 0f;
+                        ? -0.575 : 0;
             }else if(arucoMarkers.size()>1&&(Movement.getInstance().getFlyingHeight() <= 1.5 || Movement.getInstance().getUltrasonicHeight() < 15)){
 //                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/1750);
 //                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/1750);
@@ -554,7 +554,7 @@ public class ApronArucoDetect {
                 outY = absY<150?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? updateOutDownSpeed() : 0f;
+                        ? -0.275 : 0;
             } else {
 //                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/1450);
 //                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/1450);
@@ -566,7 +566,7 @@ public class ApronArucoDetect {
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? updateOutDownSpeed() : 0f;
+                        ? -0.475 : 0;
             }
 
         }
@@ -618,8 +618,8 @@ public class ApronArucoDetect {
                 handler.post(runnable);
                 return;
             }
-            if (xy && arucoWidth >= 240) {
-                logMessage = "参考Aurco偏移量降落:" + id + " arucoW" + arucoWidth +
+            if (xy && arucoWidth >= 260) {
+                logMessage = "参考Aurco宽度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
                 LogUtil.log(TAG, logMessage);
@@ -644,122 +644,15 @@ public class ApronArucoDetect {
 
     }
 
-    //根据偏移量和高度决定X/Y轴移动速度
-    private double updateOutXYSpeed(double d) {
-        double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
-        if (d > 500) {
-            if (ultrasonicHeight > 9) {
-                return 0.325;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            } else {
-                return 0.145;
-            }
-        } else if (d <= 500 && d > 400) {
-            if (ultrasonicHeight > 9) {
-                return 0.325;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            } else {
-                return 0.145;
-            }
-        } else if (d <= 400 && d > 300) {
-            if (ultrasonicHeight > 9) {
-                return 0.325;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            } else {
-                return 0.145;
-            }
-        } else if (d <= 300 && d > 250) {
-            if (ultrasonicHeight > 9) {
-                return 0.295;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            } else {
-                return 0.145;
-            }
-        } else if (d <= 250 && d > 200) {
-            if (ultrasonicHeight > 9) {
-                return 0.295;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            }
-            else {
-                return 0.145;
-            }
-        }else if (d <= 200 && d > 150) {
-            if (ultrasonicHeight > 9) {
-                return 0.275;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            }
-            else {
-                return 0.145;
-            }
-        } else if (d <= 150 && d > 100) {
-            if (ultrasonicHeight > 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 4 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 4) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0.145;
-            } else {
-                return 0.145;
-            }
-        } else if (d <= 100 && d > 79) {
-            if (ultrasonicHeight > 9) {
-                return 0;
-            } else if (ultrasonicHeight > 1.5 && ultrasonicHeight <= 9) {
-                return 0.145;
-            } else if (ultrasonicHeight > 0.5 && ultrasonicHeight <= 1.5) {
-                return 0;
-            } else if (ultrasonicHeight > 0.1 && ultrasonicHeight <= 0.5) {
-                return 0;
-            } else {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
-    }
-
-
     //根据不同高度决定下降多快
     private double updateOutDownSpeed() {
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         if (flyingHeight > 1) {
-            return -0.6;
-        } else if (flyingHeight <= 1.0 && flyingHeight >= 0.5) {
             return -0.5;
+        } else if (flyingHeight <= 1.5 && flyingHeight >= 0.5) {
+            return -0.4;
         } else {
-            return -0.275;
+            return -0.2;
         }
     }
 
