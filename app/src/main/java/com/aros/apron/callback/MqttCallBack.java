@@ -1,6 +1,8 @@
 package com.aros.apron.callback;
 
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -36,6 +38,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
+
+import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.v5.manager.KeyManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -121,6 +126,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
             case 60003:
                 //默认规定不在返航时才可以上传航线
+
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     if (message.getIsGuidingFlight() == 0) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);

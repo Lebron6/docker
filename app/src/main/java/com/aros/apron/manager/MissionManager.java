@@ -1,6 +1,8 @@
 package com.aros.apron.manager;
 
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,6 +36,7 @@ import java.util.List;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
+import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
@@ -100,7 +103,7 @@ public class MissionManager extends BaseManager {
                     if (mStartGroupId!=actionGroup){
                         mStartGroupId=actionGroup;
                         sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
-                        LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + actionGroup+1 + "actionId--"
+                        LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + (actionGroup+1) + "actionId--"
                                 + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
 
                     }
@@ -270,6 +273,21 @@ public class MissionManager extends BaseManager {
 
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
+        Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
+                KeyBatteryPowerPercent, 0));
+        if (value != null && value < 30&&!PreferenceUtils.getInstance().getIsDebugMode()) {
+            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            sendMissionExecuteEvents(client, "任务执行失败,电量过低");
+            LogUtil.log(TAG,"任务执行失败,电量过低");
+            return;
+        }
+        RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
+        if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
+            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            sendMissionExecuteEvents(client, "任务执行失败,请将遥控器切换为P/N挡");
+            LogUtil.log(TAG,"任务执行失败,请将遥控器切换为P/N挡");
+            return;
+        }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
