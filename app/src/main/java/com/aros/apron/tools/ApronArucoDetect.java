@@ -536,50 +536,39 @@ public class ApronArucoDetect {
         } else {
 
             if (Movement.getInstance().getFlyingHeight() > 9) {
-//                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/650);
-//                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/650);
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/650);
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/650);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 130)
                         && (absY < 150)
-                        ? -0.575 : 0;
+                        ? -0.675 : 0;
             }else if(arucoMarkers.size()>1&&(Movement.getInstance().getFlyingHeight() <= 1 || Movement.getInstance().getUltrasonicHeight() < 10)){
-//                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/1750);
-//                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/1750);
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1750);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1750);
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1350);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1350);
                 outX = absX<100?0:pidControlX.get_pid();
                 outY = absY<100?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
                         ? -0.275 : 0;
             } else {
-//                pidControlX.setInputFilterAll(absX<100?0:(float)imageVector.val[0]/1450);
-//                pidControlY.setInputFilterAll(absY<100?0:-(float)imageVector.val[1]/1450);
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1650);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1650);
-//                outX = pidControlX.get_pid();
-//                outY = pidControlY.get_pid();
+
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
+
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.475 : 0;
+                        ? -0.575 : 0;
             }
-
         }
 
-
-//        pidControlX.setInputFilterAll((float) outX);
-//        pidControlY.setInputFilterAll((float) outY);
-
-        LogUtil.log(TAG,  " pidX=" + pidControlX.get_pid() +
-                " pidY=" +pidControlY.get_pid() +
+        LogUtil.log(TAG,
                 " 杆量x=" + outX +
                 " 杆量y=" + outY +
                 " 偏移x=" + imageVector.val[0] +
+                " 偏移y=" + imageVector.val[1] +
                 " Id=" + id +
                 " Size=" + arucoMarkers.size() +
                 " 宽度=" + arucoWidth +
