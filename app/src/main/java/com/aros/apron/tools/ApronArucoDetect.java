@@ -543,8 +543,7 @@ public class ApronArucoDetect {
                 outZ = (absX < 130)
                         && (absY < 150)
                         ? -0.65 : 0;
-            }else if(arucoMarkers.size()>1&&(Movement.getInstance().getFlyingHeight() <= 1
-                    || Movement.getInstance().getUltrasonicHeight() < 10)){
+            }else if(z<1){
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
                 outX = absX<100?0:pidControlX.get_pid();
