@@ -543,9 +543,10 @@ public class ApronArucoDetect {
                 outZ = (absX < 130)
                         && (absY < 150)
                         ? -0.65 : 0;
-            }else if(arucoMarkers.size()>1&&(Movement.getInstance().getFlyingHeight() <= 1 || Movement.getInstance().getUltrasonicHeight() < 10)){
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1350);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1350);
+            }else if(arucoMarkers.size()>1&&(Movement.getInstance().getFlyingHeight() <= 1
+                    || Movement.getInstance().getUltrasonicHeight() < 10)){
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
                 outX = absX<100?0:pidControlX.get_pid();
                 outY = absY<100?0:pidControlY.get_pid();
                 outZ = (absX < 200)
@@ -555,12 +556,11 @@ public class ApronArucoDetect {
 
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
-
-                outX = absX<80?0:pidControlX.get_pid();
-                outY = absY<80?0:pidControlY.get_pid();
+                outX = absX<150?0:pidControlX.get_pid();
+                outY = absY<150?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.55 : 0;
+                        ? -0.6 : 0;
             }
         }
 
