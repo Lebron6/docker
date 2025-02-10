@@ -553,13 +553,13 @@ public class ApronArucoDetect {
                         ? -0.35 : 0;
             } else {
 
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1150);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1150);
-                outX = absX<100?0:pidControlX.get_pid();
-                outY = absY<100?0:pidControlY.get_pid();
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
+                outX = absX<80?0:pidControlX.get_pid();
+                outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.575 : 0;
+                        ? -0.55 : 0;
             }
         }
 
