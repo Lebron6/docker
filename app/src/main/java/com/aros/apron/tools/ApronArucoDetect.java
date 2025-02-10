@@ -544,8 +544,8 @@ public class ApronArucoDetect {
                         && (absY < 150)
                         ? -0.65 : 0;
             }else if(z<1){
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1350);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1350);
                 outX = absX<100?0:pidControlX.get_pid();
                 outY = absY<100?0:pidControlY.get_pid();
                 outZ = (absX < 200)
@@ -553,13 +553,13 @@ public class ApronArucoDetect {
                         ? -0.35 : 0;
             } else {
 
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
-                outX = absX<150?0:pidControlX.get_pid();
-                outY = absY<150?0:pidControlY.get_pid();
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1150);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1150);
+                outX = absX<100?0:pidControlX.get_pid();
+                outY = absY<100?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.6 : 0;
+                        ? -0.575 : 0;
             }
         }
 
