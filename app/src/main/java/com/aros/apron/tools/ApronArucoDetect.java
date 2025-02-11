@@ -290,7 +290,7 @@ public class ApronArucoDetect {
     public void findAruco(int[] idArray) {
         if (Movement.getInstance().getFlyingHeight()<7){
             if (Movement.getInstance().getFlyingHeight() <= 1.5 || Movement.getInstance().getUltrasonicHeight() < 15) {
-                if (PreferenceUtils.getInstance().getDoublePayload() == 2) {
+                if (isDoublePayload) {
                     for (int i = 0; i < idArray.length; i++) {
                         if (idArray[i] == 11 || idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
                                 || idArray[i] == 16) {

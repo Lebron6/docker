@@ -39,17 +39,17 @@ public class GimbalManager extends BaseManager {
     }
 
     public void initGimbalInfo(){
-        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
-                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
-            @Override
-            public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
-                if (t1!=null){
-                    //双挂
-                    ApronArucoDetect.getInstance().setDoublePayload(t1);
-                    LogUtil.log(TAG,"检测是否双挂:"+t1);
-                }
-            }
-        });
+//        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
+//                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
+//            @Override
+//            public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+//                if (t1!=null){
+//                    //双挂
+                    ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getDoublePayload()==2);
+//                    LogUtil.log(TAG,"检测是否双挂:"+t1);
+//                }
+//            }
+//        });
 
     }
 
