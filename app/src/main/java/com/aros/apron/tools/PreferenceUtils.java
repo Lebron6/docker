@@ -280,12 +280,12 @@ public class PreferenceUtils extends BasePreference {
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
     }
-    public Boolean getDoublePayload() {
-        return getBoolean(CAMERA_LOCATION);
+    public int getDoublePayload() {
+        return getInt(CAMERA_LOCATION);
     }
 
-    public void setDoublePayload(Boolean isDoublePayload) {
-        setBoolean(CAMERA_LOCATION, isDoublePayload);
+    public void setDoublePayload(int doublePayload) {
+        setInt(CAMERA_LOCATION, doublePayload);
     }
     public String getDockerLat() {
         return getString(DOCKER_LAT);

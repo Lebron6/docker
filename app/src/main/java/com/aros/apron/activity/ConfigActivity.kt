@@ -96,8 +96,8 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
-        configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().doublePayload ==true
-        configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().doublePayload ==false
+        configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().doublePayload ==1//中间
+        configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().doublePayload ==2//左边
         configBinding.btnConfig.setOnClickListener { config() }
         configBinding.tvSetAlternate.setOnClickListener {
             val isConnect = KeyManager.getInstance()
@@ -303,10 +303,10 @@ class ConfigActivity : BaseActivity() {
         } else {
             PreferenceUtils.getInstance().landType = 1
         }
-        if (configBinding.rbCameraLeft.isChecked) {
-            PreferenceUtils.getInstance().doublePayload = false
+        if (configBinding.rbCameraCenter.isChecked) {
+            PreferenceUtils.getInstance().doublePayload = 1
         } else {
-            PreferenceUtils.getInstance().doublePayload = false
+            PreferenceUtils.getInstance().doublePayload = 2
         }
         ToastUtil.showToast("配置已保存")
         Handler().postDelayed(Runnable {
