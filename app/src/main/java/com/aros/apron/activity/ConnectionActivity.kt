@@ -185,7 +185,7 @@ class ConnectionActivity : AppCompatActivity() {
                 }else if (PreferenceUtils.getInstance().customStreamEnable&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
                     ToastUtil.showToast("未配置自定义推流地址")
                     LogUtil.log(TAG, "未配置自定义推流地址")
-                }else if (PreferenceUtils.getInstance().doublePayload == 0){
+                }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
                     ToastUtil.showToast("未配置主相机位置")
                     LogUtil.log(TAG, "未配置主相机位置")
                 }
