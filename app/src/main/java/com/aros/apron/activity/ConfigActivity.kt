@@ -96,6 +96,7 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
+
         configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().doublePayload ==1//中间
         configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().doublePayload ==2//左边
         configBinding.btnConfig.setOnClickListener { config() }
