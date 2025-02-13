@@ -42,6 +42,7 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
+import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
@@ -52,6 +53,7 @@ import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
+import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
@@ -248,6 +250,9 @@ open class MainActivity : BaseActivity() {
 //            uiSetting?.setZoomControlsEnabled(false)
 //        })
 //        mapWidget?.onCreate(savedInstanceState)
+        GeoidManager.getInstance().init(this)
+        WPMZManager.getInstance().init(this)
+
         needConnect()
         initDJIManager()
         initCameraStream()
