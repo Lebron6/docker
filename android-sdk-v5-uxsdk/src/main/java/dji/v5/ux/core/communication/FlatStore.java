@@ -39,7 +39,7 @@ public class FlatStore {
     }
 
     public static FlatStore getInstance() {
-        return FlatStore.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
 
     /**
