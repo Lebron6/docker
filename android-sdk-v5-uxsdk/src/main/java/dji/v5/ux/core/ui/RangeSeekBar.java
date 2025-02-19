@@ -91,17 +91,17 @@ public class RangeSeekBar extends View {
         // 高度
         int heightNeeded = mThumbSize;
 
-        int heightSize = View.MeasureSpec.getSize(heightMeasureSpec);
-        int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
-        if (heightMode == View.MeasureSpec.EXACTLY) {
-            heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(heightSize, View.MeasureSpec.EXACTLY);
-        } else if (heightMode == View.MeasureSpec.AT_MOST) {
-            heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-                    heightSize < heightNeeded ? heightSize : heightNeeded, View.MeasureSpec.EXACTLY);
+        if (heightMode == MeasureSpec.EXACTLY) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
+        } else if (heightMode == MeasureSpec.AT_MOST) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    heightSize < heightNeeded ? heightSize : heightNeeded, MeasureSpec.EXACTLY);
         } else {
-            heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-                    heightNeeded, View.MeasureSpec.EXACTLY);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    heightNeeded, MeasureSpec.EXACTLY);
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

@@ -447,7 +447,7 @@
                         android:id="@+id/et_gs28281_port"
                         android:layout_width="0dp"
                         android:textSize="10sp"
-android:inputType="number"
+                        android:inputType="number"
                         android:layout_height="match_parent"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
@@ -936,7 +936,7 @@ android:inputType="number"
                         android:layout_alignParentRight="true"
                         android:layout_weight="7"
                         android:textSize="10sp"
-                          
+
                         android:gravity="center"
                         android:singleLine="true"
                         android:textColor="@color/white"
@@ -982,7 +982,7 @@ android:inputType="number"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -994,7 +994,7 @@ android:inputType="number"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -1005,7 +1005,7 @@ android:inputType="number"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="0.7"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -1052,7 +1052,7 @@ android:inputType="number"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -1064,7 +1064,7 @@ android:inputType="number"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -1094,7 +1094,7 @@ android:inputType="number"
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/txt_alternate_s_h"
-                           
+
                         android:gravity="center"
                         android:inputType="number"
                         android:textSize="10sp"
@@ -1123,7 +1123,7 @@ android:inputType="number"
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/txt_alternate_height"
-                           
+
                         android:gravity="center"
                         android:inputType="number"
                         android:textSize="10sp"
@@ -1152,7 +1152,7 @@ android:inputType="number"
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/txt_alternate_times"
-                           
+
                         android:gravity="center"
                         android:inputType="number"
                         android:textSize="10sp"

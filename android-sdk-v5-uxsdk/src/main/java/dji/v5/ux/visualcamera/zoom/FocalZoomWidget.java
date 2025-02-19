@@ -33,7 +33,7 @@ public class FocalZoomWidget extends ConstraintLayoutWidget<Object> implements I
         int widthMeasureSpec = (int) getResources().getDimension(R.dimen.uxsdk_42_dp);
         int heightMeasureSpec = (int) getResources().getDimension(R.dimen.uxsdk_250_dp);
         focalZoomWidgetView = new FocalZoomWidgetView(context, attrs, defStyleAttr);
-        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(widthMeasureSpec, heightMeasureSpec);
+        LayoutParams layoutParams = new LayoutParams(widthMeasureSpec, heightMeasureSpec);
         this.addView(focalZoomWidgetView, layoutParams);
     }
 

@@ -16,7 +16,7 @@ public class PreviewChartTouchHandler extends ChartTouchHandler {
         this.isValueSelectionEnabled = false;
     }
 
-    protected class PreviewChartGestureListener extends ChartTouchHandler.ChartGestureListener {
+    protected class PreviewChartGestureListener extends ChartGestureListener {
         protected PreviewChartGestureListener() {
             super();
         }

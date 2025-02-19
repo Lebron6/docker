@@ -6,12 +6,12 @@ public class SelectedValue {
     private SelectedValueType type;
 
     public SelectedValue() {
-        this.type = SelectedValue.SelectedValueType.NONE;
+        this.type = SelectedValueType.NONE;
         this.clear();
     }
 
     public SelectedValue(int firstIndex, int secondIndex, SelectedValueType type) {
-        this.type = SelectedValue.SelectedValueType.NONE;
+        this.type = SelectedValueType.NONE;
         this.set(firstIndex, secondIndex, type);
     }
 
@@ -21,7 +21,7 @@ public class SelectedValue {
         if (null != type) {
             this.type = type;
         } else {
-            this.type = SelectedValue.SelectedValueType.NONE;
+            this.type = SelectedValueType.NONE;
         }
 
     }
@@ -33,7 +33,7 @@ public class SelectedValue {
     }
 
     public void clear() {
-        this.set(Integer.MIN_VALUE, Integer.MIN_VALUE, SelectedValue.SelectedValueType.NONE);
+        this.set(Integer.MIN_VALUE, Integer.MIN_VALUE, SelectedValueType.NONE);
     }
 
     public boolean isSet() {

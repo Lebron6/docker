@@ -334,7 +334,7 @@ open class RemainingFlightTimeWidget @JvmOverloads constructor(
 
     private fun updateVisibility(isProductConnected: Boolean) {
         widgetStateDataProcessor.onNext(ProductConnected(isProductConnected))
-//        visibility = if (isProductConnected) View.VISIBLE else View.GONE
+        visibility = if (isProductConnected) View.VISIBLE else View.GONE
     }
 
     private fun drawFlightText(canvas: Canvas, roundedBgWidth: Float, textWidth: Float) {

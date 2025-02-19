@@ -107,7 +107,7 @@ public class BatteryGroupInfoWidget extends ConstraintLayoutWidget<Object> {
         batteryChargeRemaining.setText(getResources().getString(R.string.uxsdk_battery_percent, percent));
     }
 
-    public void setOnDetailOnClickListener(@Nullable View.OnClickListener listener) {
+    public void setOnDetailOnClickListener(@Nullable OnClickListener listener) {
         batteryDetail.setVisibility(listener == null ? GONE : VISIBLE);
         batteryDetail.setOnClickListener(listener);
     }

@@ -31,7 +31,6 @@ public class DroneHelper {
     private String TAG = "DroneHelper";
     private static final int GIMBAL_FORWARD = 0;
     private static final int GIMBAL_DOWN = 1;
-    VirtualStickFlightControlParam virtualStickFlightControlParam;
 
 
     private DroneHelper() {
@@ -42,7 +41,7 @@ public class DroneHelper {
     }
 
     public static DroneHelper getInstance() {
-        return DroneHelper.DroneHelperHolder.INSTANCE;
+        return DroneHelperHolder.INSTANCE;
     }
 
 
@@ -76,11 +75,7 @@ public class DroneHelper {
 
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
         if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
-            virtualStickFlightControlParam = new VirtualStickFlightControlParam();
-            virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
-            virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
-            virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
-            virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+
             VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
             VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
                 @Override
@@ -146,6 +141,9 @@ public class DroneHelper {
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
+
+
+
 //        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
 //                KeyConnection, 0));
 //        if (cameraConnect!=null&&cameraConnect) {
@@ -168,6 +166,11 @@ public class DroneHelper {
     }
 
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {
+        VirtualStickFlightControlParam virtualStickFlightControlParam = new VirtualStickFlightControlParam();
+        virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
+        virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
+        virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
+        virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
         virtualStickFlightControlParam.setPitch(mPitch);//左右
         virtualStickFlightControlParam.setRoll(mRoll);//前后
         virtualStickFlightControlParam.setYaw(mYaw);

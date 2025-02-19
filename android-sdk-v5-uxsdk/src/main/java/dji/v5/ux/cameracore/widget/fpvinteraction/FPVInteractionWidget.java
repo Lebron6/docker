@@ -231,7 +231,7 @@ public class FPVInteractionWidget extends FrameLayoutWidget<Object> implements V
                     addDisposable(Flowable.combineLatest(widgetModel.getControlMode(), widgetModel.isAeLocked(), Pair::new)
                             .firstOrError()
                             .observeOn(SchedulerProvider.ui())
-                            .subscribe((Pair<SettingDefinitions.ControlMode, Boolean> values) -> updateTarget(values.first, values.second, targetX, targetY),
+                            .subscribe((Pair<ControlMode, Boolean> values) -> updateTarget(values.first, values.second, targetX, targetY),
                                     UxErrorHandle.logErrorConsumer(TAG, "Update Target: ")));
                 }
                 break;

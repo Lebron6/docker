@@ -105,6 +105,9 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
+
+        configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().cameraLocationType ==1//中间
+        configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//左边
         configBinding.btnConfig.setOnClickListener { config() }
         configBinding.tvSetAlternate.setOnClickListener {
             val isConnect = KeyManager.getInstance()
@@ -248,6 +251,11 @@ class ConfigActivity : BaseActivity() {
                 return
             }
         }
+
+        if (!configBinding.rbCameraLeft.isChecked && !configBinding.rbCameraCenter.isChecked) {
+            ToastUtil.showToast("未配置主相机位置")
+            return
+        }
         if (configBinding.cbCustomStream.isChecked) {
             if (TextUtils.isEmpty(configBinding.etStreamUrl.text)) {
                 ToastUtil.showToast("未配置推流地址")
@@ -363,6 +371,11 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().landType = 2
         } else {
             PreferenceUtils.getInstance().landType = 1
+        }
+        if (configBinding.rbCameraCenter.isChecked) {
+            PreferenceUtils.getInstance().cameraLocationType = 1
+        } else {
+            PreferenceUtils.getInstance().cameraLocationType = 2
         }
         ToastUtil.showToast("配置已保存")
         Handler().postDelayed(Runnable {

@@ -1,6 +1,8 @@
 package com.aros.apron.manager;
 
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,6 +36,7 @@ import java.util.List;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
+import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
@@ -74,6 +77,8 @@ public class MissionManager extends BaseManager {
     private long enterWayLineTime;
     private long finishWayLineTime;
     private int retryPushKmzTime;
+    private int mStartGroupId=9999;//默认第一个动作组id
+    private int mFinishGroupId=0;//默认第一个动作组id
 
     public void initMissionManager(MqttAndroidClient client) {
         this.client = client;
@@ -94,19 +99,13 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onExecutionStart(int actionGroup, int actionId) {
-                    if (mActionGroups != null && mActionGroups.size() > actionGroup) {
-                        //判断是否是该动作组第一个动作
-                        if (actionId == 0) {
-                            //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
-//                            if (actionGroupStartIndex != actionGroup) {
-//                                actionGroupStartIndex = actionGroup;
-                                sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
-                                LogUtil.log(TAG, "航点动作组开始:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
-//                            }
-                        }
+                    LogUtil.log(TAG,"onExecutionStart:"+actionGroup);
+                    if (mStartGroupId!=actionGroup){
+                        mStartGroupId=actionGroup;
+                        sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
+                        LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + (actionGroup+1) + "actionId--"
+                                + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
 
-                    }else{
-                        LogUtil.log(TAG,"动作组下标异常");
                     }
 
                 }
@@ -114,6 +113,16 @@ public class MissionManager extends BaseManager {
                 @Override
                 public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
 //                    sendMsgWaypointActionState2Server(client, "1");
+                    if (error!=null){
+                        LogUtil.log(TAG,"动作结束异常:"+new Gson().toJson(error));
+                    }
+//                    if (mFinishGroupId!=actionGroup){
+//                        mFinishGroupId=actionGroup;
+//                        sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
+//                        LogUtil.log(TAG, "动作组结束:" + " actionGroup=" + (actionGroup+1) + "  actionId="
+//                                + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
+//                    }
+
                     if (mActionGroups != null && mActionGroups.size() > actionGroup) {
                         if (mActionGroups.get(actionGroup).getActions().size()>actionId){
                             //判断是否是该动作组第一个动作
@@ -122,7 +131,8 @@ public class MissionManager extends BaseManager {
 //                                if (actionGroupEndIndex != actionGroup) {
 //                                    actionGroupEndIndex = actionGroup;
                                 sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
-                                    LogUtil.log(TAG, "航点动作组结束:" + "actionGroup--" + actionGroup + "actionId--" + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
+                                LogUtil.log(TAG, "航点动作组结束:" + "actionGroup=" + (actionGroup+1) + "  actionId="
+                                        + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
 //                                }
                             }
 
@@ -263,6 +273,21 @@ public class MissionManager extends BaseManager {
 
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
+        Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
+                KeyBatteryPowerPercent, 0));
+        if (value != null && value < 30&&!PreferenceUtils.getInstance().getIsDebugMode()) {
+            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            sendMissionExecuteEvents(client, "任务执行失败,电量过低");
+            LogUtil.log(TAG,"任务执行失败,电量过低");
+            return;
+        }
+        RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
+        if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
+            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            sendMissionExecuteEvents(client, "任务执行失败,请将遥控器切换为P/N挡");
+            LogUtil.log(TAG,"任务执行失败,请将遥控器切换为P/N挡");
+            return;
+        }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {

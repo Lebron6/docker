@@ -47,6 +47,7 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.Utils
 import com.aros.apron.util.FileUtil
+import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import com.gosuncn.lib28181agent.GS28181SDKManager
 import com.gosuncn.lib28181agent.Jni28181AgentSDK
@@ -59,6 +60,7 @@ import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
+import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
@@ -258,6 +260,9 @@ open class MainActivity : BaseActivity() {
 //            uiSetting?.setZoomControlsEnabled(false)
 //        })
 //        mapWidget?.onCreate(savedInstanceState)
+        GeoidManager.getInstance().init(this)
+        WPMZManager.getInstance().init(this)
+
         needConnect()
         initDJIManager()
         initCameraStream()
@@ -354,6 +359,7 @@ open class MainActivity : BaseActivity() {
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             GS28181SDKManager.getInstance().setListenerServer(MGS28181Listener())
 
+            ApronArucoDetect.getInstance().init()
             //这里修改推流逻辑
             Handler().postDelayed(Runnable {
                 StreamManager.getInstance()

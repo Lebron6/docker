@@ -169,7 +169,7 @@ public class CameraCaptureWidget extends ConstraintLayoutWidget<Object> implemen
         widgetMap.put(cameraMode, view);
         view.setVisibility(INVISIBLE);
         addView(view);
-        ConstraintLayout.LayoutParams lp = new Constraints.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams lp = new Constraints.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         view.setLayoutParams(lp);
     }
 

@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +29,7 @@ import com.gosuncn.lib28181agent.GS28181SDKManager
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.v5.utils.common.StringUtils
+
 
 class ConnectionActivity : AppCompatActivity() {
 
@@ -92,7 +92,6 @@ class ConnectionActivity : AppCompatActivity() {
         var addr= IPAddressUtil.getLocalIPv4Address()
         var code= GS28181SDKManager.getInstance().initSDK(addr)
         if (code==0){
-            Log.e(TAG, "初始化国标推流:$code 本地ip:$addr")
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Ip)&&!TextUtils.isEmpty(PreferenceUtils.getInstance().gS28181Port)){
                 GS28181SDKManager.getInstance().registerSDK(PreferenceUtils.getInstance().gS28181Ip, PreferenceUtils.getInstance().gS28181Port.toInt())
                 FileUtil.getInstance().startHeartBeatTask()//开心跳包
@@ -146,6 +145,7 @@ class ConnectionActivity : AppCompatActivity() {
         msdkInfoVm.msdkInfo.observe(this) {
             connectionBinding.textViewVersion.text =
                 StringUtils.getResStr(R.string.sdk_version, it.SDKVersion + " " + it.buildVer)
+
             connectionBinding.textViewProductName.text =
                 StringUtils.getResStr(R.string.product_name, it.productType.name)
             connectionBinding.textViewPackageProductCategory.text =
@@ -153,13 +153,19 @@ class ConnectionActivity : AppCompatActivity() {
             connectionBinding.textViewIsDebug.text =
                 StringUtils.getResStr(R.string.is_sdk_debug, it.isDebug)
         }
+        // 获取当前应用的 PackageManager 实例
+        val packageManager = packageManager
+        // 获取当前应用的 PackageInfo 对象
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        // 获取版本名
+        val versionName = packageInfo.versionName
+        connectionBinding.textViewAmsVersion?.text=versionName
     }
 
     private fun observeSDKManagerStatus() {
         msdkManagerVM.lvRegisterState.observe(this) { resultPair ->
             val statusText: String?
             if (resultPair.first) {
-                Log.e(TAG, "飞行器已连接")
                 statusText = StringUtils.getResStr(this, R.string.registered)
                 msdkInfoVm.initListener()
                 if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)
@@ -202,6 +208,9 @@ class ConnectionActivity : AppCompatActivity() {
                 }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().fovh)||TextUtils.isEmpty(PreferenceUtils.getInstance().fovw)) {
                     ToastUtil.showToast("未配置视场角")
                     LogUtil.log(TAG, "未配置视场角")
+                }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
+                    ToastUtil.showToast("未配置主相机位置")
+                    LogUtil.log(TAG, "未配置主相机位置")
                 }
 //                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
 //                    ToastUtil.showToast("未设置备降点")

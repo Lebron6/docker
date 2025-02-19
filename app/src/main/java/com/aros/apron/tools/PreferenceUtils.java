@@ -45,6 +45,7 @@ public class PreferenceUtils extends BasePreference {
     private String NEED_UPLOAD_VEDIO = "need_upload_vedio";
     private String AIRPORT_TYPE = "airport_type";
     private String LANDING_TYPE = "land_type"; //1RTK优先 2视觉优先
+    private String CAMERA_LOCATION = "camera_location"; //主相机位置
     private String RTK_TYPE = "rtk_type"; //1自定义网络RTK 2DJI赠送RTK
     private String DOCKER_LON = "docker_lon"; //机库经纬度
     private String DOCKER_LAT = "docker_lat"; //机库经纬度
@@ -362,7 +363,13 @@ public class PreferenceUtils extends BasePreference {
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
     }
+    public int getCameraLocationType() {
+        return getInt(CAMERA_LOCATION);
+    }
 
+    public void setCameraLocationType(int locationType) {
+        setInt(CAMERA_LOCATION, locationType);
+    }
     public String getDockerLat() {
         return getString(DOCKER_LAT);
     }
