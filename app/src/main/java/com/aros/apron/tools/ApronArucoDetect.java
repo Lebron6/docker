@@ -166,7 +166,7 @@ public class ApronArucoDetect {
                                 idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17
                                 || idArray[0] == 18 || idArray[0] == 19) {
                             if (!startFastStick) {
-                                if ((idArray.length >= 2 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
+                                if ((idArray.length >= 5 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
                                     String logMessage = "参考Marker数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
@@ -543,9 +543,9 @@ public class ApronArucoDetect {
                 outZ = (absX < 130)
                         && (absY < 150)
                         ? -0.65 : 0;
-            }else if(z<1){
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1350);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1350);
+            }else if(z<1.5){
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/3550);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/3550);
                 outX = absX<100?0:pidControlX.get_pid();
                 outY = absY<100?0:pidControlY.get_pid();
                 outZ = (absX < 200)
@@ -553,13 +553,13 @@ public class ApronArucoDetect {
                         ? -0.35 : 0;
             } else {
 
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1750);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1750);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.55 : 0;
+                        ? -0.575 : 0;
             }
         }
 
