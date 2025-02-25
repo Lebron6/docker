@@ -20,7 +20,6 @@ import com.aros.apron.tools.DomParserKML;
 import com.aros.apron.tools.DomParserWPML;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.tools.Utils;
 import com.aros.apron.tools.ZipUtil;
 import com.google.gson.Gson;
 

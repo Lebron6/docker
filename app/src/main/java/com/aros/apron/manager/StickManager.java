@@ -151,7 +151,7 @@ public class StickManager extends BaseManager {
             }
             param.setPitch(Double.valueOf(message.getY()));//左右(速度模式-10m/s-10m/s)
             param.setRoll(Double.valueOf(message.getX()));//前后(速度模式-10m/s-10m/s)
-            param.setYaw(Double.valueOf(message.getR())*10);//旋转(角速度模式-100-100)
+            param.setYaw(Double.valueOf(message.getR()));//旋转(角速度模式-100-100)
             param.setVerticalThrottle(Double.valueOf(message.getZ()));//上下(速度模式-4m/s-4m/s)
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
 //            sendMsg2Server(mqttAndroidClient, message, "移动...");

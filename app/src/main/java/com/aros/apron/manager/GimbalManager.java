@@ -151,7 +151,8 @@ public class GimbalManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0),
+                    GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             sendMsg2Server(client, message);
@@ -174,7 +175,7 @@ public class GimbalManager extends BaseManager {
             message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
-        if (isConnect) {
+        if (isConnect!=null&&isConnect) {
             DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, 0);
             DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, 0);
             if (pitchKey != null) {
@@ -185,7 +186,7 @@ public class GimbalManager extends BaseManager {
             if (yawKey != null) {
                 setGimbalControlSpeed(mqttAndroidClient, message, yawKey, "云台偏航控制速度设置失败:");
             } else {
-                LogUtil.log(TAG, "云台俯仰控制速度设置失败:yawKey is null!");
+                LogUtil.log(TAG, "云台偏航控制速度设置失败:yawKey is null!");
             }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "云台未连接");
