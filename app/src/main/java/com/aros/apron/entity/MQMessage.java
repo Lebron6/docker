@@ -59,6 +59,7 @@ public class MQMessage {
     private String metersureAreaWidth;//测温矩形长度
     private String metersureAreaHeight;//测温矩形宽度
     private int currentView;//直播视频源
+    private int gimbalControlSpeed;//云台控制速度
 
     public int getCurrentView() {
         return currentView;
@@ -509,6 +510,11 @@ public class MQMessage {
         this.rtmp_push_url = rtmp_push_url;
     }
 
+    public int getGimbalControlSpeed() {
+        return gimbalControlSpeed;
+    }
 
-
+    public void setGimbalControlSpeed(int gimbalControlSpeed) {
+        this.gimbalControlSpeed = gimbalControlSpeed;
+    }
 }

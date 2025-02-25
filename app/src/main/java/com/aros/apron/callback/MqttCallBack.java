@@ -76,7 +76,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                         break; // 成功连接，退出循环
                     }
                 } catch (MqttException e) {
-                    LogUtil.log(TAG,"Reconnect failed. Retrying in a few seconds...");
+                    LogUtil.log(TAG,"Reconnect failed. Retrying in a few seconds..."+e.toString());
                     try {
                         // 等待一段时间后再次尝试重连
                         Thread.sleep(3000); // 等待5秒
@@ -437,6 +437,11 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60141:
                 LogUtil.log(TAG, "收到命令：切换直播视角" + jsonString);
                 StreamManager.getInstance().switchCurrentView(mqttClient,message);
+                break;
+            //设置云台控制的最大速度
+            case 60142:
+                LogUtil.log(TAG, "收到命令：设置云台控制的最大速度" + jsonString);
+                GimbalManager.getInstance().setGimbalControlMaxSpeed(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:

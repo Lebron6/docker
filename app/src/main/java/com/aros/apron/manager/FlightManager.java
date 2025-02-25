@@ -453,6 +453,7 @@ public class FlightManager extends BaseManager {
             try {
                 flightMessage = new MqttMessage(new Gson().toJson(Movement.getInstance()).getBytes("UTF-8"));
             } catch (Exception e) {
+                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接"+e);
                 throw new RuntimeException(e);
             }
             flightMessage.setQos(0);
