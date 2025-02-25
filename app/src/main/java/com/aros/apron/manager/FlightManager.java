@@ -925,7 +925,7 @@ public class FlightManager extends BaseManager {
     /**
      * 紧急悬停
      */
-    public void emergencyHover(MqttAndroidClient mqttClient) {
+    public void emergencyHover(MqttAndroidClient mqttClient,MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -933,15 +933,16 @@ public class FlightManager extends BaseManager {
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "取消返航成功");
-                            sendMissionExecuteEvents(mqttClient, "取消返航成功");
+                            LogUtil.log(TAG, "紧急悬停，取消返航成功");
+                            sendMsg2Server(mqttClient, message);
+                            resetAircrftLandingStatus();
+
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "取消返航失败");
-
+                            LogUtil.log(TAG, "紧急悬停，取消返航失败:" + new Gson().toJson(error));
+                            sendMsg2Server(mqttClient, message,"紧急悬停，取消返航失败:"+new Gson().toJson(error));
                         }
                     });
                     break;
@@ -951,14 +952,16 @@ public class FlightManager extends BaseManager {
                             ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG, "终止任务成功");
-                            sendMissionExecuteEvents(mqttClient, "终止任务成功");
+                            LogUtil.log(TAG, "紧急悬停，终止任务成功");
+                            sendMsg2Server(mqttClient, message);
+                            resetAircrftLandingStatus();
+
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "终止任务失败");
+                            LogUtil.log(TAG, "紧急悬停，终止任务失败:" + new Gson().toJson(error));
+                            sendMsg2Server(mqttClient, message,"紧急悬停，终止任务失败:"+new Gson().toJson(error));
                         }
                     });
                     break;
@@ -966,14 +969,16 @@ public class FlightManager extends BaseManager {
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "取消降落成功");
-                            sendMissionExecuteEvents(mqttClient, "取消降落成功");
+                            LogUtil.log(TAG, "紧急悬停，取消降落成功");
+                            sendMsg2Server(mqttClient, message);
+                            resetAircrftLandingStatus();
+
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "取消降落失败");
+                            LogUtil.log(TAG, "紧急悬停，取消降落失败:" + new Gson().toJson(error));
+                            sendMsg2Server(mqttClient, message,"紧急悬停，取消降落失败");
                         }
                     });
                     break;
@@ -981,19 +986,29 @@ public class FlightManager extends BaseManager {
                     VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG, "控制权取消成功");
-                            sendMissionExecuteEvents(mqttClient, "控制权取消成功");
+                            LogUtil.log(TAG, "紧急悬停，控制权释放成功");
+                            sendMsg2Server(mqttClient, message);
+                            resetAircrftLandingStatus();
                         }
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "控制权取消失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "控制权取消失败");
+                            LogUtil.log(TAG, "紧急悬停，控制权释放失败:" + new Gson().toJson(error));
+                            sendMsg2Server(mqttClient, message, "紧急悬停，控制权失败");
                         }
                     });
                     break;
-
             }
         }
+    }
+
+    private void resetAircrftLandingStatus(){
+        // 避免在下次起飞时触发视觉识别
+        PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+        PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+        PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+        //设置为未触发开始识别二维码状态
+        isSendDetect=false;
+        EventBus.getDefault().post(FLAG_STOP_ARUCO);
     }
 //
 //    //设置低电量阈值【15-50】
