@@ -443,6 +443,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置云台控制的最大速度" + jsonString);
                 GimbalManager.getInstance().setGimbalControlMaxSpeed(mqttClient,message);
                 break;
+            //紧急悬停
+            case 60143:
+                LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
+                FlightManager.getInstance().emergencyHover(mqttClient);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {

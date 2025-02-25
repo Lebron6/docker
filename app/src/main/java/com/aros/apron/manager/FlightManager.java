@@ -46,6 +46,8 @@ import dji.v5.common.utils.GpsUtils;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.PerceptionInfo;
 import dji.v5.manager.aircraft.perception.listener.PerceptionInformationListener;
+import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfo;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfoChangeListener;
 import dji.v5.manager.diagnostic.DJIDeviceStatus;
@@ -53,6 +55,7 @@ import dji.v5.manager.diagnostic.DJIDeviceStatusChangeListener;
 import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
+import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 public class FlightManager extends BaseManager {
 
@@ -919,7 +922,79 @@ public class FlightManager extends BaseManager {
         }
     }
 
+    /**
+     * 紧急悬停
+     */
+    public void emergencyHover(MqttAndroidClient mqttClient) {
+        FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
+        if (flightMode != null) {
+            switch (flightMode) {
+                case GO_HOME:
+                    KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            LogUtil.log(TAG, "取消返航成功");
+                            sendMissionExecuteEvents(mqttClient, "取消返航成功");
+                        }
 
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(mqttClient, "取消返航失败");
+
+                        }
+                    });
+                    break;
+                case WAYPOINT:
+                    IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+                    missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
+                            ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "终止任务成功");
+                            sendMissionExecuteEvents(mqttClient, "终止任务成功");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(mqttClient, "终止任务失败");
+                        }
+                    });
+                    break;
+                case AUTO_LANDING:
+                    KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            LogUtil.log(TAG, "取消降落成功");
+                            sendMissionExecuteEvents(mqttClient, "取消降落成功");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(mqttClient, "取消降落失败");
+                        }
+                    });
+                    break;
+                case VIRTUAL_STICK:
+                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "控制权取消成功");
+                            sendMissionExecuteEvents(mqttClient, "控制权取消成功");
+                        }
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "控制权取消失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(mqttClient, "控制权取消失败");
+                        }
+                    });
+                    break;
+
+            }
+        }
+    }
 //
 //    //设置低电量阈值【15-50】
 //    public void setLowBatteryWarningThreshold(MqttAndroidClient mqttAndroidClient, MQMessage message) {
