@@ -177,8 +177,16 @@ public class GimbalManager extends BaseManager {
         if (isConnect) {
             DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, 0);
             DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, 0);
-            setGimbalControlSpeed(mqttAndroidClient, message, pitchKey, "云台俯仰控制速度设置失败:");
-            setGimbalControlSpeed(mqttAndroidClient, message, yawKey, "云台偏航控制速度设置失败:");
+            if (pitchKey != null) {
+                setGimbalControlSpeed(mqttAndroidClient, message, pitchKey, "云台俯仰控制速度设置失败:");
+            } else {
+                LogUtil.log(TAG, "云台俯仰控制速度设置失败:pitchKey is null!");
+            }
+            if (yawKey != null) {
+                setGimbalControlSpeed(mqttAndroidClient, message, yawKey, "云台偏航控制速度设置失败:");
+            } else {
+                LogUtil.log(TAG, "云台俯仰控制速度设置失败:yawKey is null!");
+            }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "云台未连接");
         }
