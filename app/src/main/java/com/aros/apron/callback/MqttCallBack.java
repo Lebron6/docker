@@ -446,7 +446,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             //紧急悬停
             case 60143:
                 LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
-                FlightManager.getInstance().emergencyHover(mqttClient);
+                FlightManager.getInstance().emergencyHover(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:
