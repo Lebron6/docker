@@ -114,6 +114,8 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setPlaneMessage(to.description());
                         pushFlightAttitude();
                     }
+                    Log.e(TAG,"监听飞机状态:"+to.name());
+
                 }
             });
             iPerceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
@@ -290,7 +292,6 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                         }
-                        LogUtil.log(TAG, "飞行模式:" + newValue.name());
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
                     }
@@ -439,7 +440,7 @@ public class FlightManager extends BaseManager {
         droneStorage();
 
         if (isFlyClickTime()) {
-
+//            XcFileLog.getInstace().f(TAG,new Gson().toJson(Movement.getInstance()));
             XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
                     + Movement.getInstance().getCurrentLatitude()
                     + "--altitude:" + Movement.getInstance().getFlyingHeight()
