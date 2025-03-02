@@ -275,7 +275,7 @@ public class MissionManager extends BaseManager {
         this.message = message;
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                 KeyBatteryPowerPercent, 0));
-        if (value != null && value < 30&&!PreferenceUtils.getInstance().getIsDebugMode()) {
+        if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())&&!PreferenceUtils.getInstance().getIsDebugMode()) {
             DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
             sendMissionExecuteEvents(client, "任务执行失败,电量过低");
             LogUtil.log(TAG,"任务执行失败,电量过低");
