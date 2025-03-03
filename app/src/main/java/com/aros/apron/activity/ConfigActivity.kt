@@ -28,6 +28,7 @@ class ConfigActivity : BaseActivity() {
         configBinding = ActivityConfigBinding.inflate(layoutInflater)
         setContentView(configBinding.root)
         initView()
+        LogUtil.log(TAG,"进入AMS配置界面")
     }
 
     private fun initView() {

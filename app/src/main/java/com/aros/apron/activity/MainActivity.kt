@@ -97,6 +97,7 @@ import dji.v5.ux.visualcamera.zoom.FocalZoomWidget
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.Consumer
+import org.eclipse.paho.client.mqttv3.MqttException
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -728,6 +729,14 @@ open class MainActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         isAppStarted = false
+        try {
+            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
+                mqttAndroidClient.unregisterResources()
+                mqttAndroidClient.disconnect() //断开连接
+            }
+        } catch (e: MqttException) {
+            e.printStackTrace()
+        }
     }
 
 

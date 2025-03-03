@@ -46,55 +46,20 @@ public class MqttCallBack implements MqttCallbackExtended {
 
     private String TAG = "MqttCallBack";
     private MqttAndroidClient mqttClient;
-    private MqttConnectOptions mMqttConnectOptions;
 
-    public MqttCallBack(MqttAndroidClient mqttClient, MqttConnectOptions mMqttConnectOptions) {
+    public MqttCallBack(MqttAndroidClient mqttClient) {
         this.mqttClient = mqttClient;
-        this.mMqttConnectOptions = mMqttConnectOptions;
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        LogUtil.log(TAG, "MQtt connectionLost-----");
-//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    reConnect();
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }, 1000);
-        new Thread(() -> {
-            while (true) {
-                try {
-                    if (mqttClient!=null&&!mqttClient.isConnected()) {
-                        LogUtil.log(TAG,"Attempting to reconnect...");
-                        mqttClient.connect(mMqttConnectOptions);
-                        LogUtil.log(TAG,"Reconnected!");
-                        break; // 成功连接，退出循环
-                    }
-                } catch (MqttException e) {
-                    LogUtil.log(TAG,"Reconnect failed. Retrying in a few seconds..."+e.toString());
-                    try {
-                        // 等待一段时间后再次尝试重连
-                        Thread.sleep(3000); // 等待5秒
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-            }
-        }).start();
-
+        LogUtil.log(TAG, "MQtt connectionLost:"+cause.toString());
     }
 
     //断线重连
     public void reConnect() throws Exception {
         if (null != mqttClient) {
             LogUtil.log(TAG, "MQtt reConnect-----");
-            mqttClient.connect(mMqttConnectOptions);
         }
     }
 
@@ -485,12 +450,12 @@ public class MqttCallBack implements MqttCallbackExtended {
     public void connectComplete(boolean reconnect, String serverURI) {
         try {
             if (reconnect) {//重新订阅
-                Log.e(TAG, "MQtt ConnectComplete:" + serverURI);
+                LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
                 mqttClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 1);//订阅主题:注册
                 // publish(topic,"注册",0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "MQtt ConnectException:" + e.toString());
+            LogUtil.log(TAG, "MQtt ConnectException:" + e.toString());
         }
     }
 }
