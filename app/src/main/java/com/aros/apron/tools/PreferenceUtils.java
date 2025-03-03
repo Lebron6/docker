@@ -69,7 +69,8 @@ public class PreferenceUtils extends BasePreference {
     private String ALTITUDE_COMPENSATION = "altitude_compensation";//高度补偿
     private String CLIENT_CODE = "client_code";//代理端编码
     private String SERVER_CODE = "server_code";//服务端编码
-
+    private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
+    private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
 
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
@@ -393,6 +394,23 @@ public class PreferenceUtils extends BasePreference {
     public void setAircraftHeading(String dockerLon) {
         setString(AIRCRAFT_HEADING, dockerLon);
     }
+
+    public String getMinumumBattery() {
+        return getString(MINIMUM_BATTERY);
+    }
+
+    public void setMinumumBattery(String minumumBattery) {
+        setString(MINIMUM_BATTERY, minumumBattery);
+    }
+
+    public String getForcedBattery() {
+        return getString(FORCED_BATTERY);
+    }
+
+    public void setForcedBattery(String forcedBattery) {
+        setString(FORCED_BATTERY, forcedBattery);
+    }
+
 
     public String getAlternatePointLat() {
         return getString(ALTERNATE_POINT_LAT);
