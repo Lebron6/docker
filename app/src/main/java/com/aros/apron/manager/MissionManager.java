@@ -276,14 +276,18 @@ public class MissionManager extends BaseManager {
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                 KeyBatteryPowerPercent, 0));
         if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())&&!PreferenceUtils.getInstance().getIsDebugMode()) {
-            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+           if (message.getIsGuidingFlight()==0&&!Movement.getInstance().isPlaneWing()){
+               DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+           }
             sendMissionExecuteEvents(client, "任务执行失败,电量过低");
             LogUtil.log(TAG,"任务执行失败,电量过低");
             return;
         }
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
         if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
-            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            if (message.getIsGuidingFlight()==0&&!Movement.getInstance().isPlaneWing()){
+                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+            }
             sendMissionExecuteEvents(client, "任务执行失败,请将遥控器切换为P/N挡");
             LogUtil.log(TAG,"任务执行失败,请将遥控器切换为P/N挡");
             return;
