@@ -50,12 +50,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private void initMqttClientParams() {
-        if (mqttAndroidClient==null){
             mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), AMSConfig.getInstance().getMqttServerUri(), generateRandomString(10));
-        }
-        if (mMqttConnectOptions==null){
             mMqttConnectOptions = new MqttConnectOptions();
-        }
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
         mMqttConnectOptions.setMaxInflight(100);// 增加最大并发未确认消息数量
         mMqttConnectOptions.setCleanSession(true); //设置是否清除缓存
@@ -63,7 +59,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mMqttConnectOptions.setKeepAliveInterval(5); //设置心跳包发送间隔，单位：秒 ltz denote
         mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
         mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
-        mqttAndroidClient.setCallback(new MqttCallBack(mqttAndroidClient,mMqttConnectOptions)); //设置监听订阅消息的回调
+        mqttAndroidClient.setCallback(new MqttCallBack(mqttAndroidClient)); //设置监听订阅消息的回调
         doClientConnection();
     }
 
@@ -116,16 +112,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }, 3000);
     }
 
-//    private void connect() {
-//        if (!NettyClient.getInstance().getConnectStatus()) {
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    NettyClient.getInstance().connect();//连接服务器
-//                }
-//            }).start();
-//        }
-//    }
     public abstract boolean useEventBus();
 
     public void loggerSimpleName() {
@@ -142,16 +128,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (useEventBus == true) {
             EventBus.getDefault().unregister(this);
         }
-        try {
-            if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
-                mqttAndroidClient.unregisterResources();
-                mqttAndroidClient.disconnect(); //断开连接
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-//        NettyClient.getInstance().setReconnectNum(0);
-//        NettyClient.getInstance().disconnect();
+
     }
     private String generateRandomString(int length) {
         String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";

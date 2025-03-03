@@ -322,4 +322,9 @@ class ConnectionActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        LogUtil.log(TAG,"进入首页连接")
+    }
 }
