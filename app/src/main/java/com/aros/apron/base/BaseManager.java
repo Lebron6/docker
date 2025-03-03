@@ -81,8 +81,9 @@ public abstract class BaseManager {
         try {
             if (client.isConnected()) {
                 client.publish(topic, message);
+//                LogUtil.log(TAG, "推送消息==》"+message);
             } else {
-//                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
+                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
             }
         } catch (Exception e) {
             e.printStackTrace();
