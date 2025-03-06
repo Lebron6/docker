@@ -203,6 +203,7 @@ public class ApronArucoDetect {
                                 sigleMarkerDetectFailsTimes = 0;
                                 setDetectedBigMarkers();
                                 LogUtil.log(TAG, "重置识别二维码状态:" + idArray.length+" id:"+idArray[0]);
+                                markerId5MaxFindHeight=-20.0;
                             }
                         } else {
                             sigleMarkerDetectFailsTimes = 0;
@@ -283,8 +284,8 @@ public class ApronArucoDetect {
         double dy = p2.y - p1.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
-
-
+//飞机椭球高度返回过低，导致5号Marker过早的不识别，悬停在3-4米处(浙江海事，汾湖演示出现过)
+private double markerId5MaxFindHeight=0.7;
     public void findAruco(int[] idArray) {
         if (Movement.getInstance().getFlyingHeight()<7){
             if (Movement.getInstance().getFlyingHeight() <= 1.5
@@ -306,7 +307,7 @@ public class ApronArucoDetect {
                 }
             }
 
-            if (Movement.getInstance().getFlyingHeight() > 0.7 &&
+            if (Movement.getInstance().getFlyingHeight() > markerId5MaxFindHeight &&
                     mFindArucoList.isEmpty() && !detectedSmallMarkers) {
 
                 if (
@@ -648,7 +649,7 @@ public class ApronArucoDetect {
 
         if (id == 11 || id == 12 || id == 13 || id == 14 || id == 15
                 || id == 16 || id == 17 || id == 18 || id == 19) {
-            checkConditions(absX, absY, id, arucoWidth);
+            checkConditions(absX, absY, id, arucoWidth,outX,outY);
 
         } else {
             canLanding = false;
@@ -656,14 +657,15 @@ public class ApronArucoDetect {
     }
 
 
-    private void checkConditions(double absX, double absY, int id, double arucoWidth) {
+    private void checkConditions(double absX, double absY, int id, double arucoWidth, double outX, double outY) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        boolean xy = absX < 260 && absY < 260;
+        boolean xy = absX < 300 && absY < 260;
+        boolean v = (int)outX==0&&(int)outY==0;
         String logMessage = "";
         if (!startFastStick) {
 
-            if (absX <= 130 && absY <= 150 && ultrasonicHeight <= 3 && flyingHeight <= 3) {
+            if (absX <= 130 && absY <= 150 && ultrasonicHeight <= 4 && flyingHeight <= 3&&v) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -672,7 +674,7 @@ public class ApronArucoDetect {
                 handler.post(runnable);
                 return;
             }
-            if (xy && arucoWidth >= 280) {
+            if (xy && arucoWidth >= 280&&v) {
                 logMessage = "参考ArUco宽度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -724,6 +726,7 @@ public class ApronArucoDetect {
         handlerCallbackCount=0;
         canLanding = true;
         dropTimes=0;//手动测试避免多次累加后直接飞往备降点
+        markerId5MaxFindHeight=0.7;
     }
 
 
