@@ -220,7 +220,7 @@ public class AlternateArucoDetect {
                 outY,
                 resultYaw, outZ);
 
-        if (Movement.getInstance().getFlyingHeight()<=2) {
+        if (Movement.getInstance().getFlyingHeight()<=2||Movement.getInstance().getUltrasonicHeight()<25) {
             canLanding = true;
         } else {
             canLanding = false;

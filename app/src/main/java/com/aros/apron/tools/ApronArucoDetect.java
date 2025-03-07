@@ -553,29 +553,29 @@ private double markerId5MaxFindHeight=0.7;
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.135){
-                        outX=absX<100?0:-0.135;
+                        outX=absX<150?0:-0.135;
                     }else{
-                        outX=absX<100?0:pidControlX.get_pid();
+                        outX=absX<150?0:pidControlX.get_pid();
                     }
                 }else{
                     if (pidControlX.get_pid()>0.135){
-                        outX=absX<100?0:0.135;
+                        outX=absX<150?0:0.135;
                     }else{
-                        outX=absX<100?0:pidControlX.get_pid();
+                        outX=absX<150?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
                     if (pidControlY.get_pid()<-0.135){
-                        outY=absY<100?0:-0.135;
+                        outY=absY<150?0:-0.135;
                     }else{
-                        outY=absY<100?0:pidControlY.get_pid();
+                        outY=absY<150?0:pidControlY.get_pid();
                     }
                 }else{
                     if (pidControlY.get_pid()>0.135){
-                        outY=absY<100?0:0.135;
+                        outY=absY<150?0:0.135;
                     }else{
-                        outY=absY<100?0:pidControlY.get_pid();
+                        outY=absY<150?0:pidControlY.get_pid();
                     }
                 }
 
@@ -587,36 +587,36 @@ private double markerId5MaxFindHeight=0.7;
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.185){
-                        outX=absX<100?0:-0.185;
+                    if (pidControlX.get_pid()<-0.155){
+                        outX=absX<150?0:-0.155;
                     }else{
-                        outX=absX<100?0:pidControlX.get_pid();
+                        outX=absX<150?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.185){
-                        outX=absX<100?0:0.185;
+                    if (pidControlX.get_pid()>0.155){
+                        outX=absX<150?0:0.155;
                     }else{
-                        outX=absX<100?0:pidControlX.get_pid();
+                        outX=absX<150?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.185){
-                        outY=absY<100?0:-0.185;
+                    if (pidControlY.get_pid()<-0.155){
+                        outY=absY<150?0:-0.155;
                     }else{
-                        outY=absY<100?0:pidControlY.get_pid();
+                        outY=absY<150?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.185){
-                        outY=absY<100?0:0.185;
+                    if (pidControlY.get_pid()>0.155){
+                        outY=absY<150?0:0.155;
                     }else{
-                        outY=absY<100?0:pidControlY.get_pid();
+                        outY=absY<150?0:pidControlY.get_pid();
                     }
                 }
 
                 outZ = (absX < 260)
                         && (absY < 260)
-                        ? -0.35 : 0;
+                        ? -0.4 : 0;
             } else {
 
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/950);
@@ -665,7 +665,7 @@ private double markerId5MaxFindHeight=0.7;
         String logMessage = "";
         if (!startFastStick) {
 
-            if (absX <= 130 && absY <= 150 && ultrasonicHeight <= 4 && flyingHeight <= 3&&v) {
+            if (absX <= 160 && absY <= 150 && ultrasonicHeight <= 4 && flyingHeight <= 3&&v) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
