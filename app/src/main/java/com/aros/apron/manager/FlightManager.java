@@ -556,7 +556,6 @@ public class FlightManager extends BaseManager {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
             DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttAndroidClient);
-            PerceptionManager.getInstance().setPerceptionEnable(false);
 
         }
     }
@@ -568,6 +567,8 @@ public class FlightManager extends BaseManager {
                 && !isGimbalDownwards){
             DroneHelper.getInstance().setGimbalPitchDegree();
             isGimbalDownwards=true;
+            PerceptionManager.getInstance().setPerceptionEnable(false);
+
         }
     }
 
