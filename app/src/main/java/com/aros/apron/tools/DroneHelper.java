@@ -6,14 +6,9 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraFocusMode;
-import dji.sdk.keyvalue.value.common.CameraLensType;
-import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
@@ -36,7 +31,6 @@ public class DroneHelper {
     private String TAG = "DroneHelper";
     private static final int GIMBAL_FORWARD = 0;
     private static final int GIMBAL_DOWN = 1;
-    VirtualStickFlightControlParam virtualStickFlightControlParam;
 
 
     private DroneHelper() {
@@ -47,7 +41,7 @@ public class DroneHelper {
     }
 
     public static DroneHelper getInstance() {
-        return DroneHelper.DroneHelperHolder.INSTANCE;
+        return DroneHelperHolder.INSTANCE;
     }
 
 
@@ -81,11 +75,7 @@ public class DroneHelper {
 
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
         if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
-            virtualStickFlightControlParam = new VirtualStickFlightControlParam();
-            virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
-            virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
-            virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
-            virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+
             VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
             VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
                 @Override
@@ -93,6 +83,8 @@ public class DroneHelper {
                     LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
                     virtualStickEnable = true;
                     enableVirtualStickTimes = 0;
+                    VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+
 
                 }
 
@@ -149,38 +141,48 @@ public class DroneHelper {
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
-        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection, 0));
-        if (cameraConnect!=null&&cameraConnect) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.MANUAL, new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    LogUtil.log(TAG, "设置对焦模式MF");
 
-                }
 
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG, "设置对焦模式MF失败:"+new Gson().toJson(idjiError));
 
-                }
-            });
-        }else {
-            LogUtil.log(TAG, "相机未连接");
-        }
+//        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+//                KeyConnection, 0));
+//        if (cameraConnect!=null&&cameraConnect) {
+//            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.MANUAL, new CommonCallbacks.CompletionCallback() {
+//                @Override
+//                public void onSuccess() {
+//                    LogUtil.log(TAG, "设置对焦模式MF");
+//
+//                }
+//
+//                @Override
+//                public void onFailure(@NonNull IDJIError idjiError) {
+//                    LogUtil.log(TAG, "设置对焦模式MF失败:"+new Gson().toJson(idjiError));
+//
+//                }
+//            });
+//        }else {
+//            LogUtil.log(TAG, "相机未连接");
+//        }
     }
 
-
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {
+        VirtualStickFlightControlParam virtualStickFlightControlParam = new VirtualStickFlightControlParam();
+        virtualStickFlightControlParam.setVerticalControlMode(VerticalControlMode.VELOCITY);
+        virtualStickFlightControlParam.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
+        virtualStickFlightControlParam.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
+        virtualStickFlightControlParam.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
         virtualStickFlightControlParam.setPitch(mPitch);//左右
         virtualStickFlightControlParam.setRoll(mRoll);//前后
         virtualStickFlightControlParam.setYaw(mYaw);
         virtualStickFlightControlParam.setVerticalThrottle(mThrottle);//上下
         sendMovementCommand(virtualStickFlightControlParam);
     }
-
+    public boolean shouldExecute = true;
     public void sendMovementCommand(VirtualStickFlightControlParam param) {
-        VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+//        if (shouldExecute) {
+            VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+//        }
+//        shouldExecute = !shouldExecute;
     }
 
     //设置备降点

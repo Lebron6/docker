@@ -33,8 +33,6 @@ public class AlternateArucoDetect {
     private List<ArucoMarker> mFindArucoList = new ArrayList<>();
     List<Mat> mArucoCornerList = new ArrayList<>();
 
-    long startTime;
-    long endTime;
 
 
     private AlternateArucoDetect() {
@@ -222,7 +220,7 @@ public class AlternateArucoDetect {
                 outY,
                 resultYaw, outZ);
 
-        if (Movement.getInstance().getFlyingHeight()<=2) {
+        if (Movement.getInstance().getFlyingHeight()<=2||Movement.getInstance().getUltrasonicHeight()<25) {
             canLanding = true;
         } else {
             canLanding = false;
@@ -230,6 +228,10 @@ public class AlternateArucoDetect {
     }
 
     public boolean canLanding;
+
+    public void setCanLanding(boolean canLanding) {
+        this.canLanding = canLanding;
+    }
 
     public boolean isCanLanding() {
         return canLanding;

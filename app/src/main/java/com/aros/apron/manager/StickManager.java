@@ -53,8 +53,9 @@ public class StickManager extends BaseManager {
                 @Override
                 public void onVirtualStickStateUpdate(@NonNull VirtualStickState stickState) {
                     if (stickState!=null){
-                        LogUtil.log(TAG,"控制权获取状态:"+stickState.isVirtualStickEnable());
+                        LogUtil.log(TAG,"控制权:"+stickState.isVirtualStickEnable()+"-高级模式:"+stickState.isVirtualStickAdvancedModeEnabled());
                         Movement.getInstance().setIsVirtualStickEnable(stickState.isVirtualStickEnable()?1:0);
+                        Movement.getInstance().setIsVirtualStickAdvancedModeEnabled(stickState.isVirtualStickAdvancedModeEnabled()?1:0);
                     }
                 }
 
@@ -150,7 +151,7 @@ public class StickManager extends BaseManager {
             }
             param.setPitch(Double.valueOf(message.getY()));//左右(速度模式-10m/s-10m/s)
             param.setRoll(Double.valueOf(message.getX()));//前后(速度模式-10m/s-10m/s)
-            param.setYaw(Double.valueOf(message.getR())*10);//旋转(角速度模式-100-100)
+            param.setYaw(Double.valueOf(message.getR()));//旋转(角速度模式-100-100)
             param.setVerticalThrottle(Double.valueOf(message.getZ()));//上下(速度模式-4m/s-4m/s)
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
 //            sendMsg2Server(mqttAndroidClient, message, "移动...");

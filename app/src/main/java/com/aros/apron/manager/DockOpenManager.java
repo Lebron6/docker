@@ -29,13 +29,14 @@ public class DockOpenManager extends BaseManager {
     }
 
     public static DockOpenManager getInstance() {
-        return DockOpenManager.DockOpenHolder.INSTANCE;
+        return DockOpenHolder.INSTANCE;
     }
 
 
     public void sendDockOpenMsg2Server(MqttAndroidClient client) {
-        if (isSendDockOpenSuccess||sendDockOpenSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送开舱");
+//        if (isSendDockOpenSuccess||sendDockOpenSuccessTimes >= maxRetries) {
+        if (sendDockOpenSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送开舱"+isSendDockOpenSuccess+sendDockOpenSuccessTimes);
             return;
         }
         try {
@@ -45,33 +46,47 @@ public class DockOpenManager extends BaseManager {
                 handleNotConnected(client);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "开舱发送异常：" + e.getMessage());
-            throw new RuntimeException(e);
+            LogUtil.log(TAG, "开舱发送异常：" + e.toString());
+            e.printStackTrace();
         }
     }
 
-    private void sendDockOpenMessage(MqttAndroidClient client) throws Exception {
-        MessageReply message = new MessageReply();
-        message.setMsg_type(60108);
-        message.setResult(1);
+    private void sendDockOpenMessage(MqttAndroidClient client){
 
-        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(2);
+        try {
+            if (client.isConnected()) {
 
-        client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "开舱发送成功：60108---"+sendDockOpenSuccessTimes);
-                sendMissionExecuteEvents(client, "AMS通知机库开舱");
-                isSendDockOpenSuccess = true;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60108);
+                message.setResult(1);
+                message.setMsg("开门");
+
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
+                mqttMessage.setQos(1);
+                client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        LogUtil.log(TAG, "开舱发送成功：60108---" + sendDockOpenSuccessTimes + "clientId:" + client.getClientId());
+                        sendMissionExecuteEvents(client, "AMS通知机库开舱");
+                        isSendDockOpenSuccess = true;
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        LogUtil.log(TAG, "开舱发送回调失败：" + exception.toString());
+                        retrySend(client);
+                    }
+                });
+            } else {
+                LogUtil.log(TAG, "开舱发送回调失败：mqtt 未连接");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, "开舱发送异常：" + e.toString());
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                LogUtil.log(TAG, "开舱发送回调失败：" + exception.toString());
-                retrySend(client);
-            }
-        });
+        }
+
+
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -87,7 +102,7 @@ public class DockOpenManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDockOpenSuccess && sendDockOpenSuccessTimes < maxRetries) {
             sendDockOpenSuccessTimes++;
-            new Handler().postDelayed(() -> sendDockOpenMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockOpenMsg2Server(client), 2000);
             LogUtil.log(TAG, "开舱发送失败：mqtt未连接" + "--" + sendDockOpenSuccessTimes);
         } else {
             LogUtil.log(TAG, "开舱发送失败：" + sendDockOpenSuccessTimes);

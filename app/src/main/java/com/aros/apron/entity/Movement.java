@@ -21,6 +21,9 @@ public class Movement {
     private String homepointLong;
 
     private int distance;//距离航点
+    private double egm96Altitude;//海拔高度
+    private double takeoffLocationAltitude;//起飞高度
+    private double RTKTakeoffAltitude;//RTK起飞高度
     private String horizontalSpeed;//水平速度
     private String verticalSpeed;//垂直速度
     private int windSpeed;//风速
@@ -53,9 +56,8 @@ public class Movement {
     private double thermalZoomRatios;//红外镜头变焦倍数
     private boolean continuous;//变焦档位是否连续 (true表示gears最小值-最大值都可使用，false表示只支持数组内关键档位)
     private int[] gears;//变焦倍率范围的关键档位
-    private boolean thermalContinuous;
-    private int[] thermalGears;
     private int isVirtualStickEnable;//是否获取控制权 0未获取控制权  1已获取控制权
+    private int isVirtualStickAdvancedModeEnabled;//是否处于虚拟摇杆高级模式
     private boolean isDistanceLimitEnabled;//是否启用限远
     private int thermalDisplayMode;//红外模式 1仅红外  2红外分屏
     private String flightId;//航线id
@@ -70,9 +72,9 @@ public class Movement {
     private int landingPower;//降落电量所需百分比
     private String missionName;//当前正在执行的航线名
     private int currentWaypointIndex;//当前航点下标
-    private String currentLongitude;//当前经度
-    private String currentLatitude;//当前纬度
-    private double flyingHeight;//飞行高度
+    private String currentLongitude="0.0";//当前经度
+    private String currentLatitude="0.0";//当前纬度
+    private double flyingHeight=0.0;//飞行高度
     private String roll;//机身姿态
     private String pitch;
     private String yaw="0";
@@ -84,10 +86,123 @@ public class Movement {
     private String aircraftTotalFlightTimes;//总体飞行次数，飞行器断电后不会清零。
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
 
-    //避障
+
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
+    private int thermalTemperatureMeasureMode;//测温模式
+    private String spotMetersureTemperature;//测温点温度
+    private String averageAreaTemperature;//平均温度
+    private String minAreaTemperature;//最小温度
+    private String maxAreaTemperature;//最大温度
+    private String maxTemperaturePointX;//最大温度的位置
+    private String maxTemperaturePointY;
+    private String minTemperaturePointX;//最小位置的位置
+    private String minTemperaturePointY;
+
+    public int getIsVirtualStickAdvancedModeEnabled() {
+        return isVirtualStickAdvancedModeEnabled;
+    }
+
+    public void setIsVirtualStickAdvancedModeEnabled(int isVirtualStickAdvancedModeEnabled) {
+        this.isVirtualStickAdvancedModeEnabled = isVirtualStickAdvancedModeEnabled;
+    }
+
+    public String getSpotMetersureTemperature() {
+        return spotMetersureTemperature;
+    }
+
+    public void setSpotMetersureTemperature(String spotMetersureTemperature) {
+        this.spotMetersureTemperature = spotMetersureTemperature;
+    }
+
+    public String getAverageAreaTemperature() {
+        return averageAreaTemperature;
+    }
+
+    public void setAverageAreaTemperature(String averageAreaTemperature) {
+        this.averageAreaTemperature = averageAreaTemperature;
+    }
+
+    public String getMinAreaTemperature() {
+        return minAreaTemperature;
+    }
+
+    public void setMinAreaTemperature(String minAreaTemperature) {
+        this.minAreaTemperature = minAreaTemperature;
+    }
+
+    public String getMaxAreaTemperature() {
+        return maxAreaTemperature;
+    }
+
+    public void setMaxAreaTemperature(String maxAreaTemperature) {
+        this.maxAreaTemperature = maxAreaTemperature;
+    }
+
+    public String getMaxTemperaturePointX() {
+        return maxTemperaturePointX;
+    }
+
+    public void setMaxTemperaturePointX(String maxTemperaturePointX) {
+        this.maxTemperaturePointX = maxTemperaturePointX;
+    }
+
+    public String getMaxTemperaturePointY() {
+        return maxTemperaturePointY;
+    }
+
+    public void setMaxTemperaturePointY(String maxTemperaturePointY) {
+        this.maxTemperaturePointY = maxTemperaturePointY;
+    }
+
+    public String getMinTemperaturePointX() {
+        return minTemperaturePointX;
+    }
+
+    public void setMinTemperaturePointX(String minTemperaturePointX) {
+        this.minTemperaturePointX = minTemperaturePointX;
+    }
+
+    public String getMinTemperaturePointY() {
+        return minTemperaturePointY;
+    }
+
+    public void setMinTemperaturePointY(String minTemperaturePointY) {
+        this.minTemperaturePointY = minTemperaturePointY;
+    }
+
+    public int getThermalTemperatureMeasureMode() {
+        return thermalTemperatureMeasureMode;
+    }
+
+    public void setThermalTemperatureMeasureMode(int thermalTemperatureMeasureMode) {
+        this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
+    }
+
+    public double getRTKTakeoffAltitude() {
+        return RTKTakeoffAltitude;
+    }
+
+    public void setRTKTakeoffAltitude(double RTKTakeoffAltitude) {
+        this.RTKTakeoffAltitude = RTKTakeoffAltitude;
+    }
+
+    public double getTakeoffLocationAltitude() {
+        return takeoffLocationAltitude;
+    }
+
+    public void setTakeoffLocationAltitude(double takeoffLocationAltitude) {
+        this.takeoffLocationAltitude = takeoffLocationAltitude;
+    }
+
+    public double getEgm96Altitude() {
+        return egm96Altitude;
+    }
+
+    public void setEgm96Altitude(double egm96Altitude) {
+        this.egm96Altitude = egm96Altitude;
+    }
 
     public String getAlternatePointLat() {
         return alternatePointLat;
@@ -104,7 +219,6 @@ public class Movement {
     public void setAlternatePointLon(String alternatePointLon) {
         this.alternatePointLon = alternatePointLon;
     }
-
 
 
     public int getFlightControlAuthority() {
@@ -356,7 +470,8 @@ public class Movement {
     }
 
 
-
+    private boolean thermalContinuous;
+    private int[] thermalGears;
 
     public boolean isThermalContinuous() {
         return thermalContinuous;

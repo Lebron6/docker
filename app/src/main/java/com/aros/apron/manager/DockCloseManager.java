@@ -30,13 +30,14 @@ public class DockCloseManager extends BaseManager {
     }
 
     public static DockCloseManager getInstance() {
-        return DockCloseManager.DockCloseHolder.INSTANCE;
+        return DockCloseHolder.INSTANCE;
     }
 
 
     public void sendDockCloseMsg2Server(MqttAndroidClient client) {
-        if (isSendDockCloseSuccess||sendDockCloseSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送关舱");
+//        if (isSendDockCloseSuccess||sendDockCloseSuccessTimes >= maxRetries) {
+        if (sendDockCloseSuccessTimes >= maxRetries) {
+            LogUtil.log(TAG, "达到最大重试次数或已发送关舱"+isSendDockCloseSuccess+sendDockCloseSuccessTimes);
             return;
         }
         try {
@@ -46,33 +47,38 @@ public class DockCloseManager extends BaseManager {
                 handleNotConnected(client);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "关舱发送异常：" + e.getMessage());
-            throw new RuntimeException(e);
+            LogUtil.log(TAG, "关舱异常：" + e.toString());
+            e.printStackTrace();
         }
     }
 
-    private void sendDockCloseMessage(MqttAndroidClient client) throws Exception {
+    private void sendDockCloseMessage(MqttAndroidClient client){
         MessageReply message = new MessageReply();
         message.setMsg_type(60107);
         message.setResult(1);
 
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(2);
+        mqttMessage.setQos(0);
+        try {
+            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
+                    sendMissionExecuteEvents(client, "AMS通知机库关舱");
+                    isSendDockCloseSuccess = true;
+                }
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    LogUtil.log(TAG, "关舱发送回调失败：" + exception.toString());
+                    retrySend(client);
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.log(TAG, "关舱发送异常：" + e.toString());
+            e.printStackTrace();
+        }
 
-        client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes);
-                sendMissionExecuteEvents(client, "AMS通知机库关舱");
-                isSendDockCloseSuccess = true;
-            }
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                LogUtil.log(TAG, "关舱发送回调失败：" + exception.toString());
-                retrySend(client);
-            }
-        });
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -88,7 +94,7 @@ public class DockCloseManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendDockCloseSuccess && sendDockCloseSuccessTimes < maxRetries) {
             sendDockCloseSuccessTimes++;
-            new Handler().postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
             LogUtil.log(TAG, "关舱发送失败：mqtt未连接" + "--" + sendDockCloseSuccessTimes);
         } else {
             LogUtil.log(TAG, "关舱发送失败：" + sendDockCloseSuccessTimes);

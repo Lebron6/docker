@@ -23,12 +23,16 @@ import dji.sdk.keyvalue.value.camera.CameraStorageLocation;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
+import dji.sdk.keyvalue.value.camera.ThermalAreaMetersureTemperature;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalPIPPosition;
+import dji.sdk.keyvalue.value.camera.ThermalTemperatureMeasureMode;
 import dji.sdk.keyvalue.value.camera.ZoomRatiosRange;
 import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
+import dji.sdk.keyvalue.value.common.DoublePoint2D;
+import dji.sdk.keyvalue.value.common.DoubleRect;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.EnCodingType;
 import dji.sdk.keyvalue.value.common.RelativePosition;
@@ -170,6 +174,47 @@ public class CameraManager extends BaseManager {
 
                 }
             });
+
+            //当前测温模式
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalTemperatureMeasureMode>() {
+                @Override
+                public void onValueChange(@Nullable ThermalTemperatureMeasureMode thermalTemperatureMeasureMode, @Nullable ThermalTemperatureMeasureMode t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setThermalTemperatureMeasureMode(t1.value());
+                    }
+                }
+            });
+
+            //获取当前测温点的温度
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalSpotMetersureTemperature,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
+                @Override
+                public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setSpotMetersureTemperature(t1.toString());
+                    }
+
+                }
+            });
+
+            //获取当前测温区域的温度信息。包括测温区域的平均温度、最小温度和最大温度。
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalRegionMetersureTemperature,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalAreaMetersureTemperature>() {
+                @Override
+                public void onValueChange(@Nullable ThermalAreaMetersureTemperature thermalAreaMetersureTemperature,
+                                          @Nullable ThermalAreaMetersureTemperature t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setAverageAreaTemperature(t1.getAverageAreaTemperature().toString());
+                        Movement.getInstance().setMinAreaTemperature(t1.getMinAreaTemperature().toString());
+                        Movement.getInstance().setMaxAreaTemperature(t1.getMaxAreaTemperature().toString());
+                        Movement.getInstance().setMinTemperaturePointX(t1.getMinTemperaturePoint().getX().toString());
+                        Movement.getInstance().setMinTemperaturePointY(t1.getMinTemperaturePoint().getY().toString());
+                        Movement.getInstance().setMaxTemperaturePointX(t1.getMaxTemperaturePoint().getX().toString());
+                        Movement.getInstance().setMaxTemperaturePointY(t1.getMaxTemperaturePoint().getY().toString());
+                    }
+                }
+            });
         }
     }
 
@@ -182,7 +227,7 @@ public class CameraManager extends BaseManager {
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
-//            flightMessage.setQos(1);
+//            flightMessage.setQos(0);
 //            publish(client, MqttConfig.MQTT_CAMERA_TOPIC, flightMessage);
 //        }
 //    }
@@ -193,16 +238,19 @@ public class CameraManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
-                    }
-                    @Override
-                    public void onFailure(@NonNull IDJIError idjiError) {
-                        sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + new Gson().toJson(idjiError));
-                    }
-                });
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue,
+                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                        message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server(mqttAndroidClient, message);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError idjiError) {
+                                sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + new Gson().toJson(idjiError));
+                            }
+                        });
             } else {
                 sendMsg2Server(mqttAndroidClient, message, "参数有误");
             }
@@ -355,7 +403,8 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int cameraZoomRatios = message.getCameraZoomRatios();
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -379,7 +428,8 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int type = message.getThermalZoomRatios();
-                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
+                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
+                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -495,17 +545,19 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
             KeyConnection));
     if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
         if (message != null) {
-            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
-                }
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" +new Gson().toJson(error));
-                }
-            });
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" + new Gson().toJson(error));
+                        }
+                    });
         } else {
             sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:参数有误");
         }
@@ -552,7 +604,9 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "曝光模式切换成功");
@@ -577,21 +631,21 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureCompensation,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                    CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "设置曝光补偿数值成功");
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
 
-                @Override
-                public void onSuccess() {
-                    LogUtil.log(TAG, "设置曝光补偿数值成功");
-                    sendMsg2Server(mqttAndroidClient, message);
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
-                    sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
-                }
-            });
-
+                        @Override
+                        public void onFailure(@NonNull IDJIError idjiError) {
+                            LogUtil.log(TAG, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                            sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + new Gson().toJson(idjiError));
+                        }
+                    });
         } else {
             LogUtil.log(TAG, "设置曝光补偿数值失败:相机未连接");
         }
@@ -626,10 +680,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             ZoomTargetPointInfo zoomPointTargetMsg = new ZoomTargetPointInfo();
             zoomPointTargetMsg.setX(message.getZoomTargetX());
             zoomPointTargetMsg.setX(message.getZoomTargetY());
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyTapZoomAtTarget),zoomPointTargetMsg, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), zoomPointTargetMsg, new CommonCallbacks.CompletionCallback() {
                 @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
+                public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
+
                 }
 
                 @Override
@@ -637,6 +694,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     sendMsg2Server(mqttAndroidClient, message, "指点对焦失败:" + new Gson().toJson(error));
                 }
             });
+
         } else {
             sendMsg2Server(mqttAndroidClient, message, "相机未连接");
         }
@@ -705,23 +763,23 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                 KeyConnection));
         if (isConnect != null && isConnect) {
 
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode), CameraExposureMode.PROGRAM, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode),
+                    CameraExposureMode.PROGRAM, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "降落后切换曝光模式为自动成功");
 
-                    KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation), CameraExposureCompensation.POS_1P0EV, new CommonCallbacks.CompletionCallback() {
+                    KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureCompensation),
+                            CameraExposureCompensation.POS_1P0EV, new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "降落后设置曝光补偿数值成功");
                         }
-
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
                             LogUtil.log(TAG, "降落后设置曝光补偿数值失败");
                         }
                     });
-
                 }
 
                 @Override
@@ -729,11 +787,87 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     LogUtil.log(TAG, "降落后切换曝光模式为自动失败:" + new Gson().toJson(idjiError));
                 }
             });
-
-
         } else {
             LogUtil.log(TAG, "降落后降落完成切换曝光失败：相机未连接");
         }
-
     }
+
+    //设置测温模式
+    public void setThermalTemperatureMeasureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
+                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),
+                    ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(mqttAndroidClient, message, "设置测温模式:" + new Gson().toJson(error));
+                        }
+                    });
+        } else {
+            LogUtil.log(TAG, "设置测温模式失败：相机未连接");
+        }
+    }
+
+    //设置需要测温的点的位置
+    public void setThermalSpotMetersurePoint(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            DoublePoint2D doublePoint2D = new DoublePoint2D();
+            doublePoint2D.setX(Double.parseDouble(message.getMetersurePointX()));
+            doublePoint2D.setY(Double.parseDouble(message.getMetersurePointY()));
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalSpotMetersurePoint,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doublePoint2D, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    sendMsg2Server(mqttAndroidClient, message, "设置点测温失败:" + new Gson().toJson(idjiError));
+
+                }
+            });
+
+        } else {
+            LogUtil.log(TAG, "测温点设置失败：相机未连接");
+        }
+    }
+
+    //设置需要测温的区域位置
+    public void setThermalRegionMetersureArea(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection));
+        if (isConnect != null && isConnect) {
+            DoubleRect doubleRect = new DoubleRect();
+            doubleRect.setX(Double.parseDouble(message.getMetersureAreaX()));
+            doubleRect.setY(Double.parseDouble(message.getMetersureAreaY()));
+            doubleRect.setHeight(Double.parseDouble(message.getMetersureAreaHeight()));
+            doubleRect.setWidth(Double.parseDouble(message.getMetersureAreaWidth()));
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalRegionMetersureArea,
+                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doubleRect, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    sendMsg2Server(mqttAndroidClient, message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    sendMsg2Server(mqttAndroidClient, message, "设置区域测温失败:" + new Gson().toJson(idjiError));
+
+                }
+            });
+        } else {
+            LogUtil.log(TAG, "测温区域设置失败：相机未连接");
+        }
+    }
+
 }

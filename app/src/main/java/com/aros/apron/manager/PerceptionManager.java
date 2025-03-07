@@ -18,6 +18,7 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.ObstacleAvoidanceType;
+import dji.v5.manager.aircraft.perception.data.PerceptionDirection;
 import dji.v5.manager.interfaces.IPerceptionManager;
 
 public class PerceptionManager extends BaseManager {
@@ -50,10 +51,10 @@ public class PerceptionManager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     if (perceptionEnable) {
-                        LogUtil.log(TAG, "避障已开启");
+                        LogUtil.log(TAG, "避障开启");
                     } else {
                         closePerceptionSuccess = true;
-                        LogUtil.log(TAG, "避障已关闭");
+                        LogUtil.log(TAG, "避障关闭");
                     }
                 }
 
@@ -77,6 +78,30 @@ public class PerceptionManager extends BaseManager {
                             }
                         }
                     }
+                }
+            });
+        }
+    }
+
+    //开启水平避障
+    public void setObstacleAvoidanceHorizontalEnabled() {
+        if (PreferenceUtils.getInstance().getCloseObsEnable()) {
+            LogUtil.log(TAG, "全局避障关闭,不开启避障");
+            return;
+        }
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
+            perceptionManager.setObstacleAvoidanceEnabled(true, PerceptionDirection.HORIZONTAL, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "开启水平避障");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "开启水平避障:"+new Gson().toJson(idjiError));
+
                 }
             });
         }

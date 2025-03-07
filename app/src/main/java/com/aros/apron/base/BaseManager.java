@@ -25,14 +25,14 @@ public abstract class BaseManager {
                 messageReply.setResult(-1);
                 messageReply.setMsg(msg);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtil.log(TAG, "回复异常：" + e.toString());
-            throw new RuntimeException(e);
         }
     }
 
@@ -44,14 +44,14 @@ public abstract class BaseManager {
                 messageReply.setMsg_type(entity.getMsg_type());
                 messageReply.setResult(1);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "回复异常：" + e.toString());
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -70,7 +70,7 @@ public abstract class BaseManager {
 
     public boolean isGisFlyClickTime() {
         long time = System.currentTimeMillis();
-        if (time - lastGisTime > 2000) {
+        if (time - lastGisTime > 5000) {
             lastGisTime = time;
             return true;
         }
@@ -81,8 +81,9 @@ public abstract class BaseManager {
         try {
             if (client.isConnected()) {
                 client.publish(topic, message);
+//                LogUtil.log(TAG, "推送消息==》"+message);
             } else {
-//                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
+                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,14 +101,14 @@ public abstract class BaseManager {
                 message.setResult(1);
                 message.setMsg(event);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "流程发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            LogUtil.log(TAG, "流程发送异常："+e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -120,7 +121,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = null;
                 result.setMsg_type(60102);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
 
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功：60102"+new Gson().toJson(result));
@@ -130,10 +131,33 @@ public abstract class BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "文件上传发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
+
+    //推送航点动作组执行状态
+    public void sendMsgWaypointActionState2Server(MqttAndroidClient client,String data,String index) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60133);
+                message.setResult(1);
+                message.setWaypointActionState(data);
+                message.setWaypointIndex(index);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "推送航点动作组失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "推送航点动作组发送异常：mqtt 未连接");
+            e.printStackTrace();
+        }
+    }
 
     //获取总飞行里程
     public void sendAircraftTotalFlightDistance2Server(MqttAndroidClient client, MQMessage mqMessage, double data) {
@@ -146,14 +170,14 @@ public abstract class BaseManager {
                 message.setFlag(mqMessage.getFlag());
                 message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "总飞行里程发送异常：mqtt 未连接");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

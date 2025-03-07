@@ -7,12 +7,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.aros.apron.R
 import com.aros.apron.app.ApronApp
-import com.aros.apron.base.BaseActivity
 import com.aros.apron.constant.AMSConfig
 import com.aros.apron.databinding.ActivityConnectionBinding
 import com.aros.apron.models.MSDKInfoVm
@@ -26,7 +25,8 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.v5.utils.common.StringUtils
 
-class ConnectionActivity : BaseActivity() {
+
+class ConnectionActivity : AppCompatActivity() {
 
     private val REQUIRED_PERMISSION_LIST = arrayOf(
         Manifest.permission.VIBRATE,
@@ -50,13 +50,11 @@ class ConnectionActivity : BaseActivity() {
     )
 
     private val msdkInfoVm: MSDKInfoVm by viewModels()
+    private val TAG="ConnectionActivity"
     private val msdkManagerVM: MSDKManagerVM by globalViewModels()
     private lateinit var connectionBinding: ActivityConnectionBinding
     private val handler: Handler = Handler(Looper.getMainLooper())
 
-    override fun useEventBus(): Boolean {
-        return false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +126,7 @@ class ConnectionActivity : BaseActivity() {
         msdkInfoVm.msdkInfo.observe(this) {
             connectionBinding.textViewVersion.text =
                 StringUtils.getResStr(R.string.sdk_version, it.SDKVersion + " " + it.buildVer)
+
             connectionBinding.textViewProductName.text =
                 StringUtils.getResStr(R.string.product_name, it.productType.name)
             connectionBinding.textViewPackageProductCategory.text =
@@ -135,20 +134,26 @@ class ConnectionActivity : BaseActivity() {
             connectionBinding.textViewIsDebug.text =
                 StringUtils.getResStr(R.string.is_sdk_debug, it.isDebug)
         }
+        // 获取当前应用的 PackageManager 实例
+        val packageManager = packageManager
+        // 获取当前应用的 PackageInfo 对象
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        // 获取版本名
+        val versionName = packageInfo.versionName
+        connectionBinding.textViewAmsVersion?.text=versionName
     }
 
     private fun observeSDKManagerStatus() {
         msdkManagerVM.lvRegisterState.observe(this) { resultPair ->
             val statusText: String?
             if (resultPair.first) {
-                Log.e(TAG, "飞行器已连接")
                 statusText = StringUtils.getResStr(this, R.string.registered)
                 msdkInfoVm.initListener()
-                connectionBinding.defaultLayoutButton.isEnabled = true
-                enableShowCaseButton(
-                    connectionBinding.defaultLayoutButton,
-                    MainActivity::class.java
-                )
+//                connectionBinding.defaultLayoutButton.isEnabled = true
+//                enableShowCaseButton(
+//                    connectionBinding.defaultLayoutButton,
+//                    MainActivity::class.java
+//                )
                 if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttPassword)
@@ -180,6 +185,13 @@ class ConnectionActivity : BaseActivity() {
                 }else if (PreferenceUtils.getInstance().customStreamEnable&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
                     ToastUtil.showToast("未配置自定义推流地址")
                     LogUtil.log(TAG, "未配置自定义推流地址")
+                }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
+                    ToastUtil.showToast("未配置主相机位置")
+                    LogUtil.log(TAG, "未配置主相机位置")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)) {
+                    ToastUtil.showToast("未配置允许起飞或强制返航电量阈值")
+                    LogUtil.log(TAG, "未配置允许起飞或强制返航电量阈值")
                 }
 //                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
 //                    ToastUtil.showToast("未设置备降点")
@@ -211,8 +223,6 @@ class ConnectionActivity : BaseActivity() {
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_services_reply"
                     AMSConfig.getInstance().mqttMsdkPushMessage2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
-                    AMSConfig.getInstance().mqttMsdkPushGisMessage2ServerTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/uav_gis_message"
                     AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/events"
                     if (PreferenceUtils.getInstance().airPortType == 1) {
@@ -225,14 +235,17 @@ class ConnectionActivity : BaseActivity() {
                         AMSConfig.getInstance().descentUltrasonicAltitude = 5
                         AMSConfig.getInstance().descentAltitude = 0.5
                     }
+                    if (!MainActivity.isAppStarted) {
+                        Handler().postDelayed(Runnable {
+                            startActivity(Intent(this, MainActivity::class.java))
+                        },2000)
 
-                    Handler().postDelayed(Runnable {
-                        Intent(this, MainActivity::class.java).also {
-                            startActivity(it)
-                        }
-                    }, 1000)
+                    }
+
                 }
             } else {
+                LogUtil.log(TAG, "SDK Register Failure: ${resultPair.second}")
+
                 ToastUtil.showToast("Register Failure: ${resultPair.second}")
                 statusText = StringUtils.getResStr(this, R.string.unregistered)
             }
@@ -240,15 +253,12 @@ class ConnectionActivity : BaseActivity() {
                 StringUtils.getResStr(R.string.registration_status, statusText)
         }
         msdkManagerVM.lvProductConnectionState.observe(this) { isConnect ->
-//            if (isConnect) {
-//                LogUtil.log(TAG,"SDK已连接----------")
-//            }else{
-//                LogUtil.log(TAG,"SDK断开连接----------")
-//            }
+
         }
 
         msdkManagerVM.lvProductChanges.observe(this) { productId ->
             ToastUtil.showToast("Product: $productId Changed")
+
         }
 
         msdkManagerVM.lvInitProcess.observe(this) { processPair ->
@@ -287,5 +297,10 @@ class ConnectionActivity : BaseActivity() {
                 startActivity(it)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LogUtil.log(TAG,"进入首页连接")
     }
 }

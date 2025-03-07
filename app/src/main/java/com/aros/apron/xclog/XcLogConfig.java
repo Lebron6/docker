@@ -2,6 +2,7 @@ package com.aros.apron.xclog;
 
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.concurrent.ExecutorService;
 
@@ -43,9 +44,12 @@ public class XcLogConfig implements XcLogBaseConfig {
         if (checkSDCard()) {
             sdCardPathString = Environment.getExternalStorageDirectory()
                     .getPath();
+//            Log.e("测试日志","---111---");
         } else {
             sdCardPathString = Environment.getExternalStorageDirectory()
                     .getParentFile().getPath();
+//            Log.e("测试日志","---222---");
+
         }
 
         return sdCardPathString;

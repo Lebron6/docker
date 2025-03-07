@@ -2,7 +2,9 @@ package com.aros.apron.manager;
 
 import android.os.Handler;
 import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
@@ -10,8 +12,12 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
+import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
+import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -133,21 +139,21 @@ public class StreamManager extends BaseManager {
     }
 
 
-//    public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
-//        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-//        if (isAircraftConnected == null || !isAircraftConnected) {
-//            sendMsg2Server(mqttAndroidClient, message, "飞行器未连接");
-//        } else {
-//            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-//            Movement.getInstance().setCurrentView(message.getData().getCurrentView());
-//            if (message.getData().getCurrentView()==1){
-//                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-//            }else{
-//                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
-//            }
-//
-//        }
-//    }
+    public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
+        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
+        if (isAircraftConnected == null || !isAircraftConnected) {
+            sendMsg2Server(mqttAndroidClient, message, "飞行器未连接");
+        } else {
+            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+            Movement.getInstance().setCurrentView(message.getCurrentView());
+            if (message.getCurrentView()==1){
+                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+            }else{
+                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+            }
+
+        }
+    }
 
 
     public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
@@ -175,21 +181,27 @@ public class StreamManager extends BaseManager {
 
             } else {
                 ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-                LogUtil.log(TAG,"自定义推流地址:"+PreferenceUtils.getInstance().getCustomStreamUrl());
+                LogUtil.log(TAG, "自定义推流地址:" + PreferenceUtils.getInstance().getCustomStreamUrl());
                 LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
                 LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
                         .setRtmpSettings(new RtmpSettings.Builder().setUrl(PreferenceUtils.getInstance().getCustomStreamUrl()
                         ).build()).build();
                 liveStreamManager.setLiveStreamSettings(streamSettings);
-                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
-
+                CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, 0));
+                if (value != null && (value == CameraType.ZENMUSE_H20T ||
+                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
+                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
+                    liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+                } else {
+                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+                }
                 liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
                 liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
                 if (!liveStreamManager.isStreaming()) {
                     liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG, "自定义推流启动成功:"+PreferenceUtils.getInstance().getCustomStreamUrl());
+                            LogUtil.log(TAG, "自定义推流启动成功:" + PreferenceUtils.getInstance().getCustomStreamUrl());
                         }
 
                         @Override

@@ -29,7 +29,6 @@ public class AMSConfig {
     private String mqttServer2MsdkTopic;
     private String mqttMsdkReplyMessage2ServerTopic;
     private String mqttMsdkPushMessage2ServerTopic;
-    private String mqttMsdkPushGisMessage2ServerTopic;
     private String mqttMsdkPushEvent2ServerTopic;
     private String alternateLandingTimes;
 
@@ -87,14 +86,6 @@ public class AMSConfig {
 
     public void setMqttMsdkPushMessage2ServerTopic(String mqttMsdkPushMessage2ServerTopic) {
         this.mqttMsdkPushMessage2ServerTopic = mqttMsdkPushMessage2ServerTopic;
-    }
-
-    public String getMqttMsdkPushGisMessage2ServerTopic() {
-        return mqttMsdkPushGisMessage2ServerTopic;
-    }
-
-    public void setMqttMsdkPushGisMessage2ServerTopic(String mqttMsdkPushGisMessage2ServerTopic) {
-        this.mqttMsdkPushGisMessage2ServerTopic = mqttMsdkPushGisMessage2ServerTopic;
     }
 
     public String getMqttServerUri() {

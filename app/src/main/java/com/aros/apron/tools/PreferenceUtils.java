@@ -45,6 +45,7 @@ public class PreferenceUtils extends BasePreference {
     private String NEED_UPLOAD_VEDIO = "need_upload_vedio";
     private String AIRPORT_TYPE = "airport_type";
     private String LANDING_TYPE = "land_type"; //1RTK优先 2视觉优先
+    private String CAMERA_LOCATION = "camera_location"; //主相机位置
     private String RTK_TYPE = "rtk_type"; //1自定义网络RTK 2DJI赠送RTK
     private String DOCKER_LON = "docker_lon"; //机库经纬度
     private String DOCKER_LAT = "docker_lat"; //机库经纬度
@@ -55,9 +56,13 @@ public class PreferenceUtils extends BasePreference {
     private String ALTERNATE_POINT_HEIGHT = "alternate_point_height"; //备降点安全起飞高度
     private String ALTERNATE_POINT_TIMES = "alternate_point_times"; //允许复降次数
     private String DEBUG_MODE = "debug_mode"; //调试模式
+    private String CLEAN_MODE = "clean_mode"; //纯净模式
     private String NAVIGATION_LEDS_ON = "navigation_LEDs_On"; //夜航灯
     private String CLOSE_OBS_ENABLE = "close_obstacle_enable"; //是否关闭避障
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
+    private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
+    private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
+
 
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
@@ -277,7 +282,13 @@ public class PreferenceUtils extends BasePreference {
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
     }
+    public int getCameraLocationType() {
+        return getInt(CAMERA_LOCATION);
+    }
 
+    public void setCameraLocationType(int locationType) {
+        setInt(CAMERA_LOCATION, locationType);
+    }
     public String getDockerLat() {
         return getString(DOCKER_LAT);
     }
@@ -300,6 +311,22 @@ public class PreferenceUtils extends BasePreference {
 
     public void setAircraftHeading(String dockerLon) {
         setString(AIRCRAFT_HEADING, dockerLon);
+    }
+
+    public String getMinumumBattery() {
+        return getString(MINIMUM_BATTERY);
+    }
+
+    public void setMinumumBattery(String minumumBattery) {
+        setString(MINIMUM_BATTERY, minumumBattery);
+    }
+
+    public String getForcedBattery() {
+        return getString(FORCED_BATTERY);
+    }
+
+    public void setForcedBattery(String forcedBattery) {
+        setString(FORCED_BATTERY, forcedBattery);
     }
 
     public String getAlternatePointLat() {
@@ -348,6 +375,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setIsDebugMode(boolean debugMode) {
         setBoolean(DEBUG_MODE, debugMode);
+    }
+
+    public boolean getIsCleanMode() {
+        return getBoolean(CLEAN_MODE);
+    }
+
+    public void setIsCleanMode(boolean cleanMode) {
+        setBoolean(CLEAN_MODE, cleanMode);
     }
 
     public boolean getNavigationLEDsOn() {

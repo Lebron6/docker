@@ -39,11 +39,15 @@ public abstract class BaseLog extends LogWriter{
         e(tag, String.valueOf(t));
     }
 
+    public void f(String tag, String msg){
+        log("F", tag, msg);
+    }
+
     /**
      * 记录日志到SD卡中
      * */
     public void log(String level, String tag, String msg){
-        writerLog(printerLogTime() + " | " + level + " | " + tag + " | " + msg);
+        writerLog(level,printerLogTime() + " | " + level + " | " + tag + " | " + msg);
     }
 
     private String printerLogTime(){

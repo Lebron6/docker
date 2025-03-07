@@ -1,22 +1,34 @@
 package com.aros.apron.manager;
 
 
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import org.eclipse.paho.android.service.MqttAndroidClient;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.RemoteControllerKey;
 import dji.v5.manager.KeyManager;
+import dji.v5.manager.aircraft.waypoint3.model.WaypointMissionExecuteState;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class SystemManager extends BaseManager {
-
-    public boolean mediaFilePushOver = false;
-    public boolean itCentered = false;
 
 
     private SystemManager() {
@@ -38,6 +50,8 @@ public class SystemManager extends BaseManager {
 //        } else {
 //            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
 //        }
+
+
     }
 
     public void checkAircraftPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {
@@ -52,10 +66,6 @@ public class SystemManager extends BaseManager {
     //收到60012表示飞机已归中,立即回复60012
     public void aircraftStoredReply(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         sendMsg2Server(mqttAndroidClient, message);
-        setItCentered(true);
-        if (isMediaFilePushOver()) {
-            DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
-        }
     }
 
     public void upLoadMedia(MqttAndroidClient mqttAndroidClient) {
@@ -63,30 +73,18 @@ public class SystemManager extends BaseManager {
         if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
                 && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
-            MediaManager.INSTANCE.enablePlayback(mqttAndroidClient);
+            Handler handler=new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MediaManager.getInstance().enablePlayback();
+                }
+            },1000);
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
-            setMediaFilePushOver(true);
-            if (isItCentered()) {
                 DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
-            }
         }
 
     }
 
-    public boolean isMediaFilePushOver() {
-        return mediaFilePushOver;
-    }
-
-    public void setMediaFilePushOver(boolean mediaFilePushOver) {
-        this.mediaFilePushOver = mediaFilePushOver;
-    }
-
-    public boolean isItCentered() {
-        return itCentered;
-    }
-
-    public void setItCentered(boolean itCentered) {
-        this.itCentered = itCentered;
-    }
 }
