@@ -526,7 +526,7 @@ public class FlightManager extends BaseManager {
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
             DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
-            PerceptionManager.getInstance().setObstacleAvoidanceHorizontalEnabled();
+            PerceptionManager.getInstance().setPerceptionEnable(true);
         }
     }
 
