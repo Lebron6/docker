@@ -539,15 +539,7 @@ private double markerId5MaxFindHeight=0.7;
             outZ = 0.0f;
         } else {
 
-            if (flyingHeight > 9) {
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/650);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/650);
-                outX = absX<80?0:pidControlX.get_pid();
-                outY = absY<80?0:pidControlY.get_pid();
-                outZ = (absX < 130)
-                        && (absY < 150)
-                        ? -0.65 : 0;
-            }else if(flyingHeight <=0.5||
+            if(flyingHeight <=0.5||
                     ultrasonicHeight <5){
                 pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
                 pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
@@ -617,10 +609,17 @@ private double markerId5MaxFindHeight=0.7;
                 outZ = (absX < 260)
                         && (absY < 260)
                         ? -0.4 : 0;
-            } else {
-
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/950);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/950);
+            }else if (flyingHeight > 9) {
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/650);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/650);
+                outX = absX<80?0:pidControlX.get_pid();
+                outY = absY<80?0:pidControlY.get_pid();
+                outZ = (absX < 130)
+                        && (absY < 150)
+                        ? -0.65 : 0;
+            }else {
+                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
+                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
