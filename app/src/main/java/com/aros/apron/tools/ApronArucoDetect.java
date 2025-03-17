@@ -423,27 +423,34 @@ private double markerId5MaxFindHeight=0.7;
         int id = arucoMarkers.get(0).getId();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
-        //计算标记中心
-        double centerX = 0, centerY = 0;
-        Scalar imageVector;
-//        if (Movement.getInstance().getFlyingHeight() >= 7) {
-        for (int i = 0; i < arucoMarkers.size(); i++) {
-            centerX = centerX + Core.mean(arucoMarkers.get(i).getConner()).val[0] - (imageWidth / 2f);
-            centerY = centerY + Core.mean(arucoMarkers.get(i).getConner()).val[1] - (imageHeight / 2f);
+        // 计算图像中心
+        Point imgCenter = new Point(imageWidth / 2.0, imageHeight / 2.0);
+        double sumX = 0, sumY = 0;
+        int markerCount = arucoMarkers.size();
+        // 遍历所有 marker 计算中心点
+        for (int i = 0; i < markerCount; i++) {
+            Mat markerCorners = arucoMarkers.get(i).getConner();
+            double centerX = 0, centerY = 0;
+
+            for (int j = 0; j < 4; j++) {
+                double[] point = markerCorners.get(0, j);
+                centerX += point[0];
+                centerY += point[1];
+            }
+            centerX /= 4.0;
+            centerY /= 4.0;
+
+            sumX += centerX;
+            sumY += centerY;
         }
-        imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
-//        } else {
-//            centerX = Core.mean(arucoMarkers.get(0).getConner()).val[0] - (imageWidth / 2f);
-//            centerY = Core.mean(arucoMarkers.get(0).getConner()).val[1] - (imageHeight / 2f);
-//            //计算相对于图像中心的图像矢量
-//            imageVector = new Scalar(centerX, centerY);
-//        }
 
+        // 计算所有 marker 的平均中心点
+        double avgCenterX = sumX / markerCount;
+        double avgCenterY = sumY / markerCount;
 
-        // 打印宽度和高度
-//        LogUtil.log(TAG, "Aruco:" + mFindArucoList.get(0).getId() + "arucoW:" + arucoWidth + "imageW:" + imageWidth);
-
-
+        // 计算整体偏移量
+        double offsetX = avgCenterX - imgCenter.x;
+        double offsetY = avgCenterY - imgCenter.y;
         double outX;
         double outY;
         double outZ;
@@ -530,8 +537,8 @@ private double markerId5MaxFindHeight=0.7;
 
 
         //先旋转,再平移或降落
-        double absX = Math.abs(imageVector.val[0]);
-        double absY = Math.abs(imageVector.val[1]);
+        double absX = Math.abs(offsetX);
+        double absY = Math.abs(offsetY);
 
         if (resultYaw != 0.0) {
             outX = 0.0f;
@@ -541,8 +548,8 @@ private double markerId5MaxFindHeight=0.7;
 
             if(flyingHeight <=0.5||
                     ultrasonicHeight <5){
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
+                pidControlX.setInputFilterAll((float)offsetX/1450);
+                pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.135){
                         outX=absX<150?0:-0.135;
@@ -576,8 +583,8 @@ private double markerId5MaxFindHeight=0.7;
                         ? -0.35 : 0;
             }else if(flyingHeight <=1.5||
                     ultrasonicHeight <15){
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1450);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1450);
+                pidControlX.setInputFilterAll((float)offsetX/1450);
+                pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.155){
                         outX=absX<150?0:-0.155;
@@ -610,16 +617,16 @@ private double markerId5MaxFindHeight=0.7;
                         && (absY < 260)
                         ? -0.4 : 0;
             }else if (flyingHeight > 9) {
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/650);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/650);
+                pidControlX.setInputFilterAll((float)offsetX/650);
+                pidControlY.setInputFilterAll(-(float)offsetY/650);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 130)
                         && (absY < 150)
                         ? -0.65 : 0;
             }else {
-                pidControlX.setInputFilterAll((float)imageVector.val[0]/1250);
-                pidControlY.setInputFilterAll(-(float)imageVector.val[1]/1250);
+                pidControlX.setInputFilterAll((float)offsetX/1250);
+                pidControlY.setInputFilterAll(-(float)offsetY/1250);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 200)
@@ -630,9 +637,9 @@ private double markerId5MaxFindHeight=0.7;
 
         LogUtil.log(TAG,
                 " 杆量x=" + outX +
-                        " 偏移x=" + imageVector.val[0] +
+                        " 偏移x=" + offsetX +
                         " 杆量y=" + outY +
-                        " 偏移y=" + imageVector.val[1] +
+                        " 偏移y=" + offsetY +
                         " Id=" + id +
                         " Size=" + arucoMarkers.size() +
                         " 宽度=" + arucoWidth +
