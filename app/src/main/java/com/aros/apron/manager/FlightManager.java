@@ -532,7 +532,7 @@ public class FlightManager extends BaseManager {
 
 
     private static final int FLYING_HEIGHT_THRESHOLD = 10; // 开舱门飞行高度阈值
-    private static final int DISTANCE_THRESHOLD = 10000; // 返航距离阈值
+    private static final int DISTANCE_THRESHOLD = 500; // 返航距离阈值
 
     private void openCabinDoor() {
         boolean isReturningHome = goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value() ||

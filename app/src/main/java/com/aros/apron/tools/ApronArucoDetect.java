@@ -182,7 +182,7 @@ public class ApronArucoDetect {
                                     // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
                                     //存在识别到小Marker，但参考5号的尺寸降落的可能性
-                                    if (width >= 260 && idArray.length >= 5 && ultrasonicHeight <= 3) {
+                                    if (width >= 260 && idArray.length >= 5 && ultrasonicHeight <= 2) {
                                         String logMessage = "参考Marker尺寸降落:" + idArray[0] + " arucoW" + width +
                                                 " Flying Height:" + flyingHeight + "--" +
                                                 " Ultrasonic Height:" + ultrasonicHeight;

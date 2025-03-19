@@ -238,7 +238,7 @@ class ConnectionActivity : AppCompatActivity() {
                     if (!MainActivity.isAppStarted) {
                         Handler().postDelayed(Runnable {
                             startActivity(Intent(this, MainActivity::class.java))
-                        },2000)
+                        },500)
 
                     }
 
