@@ -31,8 +31,11 @@ public class PreferenceUtils extends BasePreference {
 
     //AMS配置清单
     private String HAVA_RTK = "have_rtk";
-    private String CUSTOM_STREAM_ENABLE = "custom_stream";
+    private String CUSTOM_STREAM_TYPE = "custom_stream_type";//1RTSP 2RTMP 3No
     private String CUSTOM_STREAM_URL = "custom_stream_url";
+    private String CUSTOM_STREAM_RTSP_USERNAME = "custom_stream_rtsp_username";
+    private String CUSTOM_STREAM_RTSP_PASSWORD = "custom_stream_rtsp_password";
+    private String CUSTOM_STREAM_RTSP_PORT = "custom_stream_rtsp_port";
     private String NTR_IP = "ntr_ip";
     private String NTR_PORT = "ntr_port";
     private String NTR_ACCOUNT = "ntr_account";
@@ -162,13 +165,12 @@ public class PreferenceUtils extends BasePreference {
     public boolean getTriggerToAlternatePoint() {
         return getBoolean(TRIGGER_TO_ALTERNATE_POINT);
     }
-
-    public void setCustomStreamEnable(boolean customStreamEnable) {
-        setBoolean(CUSTOM_STREAM_ENABLE, customStreamEnable);
+    public void setCustomStreamType(int customStreamType) {
+        setInt(CUSTOM_STREAM_TYPE, customStreamType);
     }
 
-    public boolean getCustomStreamEnable() {
-        return getBoolean(CUSTOM_STREAM_ENABLE);
+    public int getCustomStreamType() {
+        return getInt(CUSTOM_STREAM_TYPE);
     }
 
     public void setCustomStreamUrl(String customStreamUrl) {
@@ -177,6 +179,30 @@ public class PreferenceUtils extends BasePreference {
 
     public String getCustomStreamUrl() {
         return getString(CUSTOM_STREAM_URL);
+    }
+
+    public void setRtspUserName(String userName) {
+        setString(CUSTOM_STREAM_RTSP_USERNAME, userName);
+    }
+
+    public String getRtspUserName() {
+        return getString(CUSTOM_STREAM_RTSP_USERNAME);
+    }
+
+    public void setRtspPassWord(String passWord) {
+        setString(CUSTOM_STREAM_RTSP_PASSWORD, passWord);
+    }
+
+    public String getRtspPassWord() {
+        return getString(CUSTOM_STREAM_RTSP_PASSWORD);
+    }
+
+    public void setRtspPort(String port) {
+        setString(CUSTOM_STREAM_RTSP_PORT, port);
+    }
+
+    public String getRtspPort() {
+        return getString(CUSTOM_STREAM_RTSP_PORT);
     }
 
     public String getNTRIP() {

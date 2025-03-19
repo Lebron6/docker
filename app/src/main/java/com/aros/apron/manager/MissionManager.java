@@ -593,7 +593,7 @@ public class MissionManager extends BaseManager {
                     if (!isMissionStart) {
                         if (missionStateCode != 3 && missionStateCode != 4 && missionStateCode != 5 && missionStateCode != 6
                                 && missionStateCode != 7 && missionStateCode != 8 && missionStateCode != 9 && missionStateCode != 10) {
-                            if (startMissionFailTimes < 10) {
+                            if (startMissionFailTimes < 20) {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {

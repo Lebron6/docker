@@ -182,9 +182,15 @@ class ConnectionActivity : AppCompatActivity() {
                 } else if (PreferenceUtils.getInstance().airPortType != 1 && PreferenceUtils.getInstance().airPortType != 2 && PreferenceUtils.getInstance().airPortType != 3) {
                     ToastUtil.showToast("未配置机库类型")
                     LogUtil.log(TAG, "未配置机库类型")
-                }else if (PreferenceUtils.getInstance().customStreamEnable&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
+                }else if (PreferenceUtils.getInstance().customStreamType==2&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
                     ToastUtil.showToast("未配置自定义推流地址")
                     LogUtil.log(TAG, "未配置自定义推流地址")
+                }else if (PreferenceUtils.getInstance().customStreamType==1&&
+                    (TextUtils.isEmpty(PreferenceUtils.getInstance().rtspUserName)
+                            ||TextUtils.isEmpty(PreferenceUtils.getInstance().rtspPassWord)
+                            ||TextUtils.isEmpty(PreferenceUtils.getInstance().rtspPort))) {
+                    ToastUtil.showToast("未配置rtsp参数")
+                    LogUtil.log(TAG, "未配置rtsp参数")
                 }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
                     ToastUtil.showToast("未配置主相机位置")
                     LogUtil.log(TAG, "未配置主相机位置")
@@ -262,7 +268,7 @@ class ConnectionActivity : AppCompatActivity() {
         }
 
         msdkManagerVM.lvInitProcess.observe(this) { processPair ->
-            ToastUtil.showToast("Init Process event: ${processPair.first.name}")
+//            ToastUtil.showToast("Init Process event: ${processPair.first.name}")
         }
 
         msdkManagerVM.lvDBDownloadProgress.observe(this) { resultPair ->

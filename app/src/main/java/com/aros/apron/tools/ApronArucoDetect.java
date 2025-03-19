@@ -291,17 +291,137 @@ private double markerId5MaxFindHeight=0.7;
             if (Movement.getInstance().getFlyingHeight() <= 1.5
                     || Movement.getInstance().getUltrasonicHeight() < 15) {
                 if (isDoublePayload) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 11 || idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
-                                || idArray[i] == 16) {
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
+                    if (mFindArucoList.isEmpty()) {
+                        for (int i = 0; i < idArray.length; i++) {
+                            if (idArray[i] == 12) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 12;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 13&&detectedSmallMarkerId!=12) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 13;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+
+                            if (idArray[i] == 16&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 16;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 15&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 15;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 11&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=15) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 11;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 14&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=11) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 14;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 19&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=14) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 19;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 18&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=19) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 18;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
+                            if (idArray[i] == 17&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=19&&detectedSmallMarkerId!=18) {
+                                detectedSmallMarkers = true;
+                                detectedSmallMarkerId = 17;
+                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                                return;
+                            }
                         }
                     }
+
                 } else {
                     for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 11 || idArray[i] == 12 || idArray[i] == 13 || idArray[i] == 14 || idArray[i] == 15
-                                || idArray[i] == 16 || idArray[i] == 17 || idArray[i] == 18 || idArray[i] == 19) {
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
+                        if (idArray[i] == 15) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 15;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 16&&detectedSmallMarkerId!=15) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 16;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 14&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 14;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 12&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 12;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 13&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 13;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 11&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 11;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 18&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 18;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 19&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 19;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < idArray.length; i++) {
+                        if (idArray[i] == 17&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18&&detectedSmallMarkerId!=17) {
+                            detectedSmallMarkers = true;
+                            detectedSmallMarkerId = 17;
+                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
+                            return;
                         }
                     }
                 }
@@ -552,34 +672,34 @@ private double markerId5MaxFindHeight=0.7;
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.135){
-                        outX=absX<150?0:-0.135;
+                        outX=absX<80?0:-0.135;
                     }else{
-                        outX=absX<150?0:pidControlX.get_pid();
+                        outX=absX<80?0:pidControlX.get_pid();
                     }
                 }else{
                     if (pidControlX.get_pid()>0.135){
-                        outX=absX<150?0:0.135;
+                        outX=absX<80?0:0.135;
                     }else{
-                        outX=absX<150?0:pidControlX.get_pid();
+                        outX=absX<80?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
                     if (pidControlY.get_pid()<-0.135){
-                        outY=absY<150?0:-0.135;
+                        outY=absY<80?0:-0.135;
                     }else{
-                        outY=absY<150?0:pidControlY.get_pid();
+                        outY=absY<80?0:pidControlY.get_pid();
                     }
                 }else{
                     if (pidControlY.get_pid()>0.135){
-                        outY=absY<150?0:0.135;
+                        outY=absY<80?0:0.135;
                     }else{
-                        outY=absY<150?0:pidControlY.get_pid();
+                        outY=absY<80?0:pidControlY.get_pid();
                     }
                 }
 
-                outZ = (absX < 260)
-                        && (absY < 260)
+                outZ = (absX < 160)
+                        && (absY < 160)
                         ? -0.35 : 0;
             }else if(flyingHeight <=1.5||
                     ultrasonicHeight <15){
@@ -587,50 +707,50 @@ private double markerId5MaxFindHeight=0.7;
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.155){
-                        outX=absX<150?0:-0.155;
+                        outX=absX<80?0:-0.155;
                     }else{
-                        outX=absX<150?0:pidControlX.get_pid();
+                        outX=absX<80?0:pidControlX.get_pid();
                     }
                 }else{
                     if (pidControlX.get_pid()>0.155){
-                        outX=absX<150?0:0.155;
+                        outX=absX<80?0:0.155;
                     }else{
-                        outX=absX<150?0:pidControlX.get_pid();
+                        outX=absX<80?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
                     if (pidControlY.get_pid()<-0.155){
-                        outY=absY<150?0:-0.155;
+                        outY=absY<80?0:-0.155;
                     }else{
-                        outY=absY<150?0:pidControlY.get_pid();
+                        outY=absY<80?0:pidControlY.get_pid();
                     }
                 }else{
                     if (pidControlY.get_pid()>0.155){
-                        outY=absY<150?0:0.155;
+                        outY=absY<80?0:0.155;
                     }else{
-                        outY=absY<150?0:pidControlY.get_pid();
+                        outY=absY<80?0:pidControlY.get_pid();
                     }
                 }
 
-                outZ = (absX < 260)
-                        && (absY < 260)
+                outZ = (absX < 180)
+                        && (absY < 180)
                         ? -0.4 : 0;
             }else if (flyingHeight > 9) {
                 pidControlX.setInputFilterAll((float)offsetX/650);
                 pidControlY.setInputFilterAll(-(float)offsetY/650);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
-                outZ = (absX < 130)
-                        && (absY < 150)
+                outZ = (absX < 100)
+                        && (absY < 100)
                         ? -0.65 : 0;
             }else {
                 pidControlX.setInputFilterAll((float)offsetX/1250);
                 pidControlY.setInputFilterAll(-(float)offsetY/1250);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
-                outZ = (absX < 200)
-                        && (absY < 200)
+                outZ = (absX < 150)
+                        && (absY < 150)
                         ? -0.55 : 0;
             }
         }
@@ -655,7 +775,7 @@ private double markerId5MaxFindHeight=0.7;
 
         if (id == 11 || id == 12 || id == 13 || id == 14 || id == 15
                 || id == 16 || id == 17 || id == 18 || id == 19) {
-            checkConditions(absX, absY, id, arucoWidth,outX,outY);
+            checkConditions(absX, absY, id, arucoWidth);
 
         } else {
             canLanding = false;
@@ -663,15 +783,14 @@ private double markerId5MaxFindHeight=0.7;
     }
 
 
-    private void checkConditions(double absX, double absY, int id, double arucoWidth, double outX, double outY) {
+    private void checkConditions(double absX, double absY, int id, double arucoWidth) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        boolean xy = absX < 300 && absY < 260;
-        boolean v = (int)outX==0&&(int)outY==0;
+        boolean xy = absX < 260 && absY < 260;
         String logMessage = "";
         if (!startFastStick) {
 
-            if (absX <= 160 && absY <= 150 && ultrasonicHeight <= 4 && flyingHeight <= 3&&v) {
+            if (absX <= 160 && absY <= 160 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -680,7 +799,16 @@ private double markerId5MaxFindHeight=0.7;
                 handler.post(runnable);
                 return;
             }
-            if (xy && arucoWidth >= 280&&v) {
+            if (xy && arucoWidth >= 280) {
+                logMessage = "参考ArUco宽度+偏移量降落:" + id + " arucoW" + arucoWidth +
+                        " Flying Height:" + flyingHeight + "--" +
+                        " Ultrasonic Height:" + ultrasonicHeight;
+                LogUtil.log(TAG, logMessage);
+                startFastStick = true;
+                handler.post(runnable);
+                return;
+            }
+            if (arucoWidth >= 400) {
                 logMessage = "参考ArUco宽度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;

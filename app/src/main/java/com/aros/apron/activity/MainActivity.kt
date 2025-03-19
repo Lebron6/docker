@@ -345,10 +345,20 @@ open class MainActivity : BaseActivity() {
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
             //这里修改推流逻辑
-            Handler().postDelayed(Runnable {
-                StreamManager.getInstance()
-                    .startLiveWithCustom()
-            }, 5000)
+            if (PreferenceUtils.getInstance().customStreamType!=3) {
+                Handler().postDelayed(Runnable {
+                    if (PreferenceUtils.getInstance().customStreamType==1){
+                        StreamManager.getInstance()
+                            .startLiveWithRTSP()
+                    }else if (PreferenceUtils.getInstance().customStreamType==2){
+                        StreamManager.getInstance()
+                            .startLiveWithCustom()
+                    }else{
+                        LogUtil.log(TAG,"推流方式配置有误")
+                    }
+
+                }, 5000)
+            }
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)
