@@ -666,8 +666,8 @@ private double markerId5MaxFindHeight=0.7;
             outZ = 0.0f;
         } else {
 
-            if(flyingHeight <=0.5||
-                    ultrasonicHeight <5){
+            if(flyingHeight <=0.6||
+                    ultrasonicHeight <=6){
                 pidControlX.setInputFilterAll((float)offsetX/1450);
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
