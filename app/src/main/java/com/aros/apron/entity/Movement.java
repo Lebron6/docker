@@ -99,6 +99,24 @@ public class Movement {
     private String maxTemperaturePointY;
     private String minTemperaturePointX;//最小位置的位置
     private String minTemperaturePointY;
+    private String LTELinkType;//图传类型  1cusync 图传 3LTE 增强图传
+    private String sn;//设备SN，用于区别是哪台飞机
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
+    public String getLTELinkType() {
+        return LTELinkType;
+    }
+
+    public void setLTELinkType(String LTELinkType) {
+        this.LTELinkType = LTELinkType;
+    }
 
     public int getIsVirtualStickAdvancedModeEnabled() {
         return isVirtualStickAdvancedModeEnabled;

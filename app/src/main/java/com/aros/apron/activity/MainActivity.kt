@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -30,6 +31,7 @@ import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
+import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
@@ -343,6 +345,7 @@ open class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
+            MLTEManager.getInstance().initLTEManager()
             ApronArucoDetect.getInstance().init()
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {
@@ -359,6 +362,7 @@ open class MainActivity : BaseActivity() {
 
                 }, 5000)
             }
+            Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},5000)
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
             LogUtil.log(TAG, "设备类型:" + productType!!.name)

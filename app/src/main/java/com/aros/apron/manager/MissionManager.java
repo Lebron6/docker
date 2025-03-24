@@ -286,7 +286,9 @@ public class MissionManager extends BaseManager {
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
-            if ((missionStateCode == 2 || missionStateCode == 0) && (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))
+            if ((missionStateCode == 2 || missionStateCode == 0) &&
+                    (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())
+                            &&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))
                     ) {
                 if (message.getIsGuidingFlight() == 0) {
                     new Handler().postDelayed(new Runnable() {
@@ -509,8 +511,8 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onSuccess() {
-                    LogUtil.log(TAG, "航线上传成功,等待2s执行任务");
-                    sendMissionExecuteEvents(client, "开始执行任务");
+                    LogUtil.log(TAG, "航线上传成功,准备执行任务");
+                    sendMissionExecuteEvents(client, "航线上传成功,准备执行任务");
                     isPushKMZSuccess = true;
 
                     mainHandler.postDelayed(new Runnable() {
@@ -593,20 +595,20 @@ public class MissionManager extends BaseManager {
                     if (!isMissionStart) {
                         if (missionStateCode != 3 && missionStateCode != 4 && missionStateCode != 5 && missionStateCode != 6
                                 && missionStateCode != 7 && missionStateCode != 8 && missionStateCode != 9 && missionStateCode != 10) {
-                            if (startMissionFailTimes < 20) {
+                            if (startMissionFailTimes < 50) {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         startMission(client, message);
-                                        LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:" + new Gson().toJson(error));
+                                        LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:"+Movement.getInstance().getGPSSignalLevel()+"---" + new Gson().toJson(error));
                                         startMissionFailTimes++;
                                     }
                                 }, 2000);
                             } else {
                                 if (message.getIsGuidingFlight() == 0&&!Movement.getInstance().isPlaneWing()) {
                                     DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
-                                    sendMissionExecuteEvents(client, "任务开始失败,执行关机");
-                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error));
+                                    sendMissionExecuteEvents(client, "任务开始失败,执行关机:"+Movement.getInstance().getGPSSignalLevel());
+                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error)+"--"+Movement.getInstance().getGPSSignalLevel());
                                 }else{
                                     sendMissionExecuteEvents(client,"指点任务开始失败");
                                     LogUtil.log(TAG, "指点第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error));

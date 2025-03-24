@@ -463,6 +463,7 @@ public class FlightManager extends BaseManager {
                                     Movement.getInstance().getFlyingHeight()),
                             Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
+            Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
             //推送飞行状态
             MqttMessage flightMessage = null;
             try {

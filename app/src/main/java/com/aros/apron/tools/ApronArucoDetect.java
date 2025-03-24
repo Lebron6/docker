@@ -541,7 +541,6 @@ private double markerId5MaxFindHeight=0.7;
     //根据识别到的二维码移动无人机
     private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight, double arucoWidth) {
         int id = arucoMarkers.get(0).getId();
-        double flyingHeight = Movement.getInstance().getFlyingHeight();
         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         // 计算图像中心
         Point imgCenter = new Point(imageWidth / 2.0, imageHeight / 2.0);
@@ -602,7 +601,7 @@ private double markerId5MaxFindHeight=0.7;
         double z = tvec.get(0, 0)[2];
         double x = tvec.get(0,0)[0];
         double y = tvec.get(0,0)[1];
-        if (flyingHeight > 3 && (
+        if (z > 2 && (
                 id == 1
                         || id == 2
                         || id == 3
@@ -625,7 +624,7 @@ private double markerId5MaxFindHeight=0.7;
             double yawCamera = MathUtils.toDegree(eulerAngles.get(2));
 //            LogUtil.log(TAG,"偏航角度："+yawCamera);
             if (yawCamera < 0) {
-                if (yawCamera < -15 && flyingHeight < 9 && flyingHeight > 5) {
+                if (yawCamera < -15 && z < 9 && z > 3) {
                     if (yawCamera < -80) {
                         resultYaw = -40.0;
                     } else {
@@ -635,7 +634,7 @@ private double markerId5MaxFindHeight=0.7;
                     resultYaw = 0.0;
                 }
             } else {
-                if (yawCamera >= 15 && flyingHeight < 9 && flyingHeight > 5) {
+                if (yawCamera >= 15 && z < 9 && z > 3) {
                     if (yawCamera > 80) {
                         resultYaw = 40.0;
                     } else {
@@ -666,8 +665,7 @@ private double markerId5MaxFindHeight=0.7;
             outZ = 0.0f;
         } else {
 
-            if(flyingHeight <=0.6||
-                    ultrasonicHeight <=6){
+            if(z <=0.5){
                 pidControlX.setInputFilterAll((float)offsetX/1450);
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
@@ -701,8 +699,7 @@ private double markerId5MaxFindHeight=0.7;
                 outZ = (absX < 160)
                         && (absY < 160)
                         ? -0.35 : 0;
-            }else if(flyingHeight <=1.5||
-                    ultrasonicHeight <15){
+            }else if(z <=1){
                 pidControlX.setInputFilterAll((float)offsetX/1450);
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
@@ -736,7 +733,7 @@ private double markerId5MaxFindHeight=0.7;
                 outZ = (absX < 180)
                         && (absY < 180)
                         ? -0.4 : 0;
-            }else if (flyingHeight > 9) {
+            }else if (z > 7) {
                 pidControlX.setInputFilterAll((float)offsetX/650);
                 pidControlY.setInputFilterAll(-(float)offsetY/650);
                 outX = absX<80?0:pidControlX.get_pid();
@@ -763,7 +760,7 @@ private double markerId5MaxFindHeight=0.7;
                         " Id=" + id +
                         " Size=" + arucoMarkers.size() +
                         " 宽度=" + arucoWidth +
-                        " 椭球=" + flyingHeight +
+                        " 椭球=" + Movement.getInstance().getFlyingHeight() +
                         " 融合=" + ultrasonicHeight +
                         " X=" + x +
                         " Z=" + z

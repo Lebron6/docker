@@ -20,7 +20,9 @@ import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.RemoteControllerKey;
 import dji.v5.manager.KeyManager;
+import dji.v5.manager.aircraft.lte.LTEManager;
 import dji.v5.manager.aircraft.waypoint3.model.WaypointMissionExecuteState;
+import dji.v5.manager.interfaces.ILTEManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -50,7 +52,6 @@ public class SystemManager extends BaseManager {
 //        } else {
 //            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
 //        }
-
 
     }
 
