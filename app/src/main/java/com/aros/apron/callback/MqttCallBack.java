@@ -101,8 +101,10 @@ public class MqttCallBack implements MqttCallbackExtended {
                             PreferenceUtils.getInstance().setStreamAndMinIOConfig(message);
                             // 2.收到60003直接回复
                             StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                            // 3.开启推流
-                            StreamManager.getInstance().startLive(mqttClient, message);
+                            if (PreferenceUtils.getInstance().getCustomStreamType()==3){
+                                // 3.开启推流
+                                StreamManager.getInstance().startLive(mqttClient, message);
+                            }
                             // 4.关闭避障
                             PerceptionManager.getInstance().setPerceptionEnable(false);
                             // 5.清空sd卡

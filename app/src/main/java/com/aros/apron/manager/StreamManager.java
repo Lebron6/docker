@@ -7,6 +7,8 @@ import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
@@ -151,21 +153,8 @@ public class StreamManager extends BaseManager {
         }
     }
 
-
-    public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        ILiveStreamManager iLiveStreamManager = LiveStreamManager.getInstance();
-        iLiveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                sendMsg2Server(mqttAndroidClient, message);
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server(mqttAndroidClient, message, "停止直播失败:" + error.description());
-            }
-        });
-    }
+    private int startLiveFailTimes;
+    private boolean isLiveStreamAlreadyStart;
 
     //知眸测试
     public void startLiveWithCustom() {
@@ -196,12 +185,24 @@ public class StreamManager extends BaseManager {
                 liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        LogUtil.log(TAG, "自定义推流启动成功:" + PreferenceUtils.getInstance().getCustomStreamUrl());
+                        LogUtil.log(TAG, "自定义推流启动成功");
+                        isLiveStreamAlreadyStart=true;
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "自定义推流启动失败:" + error.description() + "---");
+                        LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始推流失败:"+new Gson().toJson(error));
+                        if (!isLiveStreamAlreadyStart){
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (startLiveFailTimes < 10) {
+                                        startLiveFailTimes++;
+                                        startLiveWithCustom();
+                                    }
+                                }
+                            }, 3000);
+                        }
                     }
                 });
 
@@ -222,10 +223,13 @@ public class StreamManager extends BaseManager {
 
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            LogUtil.log(TAG, "自定义推流地址:" + PreferenceUtils.getInstance().getCustomStreamUrl());
+            LogUtil.log(TAG, "自定义RTSP推流:" + PreferenceUtils.getInstance().getRtspUserName()
+                    +"--"+PreferenceUtils.getInstance().getRtspPort()+"--"+PreferenceUtils.getInstance().getRtspPassWord());
             LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
             LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTSP)
-                    .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
+                    .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).
+                            setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).
+                            setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
 
             liveStreamManager.setLiveStreamSettings(streamSettings);
             CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, 0));
@@ -239,20 +243,48 @@ public class StreamManager extends BaseManager {
             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
             liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
             if (!liveStreamManager.isStreaming()) {
-                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        LogUtil.log(TAG, "自定义推流启动成功" );
-                    }
+                     liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "自定义推流启动成功");
+                            isLiveStreamAlreadyStart=true;
+                        }
 
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "自定义推流启动失败" + error.description() + "---");
-                    }
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始推流失败:"+new Gson().toJson(error));
+                            if (!isLiveStreamAlreadyStart){
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (startLiveFailTimes < 10) {
+                                            startLiveFailTimes++;
+                                            startLiveWithCustom();
+                                        }
+                                    }
+                                }, 3000);
+                            }
+                        }
                 });
             }
 
         }
+    }
+
+
+    public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        ILiveStreamManager iLiveStreamManager = LiveStreamManager.getInstance();
+        iLiveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                sendMsg2Server(mqttAndroidClient, message);
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                sendMsg2Server(mqttAndroidClient, message, "停止直播失败:" + error.description());
+            }
+        });
     }
 
 
