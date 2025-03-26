@@ -12,10 +12,12 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.DJIKeyInfo;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
@@ -41,17 +43,8 @@ public class GimbalManager extends BaseManager {
     }
 
     public void initGimbalInfo() {
-//        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
-//                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
-//            @Override
-//            public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
-//                if (t1!=null){
-//                    //双挂
         ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getCameraLocationType() == 2);
-//                    LogUtil.log(TAG,"检测是否双挂:"+t1);
-//                }
-//            }
-//        });
+
 
     }
 

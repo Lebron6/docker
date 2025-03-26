@@ -33,6 +33,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun initView() {
         configBinding.cbHaveRtk.isChecked = PreferenceUtils.getInstance().haveRTK
+        configBinding.cbLteEnable.isChecked = PreferenceUtils.getInstance().lteEnable
         configBinding.cbCloseObstacle.isChecked = PreferenceUtils.getInstance().closeObsEnable
         configBinding.cbDebuggingMode.isChecked = PreferenceUtils.getInstance().isDebugMode
         configBinding.cbCleanMode.isChecked = PreferenceUtils.getInstance().isCleanMode
@@ -313,6 +314,7 @@ class ConfigActivity : BaseActivity() {
         PreferenceUtils.getInstance().isDebugMode = configBinding.cbDebuggingMode.isChecked
         PreferenceUtils.getInstance().isCleanMode = configBinding.cbCleanMode.isChecked
         PreferenceUtils.getInstance().navigationLEDsOn = configBinding.cbLEDsSettings.isChecked
+        PreferenceUtils.getInstance().lteEnable = configBinding.cbLteEnable.isChecked
         if (configBinding.rbRtsp.isChecked) {
             PreferenceUtils.getInstance().customStreamType = 1
         } else if (configBinding.rbRtmp.isChecked) {

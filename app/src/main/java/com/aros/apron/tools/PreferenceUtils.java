@@ -65,6 +65,7 @@ public class PreferenceUtils extends BasePreference {
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
     private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
     private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
+    private String LTE_ENABLE = "lte_enable";
 
 
     public void setStreamAndMinIOConfig(MQMessage message) {
@@ -283,6 +284,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setNeedUpLoadVideo(boolean needUpLoadVideo) {
         setBoolean(NEED_UPLOAD_VEDIO, needUpLoadVideo);
+    }
+
+    public boolean getLteEnable() {
+        return getBoolean(LTE_ENABLE);
+    }
+
+    public void setLteEnable(boolean lteEnable) {
+        setBoolean(LTE_ENABLE, lteEnable);
     }
 
     public int getAirPortType() {

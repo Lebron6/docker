@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -46,6 +45,7 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
+import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -345,8 +345,12 @@ open class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
-            MLTEManager.getInstance().initLTEManager()
             ApronArucoDetect.getInstance().init()
+            if (PreferenceUtils.getInstance().lteEnable){
+                MLTEManager.getInstance().initLTEManager()
+                Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)
+
+            }
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {
                 Handler().postDelayed(Runnable {
@@ -362,10 +366,21 @@ open class MainActivity : BaseActivity() {
 
                 }, 5000)
             }
-            Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},5000)
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
-            LogUtil.log(TAG, "设备类型:" + productType!!.name)
+            val cameraType = KeyManager.getInstance().getValue(
+                KeyTools.createKey(
+                    CameraKey.KeyCameraType,
+                    ComponentIndexType.LEFT_OR_MAIN
+                )
+            )
+
+            if (cameraType != null && productType != null) {
+                LogUtil.log(TAG, "设备类型:" + productType.name + "相机类型:" + cameraType.name)
+            } else {
+                LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
+            }
+
             ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }

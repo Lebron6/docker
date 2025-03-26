@@ -15,8 +15,10 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.value.camera.CameraExposureCompensation;
 import dji.sdk.keyvalue.value.camera.CameraExposureMode;
+import dji.sdk.keyvalue.value.camera.CameraFlatMode;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
 import dji.sdk.keyvalue.value.camera.CameraMode;
 import dji.sdk.keyvalue.value.camera.CameraStorageLocation;
@@ -36,6 +38,7 @@ import dji.sdk.keyvalue.value.common.DoubleRect;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.EnCodingType;
 import dji.sdk.keyvalue.value.common.RelativePosition;
+import dji.sdk.keyvalue.value.product.ProductType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -265,17 +268,54 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int cameraMode = message.getCameraMode();
-                KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraMode), CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
-                    }
+                ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
+                if (productType!=null){
+                    if (productType==ProductType.M300_RTK){
+                        if (cameraMode==0){
+                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_NORMAL, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    sendMsg2Server(mqttAndroidClient, message);
+                                }
 
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        sendMsg2Server(mqttAndroidClient, message, "切换失败:" + new Gson().toJson(error));
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendMsg2Server(mqttAndroidClient, message, "切换失败:" + new Gson().toJson(error));
+                                }
+                            });
+                        }else{
+                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    sendMsg2Server(mqttAndroidClient, message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendMsg2Server(mqttAndroidClient, message, "切换失败:" + new Gson().toJson(error));
+                                }
+                            });
+                        }
+
+                    }else{
+                        KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraMode), CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server(mqttAndroidClient, message);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendMsg2Server(mqttAndroidClient, message, "切换失败:" + new Gson().toJson(error));
+                            }
+                        });
+
                     }
-                });
+                }else{
+                    sendMsg2Server(mqttAndroidClient, message, "切换失败:相机未连接");
+
+                }
+
             }
         } else {
             sendMsg2Server(mqttAndroidClient, message, "相机未连接");
