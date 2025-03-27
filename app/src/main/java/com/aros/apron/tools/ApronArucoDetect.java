@@ -698,7 +698,7 @@ private double markerId5MaxFindHeight=0.7;
 
                 outZ = (absX < 160)
                         && (absY < 160)
-                        ? -0.35 : 0;
+                        ? -0.25 : 0;
             }else if(z <=1){
                 pidControlX.setInputFilterAll((float)offsetX/1450);
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
