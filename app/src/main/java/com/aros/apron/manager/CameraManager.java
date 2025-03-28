@@ -756,12 +756,12 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.WIDE_CAMERA, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.log(TAG, "降落时将镜头切为广角");
+                    LogUtil.log(TAG, "返航时将镜头切为广角");
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "降落切换广角失败：" + new Gson().toJson(error));
+                    LogUtil.log(TAG, "返航切换广角失败：" + new Gson().toJson(error));
                 }
             });
 

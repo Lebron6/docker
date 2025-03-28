@@ -93,8 +93,8 @@ public class ApronArucoDetect {
     }
 
     public void init() {
-        pidControlX = new PIDControl(0.8f, 0.008f, 0.03f, 0.05f, 2.0f, 0.1f);
-        pidControlY = new PIDControl(0.8f, 0.008f, 0.03f, 0.05f, 2.0f, 0.1f);
+        pidControlX = new PIDControl(0.8f, 0.002f, 0.09f, 0.05f, 2.0f, 0.05f);
+        pidControlY = new PIDControl(0.8f, 0.002f, 0.09f, 0.05f, 2.0f, 0.05f);
         pidControlX.reset();
         pidControlY.reset();
     }
@@ -664,91 +664,149 @@ private double markerId5MaxFindHeight=0.7;
             outY = 0.0f;
             outZ = 0.0f;
         } else {
-
-            if(z <=0.5){
-                pidControlX.setInputFilterAll((float)offsetX/1450);
-                pidControlY.setInputFilterAll(-(float)offsetY/1450);
+            if(z <=0.4){
+                pidControlX.setInputFilterAll((float)offsetX/1750);
+                pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.135){
-                        outX=absX<80?0:-0.135;
+                    if (pidControlX.get_pid()<-0.125){
+                        outX=absX<120?0:-0.125;
                     }else{
-                        outX=absX<80?0:pidControlX.get_pid();
+                        outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.135){
-                        outX=absX<80?0:0.135;
+                    if (pidControlX.get_pid()>0.125){
+                        outX=absX<120?0:0.125;
                     }else{
-                        outX=absX<80?0:pidControlX.get_pid();
+                        outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.135){
-                        outY=absY<80?0:-0.135;
+                    if (pidControlY.get_pid()<-0.125){
+                        outY=absY<120?0:-0.125;
                     }else{
-                        outY=absY<80?0:pidControlY.get_pid();
+                        outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.135){
-                        outY=absY<80?0:0.135;
+                    if (pidControlY.get_pid()>0.125){
+                        outY=absY<120?0:0.125;
                     }else{
-                        outY=absY<80?0:pidControlY.get_pid();
+                        outY=absY<120?0:pidControlY.get_pid();
                     }
                 }
 
-                outZ = (absX < 160)
-                        && (absY < 160)
-                        ? -0.25 : 0;
+                outZ = (absX < 250)
+                        && (absY < 250)
+                        ? -0.3 : 0;
+            }else if(z <=0.7){
+                pidControlX.setInputFilterAll((float)offsetX/1750);
+                pidControlY.setInputFilterAll(-(float)offsetY/1750);
+                if (pidControlX.get_pid()<0){
+                    if (pidControlX.get_pid()<-0.125){
+                        outX=absX<120?0:-0.125;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }else{
+                    if (pidControlX.get_pid()>0.125){
+                        outX=absX<120?0:0.125;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }
+
+                if (pidControlY.get_pid()<0){
+                    if (pidControlY.get_pid()<-0.125){
+                        outY=absY<120?0:-0.125;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }else{
+                    if (pidControlY.get_pid()>0.125){
+                        outY=absY<120?0:0.125;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }
+
+                outZ = (absX < 250)
+                        && (absY < 250)
+                        ? -0.35 : 0;
             }else if(z <=1){
-                pidControlX.setInputFilterAll((float)offsetX/1450);
-                pidControlY.setInputFilterAll(-(float)offsetY/1450);
+                pidControlX.setInputFilterAll((float)offsetX/1550);
+                pidControlY.setInputFilterAll(-(float)offsetY/1550);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.155){
-                        outX=absX<80?0:-0.155;
+                    if (pidControlX.get_pid()<-0.145){
+                        outX=absX<120?0:-0.145;
                     }else{
-                        outX=absX<80?0:pidControlX.get_pid();
+                        outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.155){
-                        outX=absX<80?0:0.155;
+                    if (pidControlX.get_pid()>0.145){
+                        outX=absX<120?0:0.145;
                     }else{
-                        outX=absX<80?0:pidControlX.get_pid();
+                        outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.155){
-                        outY=absY<80?0:-0.155;
+                    if (pidControlY.get_pid()<-0.145){
+                        outY=absY<120?0:-0.145;
                     }else{
-                        outY=absY<80?0:pidControlY.get_pid();
+                        outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.155){
-                        outY=absY<80?0:0.155;
+                    if (pidControlY.get_pid()>0.145){
+                        outY=absY<120?0:0.145;
                     }else{
-                        outY=absY<80?0:pidControlY.get_pid();
+                        outY=absY<120?0:pidControlY.get_pid();
                     }
                 }
 
                 outZ = (absX < 180)
                         && (absY < 180)
                         ? -0.4 : 0;
-            }else if (z > 7) {
+            }else if(z <=2){
+                pidControlX.setInputFilterAll((float)offsetX/1050);
+                pidControlY.setInputFilterAll(-(float)offsetY/1050);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+            }else if(z <=3){
+                pidControlX.setInputFilterAll((float)offsetX/950);
+                pidControlY.setInputFilterAll(-(float)offsetY/950);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+            }else if(z <=5){
+                pidControlX.setInputFilterAll((float)offsetX/850);
+                pidControlY.setInputFilterAll(-(float)offsetY/850);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+            }else if (z <= 7) {
+                pidControlX.setInputFilterAll((float)offsetX/750);
+                pidControlY.setInputFilterAll(-(float)offsetY/750);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+
+            }else {
                 pidControlX.setInputFilterAll((float)offsetX/650);
                 pidControlY.setInputFilterAll(-(float)offsetY/650);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
-                outZ = (absX < 100)
-                        && (absY < 100)
+                outZ = (absX < 130)
+                        && (absY < 130)
                         ? -0.65 : 0;
-            }else {
-                pidControlX.setInputFilterAll((float)offsetX/1250);
-                pidControlY.setInputFilterAll(-(float)offsetY/1250);
-                outX = absX<80?0:pidControlX.get_pid();
-                outY = absY<80?0:pidControlY.get_pid();
-                outZ = (absX < 150)
-                        && (absY < 150)
-                        ? -0.55 : 0;
             }
         }
 
@@ -783,11 +841,11 @@ private double markerId5MaxFindHeight=0.7;
     private void checkConditions(double absX, double absY, int id, double arucoWidth) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
         double flyingHeight = Movement.getInstance().getFlyingHeight();
-        boolean xy = absX < 260 && absY < 260;
+        boolean xy = absX < 250 && absY < 300;
         String logMessage = "";
         if (!startFastStick) {
 
-            if (absX <= 160 && absY <= 160 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
+            if (absX <= 250 && absY <= 300 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
