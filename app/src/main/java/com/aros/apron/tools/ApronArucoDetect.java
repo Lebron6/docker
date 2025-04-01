@@ -224,7 +224,7 @@ public class ApronArucoDetect {
                         }
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
-                        if (endTime - startTime > 400 && endTime - startTime <= 8000) {
+                        if (endTime - startTime > 700 && endTime - startTime <= 8000) {
                             if (Movement.getInstance().getFlyingHeight() <= 7) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
@@ -286,8 +286,9 @@ public class ApronArucoDetect {
     }
 //飞机椭球高度返回过低，导致5号Marker过早的不识别，悬停在3-4米处(浙江海事，汾湖演示出现过)
 private double markerId5MaxFindHeight=0.7;
+private double markerId1234MinFindHeight=7;
     public void findAruco(int[] idArray) {
-        if (Movement.getInstance().getFlyingHeight()<7){
+        if (Movement.getInstance().getFlyingHeight()<markerId1234MinFindHeight){
             if (Movement.getInstance().getFlyingHeight() <= 1.5
                     || Movement.getInstance().getUltrasonicHeight() < 15) {
                 if (isDoublePayload) {

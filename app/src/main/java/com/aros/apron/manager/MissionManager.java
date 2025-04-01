@@ -288,7 +288,10 @@ public class MissionManager extends BaseManager {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
             if ((missionStateCode == 2 || missionStateCode == 0) &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())
-                            &&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))
+                            &&!Movement.getInstance().getPlaneMessage().equals("无法起飞")
+                    &&(Movement.getInstance().getGPSSignalLevel().equals("LEVEL_4")
+                            ||Movement.getInstance().getGPSSignalLevel().equals("LEVEL_5")
+                    ||Movement.getInstance().getGPSSignalLevel().equals("LEVEL_10")))
                     ) {
                 if (message.getIsGuidingFlight() == 0) {
                     new Handler().postDelayed(new Runnable() {
@@ -315,7 +318,11 @@ public class MissionManager extends BaseManager {
                 public void run() {
                     startTaskProcess(client, message);
                     checkMissionStateTimes++;
-                    LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" + WaypointMissionExecuteState.find(missionStateCode).name() + "---RTK:" + Movement.getInstance().isRtkSign() + "---" + Movement.getInstance().getPlaneMessage());
+                    LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" +
+                            WaypointMissionExecuteState.find(missionStateCode).name() +
+                            "-RTK解算:" + Movement.getInstance().isRtkSign() + "-飞行器状态" +
+                            Movement.getInstance().getPlaneMessage()+
+                            "-GPS信号等级:"+Movement.getInstance().getGPSSignalLevel());
                 }
             }, 2000);
         } else {
