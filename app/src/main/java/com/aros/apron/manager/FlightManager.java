@@ -31,7 +31,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import dji.sdk.keyvalue.key.AirLinkKey;
-import dji.sdk.keyvalue.key.BatteryKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -402,30 +401,62 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-            KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyLowBatteryRTHEnabled),
-                    true, new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG,"设置智能低电量返航");
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG,"设置智能低电量返航失败:"+new Gson().toJson(error));
-                        }
-                    });
-            KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyFailsafeAction),
-                    FailsafeAction.GOHOME, new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG,"设置失控返航");
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG,"设置失控返航失败:"+new Gson().toJson(error));
-                        }
-                    });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyFailsafeAction), this, new CommonCallbacks.KeyListener<FailsafeAction>() {
+                @Override
+                public void onValueChange(@Nullable FailsafeAction failsafeAction, @Nullable FailsafeAction t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setFailsafeAction(t1.value());
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyHeightLimit), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setHeightLimit(t1);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimit), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setDistanceLimit(t1);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimitEnabled), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setDistanceLimitEnabled(t1?1:0);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyLowBatteryWarningThreshold), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setLowBatteryWarningThreshold(t1);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeySeriousLowBatteryWarningThreshold), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setSeriousLowBatteryWarningThreshold(t1);
+                    }
+                }
+            });
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyLowBatteryRTHEnabled), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setLowBatteryRTHEnabled(t1?1:0);
+                    }
+                }
+            });
 
         } else {
             Log.e(TAG, "初始化飞控失败" + "flight controller is null");
