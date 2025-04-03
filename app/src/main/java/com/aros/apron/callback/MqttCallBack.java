@@ -415,6 +415,31 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
                 FlightManager.getInstance().emergencyHover(mqttClient,message);
                 break;
+            //设置失控动作
+            case 60144:
+                LogUtil.log(TAG, "收到命令：设置失控动作" + jsonString);
+                FlightManager.getInstance().setFailsafeAction(mqttClient,message);
+                break;
+            //设置返航高度
+            case 60145:
+                LogUtil.log(TAG, "收到命令：设置返航高度" + jsonString);
+                FlightManager.getInstance().setGoHomeHeight(mqttClient,message);
+                break;
+            //设置低电量报警阈值
+            case 60146:
+                LogUtil.log(TAG, "收到命令：设置低电量报警阈值" + jsonString);
+                FlightManager.getInstance().setLowBatteryWarningThreshold(mqttClient,message);
+                break;
+            //设置严重低电量报警阈值
+            case 60147:
+                LogUtil.log(TAG, "收到命令：设置严重低电量报警阈值" + jsonString);
+                FlightManager.getInstance().setSeriousLowBatteryWarningThreshold(mqttClient,message);
+                break;
+            //设置智能低电量返航
+            case 60148:
+                LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
+                FlightManager.getInstance().setLowBatteryRTHEnabled(mqttClient,message);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {

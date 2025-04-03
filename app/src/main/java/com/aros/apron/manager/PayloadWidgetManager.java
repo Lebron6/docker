@@ -1,6 +1,8 @@
 package com.aros.apron.manager;
 
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -63,8 +65,9 @@ public class PayloadWidgetManager extends BaseManager {
                 }
 
                 @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(error));
+                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(error));
                 }
             });
         }
@@ -89,7 +92,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
+                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
+                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
 
                 }
             });
@@ -139,7 +143,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                                    sendMsg2Server(client, message, "抛投失败:" + new Gson().toJson(idjiError));
+                                                    LogUtil.log(TAG,"抛投失败:" +new Gson().toJson(idjiError));
+                                                    sendMsg2Server(client, message, "抛投失败:" + getIDJIErrorMsg(idjiError));
 
                                                 }
                                             });
@@ -149,7 +154,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
+                                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
+                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
 
                                 }
                             });
@@ -159,8 +165,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    sendMsg2Server(client, message, "锁定失败:" + new Gson().toJson(idjiError));
-
+                    LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
+                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
                 }
             });
 
@@ -210,8 +216,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                                    sendMsg2Server(client, message, "全抛失败:" + new Gson().toJson(idjiError));
-
+                                                    LogUtil.log(TAG,"全抛失败:" +new Gson().toJson(idjiError));
+                                                    sendMsg2Server(client, message, "全抛失败:" + getIDJIErrorMsg(idjiError));
                                                 }
                                             });
                                         }
@@ -220,8 +226,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
-
+                                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
+                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
                                 }
                             });
                         }
@@ -230,8 +236,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    sendMsg2Server(client, message, "锁定失败:" + new Gson().toJson(idjiError));
-
+                    LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
+                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
                 }
             });
 
@@ -256,7 +262,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
-                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + new Gson().toJson(idjiError));
+                        LogUtil.log(TAG,"发送数据到psdk失败:" +new Gson().toJson(idjiError));
+                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + getIDJIErrorMsg(idjiError));
                     }
                 });
             } else {

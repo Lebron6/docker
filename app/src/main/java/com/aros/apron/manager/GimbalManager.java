@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -67,13 +69,12 @@ public class GimbalManager extends BaseManager {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
                                 sendMsg2Server(mqttAndroidClient, message);
-                                LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + new Gson().toJson(error));
-                                LogUtil.log(TAG, "云台控制失败:" + new Gson().toJson(error));
+                                LogUtil.log(TAG,"云台控制失败:"+new Gson().toJson(error));
+                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + getIDJIErrorMsg(error));
                             }
                         }
                 );
@@ -131,6 +132,7 @@ public class GimbalManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
+
                         }
                     }
             );
@@ -153,7 +155,8 @@ public class GimbalManager extends BaseManager {
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(client, message, "云台重置失败:" + new Gson().toJson(error));
+                            LogUtil.log(TAG,"云台重置失败:"+new Gson().toJson(error));
+                            sendMsg2Server(client, message, "云台控制失败:" + getIDJIErrorMsg(error));
                         }
                     }
             );
@@ -198,7 +201,8 @@ public class GimbalManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server(mqttAndroidClient, message, errorMessage + error.description());
+                LogUtil.log(TAG,errorMessage+new Gson().toJson(error));
+                sendMsg2Server(mqttAndroidClient, message, errorMessage + getIDJIErrorMsg(error));
             }
         });
     }
