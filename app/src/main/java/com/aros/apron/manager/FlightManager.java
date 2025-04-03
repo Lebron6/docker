@@ -427,7 +427,6 @@ public class FlightManager extends BaseManager {
                         }
                     });
 
-
         } else {
             Log.e(TAG, "初始化飞控失败" + "flight controller is null");
         }

@@ -101,6 +101,15 @@ public class Movement {
     private String minTemperaturePointY;
     private String LTELinkType;//图传类型  1cusync 图传 3LTE 增强图传
     private String sn;//设备SN，用于区别是哪台飞机
+    private int goHomeHeight;//返航高度
+
+    public int getGoHomeHeight() {
+        return goHomeHeight;
+    }
+
+    public void setGoHomeHeight(int goHomeHeight) {
+        this.goHomeHeight = goHomeHeight;
+    }
 
     public String getSn() {
         return sn;
