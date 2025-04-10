@@ -71,7 +71,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void doClientConnection() {
         if (!mqttAndroidClient.isConnected() && isConnectIsNomarl()) {
             try {
-                mqttAndroidClient.connect(mMqttConnectOptions, null, new MqttActionCallBack(mqttAndroidClient));
+                mqttAndroidClient.connect(mMqttConnectOptions, null, new MqttActionCallBack(mqttAndroidClient,mMqttConnectOptions));
             } catch (MqttException e) {
                 LogUtil.log(TAG,"mqtt连接异常:"+e.toString());
                 e.printStackTrace();
@@ -91,8 +91,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             LogUtil.log(TAG, "当前网络名称：" + name);
             return true;
         } else {
-            LogUtil.log(TAG, "没有可用Mqtt网络");
-            /*没有可用网络的时候，延迟5秒再尝试重连*/
+            LogUtil.log(TAG, "没有可用Mqtt网络,延迟三秒后重连");
+            /*没有可用网络的时候，延迟3秒再尝试重连*/
             doConnectionDelay();
             return false;
         }
@@ -106,7 +106,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                LogUtil.log(TAG,"延迟3s后重连");
                 doClientConnection();
             }
         }, 3000);
