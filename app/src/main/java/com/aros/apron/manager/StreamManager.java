@@ -33,7 +33,7 @@ import dji.v5.manager.interfaces.ILiveStreamManager;
 
 
 public class StreamManager extends BaseManager {
-
+    MqttAndroidClient client;
 
     private StreamManager() {
     }
@@ -51,6 +51,7 @@ public class StreamManager extends BaseManager {
     }
 
     public void initStreamManager(MqttAndroidClient client) {
+        this.client=client;
         ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
         if (liveStreamManager != null) {
             liveStreamManager.addLiveStreamStatusListener(new LiveStreamStatusListener() {
@@ -105,6 +106,8 @@ public class StreamManager extends BaseManager {
                             public void onSuccess() {
                                 LogUtil.log(TAG, "推流成功");
                                 sendMsg2Server(client, message);
+                                SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+
                             }
 
                             @Override
@@ -187,6 +190,7 @@ public class StreamManager extends BaseManager {
                     public void onSuccess() {
                         LogUtil.log(TAG, "自定义推流启动成功");
                         isLiveStreamAlreadyStart=true;
+                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
                     }
 
                     @Override
@@ -248,6 +252,8 @@ public class StreamManager extends BaseManager {
                         public void onSuccess() {
                             LogUtil.log(TAG, "自定义推流启动成功");
                             isLiveStreamAlreadyStart=true;
+                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+
                         }
 
                         @Override

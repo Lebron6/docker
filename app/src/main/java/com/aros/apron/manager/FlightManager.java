@@ -299,6 +299,10 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+                            if (!sendStartTakeOffMsg) {
+                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(mqttAndroidClient);
+                                sendStartTakeOffMsg = true;
+                            }
                         }
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
@@ -482,6 +486,8 @@ public class FlightManager extends BaseManager {
     public boolean isGimbalDownwards;
     //(决定飞机触发最后landing的重要因素)是否触发最后一步Landing，如果触发过，确保landing时不再触发landing
     public boolean isTriggerLanding;
+    //飞机电机起转后发送一次开始飞行
+    private boolean sendStartTakeOffMsg;
 
     public boolean isSendDetect() {
         return isSendDetect;
@@ -766,7 +772,7 @@ public class FlightManager extends BaseManager {
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
             ApronArucoDetect.getInstance().setCanLanding(false);
-
+            SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
             // 发布事件，通知其他组件停止Aruco检测
             EventBus.getDefault().post(FLAG_STOP_ARUCO);
             if (!isDebugMode) {
@@ -782,6 +788,7 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+            PreferenceUtils.getInstance().setTaskId();
 
         }
     }

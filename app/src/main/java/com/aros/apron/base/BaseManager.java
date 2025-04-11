@@ -181,6 +181,7 @@ public abstract class BaseManager {
         }
     }
 
+
     public boolean getGimbalAndCameraEnabled() {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
             return true;

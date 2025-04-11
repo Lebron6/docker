@@ -22,6 +22,7 @@ public class PreferenceUtils extends BasePreference {
     private String SECRET_KEY = "secret_key";
     private String BUCKET_NAME = "bucket_name";
     private String FLIGHT_NAME = "flight_name";
+    private String TASK_ID = "task_id";
     private String KEY = "key";
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
@@ -70,6 +71,9 @@ public class PreferenceUtils extends BasePreference {
 
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
+        if (!TextUtils.isEmpty(message.getTask_id())){
+            setString(TASK_ID,message.getTask_id());
+        }
         if (!TextUtils.isEmpty(message.getUpload_url())) {
             String[] split = message.getUpload_url().split("//");
             String[] split1 = split[1].split("/");
@@ -97,6 +101,13 @@ public class PreferenceUtils extends BasePreference {
 
     public String getSortiesId() {
         return getString(SORTIES_ID);
+    }
+    public void setTaskId() {
+        setString(TASK_ID,"");
+    }
+
+    public String getTaskId() {
+        return getString(TASK_ID);
     }
 
     public String getFlightId() {
