@@ -58,9 +58,13 @@ public class SendLandingManager extends BaseManager {
         MessageReply message = new MessageReply();
         message.setMsg_type(60032);
         message.setResult(1);
+
         if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getTaskId())){
             message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-        }        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
+        }
+        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
+        LogUtil.log(TAG,"sendLandingMessage:"+new Gson().toJson(message));
+
         mqttMessage.setQos(0);
         try {
             client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {

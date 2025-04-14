@@ -71,6 +71,7 @@ public class PreferenceUtils extends BasePreference {
 
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
+        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
         if (!TextUtils.isEmpty(message.getTask_id())){
             setString(TASK_ID,message.getTask_id());
         }

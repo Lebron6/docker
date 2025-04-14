@@ -788,6 +788,7 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+            LogUtil.log(TAG,"droneStorage:"+PreferenceUtils.getInstance().getTaskId());
             PreferenceUtils.getInstance().setTaskId();
 
         }

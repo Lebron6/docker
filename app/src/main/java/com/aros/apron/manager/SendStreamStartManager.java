@@ -62,6 +62,8 @@ public class SendStreamStartManager extends BaseManager {
             message.setTask_id(PreferenceUtils.getInstance().getTaskId());
         }
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
+        LogUtil.log(TAG,"sendStreamStartMessage:"+new Gson().toJson(message));
+
         mqttMessage.setQos(0);
         try {
             client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
