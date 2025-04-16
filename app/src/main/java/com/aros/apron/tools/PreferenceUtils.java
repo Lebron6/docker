@@ -68,7 +68,7 @@ public class PreferenceUtils extends BasePreference {
     private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
     private String LTE_ENABLE = "lte_enable";
 
-
+    //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
         LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());

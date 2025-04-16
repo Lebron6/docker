@@ -696,9 +696,9 @@ private double markerId1234MinFindHeight=7;
                     }
                 }
 
-                outZ = (absX < 250)
+                outZ = (absX < 230)
                         && (absY < 250)
-                        ? -0.3 : 0;
+                        ? -0.2 : 0;
             }else if(z <=0.7){
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
@@ -846,7 +846,8 @@ private double markerId1234MinFindHeight=7;
         String logMessage = "";
         if (!startFastStick) {
 
-            if (absX <= 250 && absY <= 300 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
+//            if (absX <= 250 && absY <= 300 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
+            if (absX <= 230 && absY <= 250 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;

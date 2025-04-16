@@ -209,10 +209,7 @@ public class StreamManager extends BaseManager {
                         }
                     }
                 });
-
-
             }
-
         }
     }
 
