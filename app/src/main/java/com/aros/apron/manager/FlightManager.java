@@ -525,7 +525,7 @@ public class FlightManager extends BaseManager {
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启水平避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint()&&isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
-            DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
+//            DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
             PerceptionManager.getInstance().setObstacleAvoidanceHorizontalEnabled();
         }
     }
