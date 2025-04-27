@@ -772,7 +772,6 @@ public class FlightManager extends BaseManager {
             isTriggerLanding = false;
             sendCloseCabinDoorMsg = false;
             ApronArucoDetect.getInstance().setCanLanding(false);
-            SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
             // 发布事件，通知其他组件停止Aruco检测
             EventBus.getDefault().post(FLAG_STOP_ARUCO);
             if (!isDebugMode) {
@@ -790,6 +789,7 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             LogUtil.log(TAG,"droneStorage:"+PreferenceUtils.getInstance().getTaskId());
             PreferenceUtils.getInstance().setTaskId();
+            SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
 
         }
     }
