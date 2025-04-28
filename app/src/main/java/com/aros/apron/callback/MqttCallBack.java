@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.AlternateLandingManager;
@@ -32,15 +33,10 @@ import com.google.gson.Gson;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
-
-import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.v5.manager.KeyManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -91,7 +87,6 @@ public class MqttCallBack implements MqttCallbackExtended {
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
             case 60003:
                 //默认规定不在返航时才可以上传航线
-
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     if (message.getIsGuidingFlight() == 0) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
@@ -451,9 +446,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                             LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
                             break;
                         case "2":
+                            ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
                             LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
                             break;
                         case "3":
+                            ApronExecutionStatus.getInstance().setServerReplyDroneShut(true);
                             LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
                             break;
                     }

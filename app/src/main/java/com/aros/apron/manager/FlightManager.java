@@ -3,6 +3,7 @@ package com.aros.apron.manager;
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -789,7 +790,12 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             LogUtil.log(TAG,"droneStorage:"+PreferenceUtils.getInstance().getTaskId());
             PreferenceUtils.getInstance().setTaskId();
-            SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
+                }
+            },1000);
 
         }
     }

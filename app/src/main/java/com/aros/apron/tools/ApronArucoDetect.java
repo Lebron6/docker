@@ -670,27 +670,27 @@ private double markerId1234MinFindHeight=7;
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.125){
-                        outX=absX<120?0:-0.125;
+                        outX=absX<120?0:-0.105;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.125){
-                        outX=absX<120?0:0.125;
+                    if (pidControlX.get_pid()>0.105){
+                        outX=absX<120?0:0.105;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.125){
-                        outY=absY<120?0:-0.125;
+                    if (pidControlY.get_pid()<-0.105){
+                        outY=absY<120?0:-0.105;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.125){
-                        outY=absY<120?0:0.125;
+                    if (pidControlY.get_pid()>0.105){
+                        outY=absY<120?0:0.105;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -703,28 +703,28 @@ private double markerId1234MinFindHeight=7;
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.125){
-                        outX=absX<120?0:-0.125;
+                    if (pidControlX.get_pid()<-0.115){
+                        outX=absX<120?0:-0.115;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.125){
-                        outX=absX<120?0:0.125;
+                    if (pidControlX.get_pid()>0.115){
+                        outX=absX<120?0:0.115;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.125){
-                        outY=absY<120?0:-0.125;
+                    if (pidControlY.get_pid()<-0.115){
+                        outY=absY<120?0:-0.115;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.125){
-                        outY=absY<120?0:0.125;
+                    if (pidControlY.get_pid()>0.115){
+                        outY=absY<120?0:0.115;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -865,7 +865,7 @@ private double markerId1234MinFindHeight=7;
                 handler.post(runnable);
                 return;
             }
-            if (arucoWidth >= 400) {
+            if (arucoWidth >= 480) {
                 logMessage = "参考ArUco宽度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
