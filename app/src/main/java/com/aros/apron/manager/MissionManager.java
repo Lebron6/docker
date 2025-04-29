@@ -262,7 +262,7 @@ public class MissionManager extends BaseManager {
            if (message.getIsGuidingFlight()==0&&!Movement.getInstance().isPlaneWing()){
                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
            }
-            sendMissionExecuteEvents(client, "任务执行失败,电量过低");
+            sendMissionExecuteEvents(client, "任务执行失败,电量过低 "+message.getIsGuidingFlight()+"  "+Movement.getInstance().isPlaneWing());
             LogUtil.log(TAG,"任务执行失败,电量过低");
             return;
         }
