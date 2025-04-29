@@ -24,12 +24,12 @@ public class PIDControl {
         this.mDt = mDt;
     }
 
-    public PIDControl(float initial_p, float initial_i, float initial_d, float initial_imax, float initial_filt_hz, float dt) {
+    public PIDControl(float kp, float ki, float kd, float initial_imax, float initial_filt_hz, float dt) {
         this.mResetFilter = true;
         this.mDt = dt;
-        this.mKp = initial_p;
-        this.mKi = initial_i;
-        this.mKd = initial_d;
+        this.mKp = kp;
+        this.mKi = ki;
+        this.mKd = kd;
         this.iMax = Math.abs(initial_imax);
         filtHz(initial_filt_hz);
         this.mResetFilter = true;

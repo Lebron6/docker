@@ -54,13 +54,11 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 public class AlternateLandingManager extends BaseManager {
 
     MqttAndroidClient mqttClient;
+    Handler handler = new Handler(Looper.getMainLooper());
+    VirtualStickFlightControlParam param;
     private boolean isRemoteControllerFlightModeChange;
 
     private AlternateLandingManager() {
-    }
-
-    private static class AlternateLandingHolder {
-        private static final AlternateLandingManager INSTANCE = new AlternateLandingManager();
     }
 
     public static AlternateLandingManager getInstance() {
@@ -102,15 +100,15 @@ public class AlternateLandingManager extends BaseManager {
                 if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
                     checkDroneState(message);
                 } else {
-                    if (message!=null){
-                        sendMsg2Server(mqttClient,message,"挡位不正确,不触发去备降点");
+                    if (message != null) {
+                        sendMsg2Server(mqttClient, message, "挡位不正确,不触发去备降点");
                     }
                     sendMissionExecuteEvents(mqttClient, "挡位不正确,不触发去备降点");
                     LogUtil.log(TAG, "检测到挡位不正确,不触发去备降点");
                 }
             } else {
-                if (message!=null){
-                    sendMsg2Server(mqttClient,message,"飞机未起飞,不触发去备降点");
+                if (message != null) {
+                    sendMsg2Server(mqttClient, message, "飞机未起飞,不触发去备降点");
                 }
                 sendMissionExecuteEvents(mqttClient, "飞机未起飞,不触发去备降点");
             }
@@ -196,7 +194,6 @@ public class AlternateLandingManager extends BaseManager {
         }
     }
 
-
     public void toAlternatePoint(MQMessage message) {
         if (Movement.getInstance().getFlyingHeight() < 10) {
             LogUtil.log(TAG, "toAlternatePoint:" + "高度低于10米,拉高");
@@ -208,7 +205,6 @@ public class AlternateLandingManager extends BaseManager {
             creatMissionAndUpload(message);
         }
     }
-
 
     public void raisesDrone(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -236,8 +232,6 @@ public class AlternateLandingManager extends BaseManager {
             LogUtil.log(TAG, "备降拉高,飞控未连接");
         }
     }
-
-    Handler handler = new Handler(Looper.getMainLooper());
 
     public void pullUp(MQMessage message) {
         Runnable runnable = new Runnable() {
@@ -268,8 +262,6 @@ public class AlternateLandingManager extends BaseManager {
         handler.post(runnable);
 
     }
-
-    VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
     public void sendVirtualStickAdvancedParam() {
@@ -305,7 +297,7 @@ public class AlternateLandingManager extends BaseManager {
         MissionPoint missionPoint1 = new MissionPoint();
         missionPoint1.setLat(PreferenceUtils.getInstance().getAlternatePointLat());
         missionPoint1.setLng(PreferenceUtils.getInstance().getAlternatePointLon());
-        LogUtil.log(TAG,"备降点经纬度:"+ PreferenceUtils.getInstance().getAlternatePointLat()+"/"+PreferenceUtils.getInstance().getAlternatePointLon());
+        LogUtil.log(TAG, "备降点经纬度:" + PreferenceUtils.getInstance().getAlternatePointLat() + "/" + PreferenceUtils.getInstance().getAlternatePointLon());
         missionPoint1.setSpeed(7.0);
         missionPoint1.setExecuteHeight(Movement.getInstance().getFlyingHeight()
                 > Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointHeight())
@@ -341,9 +333,9 @@ public class AlternateLandingManager extends BaseManager {
             } else {
                 LogUtil.log(TAG, "生成备降航线失败");
                 sendMissionExecuteEvents(mqttClient, "生成备降航线失败");
-if (message!=null){
-    sendMsg2Server(mqttClient,message,"生成备降航线失败");
-}
+                if (message != null) {
+                    sendMsg2Server(mqttClient, message, "生成备降航线失败");
+                }
             }
         }
         DomParserKML domParserKML = new DomParserKML(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz",
@@ -362,8 +354,8 @@ if (message!=null){
         } catch (IOException e) {
             LogUtil.log(TAG, "备降航线压缩异常：" + e.toString());
             sendMissionExecuteEvents(mqttClient, "备降任务生成异常");
-            if (message!=null){
-                sendMsg2Server(mqttClient,message,"备降任务生成异常");
+            if (message != null) {
+                sendMsg2Server(mqttClient, message, "备降任务生成异常");
             }
             throw new RuntimeException(e);
         }
@@ -398,8 +390,8 @@ if (message!=null){
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);
 
-                                if (message!=null){
-                                    sendMsg2Server(mqttClient,message);
+                                if (message != null) {
+                                    sendMsg2Server(mqttClient, message);
                                 }
                             }
 
@@ -408,8 +400,8 @@ if (message!=null){
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                                 LogUtil.log(TAG, "飞往备降点失败:" + new Gson().toJson(idjiError));
                                 sendMissionExecuteEvents(mqttClient, "飞往备降点失败");
-                                if (message!=null){
-                                    sendMsg2Server(mqttClient,message,"飞往备降点失败");
+                                if (message != null) {
+                                    sendMsg2Server(mqttClient, message, "飞往备降点失败");
                                 }
                             }
                         });
@@ -422,22 +414,26 @@ if (message!=null){
                 LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(idjiError));
                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                 sendMissionExecuteEvents(mqttClient, "备降航线上传失败");
-                if (message!=null){
-                    sendMsg2Server(mqttClient,message,"备降航线上传失败:" + new Gson().toJson(idjiError));
+                if (message != null) {
+                    sendMsg2Server(mqttClient, message, "备降航线上传失败:" + new Gson().toJson(idjiError));
                 }
             }
         });
     }
 
-    public void setAlternatePoint(MqttAndroidClient client, MQMessage message){
-        if (message!=null&&!TextUtils.isEmpty(message.getAlternatePointLat())&&!TextUtils.isEmpty(message.getAlternatePointLon())){
+    public void setAlternatePoint(MqttAndroidClient client, MQMessage message) {
+        if (message != null && !TextUtils.isEmpty(message.getAlternatePointLat()) && !TextUtils.isEmpty(message.getAlternatePointLon())) {
             PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternatePointLat());
             PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
             Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
             Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
-            sendMsg2Server(client,message);
-        }else{
-            sendMsg2Server(client,message,"设置备降点失败:参数有误");
+            sendMsg2Server(client, message);
+        } else {
+            sendMsg2Server(client, message, "设置备降点失败:参数有误");
         }
+    }
+
+    private static class AlternateLandingHolder {
+        private static final AlternateLandingManager INSTANCE = new AlternateLandingManager();
     }
 }

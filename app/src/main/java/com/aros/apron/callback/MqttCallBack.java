@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.AlternateLandingManager;
@@ -32,15 +33,10 @@ import com.google.gson.Gson;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
-
-import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.v5.manager.KeyManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -91,7 +87,6 @@ public class MqttCallBack implements MqttCallbackExtended {
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
             case 60003:
                 //默认规定不在返航时才可以上传航线
-
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     if (message.getIsGuidingFlight() == 0) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
@@ -101,8 +96,10 @@ public class MqttCallBack implements MqttCallbackExtended {
                             PreferenceUtils.getInstance().setStreamAndMinIOConfig(message);
                             // 2.收到60003直接回复
                             StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                            // 3.开启推流
-                            StreamManager.getInstance().startLive(mqttClient, message);
+                            if (PreferenceUtils.getInstance().getCustomStreamType()==3){
+                                // 3.开启推流
+                                StreamManager.getInstance().startLive(mqttClient, message);
+                            }
                             // 4.关闭避障
                             PerceptionManager.getInstance().setPerceptionEnable(false);
                             // 5.清空sd卡
@@ -413,6 +410,31 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
                 FlightManager.getInstance().emergencyHover(mqttClient,message);
                 break;
+            //设置失控动作
+            case 60144:
+                LogUtil.log(TAG, "收到命令：设置失控动作" + jsonString);
+                FlightManager.getInstance().setFailsafeAction(mqttClient,message);
+                break;
+            //设置返航高度
+            case 60145:
+                LogUtil.log(TAG, "收到命令：设置返航高度" + jsonString);
+                FlightManager.getInstance().setGoHomeHeight(mqttClient,message);
+                break;
+            //设置低电量报警阈值
+            case 60146:
+                LogUtil.log(TAG, "收到命令：设置低电量报警阈值" + jsonString);
+                FlightManager.getInstance().setLowBatteryWarningThreshold(mqttClient,message);
+                break;
+            //设置严重低电量报警阈值
+            case 60147:
+                LogUtil.log(TAG, "收到命令：设置严重低电量报警阈值" + jsonString);
+                FlightManager.getInstance().setSeriousLowBatteryWarningThreshold(mqttClient,message);
+                break;
+            //设置智能低电量返航
+            case 60148:
+                LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
+                FlightManager.getInstance().setLowBatteryRTHEnabled(mqttClient,message);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
@@ -424,9 +446,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                             LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
                             break;
                         case "2":
+                            ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
                             LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
                             break;
                         case "3":
+                            ApronExecutionStatus.getInstance().setServerReplyDroneShut(true);
                             LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
                             break;
                     }

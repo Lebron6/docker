@@ -147,7 +147,7 @@ public abstract class BaseManager {
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
+                mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
 
             } else {
@@ -180,6 +180,7 @@ public abstract class BaseManager {
             e.printStackTrace();
         }
     }
+
 
     public boolean getGimbalAndCameraEnabled() {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {

@@ -99,41 +99,24 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onExecutionStart(int actionGroup, int actionId) {
-                    LogUtil.log(TAG,"onExecutionStart:"+actionGroup);
                     if (mStartGroupId!=actionGroup){
                         mStartGroupId=actionGroup;
                         sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
                         LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + (actionGroup+1) + "actionId--"
                                 + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
-
                     }
 
                 }
 
                 @Override
                 public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
-//                    sendMsgWaypointActionState2Server(client, "1");
-                    if (error!=null){
-                        LogUtil.log(TAG,"动作结束异常:"+new Gson().toJson(error));
-                    }
-//                    if (mFinishGroupId!=actionGroup){
-//                        mFinishGroupId=actionGroup;
-//                        sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
-//                        LogUtil.log(TAG, "动作组结束:" + " actionGroup=" + (actionGroup+1) + "  actionId="
-//                                + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
-//                    }
-
                     if (mActionGroups != null && mActionGroups.size() > actionGroup) {
                         if (mActionGroups.get(actionGroup).getActions().size()>actionId){
                             //判断是否是该动作组第一个动作
                             if (actionId == mActionGroups.get(actionGroup).getActions().size()-1) {
-                                //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
-//                                if (actionGroupEndIndex != actionGroup) {
-//                                    actionGroupEndIndex = actionGroup;
                                 sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
                                 LogUtil.log(TAG, "航点动作组结束:" + "actionGroup=" + (actionGroup+1) + "  actionId="
                                         + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
-//                                }
                             }
 
                         }else{
@@ -279,7 +262,7 @@ public class MissionManager extends BaseManager {
            if (message.getIsGuidingFlight()==0&&!Movement.getInstance().isPlaneWing()){
                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
            }
-            sendMissionExecuteEvents(client, "任务执行失败,电量过低");
+            sendMissionExecuteEvents(client, "任务执行失败,电量过低 "+message.getIsGuidingFlight()+"  "+Movement.getInstance().isPlaneWing());
             LogUtil.log(TAG,"任务执行失败,电量过低");
             return;
         }
@@ -303,7 +286,12 @@ public class MissionManager extends BaseManager {
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
-            if ((missionStateCode == 2 || missionStateCode == 0) && (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())&&!Movement.getInstance().getPlaneMessage().equals("无法起飞"))
+            if ((missionStateCode == 2 || missionStateCode == 0) &&
+                    (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())
+                            &&!Movement.getInstance().getPlaneMessage().equals("无法起飞")
+                    &&(Movement.getInstance().getGPSSignalLevel().equals("LEVEL_4")
+                            ||Movement.getInstance().getGPSSignalLevel().equals("LEVEL_5")
+                    ||Movement.getInstance().getGPSSignalLevel().equals("LEVEL_10")))
                     ) {
                 if (message.getIsGuidingFlight() == 0) {
                     new Handler().postDelayed(new Runnable() {
@@ -330,7 +318,11 @@ public class MissionManager extends BaseManager {
                 public void run() {
                     startTaskProcess(client, message);
                     checkMissionStateTimes++;
-                    LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" + WaypointMissionExecuteState.find(missionStateCode).name() + "---RTK:" + Movement.getInstance().isRtkSign() + "---" + Movement.getInstance().getPlaneMessage());
+                    LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" +
+                            WaypointMissionExecuteState.find(missionStateCode).name() +
+                            "-RTK解算:" + Movement.getInstance().isRtkSign() + "-飞行器状态" +
+                            Movement.getInstance().getPlaneMessage()+
+                            "-GPS信号等级:"+Movement.getInstance().getGPSSignalLevel());
                 }
             }, 2000);
         } else {
@@ -526,8 +518,8 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onSuccess() {
-                    LogUtil.log(TAG, "航线上传成功,等待2s执行任务");
-                    sendMissionExecuteEvents(client, "开始执行任务");
+                    LogUtil.log(TAG, "航线上传成功,准备执行任务");
+                    sendMissionExecuteEvents(client, "航线上传成功,准备执行任务");
                     isPushKMZSuccess = true;
 
                     mainHandler.postDelayed(new Runnable() {
@@ -610,20 +602,20 @@ public class MissionManager extends BaseManager {
                     if (!isMissionStart) {
                         if (missionStateCode != 3 && missionStateCode != 4 && missionStateCode != 5 && missionStateCode != 6
                                 && missionStateCode != 7 && missionStateCode != 8 && missionStateCode != 9 && missionStateCode != 10) {
-                            if (startMissionFailTimes < 10) {
+                            if (startMissionFailTimes < 50) {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         startMission(client, message);
-                                        LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:" + new Gson().toJson(error));
+                                        LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:"+Movement.getInstance().getGPSSignalLevel()+"---" + new Gson().toJson(error));
                                         startMissionFailTimes++;
                                     }
                                 }, 2000);
                             } else {
                                 if (message.getIsGuidingFlight() == 0&&!Movement.getInstance().isPlaneWing()) {
                                     DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
-                                    sendMissionExecuteEvents(client, "任务开始失败,执行关机");
-                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error));
+                                    sendMissionExecuteEvents(client, "任务开始失败,执行关机:"+Movement.getInstance().getGPSSignalLevel());
+                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error)+"--"+Movement.getInstance().getGPSSignalLevel());
                                 }else{
                                     sendMissionExecuteEvents(client,"指点任务开始失败");
                                     LogUtil.log(TAG, "指点第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error));

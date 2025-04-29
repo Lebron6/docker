@@ -10,6 +10,15 @@ public class MessageReply {
     private String waypointIndex;//推送航点index
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
     private String flag;
+    private String task_id;
+
+    public String getTask_id() {
+        return task_id;
+    }
+
+    public void setTask_id(String task_id) {
+        this.task_id = task_id;
+    }
 
     public String getFlag() {
         return flag;

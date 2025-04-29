@@ -22,6 +22,7 @@ public class PreferenceUtils extends BasePreference {
     private String SECRET_KEY = "secret_key";
     private String BUCKET_NAME = "bucket_name";
     private String FLIGHT_NAME = "flight_name";
+    private String TASK_ID = "task_id";
     private String KEY = "key";
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
@@ -31,8 +32,11 @@ public class PreferenceUtils extends BasePreference {
 
     //AMS配置清单
     private String HAVA_RTK = "have_rtk";
-    private String CUSTOM_STREAM_ENABLE = "custom_stream";
+    private String CUSTOM_STREAM_TYPE = "custom_stream_type";//1RTSP 2RTMP 3No
     private String CUSTOM_STREAM_URL = "custom_stream_url";
+    private String CUSTOM_STREAM_RTSP_USERNAME = "custom_stream_rtsp_username";
+    private String CUSTOM_STREAM_RTSP_PASSWORD = "custom_stream_rtsp_password";
+    private String CUSTOM_STREAM_RTSP_PORT = "custom_stream_rtsp_port";
     private String NTR_IP = "ntr_ip";
     private String NTR_PORT = "ntr_port";
     private String NTR_ACCOUNT = "ntr_account";
@@ -62,10 +66,15 @@ public class PreferenceUtils extends BasePreference {
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
     private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
     private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
+    private String LTE_ENABLE = "lte_enable";
 
-
+    //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
+        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
+        if (!TextUtils.isEmpty(message.getTask_id())){
+            setString(TASK_ID,message.getTask_id());
+        }
         if (!TextUtils.isEmpty(message.getUpload_url())) {
             String[] split = message.getUpload_url().split("//");
             String[] split1 = split[1].split("/");
@@ -93,6 +102,13 @@ public class PreferenceUtils extends BasePreference {
 
     public String getSortiesId() {
         return getString(SORTIES_ID);
+    }
+    public void setTaskId() {
+        setString(TASK_ID,"");
+    }
+
+    public String getTaskId() {
+        return getString(TASK_ID);
     }
 
     public String getFlightId() {
@@ -162,13 +178,12 @@ public class PreferenceUtils extends BasePreference {
     public boolean getTriggerToAlternatePoint() {
         return getBoolean(TRIGGER_TO_ALTERNATE_POINT);
     }
-
-    public void setCustomStreamEnable(boolean customStreamEnable) {
-        setBoolean(CUSTOM_STREAM_ENABLE, customStreamEnable);
+    public void setCustomStreamType(int customStreamType) {
+        setInt(CUSTOM_STREAM_TYPE, customStreamType);
     }
 
-    public boolean getCustomStreamEnable() {
-        return getBoolean(CUSTOM_STREAM_ENABLE);
+    public int getCustomStreamType() {
+        return getInt(CUSTOM_STREAM_TYPE);
     }
 
     public void setCustomStreamUrl(String customStreamUrl) {
@@ -177,6 +192,30 @@ public class PreferenceUtils extends BasePreference {
 
     public String getCustomStreamUrl() {
         return getString(CUSTOM_STREAM_URL);
+    }
+
+    public void setRtspUserName(String userName) {
+        setString(CUSTOM_STREAM_RTSP_USERNAME, userName);
+    }
+
+    public String getRtspUserName() {
+        return getString(CUSTOM_STREAM_RTSP_USERNAME);
+    }
+
+    public void setRtspPassWord(String passWord) {
+        setString(CUSTOM_STREAM_RTSP_PASSWORD, passWord);
+    }
+
+    public String getRtspPassWord() {
+        return getString(CUSTOM_STREAM_RTSP_PASSWORD);
+    }
+
+    public void setRtspPort(String port) {
+        setString(CUSTOM_STREAM_RTSP_PORT, port);
+    }
+
+    public String getRtspPort() {
+        return getString(CUSTOM_STREAM_RTSP_PORT);
     }
 
     public String getNTRIP() {
@@ -257,6 +296,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setNeedUpLoadVideo(boolean needUpLoadVideo) {
         setBoolean(NEED_UPLOAD_VEDIO, needUpLoadVideo);
+    }
+
+    public boolean getLteEnable() {
+        return getBoolean(LTE_ENABLE);
+    }
+
+    public void setLteEnable(boolean lteEnable) {
+        setBoolean(LTE_ENABLE, lteEnable);
     }
 
     public int getAirPortType() {

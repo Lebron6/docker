@@ -30,6 +30,7 @@ import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
+import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
@@ -44,6 +45,7 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
+import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -344,19 +346,46 @@ open class MainActivity : BaseActivity() {
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
+            if (PreferenceUtils.getInstance().lteEnable){
+                MLTEManager.getInstance().initLTEManager()
+                Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)
+
+            }
             //这里修改推流逻辑
-            Handler().postDelayed(Runnable {
-                StreamManager.getInstance()
-                    .startLiveWithCustom()
-            }, 5000)
+            if (PreferenceUtils.getInstance().customStreamType!=3) {
+                Handler().postDelayed(Runnable {
+                    if (PreferenceUtils.getInstance().customStreamType==1){
+                        StreamManager.getInstance()
+                            .startLiveWithRTSP()
+                    }else if (PreferenceUtils.getInstance().customStreamType==2){
+                        StreamManager.getInstance()
+                            .startLiveWithCustom()
+                    }else{
+                        LogUtil.log(TAG,"推流方式配置有误")
+                    }
+
+                }, 5000)
+            }
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
-            LogUtil.log(TAG, "设备类型:" + productType!!.name)
+            val cameraType = KeyManager.getInstance().getValue(
+                KeyTools.createKey(
+                    CameraKey.KeyCameraType,
+                    ComponentIndexType.LEFT_OR_MAIN
+                )
+            )
+
+            if (cameraType != null && productType != null) {
+                LogUtil.log(TAG, "设备类型:" + productType.name + "相机类型:" + cameraType.name)
+            } else {
+                LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
+            }
+
             ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }
 
-    var shouldExecute = true
+//    var shouldExecute = true
 
     private fun initCameraStream() {
 //        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
@@ -385,7 +414,7 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-            if (shouldExecute) {
+//            if (shouldExecute) {
                 if (startArucoType == 1) {
 
                     ApronArucoDetect.getInstance()?.detectArucoTags(
@@ -404,8 +433,8 @@ open class MainActivity : BaseActivity() {
                         dictionary,
                     )
                 }
-            }
-            shouldExecute = !shouldExecute
+//            }
+//            shouldExecute = !shouldExecute
 
         }
     }

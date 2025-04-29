@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -12,10 +14,12 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.DJIKeyInfo;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
@@ -41,17 +45,8 @@ public class GimbalManager extends BaseManager {
     }
 
     public void initGimbalInfo() {
-//        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
-//                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
-//            @Override
-//            public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
-//                if (t1!=null){
-//                    //双挂
         ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getCameraLocationType() == 2);
-//                    LogUtil.log(TAG,"检测是否双挂:"+t1);
-//                }
-//            }
-//        });
+
 
     }
 
@@ -74,13 +69,12 @@ public class GimbalManager extends BaseManager {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
                                 sendMsg2Server(mqttAndroidClient, message);
-                                LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + new Gson().toJson(error));
-                                LogUtil.log(TAG, "云台控制失败:" + new Gson().toJson(error));
+                                LogUtil.log(TAG,"云台控制失败:"+new Gson().toJson(error));
+                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + getIDJIErrorMsg(error));
                             }
                         }
                 );
@@ -138,6 +132,7 @@ public class GimbalManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
+
                         }
                     }
             );
@@ -160,7 +155,8 @@ public class GimbalManager extends BaseManager {
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(client, message, "云台重置失败:" + new Gson().toJson(error));
+                            LogUtil.log(TAG,"云台重置失败:"+new Gson().toJson(error));
+                            sendMsg2Server(client, message, "云台控制失败:" + getIDJIErrorMsg(error));
                         }
                     }
             );
@@ -205,7 +201,8 @@ public class GimbalManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server(mqttAndroidClient, message, errorMessage + error.description());
+                LogUtil.log(TAG,errorMessage+new Gson().toJson(error));
+                sendMsg2Server(mqttAndroidClient, message, errorMessage + getIDJIErrorMsg(error));
             }
         });
     }

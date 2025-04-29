@@ -33,6 +33,7 @@ class ConfigActivity : BaseActivity() {
 
     private fun initView() {
         configBinding.cbHaveRtk.isChecked = PreferenceUtils.getInstance().haveRTK
+        configBinding.cbLteEnable.isChecked = PreferenceUtils.getInstance().lteEnable
         configBinding.cbCloseObstacle.isChecked = PreferenceUtils.getInstance().closeObsEnable
         configBinding.cbDebuggingMode.isChecked = PreferenceUtils.getInstance().isDebugMode
         configBinding.cbCleanMode.isChecked = PreferenceUtils.getInstance().isCleanMode
@@ -50,19 +51,41 @@ class ConfigActivity : BaseActivity() {
                 configBinding.layoutRtkCustom.visibility = GONE
             }
         }
-        configBinding.cbCustomStream.isChecked = PreferenceUtils.getInstance().customStreamEnable
-        configBinding.layoutStream.visibility =
-            if (PreferenceUtils.getInstance().customStreamEnable) VISIBLE else {
+        configBinding.rbRtsp.isChecked = PreferenceUtils.getInstance().customStreamType==1
+        configBinding.rbRtmp.isChecked = PreferenceUtils.getInstance().customStreamType==2
+        configBinding.rbNo.isChecked = PreferenceUtils.getInstance().customStreamType==3
+        configBinding.layoutStreamRtsp.visibility =
+            if (PreferenceUtils.getInstance().customStreamType==1) VISIBLE else {
                 GONE
             }
-        configBinding.cbCustomStream.setOnCheckedChangeListener { _, isChecked ->
+        configBinding.layoutStream.visibility =
+            if (PreferenceUtils.getInstance().customStreamType==2) VISIBLE else {
+                GONE
+            }
+        configBinding.rbRtsp.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                configBinding.layoutStreamRtsp.visibility = VISIBLE
+            } else {
+                configBinding.layoutStreamRtsp.visibility = GONE
+            }
+        }
+        configBinding.rbRtmp.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 configBinding.layoutStream.visibility = VISIBLE
             } else {
                 configBinding.layoutStream.visibility = GONE
             }
         }
+        configBinding.rbNo.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                configBinding.layoutStream.visibility = GONE
+                configBinding.layoutStreamRtsp.visibility = GONE
+            }
+        }
         configBinding.etStreamUrl.setText(PreferenceUtils.getInstance().customStreamUrl)
+        configBinding.etRtspUserName.setText(PreferenceUtils.getInstance().rtspUserName)
+        configBinding.etRtspPassword.setText(PreferenceUtils.getInstance().rtspPassWord)
+        configBinding.etRtspPort.setText(PreferenceUtils.getInstance().rtspPort)
 
         configBinding.etNtrip.setText(PreferenceUtils.getInstance().ntrip)
         configBinding.etNtrPort.setText(PreferenceUtils.getInstance().ntrPort)
@@ -212,9 +235,17 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置主相机位置")
             return
         }
-        if (configBinding.cbCustomStream.isChecked) {
-            if (TextUtils.isEmpty(configBinding.etStreamUrl.text)) {
-                ToastUtil.showToast("未配置推流地址")
+        if (configBinding.rbRtsp.isChecked) {
+            if (TextUtils.isEmpty(configBinding.etRtspUserName.text)) {
+                ToastUtil.showToast("未配置Rtsp用户名")
+                return
+            }
+            if (TextUtils.isEmpty(configBinding.etRtspPassword.text)) {
+                ToastUtil.showToast("未配置Rtsp密码")
+                return
+            }
+            if (TextUtils.isEmpty(configBinding.etRtspPort.text)) {
+                ToastUtil.showToast("未配置Rtsp端口")
                 return
             }
         }
@@ -283,11 +314,30 @@ class ConfigActivity : BaseActivity() {
         PreferenceUtils.getInstance().isDebugMode = configBinding.cbDebuggingMode.isChecked
         PreferenceUtils.getInstance().isCleanMode = configBinding.cbCleanMode.isChecked
         PreferenceUtils.getInstance().navigationLEDsOn = configBinding.cbLEDsSettings.isChecked
-        PreferenceUtils.getInstance().customStreamEnable = configBinding.cbCustomStream.isChecked
-        if (configBinding.cbCustomStream.isChecked) {
+        PreferenceUtils.getInstance().lteEnable = configBinding.cbLteEnable.isChecked
+        if (configBinding.rbRtsp.isChecked) {
+            PreferenceUtils.getInstance().customStreamType = 1
+        } else if (configBinding.rbRtmp.isChecked) {
+            PreferenceUtils.getInstance().customStreamType = 2
+        } else if (configBinding.rbNo.isChecked) {
+            PreferenceUtils.getInstance().customStreamType = 3
+        } else {
+            PreferenceUtils.getInstance().rtkType = -1
+        }
+
+        if (configBinding.rbRtmp.isChecked) {
             PreferenceUtils.getInstance().customStreamUrl =
                 configBinding.etStreamUrl.text.toString().replace("", "")
         }
+        if (configBinding.rbRtsp.isChecked) {
+            PreferenceUtils.getInstance().rtspUserName =
+                configBinding.etRtspUserName.text.toString().replace("", "")
+            PreferenceUtils.getInstance().rtspPassWord =
+                configBinding.etRtspPassword.text.toString().replace("", "")
+            PreferenceUtils.getInstance().rtspPort =
+                configBinding.etRtspPort.text.toString().replace("", "")
+        }
+
         PreferenceUtils.getInstance().ntrip = configBinding.etNtrip.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().ntrPort =
             configBinding.etNtrPort.text.toString().replace(" ", "")
