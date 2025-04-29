@@ -671,7 +671,7 @@ private double markerId1234MinFindHeight=7;
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.125){
+                    if (pidControlX.get_pid()<-0.105){
                         outX=absX<120?0:-0.105;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
