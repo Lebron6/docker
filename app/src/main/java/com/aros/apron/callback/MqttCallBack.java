@@ -443,6 +443,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                             LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
                             break;
                         case "1":
+                            ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
                             LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
                             break;
                         case "2":

@@ -18,6 +18,16 @@ public class ApronExecutionStatus {
     private boolean serverReplyDockIn;
     //服务端响应了飞机关机指令
     private boolean serverReplyDroneShut;
+    //服务端是否响应了开舱门指令
+    private boolean serverReplyDockOpen;
+
+    public boolean isServerReplyDockOpen() {
+        return serverReplyDockOpen;
+    }
+
+    public void setServerReplyDockOpen(boolean serverReplyDockOpen) {
+        this.serverReplyDockOpen = serverReplyDockOpen;
+    }
 
     public boolean isServerReplyDockIn() {
         return serverReplyDockIn;
