@@ -70,9 +70,11 @@ public class SendLandingManager extends BaseManager {
             client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+client.getClientId());
+                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+client.getClientId()+"task_id"+PreferenceUtils.getInstance().getTaskId());
                     sendMissionExecuteEvents(client, "AMS通知服务器已降落");
                     isSendLandingSuccess = true;
+                    PreferenceUtils.getInstance().setTaskId();
+
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
