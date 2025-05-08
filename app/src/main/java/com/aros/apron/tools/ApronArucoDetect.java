@@ -910,7 +910,7 @@ private double markerId1234MinFindHeight=7;
     };
 
     private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -2);
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1);
         handlerCallbackCount++; // 增加计数器
     }
 
