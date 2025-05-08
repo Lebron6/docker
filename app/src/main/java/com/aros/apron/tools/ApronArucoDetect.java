@@ -901,7 +901,7 @@ private double markerId1234MinFindHeight=7;
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 20) {
+            if (handlerCallbackCount < 15) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
