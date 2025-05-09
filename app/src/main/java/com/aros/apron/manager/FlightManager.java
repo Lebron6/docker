@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
@@ -779,6 +780,7 @@ public class FlightManager extends BaseManager {
                 //这里可能也会触发备降点关舱门的逻辑
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()){
                     // 发送无人机入库消息到服务器********************待修改************************
+                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
                 }
                 // 上传媒体文件

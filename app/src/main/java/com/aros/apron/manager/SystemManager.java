@@ -1,33 +1,21 @@
 package com.aros.apron.manager;
 
 
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.key.RemoteControllerKey;
 import dji.v5.manager.KeyManager;
-import dji.v5.manager.aircraft.lte.LTEManager;
-import dji.v5.manager.aircraft.waypoint3.model.WaypointMissionExecuteState;
-import dji.v5.manager.interfaces.ILTEManager;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 
 public class SystemManager extends BaseManager {
@@ -65,8 +53,13 @@ public class SystemManager extends BaseManager {
     }
 
     //收到60012表示飞机已归中,立即回复60012
+    //收到60012表示服务端在确认飞机此时时候处于可关机的状态
     public void aircraftStoredReply(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        sendMsg2Server(mqttAndroidClient, message);
+        if (ApronExecutionStatus.getInstance().isAircraftWaitShutDown()) {
+            sendMsg2Server(mqttAndroidClient, message);
+        } else {
+            sendMsg2Server(mqttAndroidClient, message, "不可关机");
+        }
     }
 
     public void upLoadMedia(MqttAndroidClient mqttAndroidClient) {
@@ -83,7 +76,8 @@ public class SystemManager extends BaseManager {
             },1000);
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
-                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
+            DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
+            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
         }
 
     }

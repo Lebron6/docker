@@ -20,6 +20,7 @@ import com.amazonaws.services.s3.model.ProgressEvent;
 import com.amazonaws.services.s3.model.ProgressListener;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
@@ -115,7 +116,7 @@ public class MediaManager extends BaseManager {
                                enterPlayBackFailTimes++;
                                enablePlayback();
                            }else{
-                               DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                               ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
                            }
                        }
@@ -141,13 +142,13 @@ public class MediaManager extends BaseManager {
                                         }
                                     } else {
                                         LogUtil.log(TAG, "拉取媒体文件为空");
-                                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                                        ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                         sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空");
                                         disablePlayback();
                                         LogUtil.log(TAG, "发送关闭无人机");
                                     }
                                 } else {
-                                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                     sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败,当前状态:"+mState);
                                     LogUtil.log(TAG, "拉取媒体文件失败,当前状态:"+mState);
                                     disablePlayback();
@@ -160,7 +161,7 @@ public class MediaManager extends BaseManager {
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
                         LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
-                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                        ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                         sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败");
                         disablePlayback();
                         LogUtil.log(TAG, "发送关闭无人机");
@@ -240,14 +241,14 @@ public class MediaManager extends BaseManager {
                         bos.close();
                     } catch (IOException error) {
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " error: " + error.getMessage());
-                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                        ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                     }
                 }
 
                 @Override
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
-                    DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                     sendMissionExecuteEvents(mqttClient, "File " + downLoadMediaFileIndex + " download failed.");
                     downLoadMediaFileIndex = 0;
                 }
@@ -394,7 +395,7 @@ public class MediaManager extends BaseManager {
         MediaDataCenter.getInstance().getMediaManager().deleteMediaFiles(mediaFiles, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 LogUtil.log(TAG, "清除文件成功 ");
                 sendMissionExecuteEvents(mqttClient,"媒体文件已清除");
                 disablePlayback();
@@ -403,7 +404,7 @@ public class MediaManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
-                DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 LogUtil.log(TAG, "清除文件失败: "+new Gson().toJson(idjiError));
                 sendMissionExecuteEvents(mqttClient, "媒体文件清除失败");
                 LogUtil.log(TAG, "发送关闭无人机");

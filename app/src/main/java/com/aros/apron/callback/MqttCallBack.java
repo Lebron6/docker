@@ -158,8 +158,9 @@ public class MqttCallBack implements MqttCallbackExtended {
 //                SystemManager.getInstance().droneShutdown(mqttClient, message);
                 break;
             //收到60012表示已归中，立即回复60012，且上传相册后可以发送60011关闭飞机和遥控器
+            //收到60012表示服务端在确认飞机此时时候处于可关机的状态
             case 60012:
-                LogUtil.log(TAG, "收到命令：已归中" + jsonString);
+                LogUtil.log(TAG, "收到命令：飞机是否可关机" + jsonString);
                 SystemManager.getInstance().aircraftStoredReply(mqttClient, message);
                 break;
             //收到60014表示Server已收到架次开始
