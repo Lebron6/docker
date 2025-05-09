@@ -294,7 +294,7 @@ public class MissionManager extends BaseManager {
                     ||Movement.getInstance().getGPSSignalLevel().equals("LEVEL_10")))
                     ) {
                 if (message.getIsGuidingFlight() == 0) {
-                    new Handler().postDelayed(new Runnable() {
+                    mainHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             downLoadKMZFile(client, message);
@@ -313,7 +313,7 @@ public class MissionManager extends BaseManager {
     //等待航线任务状态更新或RTK健康状态刷新
     private void verifyAircraftStatus(MqttAndroidClient client, MQMessage message) {
         if (checkMissionStateTimes < 50) {
-            new Handler().postDelayed(new Runnable() {
+            mainHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     startTaskProcess(client, message);
@@ -328,15 +328,20 @@ public class MissionManager extends BaseManager {
         } else {
             if (message.getIsGuidingFlight() == 0) {
                 DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(client);
+                LogUtil.log(TAG, "飞行器自检异常:发送关机通知");
                 if (PreferenceUtils.getInstance().getHaveRTK()){
                     if (!Movement.getInstance().isRtkSign()){
+                        LogUtil.log(TAG, "飞行器RTK收敛异常");
                         sendMissionExecuteEvents(client, "飞行器RTK收敛异常");
                     }else if (!(missionStateCode ==2 || missionStateCode == 0)){
+                        LogUtil.log(TAG, "飞行器航线状态异常:"+WaypointMissionExecuteState.find(missionStateCode).name());
                         sendMissionExecuteEvents(client, "飞行器航线状态异常:"+WaypointMissionExecuteState.find(missionStateCode).name());
                     }else {
+                        LogUtil.log(TAG, "飞行器自检异常:"+Movement.getInstance().getPlaneMessage());
                         sendMissionExecuteEvents(client, "飞行器自检异常:"+Movement.getInstance().getPlaneMessage());
                     }
                 }else{
+                    LogUtil.log(TAG, "飞行器自检异常:通知关机");
                     sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
                 }
 
