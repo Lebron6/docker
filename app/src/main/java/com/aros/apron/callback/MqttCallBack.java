@@ -88,7 +88,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60003:
                 //默认规定不在返航时才可以上传航线
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
-                    if (message.getIsGuidingFlight() == 0) {
+//                    if (message.getIsGuidingFlight() == 0) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         if (isReceiverMission == false) {
                             isReceiverMission = true;
@@ -111,13 +111,13 @@ public class MqttCallBack implements MqttCallbackExtended {
                                 }
                             }, 1000);
                         }
-                    } else {
-                        LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
-                        // 1.收到60003直接回复
-                        StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                        // 2.下载航线
-                        MissionManager.getInstance().startTaskProcess(mqttClient, message);
-                    }
+//                    } else {
+//                        LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
+//                        // 1.收到60003直接回复
+//                        StreamManager.getInstance().sendReply2Server(mqttClient, message);
+//                        // 2.下载航线
+//                        MissionManager.getInstance().startTaskProcess(mqttClient, message);
+//                    }
                 } else {
                     LogUtil.log(TAG, "返航模式,无法上传航线");
                 }
