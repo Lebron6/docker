@@ -6,9 +6,12 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
+import dji.sdk.keyvalue.key.CameraKey;
+import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraFocusMode;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
@@ -113,6 +116,25 @@ public class DroneHelper {
 
     }
 
+    public void setCameraFocusMode(){
+        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, 0));
+        if (cameraConnect!=null&&cameraConnect) {
+            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.AF, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "设置对焦模式自动对焦");
+                }
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "设置对焦模式自动对焦失败:"+new Gson().toJson(idjiError));
+
+                }
+            });
+        }else {
+            LogUtil.log(TAG, "相机未连接");
+        }
+    }
 
     public void setGimbalPitchDegree() {
 
@@ -142,27 +164,6 @@ public class DroneHelper {
             LogUtil.log(TAG, "云台未连接");
         }
 
-
-
-//        Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection, 0));
-//        if (cameraConnect!=null&&cameraConnect) {
-//            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.MANUAL, new CommonCallbacks.CompletionCallback() {
-//                @Override
-//                public void onSuccess() {
-//                    LogUtil.log(TAG, "设置对焦模式MF");
-//
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError idjiError) {
-//                    LogUtil.log(TAG, "设置对焦模式MF失败:"+new Gson().toJson(idjiError));
-//
-//                }
-//            });
-//        }else {
-//            LogUtil.log(TAG, "相机未连接");
-//        }
     }
 
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {

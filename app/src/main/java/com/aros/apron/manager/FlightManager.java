@@ -623,6 +623,8 @@ public class FlightManager extends BaseManager {
                 && Movement.getInstance().getFlyingHeight() > 11
                 && !isGimbalDownwards){
             DroneHelper.getInstance().setGimbalPitchDegree();
+            //将镜头设置为自动对焦
+            DroneHelper.getInstance().setCameraFocusMode();
             isGimbalDownwards=true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
 
