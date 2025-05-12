@@ -12,6 +12,8 @@ import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
+import dji.sdk.keyvalue.value.common.CameraLensType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
@@ -120,7 +122,7 @@ public class DroneHelper {
         Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection, 0));
         if (cameraConnect!=null&&cameraConnect) {
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFocusMode), CameraFocusMode.AF, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_WIDE), CameraFocusMode.AF, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "设置对焦模式自动对焦");
