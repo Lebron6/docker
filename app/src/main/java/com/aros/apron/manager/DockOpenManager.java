@@ -73,7 +73,7 @@ public class DockOpenManager extends BaseManager {
                         mainHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if (ApronExecutionStatus.getInstance().isServerReplyDockIn()) {
+                                if (ApronExecutionStatus.getInstance().isServerReplyDockOpen()) {
                                     isSendDockOpenSuccess = true;
                                     LogUtil.log(TAG, "已经收到服务端响应开门");
                                 } else {
