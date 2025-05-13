@@ -535,7 +535,6 @@ public class FlightManager extends BaseManager {
                 flightMessage = new MqttMessage(gson.toJson(Movement.getInstance()).getBytes("UTF-8"));
             } catch (Exception e) {
                 LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接"+e);
-                throw new RuntimeException(e);
             }
             flightMessage.setQos(0);
             publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
@@ -624,6 +623,8 @@ public class FlightManager extends BaseManager {
                 && Movement.getInstance().getFlyingHeight() > 11
                 && !isGimbalDownwards){
             DroneHelper.getInstance().setGimbalPitchDegree();
+            //将镜头设置为自动对焦
+            DroneHelper.getInstance().setCameraFocusMode();
             isGimbalDownwards=true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
 
