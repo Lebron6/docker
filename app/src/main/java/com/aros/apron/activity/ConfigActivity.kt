@@ -96,6 +96,11 @@ class ConfigActivity : BaseActivity() {
         configBinding.etMqttUsername.setText(PreferenceUtils.getInstance().mqttUserName)
         configBinding.etMqttPassword.setText(PreferenceUtils.getInstance().mqttPassword)
         configBinding.etMqttSn.setText(PreferenceUtils.getInstance().mqttSn)
+        configBinding.etMinioUploadUrl.setText(PreferenceUtils.getInstance().uploadUrl)
+        configBinding.etMinioBucketName.setText(PreferenceUtils.getInstance().bucketName)
+        configBinding.etMinioObjectKey.setText(PreferenceUtils.getInstance().objectKey)
+        configBinding.etMinioAccessKey.setText(PreferenceUtils.getInstance().accessKey)
+        configBinding.etMinioSecretKey.setText(PreferenceUtils.getInstance().secretKey)
 
 //        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
@@ -210,6 +215,26 @@ class ConfigActivity : BaseActivity() {
         }
         if (TextUtils.isEmpty(configBinding.etMqttSn.text)) {
             ToastUtil.showToast("未配置MQTT设备编号")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etMinioUploadUrl.text)) {
+            ToastUtil.showToast("未配置minio文件上传地址")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etMinioBucketName.text)) {
+            ToastUtil.showToast("未配置minio桶名")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etMinioObjectKey.text)) {
+            ToastUtil.showToast("未配置minio ObjectKey")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etMinioAccessKey.text)) {
+            ToastUtil.showToast("未配置minio AccessKey")
+            return
+        }
+        if (TextUtils.isEmpty(configBinding.etMinioSecretKey.text)) {
+            ToastUtil.showToast("未配置minio SecretKey")
             return
         }
         if (!configBinding.rbAd2.isChecked && !configBinding.rbAd3.isChecked && !configBinding.rbArs350.isChecked) {
@@ -356,6 +381,16 @@ class ConfigActivity : BaseActivity() {
             configBinding.etMqttPassword.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().mqttSn =
             configBinding.etMqttSn.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().uploadUrl =
+            configBinding.etMinioUploadUrl.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().bucketName =
+            configBinding.etMinioBucketName.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().objectKey =
+            configBinding.etMinioObjectKey.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().accessKey =
+            configBinding.etMinioAccessKey.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().secretKey =
+            configBinding.etMinioSecretKey.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
         if (configBinding.rbAd2.isChecked) {

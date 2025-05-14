@@ -92,8 +92,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         if (isReceiverMission == false) {
                             isReceiverMission = true;
-                            // 1.缓存推流地址,minIO配置
-                            PreferenceUtils.getInstance().setStreamAndMinIOConfig(message);
+                            PreferenceUtils.getInstance().setTaskId(message.getTask_id());
                             // 2.收到60003直接回复
                             StreamManager.getInstance().sendReply2Server(mqttClient, message);
                             if (PreferenceUtils.getInstance().getCustomStreamType()==3){

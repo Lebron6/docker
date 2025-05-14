@@ -393,7 +393,151 @@
                         android:textColor="@color/white" />
 
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
 
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="MinIO上传地址："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_minio_upload_url"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="MinIO桶名："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_minio_bucket_name"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="MinIO ObjectKey 路径："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_minio_object_key"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="MinIO AccessKey："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_minio_accessKey"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="MinIO SecretKey："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_minio_secretKey"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
             </LinearLayout>
 
             <View

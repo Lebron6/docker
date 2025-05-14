@@ -161,7 +161,14 @@ class ConnectionActivity : AppCompatActivity() {
                 ) {
                     ToastUtil.showToast("未配置MQTT参数")
                     LogUtil.log(TAG, "未配置MQTT参数")
-                } else if (PreferenceUtils.getInstance().haveRTK &&PreferenceUtils.getInstance().rtkType!=1&&PreferenceUtils.getInstance().rtkType!=2 ){
+                } else if(TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().objectKey)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().accessKey)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().secretKey)){
+                    ToastUtil.showToast("minio参数配置有误")
+                    LogUtil.log(TAG, "minio参数配置有误")
+                }else if (PreferenceUtils.getInstance().haveRTK &&PreferenceUtils.getInstance().rtkType!=1&&PreferenceUtils.getInstance().rtkType!=2 ){
                     LogUtil.log(TAG, "未配置RTK类型")
                     ToastUtil.showToast("未配置RTK类型")
                 }else if (PreferenceUtils.getInstance().haveRTK &&PreferenceUtils.getInstance().rtkType==1&& (TextUtils.isEmpty(

@@ -2,22 +2,21 @@ package com.aros.apron.entity;
 
 public class FileUploadResult {
     private int msg_type;
-    private String fileName;
-    private String objectKey;
+    private String url;
     private String buckName;
+    private String objectKey;
+    private String task_id;
+    private String fileName;
     private int offIndex;
     private int fileNum;
-    private String sortiesId;
-    private String url;
     private Long fileSize;
-    private String flightId;
 
-    public String getFlightId() {
-        return flightId;
+    public String getTask_id() {
+        return task_id;
     }
 
-    public void setFlightId(String flightId) {
-        this.flightId = flightId;
+    public void setTask_id(String task_id) {
+        this.task_id = task_id;
     }
 
     public Long getFileSize() {
@@ -84,11 +83,4 @@ public class FileUploadResult {
         this.fileNum = fileNum;
     }
 
-    public String getSortiesId() {
-        return sortiesId;
-    }
-
-    public void setSortiesId(String sortiesId) {
-        this.sortiesId = sortiesId;
-    }
 }

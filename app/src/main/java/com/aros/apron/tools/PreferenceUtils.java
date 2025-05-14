@@ -23,7 +23,7 @@ public class PreferenceUtils extends BasePreference {
     private String BUCKET_NAME = "bucket_name";
     private String FLIGHT_NAME = "flight_name";
     private String TASK_ID = "task_id";
-    private String KEY = "key";
+    private String OBJECT_KEY = "object_key";
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
     private String NEED_TRIGGER_APRON_ARUCO_LAND = "need_trigger_apron_aruco_land";//是否需要触发crash后继续降落到机库
@@ -69,32 +69,32 @@ public class PreferenceUtils extends BasePreference {
     private String LTE_ENABLE = "lte_enable";
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
-    public void setStreamAndMinIOConfig(MQMessage message) {
-        setString(RTMP_PUSH_URL, getRTMPUrl());
-        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
-        if (!TextUtils.isEmpty(message.getTask_id())){
-            setString(TASK_ID,message.getTask_id());
-        }
-        if (!TextUtils.isEmpty(message.getUpload_url())) {
-            String[] split = message.getUpload_url().split("//");
-            String[] split1 = split[1].split("/");
-            if (!(split1.length < 4)) {
-                setString(UPLOAD_URL, "http://" + split1[0]);
-                setString(BUCKET_NAME, split1[1]);
-                setString(KEY, split1[2]);
-                setString(SORTIES_ID, split1[3]);
-            } else {
-                LogUtil.log(TAG, "minio参数有误");
-            }
-            setString(ACCESS_KEY, message.getAccess_key());
-            setString(SECRET_KEY, message.getSecret_key());
-            setString(FLIGHT_NAME, message.getFlight_name());
-            setString(FLIGHT_ID, message.getFlightId());
-
-        } else {
-            LogUtil.log(TAG, "minio参数有误:地址为空");
-        }
-    }
+//    public void setStreamAndMinIOConfig(MQMessage message) {
+//        setString(RTMP_PUSH_URL, getRTMPUrl());
+//        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
+//        if (!TextUtils.isEmpty(message.getTask_id())){
+//            setString(TASK_ID,message.getTask_id());
+//        }
+//        if (!TextUtils.isEmpty(message.getUpload_url())) {
+//            String[] split = message.getUpload_url().split("//");
+//            String[] split1 = split[1].split("/");
+//            if (!(split1.length < 4)) {
+//                setString(UPLOAD_URL, "http://" + split1[0]);
+//                setString(BUCKET_NAME, split1[1]);
+//                setString(OBJECT_KEY, split1[2]);
+//                setString(SORTIES_ID, split1[3]);
+//            } else {
+//                LogUtil.log(TAG, "minio参数有误");
+//            }
+//            setString(ACCESS_KEY, message.getAccess_key());
+//            setString(SECRET_KEY, message.getSecret_key());
+//            setString(FLIGHT_NAME, message.getFlight_name());
+//            setString(FLIGHT_ID, message.getFlightId());
+//
+//        } else {
+//            LogUtil.log(TAG, "minio参数有误:地址为空");
+//        }
+//    }
 
     public String getFlightName() {
         return getString(FLIGHT_NAME);
@@ -103,8 +103,8 @@ public class PreferenceUtils extends BasePreference {
     public String getSortiesId() {
         return getString(SORTIES_ID);
     }
-    public void setTaskId() {
-        setString(TASK_ID,"");
+    public void setTaskId(String taskId) {
+        setString(TASK_ID,taskId);
     }
 
     public String getTaskId() {
@@ -119,20 +119,41 @@ public class PreferenceUtils extends BasePreference {
         return getString(BUCKET_NAME);
     }
 
-    public String getKey() {
-        return getString(KEY);
+    public void setBucketName(String bucketName) {
+        setString(BUCKET_NAME, bucketName);
+    }
+
+    public String getObjectKey() {
+        return getString(OBJECT_KEY);
+    }
+
+    public void setObjectKey(String objectKey) {
+        setString(OBJECT_KEY, objectKey);
     }
 
     public String getSecretKey() {
         return getString(SECRET_KEY);
     }
 
+    public void setSecretKey(String secretKey) {
+        setString(SECRET_KEY, secretKey);
+    }
+
     public String getAccessKey() {
         return getString(ACCESS_KEY);
     }
 
+    public void setAccessKey(String accessKey) {
+        setString(ACCESS_KEY, accessKey);
+    }
+
     public String getUploadUrl() {
         return getString(UPLOAD_URL);
+    }
+
+    public void setUploadUrl(String uploadUrl) {
+        setString(UPLOAD_URL, uploadUrl);
+
     }
 
     public String getRTMPUrl() {
@@ -289,6 +310,7 @@ public class PreferenceUtils extends BasePreference {
     public void setMqttSn(String mqttSn) {
         setString(MQTT_SN, mqttSn);
     }
+
 
     public boolean getNeedUpLoadVideo() {
         return getBoolean(NEED_UPLOAD_VEDIO);

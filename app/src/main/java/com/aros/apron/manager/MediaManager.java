@@ -287,8 +287,8 @@ public class MediaManager extends BaseManager {
                         s3.putObject(
                                 new PutObjectRequest(
                                         PreferenceUtils.getInstance().getBucketName(),
-                                        "/" + PreferenceUtils.getInstance().getKey() + "/" +
-                                                PreferenceUtils.getInstance().getSortiesId() + "/" + mediaFile.getFileName(),
+                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" +
+                                                PreferenceUtils.getInstance().getTaskId() + "/" + mediaFile.getFileName(),
                                         file
                                 ).withProgressListener(new ProgressListener() {
                                     @Override
@@ -320,7 +320,8 @@ public class MediaManager extends BaseManager {
                         // 获取文件上传后访问地址url
                         GeneratePresignedUrlRequest urlRequest = new GeneratePresignedUrlRequest(
                                 PreferenceUtils.getInstance().getBucketName(),
-                                "/" + PreferenceUtils.getInstance().getKey() + "/" + mediaFile.getFileName()
+                                "/" + PreferenceUtils.getInstance().getObjectKey() + "/"
+                                        + PreferenceUtils.getInstance().getTaskId() + "/"+ mediaFile.getFileName()
                         );
                         String url = s3.generatePresignedUrl(urlRequest).toString();
 
@@ -344,11 +345,10 @@ public class MediaManager extends BaseManager {
                         fileUploadResult.setFileSize(mediaFile.getFileSize());
                         fileUploadResult.setFileNum(mediaFiles.size());
                         fileUploadResult.setBuckName(PreferenceUtils.getInstance().getBucketName());
-                        fileUploadResult.setObjectKey(PreferenceUtils.getInstance().getKey());
-                        fileUploadResult.setSortiesId(PreferenceUtils.getInstance().getSortiesId());
+                        fileUploadResult.setObjectKey(PreferenceUtils.getInstance().getObjectKey());
+                        fileUploadResult.setTask_id(PreferenceUtils.getInstance().getTaskId());
                         fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
-                        fileUploadResult.setFlightId(PreferenceUtils.getInstance().getFlightId());
 
                         sendFileUploadCallback(mqttClient, fileUploadResult);
                     }
