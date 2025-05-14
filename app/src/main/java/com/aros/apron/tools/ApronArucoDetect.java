@@ -671,40 +671,6 @@ private double markerId1234MinFindHeight=7;
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.105){
-                        outX=absX<120?0:-0.105;
-                    }else{
-                        outX=absX<120?0:pidControlX.get_pid();
-                    }
-                }else{
-                    if (pidControlX.get_pid()>0.105){
-                        outX=absX<120?0:0.105;
-                    }else{
-                        outX=absX<120?0:pidControlX.get_pid();
-                    }
-                }
-
-                if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.105){
-                        outY=absY<120?0:-0.105;
-                    }else{
-                        outY=absY<120?0:pidControlY.get_pid();
-                    }
-                }else{
-                    if (pidControlY.get_pid()>0.105){
-                        outY=absY<120?0:0.105;
-                    }else{
-                        outY=absY<120?0:pidControlY.get_pid();
-                    }
-                }
-
-                outZ = (absX < 230)
-                        && (absY < 250)
-                        ? -0.2 : 0;
-            }else if(z <=0.7){
-                pidControlX.setInputFilterAll((float)offsetX/1750);
-                pidControlY.setInputFilterAll(-(float)offsetY/1750);
-                if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.115){
                         outX=absX<120?0:-0.115;
                     }else{
@@ -732,6 +698,40 @@ private double markerId1234MinFindHeight=7;
                     }
                 }
 
+                outZ = (absX < 230)
+                        && (absY < 250)
+                        ? -0.2 : 0;
+            }else if(z <=0.7){
+                pidControlX.setInputFilterAll((float)offsetX/1750);
+                pidControlY.setInputFilterAll(-(float)offsetY/1750);
+                if (pidControlX.get_pid()<0){
+                    if (pidControlX.get_pid()<-0.125){
+                        outX=absX<120?0:-0.125;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }else{
+                    if (pidControlX.get_pid()>0.125){
+                        outX=absX<120?0:0.125;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }
+
+                if (pidControlY.get_pid()<0){
+                    if (pidControlY.get_pid()<-0.125){
+                        outY=absY<120?0:-0.125;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }else{
+                    if (pidControlY.get_pid()>0.125){
+                        outY=absY<120?0:0.125;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }
+
                 outZ = (absX < 250)
                         && (absY < 250)
                         ? -0.35 : 0;
@@ -739,28 +739,28 @@ private double markerId1234MinFindHeight=7;
                 pidControlX.setInputFilterAll((float)offsetX/1550);
                 pidControlY.setInputFilterAll(-(float)offsetY/1550);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.145){
-                        outX=absX<120?0:-0.145;
+                    if (pidControlX.get_pid()<-0.135){
+                        outX=absX<120?0:-0.135;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.145){
-                        outX=absX<120?0:0.145;
+                    if (pidControlX.get_pid()>0.135){
+                        outX=absX<120?0:0.135;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.145){
-                        outY=absY<120?0:-0.145;
+                    if (pidControlY.get_pid()<-0.135){
+                        outY=absY<120?0:-0.135;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.145){
-                        outY=absY<120?0:0.145;
+                    if (pidControlY.get_pid()>0.135){
+                        outY=absY<120?0:0.135;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -827,6 +827,10 @@ private double markerId1234MinFindHeight=7;
                         " Z=" + z
         );
 
+        if ((outX>0.3||outY>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5&&ultrasonicHeight<=12)){
+            LogUtil.log(TAG,"过滤一段错误的位姿预估图像帧");
+            return;
+        }
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);
@@ -910,7 +914,7 @@ private double markerId1234MinFindHeight=7;
     };
 
     private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1);
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -1.5);
         handlerCallbackCount++; // 增加计数器
     }
 
