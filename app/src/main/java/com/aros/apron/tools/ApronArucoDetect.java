@@ -905,7 +905,7 @@ private double markerId1234MinFindHeight=7;
         @Override
         public void run() {
             performOperation();
-            if (handlerCallbackCount < 10) {
+            if (handlerCallbackCount < 20) {
                 handler.postDelayed(this, 50); // 每 50 毫秒执行一次，1 秒内执行 20 次
             } else {
                 performNextStep();
@@ -914,7 +914,7 @@ private double markerId1234MinFindHeight=7;
     };
 
     private void performOperation() {
-        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -2);
+        DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -4);
         handlerCallbackCount++; // 增加计数器
     }
 
