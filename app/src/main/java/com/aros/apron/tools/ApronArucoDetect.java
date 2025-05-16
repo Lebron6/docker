@@ -671,40 +671,6 @@ private double markerId1234MinFindHeight=7;
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.115){
-                        outX=absX<120?0:-0.115;
-                    }else{
-                        outX=absX<120?0:pidControlX.get_pid();
-                    }
-                }else{
-                    if (pidControlX.get_pid()>0.115){
-                        outX=absX<120?0:0.115;
-                    }else{
-                        outX=absX<120?0:pidControlX.get_pid();
-                    }
-                }
-
-                if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.115){
-                        outY=absY<120?0:-0.115;
-                    }else{
-                        outY=absY<120?0:pidControlY.get_pid();
-                    }
-                }else{
-                    if (pidControlY.get_pid()>0.115){
-                        outY=absY<120?0:0.115;
-                    }else{
-                        outY=absY<120?0:pidControlY.get_pid();
-                    }
-                }
-
-                outZ = (absX < 230)
-                        && (absY < 250)
-                        ? -0.2 : 0;
-            }else if(z <=0.7){
-                pidControlX.setInputFilterAll((float)offsetX/1750);
-                pidControlY.setInputFilterAll(-(float)offsetY/1750);
-                if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.125){
                         outX=absX<120?0:-0.125;
                     }else{
@@ -732,12 +698,12 @@ private double markerId1234MinFindHeight=7;
                     }
                 }
 
-                outZ = (absX < 250)
+                outZ = (absX < 230)
                         && (absY < 250)
-                        ? -0.35 : 0;
-            }else if(z <=1){
-                pidControlX.setInputFilterAll((float)offsetX/1550);
-                pidControlY.setInputFilterAll(-(float)offsetY/1550);
+                        ? -0.2 : 0;
+            }else if(z <=0.7){
+                pidControlX.setInputFilterAll((float)offsetX/1750);
+                pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.135){
                         outX=absX<120?0:-0.135;
@@ -761,6 +727,40 @@ private double markerId1234MinFindHeight=7;
                 }else{
                     if (pidControlY.get_pid()>0.135){
                         outY=absY<120?0:0.135;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }
+
+                outZ = (absX < 250)
+                        && (absY < 250)
+                        ? -0.35 : 0;
+            }else if(z <=1){
+                pidControlX.setInputFilterAll((float)offsetX/1550);
+                pidControlY.setInputFilterAll(-(float)offsetY/1550);
+                if (pidControlX.get_pid()<0){
+                    if (pidControlX.get_pid()<-0.145){
+                        outX=absX<120?0:-0.145;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }else{
+                    if (pidControlX.get_pid()>0.145){
+                        outX=absX<120?0:0.145;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }
+
+                if (pidControlY.get_pid()<0){
+                    if (pidControlY.get_pid()<-0.145){
+                        outY=absY<120?0:-0.145;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }else{
+                    if (pidControlY.get_pid()>0.145){
+                        outY=absY<120?0:0.145;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }

@@ -76,13 +76,12 @@ public class PreferenceUtils extends BasePreference {
             setString(TASK_ID,message.getTask_id());
         }
         if (!TextUtils.isEmpty(message.getUpload_url())) {
-            String[] split = message.getUpload_url().split("//");
-            String[] split1 = split[1].split("/");
-            if (!(split1.length < 4)) {
-                setString(UPLOAD_URL, "http://" + split1[0]);
-                setString(BUCKET_NAME, split1[1]);
-                setString(KEY, split1[2]);
-                setString(SORTIES_ID, split1[3]);
+            String[] splitUrl = message.getUpload_url().split("://|/");
+            if (splitUrl.length>=5){
+                setString(UPLOAD_URL, splitUrl[0] +"://"+ splitUrl[1]);
+                setString(BUCKET_NAME, splitUrl[2]);
+                setString(KEY, splitUrl[3]);
+                setString(SORTIES_ID, splitUrl[4]);
             } else {
                 LogUtil.log(TAG, "minio参数有误");
             }
