@@ -769,6 +769,40 @@ private double markerId1234MinFindHeight=7;
                 outZ = (absX < 180)
                         && (absY < 180)
                         ? -0.4 : 0;
+            }else if(z <=1.5){
+                pidControlX.setInputFilterAll((float)offsetX/1550);
+                pidControlY.setInputFilterAll(-(float)offsetY/1550);
+                if (pidControlX.get_pid()<0){
+                    if (pidControlX.get_pid()<-0.165){
+                        outX=absX<120?0:-0.165;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }else{
+                    if (pidControlX.get_pid()>0.165){
+                        outX=absX<120?0:0.165;
+                    }else{
+                        outX=absX<120?0:pidControlX.get_pid();
+                    }
+                }
+
+                if (pidControlY.get_pid()<0){
+                    if (pidControlY.get_pid()<-0.165){
+                        outY=absY<120?0:-0.165;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }else{
+                    if (pidControlY.get_pid()>0.165){
+                        outY=absY<120?0:0.165;
+                    }else{
+                        outY=absY<120?0:pidControlY.get_pid();
+                    }
+                }
+
+                outZ = (absX < 180)
+                        && (absY < 180)
+                        ? -0.4 : 0;
             }else if(z <=2){
                 pidControlX.setInputFilterAll((float)offsetX/1050);
                 pidControlY.setInputFilterAll(-(float)offsetY/1050);
@@ -827,8 +861,8 @@ private double markerId1234MinFindHeight=7;
                         " Z=" + z
         );
 
-        if ((outX>0.3||outY>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5&&ultrasonicHeight<=12)){
-            LogUtil.log(TAG,"过滤一段错误的位姿预估图像帧");
+        if ((outX>0.3||outY>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5&&ultrasonicHeight<=15)){
+            LogUtil.log(TAG,"过滤帧："+" 杆量x=" + outX);
             return;
         }
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
