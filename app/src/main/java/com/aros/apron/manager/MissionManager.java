@@ -185,6 +185,7 @@ public class MissionManager extends BaseManager {
                                         if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing()) {
                                             LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
 //                                            if (message.getIsGuidingFlight() == 0) {
+                                            Movement.getInstance().setTaskFail(true);
                                             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                                             sendMissionExecuteEvents(client, "任务非正常结束");
@@ -263,6 +264,7 @@ public class MissionManager extends BaseManager {
         if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery()) && !PreferenceUtils.getInstance().getIsDebugMode()) {
 //           if (message.getIsGuidingFlight()==0&&!Movement.getInstance().isPlaneWing()) {
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+            Movement.getInstance().setTaskFail(true);
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
 //           }
             sendMissionExecuteEvents(client, "任务执行失败,电量过低 " + "  " + Movement.getInstance().isPlaneWing());
@@ -275,6 +277,7 @@ public class MissionManager extends BaseManager {
 //                    message.getIsGuidingFlight()==0&&
                     !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
             }
             sendMissionExecuteEvents(client, "任务执行失败,请将遥控器切换为P/N挡");
@@ -334,7 +337,9 @@ public class MissionManager extends BaseManager {
         } else {
 //            if (message.getIsGuidingFlight() == 0) {
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+            Movement.getInstance().setTaskFail(true);
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+
             LogUtil.log(TAG, "飞行器自检异常:发送关机通知");
             if (PreferenceUtils.getInstance().getHaveRTK()) {
                 if (!Movement.getInstance().isRtkSign()) {
@@ -370,6 +375,7 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "航线文件下载失败:" + e.toString());
 //                    if (message.getIsGuidingFlight() == 0) {
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                    Movement.getInstance().setTaskFail(true);
                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                     sendMissionExecuteEvents(client, "任务下载失败,关机");
 //                    }else{
@@ -565,6 +571,7 @@ public class MissionManager extends BaseManager {
                         } else {
 //                            if (message.getIsGuidingFlight() == 0) {
                             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                            Movement.getInstance().setTaskFail(true);
                             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                             sendMissionExecuteEvents(client, "任务上传失败,执行关机");
                             LogUtil.log(TAG, "航线第" + pushKMZFileTimes + "次上传失败,直接关机");
@@ -630,6 +637,7 @@ public class MissionManager extends BaseManager {
 //                                        message.getIsGuidingFlight() == 0 &&
                                         !Movement.getInstance().isPlaneWing()) {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                                    Movement.getInstance().setTaskFail(true);
                                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
                                     sendMissionExecuteEvents(client, "任务开始失败,执行关机:" + Movement.getInstance().getGPSSignalLevel());
                                     LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());

@@ -50,11 +50,7 @@ public class MqttCallBack implements MqttCallbackExtended {
     @Override
     public void connectionLost(Throwable cause) {
         LogUtil.log(TAG, "MQtt connectionLost:"+cause.toString());
-        try {
-            reConnect();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     //断线重连

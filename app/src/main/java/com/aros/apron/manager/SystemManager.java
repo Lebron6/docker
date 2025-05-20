@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 
@@ -78,6 +79,8 @@ public class SystemManager extends BaseManager {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+            Movement.getInstance().setTaskFail(true);
+
         }
 
     }

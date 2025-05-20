@@ -55,8 +55,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
         mMqttConnectOptions.setMaxInflight(1000);// 增加最大并发未确认消息数量
         mMqttConnectOptions.setCleanSession(true); //设置是否清除缓存
-        mMqttConnectOptions.setConnectionTimeout(10); //设置超时时间，单位：秒 ltz denote
-        mMqttConnectOptions.setKeepAliveInterval(15); //设置心跳包发送间隔，单位：秒 ltz denote
+        mMqttConnectOptions.setConnectionTimeout(30); //设置超时时间，单位：秒 ltz denote
+        mMqttConnectOptions.setKeepAliveInterval(20); //设置心跳包发送间隔，单位：秒 ltz denote
         mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
         mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
         mqttAndroidClient.setCallback(new MqttCallBack(mqttAndroidClient)); //设置监听订阅消息的回调

@@ -109,6 +109,15 @@ public class Movement {
     private int lowBatteryWarningThreshold;//低电量报警阈值
     private int seriousLowBatteryWarningThreshold;//严重低电量报警阈值
     private int lowBatteryRTHEnabled;//智能低电量返航是否启用 0 未启用 1启用
+    private boolean taskFail;//任务是否执行失败
+
+    public boolean isTaskFail() {
+        return taskFail;
+    }
+
+    public void setTaskFail(boolean taskFail) {
+        this.taskFail = taskFail;
+    }
 
     public int getLowBatteryRTHEnabled() {
         return lowBatteryRTHEnabled;
