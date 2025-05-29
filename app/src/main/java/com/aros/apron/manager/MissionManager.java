@@ -279,8 +279,11 @@ public class MissionManager extends BaseManager {
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(client, message);
                 sendMissionExecuteEvents(client, "执行任务下载 ");
+            }else if (message.getIsGuidingFlight()==1&&(missionStateCode == 2 || missionStateCode == 0||missionStateCode==7)){
+                downLoadKMZFile(client, message);
+                sendMissionExecuteEvents(client, "执行指点任务下载 ");
             } else {
-                sendMissionExecuteEvents(client, "飞行器自检中 ");
+                sendMissionExecuteEvents(client, "起飞准备中...");
                 verifyAircraftStatus(client, message);
             }
         } else {
@@ -303,7 +306,7 @@ public class MissionManager extends BaseManager {
                     downLoadKMZFile(client, message);
                 }
             } else {
-                sendMissionExecuteEvents(client, "飞行器自检中 ");
+                sendMissionExecuteEvents(client, "起飞准备中...");
                 verifyAircraftStatus(client, message);
             }
         }
