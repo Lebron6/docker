@@ -329,7 +329,7 @@ public class MissionManager extends BaseManager {
             }, 2000);
         } else {
             if (message.getIsGuidingFlight() == 0) {
-                LogUtil.log(TAG, "飞行器自检异常:发送关机通知");
+                LogUtil.log(TAG, "起飞准备异常:发送关机通知");
                 if (PreferenceUtils.getInstance().getHaveRTK()) {
                     if (!Movement.getInstance().isRtkSign()) {
                         LogUtil.log(TAG, "飞行器RTK收敛异常");
@@ -338,12 +338,12 @@ public class MissionManager extends BaseManager {
                         LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                         sendMissionExecuteEvents(client, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                     } else {
-                        LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage());
-                        sendMissionExecuteEvents(client, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage());
+                        LogUtil.log(TAG, "起飞准备异常:" + Movement.getInstance().getPlaneMessage());
+                        sendMissionExecuteEvents(client, "起飞准备异常:" + Movement.getInstance().getPlaneMessage());
                     }
                 } else {
-                    LogUtil.log(TAG, "飞行器自检异常:通知关机");
-                    sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
+                    LogUtil.log(TAG, "起飞准备异常:通知关机");
+                    sendMissionExecuteEvents(client, "起飞准备异常,入库 ");
                 }
                 mainHandler.postDelayed(new Runnable() {
                     @Override
