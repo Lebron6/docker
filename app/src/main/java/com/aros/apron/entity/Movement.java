@@ -110,6 +110,15 @@ public class Movement {
     private int seriousLowBatteryWarningThreshold;//严重低电量报警阈值
     private int lowBatteryRTHEnabled;//智能低电量返航是否启用 0 未启用 1启用
     private boolean taskFail;//任务是否执行失败
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 
     public boolean isTaskFail() {
         return taskFail;
