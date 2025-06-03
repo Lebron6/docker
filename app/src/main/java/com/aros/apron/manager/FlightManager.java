@@ -529,6 +529,9 @@ public class FlightManager extends BaseManager {
                             Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
             Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
+            if (isFlying){
+                Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
+            }
             //推送飞行状态
             MqttMessage flightMessage = null;
             try {
