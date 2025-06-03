@@ -64,6 +64,12 @@ public class SystemManager extends BaseManager {
         }
     }
 
+    //飞机已经执行过航线，落地后没有关遥控器，或重启AMS
+    public void replyAlreadyFlown(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+            sendMsg2Server(mqttAndroidClient, message, "请等待或手动重启遥控器或AMS软件");
+            LogUtil.log(TAG,"请等待或手动重启遥控器或AMS软件");
+    }
+
     //收到60012表示飞机已归中,立即回复60012
     public void aircraftStoredReply(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         sendMsg2Server(mqttAndroidClient, message);
