@@ -880,7 +880,7 @@ public class ApronArucoDetect {
                 resultYaw, outZ);
 
         if (id == 11 || id == 12 || id == 13 || id == 14 || id == 15
-                || id == 16 || id == 17 || id == 18 || id == 19) {
+                || id == 16 || id == 17 || id == 18 || id == 19|| id == 20|| id == 21) {
             checkConditions(absX, absY, id, arucoWidth);
 
         } else {
