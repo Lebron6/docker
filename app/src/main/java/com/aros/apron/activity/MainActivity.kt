@@ -34,6 +34,7 @@ import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
+import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
@@ -346,6 +347,7 @@ open class MainActivity : BaseActivity() {
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
+            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()
                 Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)
