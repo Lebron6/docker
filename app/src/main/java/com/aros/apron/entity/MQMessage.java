@@ -68,6 +68,9 @@ public class MQMessage {
     private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
     private int lowBatteryRTHEnabled;//智能低电量返航功能。
 
+
+
+
     public String getTask_id() {
         return task_id;
     }

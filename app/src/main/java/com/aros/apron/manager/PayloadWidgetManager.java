@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
@@ -15,6 +16,7 @@ import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +49,30 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
+    public void initPayloadInfo(MqttAndroidClient client) {
 
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+            if (payloadManager != null) {
+                IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
+                if (iPayloadManager != null) {
+                    iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
+                        @Override
+                        public void onDataFromPayloadUpdate(byte[] data) {
+                            sendMsgFromPSDK2Server(client, data);
+                        }
+                    });
+                } else {
+                    LogUtil.log(TAG, "监听psdk数据失败:设备未连接");
+                }
+            } else {
+                LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
+            }
+        } else {
+            LogUtil.log(TAG, "设备未连接");
+        }
+    }
     //锁定
     public void lock(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -271,6 +296,28 @@ public class PayloadWidgetManager extends BaseManager {
             }
         } else {
             sendMsg2Server(mqttClient, message, "发送数据到psdk失败:未检测到设备");
+        }
+    }
+
+    //推送MSDK收到的PSDK数据
+    public void sendMsgFromPSDK2Server(MqttAndroidClient client,byte[] data) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60119);
+                message.setResult(1);
+                message.setPayloadData(data);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "psdkData发送失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
+            e.printStackTrace();
         }
     }
 }

@@ -5,7 +5,7 @@ public class MessageReply {
     private int msg_type;
     private int result;
     private String msg;
-    private String payloadData;//接收psdk数据
+    private byte[] payloadData;//接收psdk数据
     private String waypointActionState;//推送航点动作状态
     private String waypointIndex;//推送航点index
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
@@ -52,11 +52,11 @@ public class MessageReply {
         this.aircraftTotalFlightDistance = aircraftTotalFlightDistance;
     }
 
-    public String getPayloadData() {
+    public byte[] getPayloadData() {
         return payloadData;
     }
 
-    public void setPayloadData(String payloadData) {
+    public void setPayloadData(byte[] payloadData) {
         this.payloadData = payloadData;
     }
 
