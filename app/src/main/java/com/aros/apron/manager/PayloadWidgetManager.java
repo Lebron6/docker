@@ -47,7 +47,30 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
+    public void initPayloadInfo(MqttAndroidClient client) {
 
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+            if (payloadManager != null) {
+                IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
+                if (iPayloadManager != null) {
+                    iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
+                        @Override
+                        public void onDataFromPayloadUpdate(byte[] data) {
+//                            sendMsgFromPSDK2Server(client, data);
+                        }
+                    });
+                } else {
+                    LogUtil.log(TAG, "监听psdk数据失败:设备未连接");
+                }
+            } else {
+                LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
+            }
+        } else {
+            LogUtil.log(TAG, "设备未连接");
+        }
+    }
     //锁定
     public void lock(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
