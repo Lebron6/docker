@@ -436,6 +436,10 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
                 FlightManager.getInstance().setLowBatteryRTHEnabled(mqttClient,message);
                 break;
+            //指点对焦
+            case 60149:
+                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
