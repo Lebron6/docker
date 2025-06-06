@@ -5,6 +5,7 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
@@ -22,8 +23,12 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.PayloadKey;
+import dji.sdk.keyvalue.value.camera.CameraType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.payload.WidgetType;
 import dji.sdk.keyvalue.value.payload.WidgetValue;
 import dji.v5.common.callback.CommonCallbacks;
@@ -31,7 +36,11 @@ import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
+import dji.v5.manager.aircraft.payload.data.PayloadBasicInfo;
+import dji.v5.manager.aircraft.payload.data.PayloadWidgetInfo;
+import dji.v5.manager.aircraft.payload.listener.PayloadBasicInfoListener;
 import dji.v5.manager.aircraft.payload.listener.PayloadDataListener;
+import dji.v5.manager.aircraft.payload.listener.PayloadWidgetInfoListener;
 import dji.v5.manager.aircraft.payload.widget.PayloadWidget;
 import dji.v5.manager.interfaces.IPayloadManager;
 
@@ -54,6 +63,26 @@ public class PayloadWidgetManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+            IPayloadManager iPayloadManager1 = payloadManager.get(PayloadIndexType.EXTERNAL);
+            iPayloadManager1.pullWidgetInfoFromPayload(new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    Log.e(TAG,"--从负载中拉取控件信息---");
+
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+
+                }
+            });
+
+            iPayloadManager1.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
+                @Override
+                public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
+                    Log.e(TAG,"读取psdk基础信息:"+info.toString());
+                }
+            });
             if (payloadManager != null) {
                 IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
                 if (iPayloadManager != null) {
@@ -61,6 +90,7 @@ public class PayloadWidgetManager extends BaseManager {
                         @Override
                         public void onDataFromPayloadUpdate(byte[] data) {
                             sendMsgFromPSDK2Server(client, data);
+                            Log.e(TAG,"-----");
                         }
                     });
                 } else {
