@@ -731,17 +731,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-
-            ZoomTargetPointInfo zoomPointTargetMsg = new ZoomTargetPointInfo();
-            zoomPointTargetMsg.setX(message.getZoomTargetX());
-            zoomPointTargetMsg.setX(message.getZoomTargetY());
-
-            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
-                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), zoomPointTargetMsg, new CommonCallbacks.CompletionCallback() {
+            ZoomTargetPointInfo zoomTargetPointInfo=new ZoomTargetPointInfo();
+            zoomTargetPointInfo.setX(message.getZoomTargetX());
+            zoomTargetPointInfo.setY(message.getZoomTargetY());
+            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyTapZoomAtTarget),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
-                public void onSuccess() {
+                public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(mqttAndroidClient, message);
-
                 }
 
                 @Override
@@ -750,9 +746,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     sendMsg2Server(mqttAndroidClient, message, "指点对焦失败:" + getIDJIErrorMsg(error));
                 }
             });
-
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            LogUtil.log(TAG, "指点对焦失败：相机未连接");
         }
     }
 
@@ -852,7 +847,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
     public void setThermalTemperatureMeasureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
-        if (isConnect != null && isConnect) {
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
                             ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),
                     ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
@@ -876,7 +871,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
     public void setThermalSpotMetersurePoint(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
-        if (isConnect != null && isConnect) {
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             DoublePoint2D doublePoint2D = new DoublePoint2D();
             doublePoint2D.setX(Double.parseDouble(message.getMetersurePointX()));
             doublePoint2D.setY(Double.parseDouble(message.getMetersurePointY()));
@@ -927,5 +922,6 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             LogUtil.log(TAG, "测温区域设置失败：相机未连接");
         }
     }
+
 
 }
