@@ -1,8 +1,6 @@
 package com.aros.apron.callback;
 
 
-import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -111,7 +109,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                                 }
                             }, 1000);
                         }else{
-SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
+                            SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
                         }
 //                    } else {
 //                        LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);

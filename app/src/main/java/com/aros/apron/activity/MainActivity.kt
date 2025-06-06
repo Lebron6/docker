@@ -20,6 +20,7 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
+import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -443,6 +444,7 @@ open class MainActivity : BaseActivity() {
         override fun onManagerConnected(status: Int) {
             if (status == SUCCESS) {
                 LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
+                Movement.getInstance().version=BuildConfig.VERSION_NAME
             } else {
                 super.onManagerConnected(status)
             }

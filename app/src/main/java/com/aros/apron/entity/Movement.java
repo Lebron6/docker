@@ -111,6 +111,15 @@ public class Movement {
     private int lowBatteryRTHEnabled;//智能低电量返航是否启用 0 未启用 1启用
     private boolean taskFail;//任务是否执行失败
     private String taskId;
+    private String version;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public String getTaskId() {
         return taskId;
