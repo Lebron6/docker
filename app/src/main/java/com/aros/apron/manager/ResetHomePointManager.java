@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -142,9 +144,9 @@ private int droneStatus;
                         }
 
                         @Override
-                        public void onFailure(@NonNull IDJIError idjiError) {
-                            LogUtil.log(TAG, "刷新返航点失败:" + new Gson().toJson(idjiError));
-                            sendMsg2Server(client, message, "刷新返航点失败:" + new Gson().toJson(idjiError));
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "刷新返航点失败:" + new Gson().toJson(error));
+                            sendMsg2Server(client, message, "刷新返航点失败:"  + getIDJIErrorMsg(error));
                         }
                     });
                 }
@@ -173,7 +175,7 @@ private int droneStatus;
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败:" + new Gson().toJson(error));
+                            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败:" + getIDJIErrorMsg(error));
                             LogUtil.log(TAG, "继续返航执行失败：" + new Gson().toJson(error));
                         }
                     });

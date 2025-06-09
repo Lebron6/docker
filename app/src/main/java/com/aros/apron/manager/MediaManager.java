@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -457,7 +459,9 @@ public class MediaManager extends BaseManager {
 
                     @Override
                     public void onFailure(IDJIError error) {
-                        sendMsg2Server(client, message, "写入exif失败: " + new Gson().toJson(error));
+                        sendMsg2Server(client, message, "写入exif失败: " + getIDJIErrorMsg(error));
+                        LogUtil.log(TAG, "写入exif失败:"+new Gson().toJson(error));
+
                     }
                 }
         );

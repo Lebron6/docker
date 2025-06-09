@@ -1,5 +1,6 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
@@ -81,7 +82,7 @@ public class StickManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"控制权设置失败:"+error.description());
-                    sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + new Gson().toJson(error));
+                    sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
                 }
             });
             VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
@@ -104,7 +105,7 @@ public class StickManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"控制权取消失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "控制权取消失败:" + new Gson().toJson(error));
+                    sendMsg2Server(mqttAndroidClient, message, "控制权取消失败:" + getIDJIErrorMsg(error));
                 }
             });
 

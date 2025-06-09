@@ -817,7 +817,7 @@ public class FlightManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "起飞失败:" + error.description());
+                    sendMsg2Server(mqttAndroidClient, message, "起飞失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {

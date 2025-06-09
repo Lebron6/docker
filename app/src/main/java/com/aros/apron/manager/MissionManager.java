@@ -1,6 +1,7 @@
 package com.aros.apron.manager;
 
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
 import android.os.Environment;
@@ -677,7 +678,7 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "航线任务暂停失败:" + new Gson().toJson(error));
+                    sendMsg2Server(mqttAndroidClient, message, "航线任务暂停失败:" + getIDJIErrorMsg(error));
                     LogUtil.log(TAG, "航线暂停失败:" + new Gson().toJson(error));
                 }
             });
@@ -704,7 +705,7 @@ public class MissionManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     if (mqttAndroidClient != null && message != null) {
-                        sendMsg2Server(mqttAndroidClient, message, "航线继续失败:" + new Gson().toJson(error));
+                        sendMsg2Server(mqttAndroidClient, message, "航线继续失败:" + getIDJIErrorMsg(error));
                     }
                     LogUtil.log(TAG, "航线继续失败:" + new Gson().toJson(error));
                 }
@@ -729,7 +730,7 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "航线终止失败:" + new Gson().toJson(error));
+                    sendMsg2Server(mqttAndroidClient, message, "航线终止失败:"+ getIDJIErrorMsg(error));
                     LogUtil.log(TAG, "航线终止失败:" + new Gson().toJson(error));
                 }
             });
