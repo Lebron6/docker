@@ -2,6 +2,7 @@ package com.aros.apron.manager;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
 import static com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO;
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Environment;
 import android.os.Handler;
@@ -410,12 +411,12 @@ public class AlternateLandingManager extends BaseManager {
             }
 
             @Override
-            public void onFailure(@NonNull IDJIError idjiError) {
-                LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(idjiError));
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(error));
                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                 sendMissionExecuteEvents(mqttClient, "备降航线上传失败");
                 if (message != null) {
-                    sendMsg2Server(mqttClient, message, "备降航线上传失败:" + new Gson().toJson(idjiError));
+                    sendMsg2Server(mqttClient, message, "备降航线上传失败:"  + getIDJIErrorMsg(error));
                 }
             }
         });

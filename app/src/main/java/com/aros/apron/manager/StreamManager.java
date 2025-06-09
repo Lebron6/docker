@@ -1,4 +1,6 @@
 package com.aros.apron.manager;
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Handler;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -113,7 +115,7 @@ public class StreamManager extends BaseManager {
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "推流失败:" + error.description() + "---");
-                                sendMsg2Server(client, message, error.description());
+                                sendMsg2Server(client, message, "推流失败:"+getIDJIErrorMsg(error));
 
                             }
                         });
@@ -285,7 +287,7 @@ public class StreamManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server(mqttAndroidClient, message, "停止直播失败:" + error.description());
+                sendMsg2Server(mqttAndroidClient, message, "停止直播失败:" + getIDJIErrorMsg(error));
             }
         });
     }
