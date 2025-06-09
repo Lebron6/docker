@@ -2,6 +2,8 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -731,13 +733,53 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            //默认视频源
+            CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                    KeyCameraVideoStreamSource));
+            int cameraLensType=0;
+            switch (value.value()){
+                case 0:
+                    cameraLensType=1;//0默认，这里当作广角处理
+                    break;
+                case 1:
+                    cameraLensType=1;//1广角，这里当作广角处理
+                    break;
+                case 2:
+                    cameraLensType=0;//视频源是变焦，对应镜头0
+                    break;
+                case 3:
+                    cameraLensType=2;//视频源是红外，对应镜头2
+                    break;
+            }
             ZoomTargetPointInfo zoomTargetPointInfo=new ZoomTargetPointInfo();
             zoomTargetPointInfo.setX(message.getZoomTargetX());
             zoomTargetPointInfo.setY(message.getZoomTargetY());
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyTapZoomAtTarget),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+                    ComponentIndexType.LEFT_OR_MAIN,
+                    CameraLensType.find(cameraLensType)),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(mqttAndroidClient, message);
+                    if (value.value()==2){
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        sendMsg2Server(mqttAndroidClient, message);
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NonNull IDJIError error) {
+                                        LogUtil.log(TAG,"指点变焦失败:"+new Gson().toJson(error));
+                                        sendMsg2Server(mqttAndroidClient, message, "指点变焦失败:" + getIDJIErrorMsg(error));
+                                    }
+                                });
+                            }
+                        },300);
+                    }
                 }
 
                 @Override

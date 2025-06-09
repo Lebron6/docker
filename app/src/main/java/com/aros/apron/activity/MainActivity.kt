@@ -1,4 +1,5 @@
 package com.aros.apron.activity
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -45,6 +46,7 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.Utils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
@@ -52,12 +54,18 @@ import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
+import dji.sdk.keyvalue.value.camera.TapZoomMode
+import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo
 import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
+import dji.v5.common.callback.CommonCallbacks.CompletionCallback
+import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithParam
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
+import dji.v5.et.action
+import dji.v5.et.create
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
@@ -264,6 +272,7 @@ open class MainActivity : BaseActivity() {
         initView()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun initView() {
         fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
         mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
@@ -295,6 +304,30 @@ open class MainActivity : BaseActivity() {
         horizontalSituationIndicatorWidget =
             findViewById<HorizontalSituationIndicatorWidget>(R.id.widget_horizontal_situation_indicator)
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
+      var  btn_test = findViewById<TextView>(R.id.btn_test)
+        btn_test.setOnClickListener {
+
+            val zoomTargetPointInfo = ZoomTargetPointInfo()
+            zoomTargetPointInfo.x = 0.3
+            zoomTargetPointInfo.y = 0.3
+            zoomTargetPointInfo.tapZoomModeEnable=true
+            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
+            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+                ComponentIndexType.LEFT_OR_MAIN,
+                CameraLensType.find(0)),
+                zoomTargetPointInfo,
+                 object : CompletionCallbackWithParam<EmptyMsg?> {
+                override fun onSuccess(p0: EmptyMsg?) {
+                }
+
+                override fun onFailure(error: IDJIError) {
+                    LogUtil.log(TAG, "指点对焦失败:" + Gson().toJson(error))
+
+                }
+            })
+
+
+        }
         gimbalFineTuneWidget =
             findViewById<GimbalFineTuneWidget>(R.id.setting_menu_gimbal_fine_tune)
 
