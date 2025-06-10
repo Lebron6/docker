@@ -831,7 +831,7 @@ public class FlightManager extends BaseManager {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
         if (Movement.getInstance().isPlaneWing()&&Movement.getInstance().getDistance() < 20
-                && Movement.getInstance().getFlyingHeight() < 60
+                && Movement.getInstance().getFlyingHeight() < 75
                 && Movement.getInstance().getElectricityInfoA() > 35
                 &&((flightMode != null&&flightMode==FlightMode.WAYPOINT)||
                 (flightMode != null&&flightMode==FlightMode.AUTO_TAKE_OFF))) {
