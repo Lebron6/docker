@@ -1,13 +1,20 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO;
+
 import android.os.Handler;
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.greenrobot.eventbus.EventBus;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -20,6 +27,8 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
+import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 
 public class WayLineExecutingInterruptManager extends BaseManager {
@@ -36,19 +45,36 @@ public class WayLineExecutingInterruptManager extends BaseManager {
     public static WayLineExecutingInterruptManager getInstance() {
         return WayLineExecutingInterruptHolder.INSTANCE;
     }
+
     public void initWayLineExecutingInterruptInfo(MqttAndroidClient mqttAndroidClient) {
-        this.client = mqttAndroidClient;}
+        this.client = mqttAndroidClient;
+    }
 
     public void onExecutingInterruptToDo() {
+        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+        missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
+                ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                LogUtil.log(TAG, "终止任务成功");
+                resetAircrftLandingStatus();
+
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
+            }
+        });
 
         if (Movement.getInstance().getFlyingHeight() < 90) {
             LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getFlyingHeight());
             raiseTheReturnFlight();
-            sendMissionExecuteEvents(client,"航线中断:拉高后返航");
+            sendMissionExecuteEvents(client, "航线中断:拉高后返航");
         } else {
-            LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight() );
+            LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight());
             FlightManager.getInstance().startGoHome(null, null);
-            sendMissionExecuteEvents(client,"航线中断:直接返航");
+            sendMissionExecuteEvents(client, "航线中断:直接返航");
 
         }
 
@@ -69,14 +95,14 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "失控拉高,控制权获取失败:" + error.description());
-                    sendMissionExecuteEvents(client,"航线中断:执行拉高失败");
+                    sendMissionExecuteEvents(client, "航线中断:执行拉高失败");
 
                 }
             });
 
         } else {
             LogUtil.log(TAG, "失控拉高,飞控未连接");
-            sendMissionExecuteEvents(client,"航线中断:飞控未连接");
+            sendMissionExecuteEvents(client, "航线中断:飞控未连接");
 
         }
 
@@ -90,9 +116,9 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             public void run() {
                 if (Movement.getInstance().getFlyingHeight() < 100) {
 
-                    if (Movement.getInstance().getGoHomeState()==1||Movement.getInstance().getGoHomeState()==2){
+                    if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
                         handler.removeCallbacks(this);
-                    }else{
+                    } else {
                         sendVirtualStickAdvancedParam();
                         handler.postDelayed(this, 200);
                     }
@@ -101,13 +127,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "到达100米,取消虚拟摇杆控制并返航");
-                            sendMissionExecuteEvents(client,"航线中断:到达指定高度,开始返航");
+                            sendMissionExecuteEvents(client, "航线中断:到达指定高度,开始返航");
                             FlightManager.getInstance().startGoHome(null, null);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
-                            sendMissionExecuteEvents(client,"航线中断:释放控制权失败,开始返航");
+                            sendMissionExecuteEvents(client, "航线中断:释放控制权失败,开始返航");
                             LogUtil.log(TAG, "到达80米,取消虚拟摇杆控制返航失败:" + new Gson().toJson(idjiError));
                             FlightManager.getInstance().startGoHome(null, null);
                         }
@@ -142,4 +168,14 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         }
     }
 
+
+    private void resetAircrftLandingStatus() {
+        // 避免在下次起飞时触发视觉识别
+        PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
+        PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
+        PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+        //设置为未触发开始识别二维码状态
+        FlightManager.getInstance().setSendDetect(false);
+        EventBus.getDefault().post(FLAG_STOP_ARUCO);
+    }
 }
