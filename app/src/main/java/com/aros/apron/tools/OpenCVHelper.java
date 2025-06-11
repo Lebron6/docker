@@ -34,6 +34,7 @@ public class OpenCVHelper {
     private MatOfDouble distortion;
     private Mat logoImg;
     private MatOfPoint3f objectPoints;
+    //test
 
     public OpenCVHelper(Context context) {
         this.context = context;
