@@ -83,7 +83,10 @@ public class AlternateLandingManager extends BaseManager {
         });
     }
 
-    public void startTaskProcess(MQMessage message) {
+    public void startTaskProcess( MQMessage message) {
+        if (message != null&&mqttClient!=null) {
+            sendMsg2Server(mqttClient, message);
+        }
         //飞往备降点,关闭视觉识别
         EventBus.getDefault().post(FLAG_STOP_ARUCO);
         if (isRemoteControllerFlightModeChange) {

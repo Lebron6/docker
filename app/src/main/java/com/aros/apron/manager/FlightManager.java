@@ -822,33 +822,44 @@ public class FlightManager extends BaseManager {
 
     //返航
     public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    if (mqttAndroidClient != null && message != null) {
-                        sendMsg2Server(mqttAndroidClient, message);
-                    }
-                    LogUtil.log(TAG, "返航调用成功");
+        FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    if (mqttAndroidClient != null && message != null) {
-                        sendMsg2Server(mqttAndroidClient, message, "返航执行失败:" + getIDJIErrorMsg(error));
-                    }
-                    LogUtil.log(TAG, "返航执行失败：" + new Gson().toJson(error));
-                }
-            });
+        if (Movement.getInstance().isPlaneWing()&&Movement.getInstance().getDistance() < 20
+                && Movement.getInstance().getFlyingHeight() < 75
+                && Movement.getInstance().getElectricityInfoA() > 35
+                &&((flightMode != null&&flightMode==FlightMode.WAYPOINT)||
+                (flightMode != null&&flightMode==FlightMode.AUTO_TAKE_OFF))) {
+            WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
         } else {
-            if (mqttAndroidClient != null && message != null) {
-                sendMsg2Server(mqttAndroidClient, message, "返航执行失败：飞控未连接");
-            }
-            LogUtil.log(TAG, "返航执行失败：飞控未连接");
+            Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+            if (isConnect != null && isConnect) {
+                KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                    @Override
+                    public void onSuccess(EmptyMsg emptyMsg) {
+                        if (mqttAndroidClient != null && message != null) {
+                            sendMsg2Server(mqttAndroidClient, message);
+                        }
+                        LogUtil.log(TAG, "返航调用成功");
 
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        if (mqttAndroidClient != null && message != null) {
+                            sendMsg2Server(mqttAndroidClient, message, "返航执行失败:" + getIDJIErrorMsg(error));
+                        }
+                        LogUtil.log(TAG, "返航执行失败：" + new Gson().toJson(error));
+                    }
+                });
+            } else {
+                if (mqttAndroidClient != null && message != null) {
+                    sendMsg2Server(mqttAndroidClient, message, "返航执行失败：飞控未连接");
+                }
+                LogUtil.log(TAG, "返航执行失败：飞控未连接");
+
+            }
         }
+
     }
 
     //取消返航
