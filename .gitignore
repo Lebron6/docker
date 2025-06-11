@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/src/main/java/tools/ApronArucoDetect.java
-/app/src/main/java/tools/AlternateArucoDetect.java
-/app/src/main/java/tools/OpenCVHelper.java
+/app/src/main/java/com/aros/apron/tools/ApronArucoDetect.java
+/app/src/main/java/com/aros/apron/tools/AlternateArucoDetect.java
+/app/src/main/java/com/aros/apron/tools/OpenCVHelper.java
+/app/src/main/java/com/aros/apron/tools/PIDControl.java
