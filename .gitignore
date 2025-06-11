@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/src/main/java/tools/ApronArucoDetect.java
+/app/src/main/java/tools/AlternateArucoDetect.java
+/app/src/main/java/tools/OpenCVHelper.java
