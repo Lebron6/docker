@@ -28,12 +28,10 @@ class ConfigActivity : BaseActivity() {
         configBinding = ActivityConfigBinding.inflate(layoutInflater)
         setContentView(configBinding.root)
         initView()
-        LogUtil.log(TAG,"进入AMS配置界面")
     }
 
     private fun initView() {
         configBinding.cbHaveRtk.isChecked = PreferenceUtils.getInstance().haveRTK
-        configBinding.cbLteEnable.isChecked = PreferenceUtils.getInstance().lteEnable
         configBinding.cbCloseObstacle.isChecked = PreferenceUtils.getInstance().closeObsEnable
         configBinding.cbDebuggingMode.isChecked = PreferenceUtils.getInstance().isDebugMode
         configBinding.cbCleanMode.isChecked = PreferenceUtils.getInstance().isCleanMode
@@ -96,12 +94,12 @@ class ConfigActivity : BaseActivity() {
         configBinding.etMqttUsername.setText(PreferenceUtils.getInstance().mqttUserName)
         configBinding.etMqttPassword.setText(PreferenceUtils.getInstance().mqttPassword)
         configBinding.etMqttSn.setText(PreferenceUtils.getInstance().mqttSn)
+        configBinding.etWtUrl.setText(PreferenceUtils.getInstance().wtUrl)
 
 //        configBinding.etDockerLat.setText(PreferenceUtils.getInstance().dockerLat)
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
-        configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
-        configBinding.etForcedBattery.setText(PreferenceUtils.getInstance().forcedBattery)
+
         configBinding.etAlternateLat.setText(PreferenceUtils.getInstance().alternatePointLat)
         configBinding.etAlternateLon.setText(PreferenceUtils.getInstance().alternatePointLon)
         configBinding.etSetAlternateSecurityHeight.setText(PreferenceUtils.getInstance().alternatePointSecurityHeight)
@@ -121,9 +119,6 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
-
-        configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().cameraLocationType ==1//中间
-        configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//左边
         configBinding.btnConfig.setOnClickListener { config() }
         configBinding.tvSetAlternate.setOnClickListener {
             val isConnect = KeyManager.getInstance()
@@ -212,6 +207,10 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置MQTT设备编号")
             return
         }
+        if (TextUtils.isEmpty(configBinding.etWtUrl.text)) {
+            ToastUtil.showToast("未配置风机巡检文件上传Url")
+            return
+        }
         if (!configBinding.rbAd2.isChecked && !configBinding.rbAd3.isChecked && !configBinding.rbArs350.isChecked) {
             ToastUtil.showToast("未配置机库类型")
             return
@@ -230,10 +229,11 @@ class ConfigActivity : BaseActivity() {
                 return
             }
         }
-
-        if (!configBinding.rbCameraLeft.isChecked && !configBinding.rbCameraCenter.isChecked) {
-            ToastUtil.showToast("未配置主相机位置")
-            return
+        if (configBinding.rbRtmp.isChecked) {
+            if (TextUtils.isEmpty(configBinding.etStreamUrl.text)) {
+                ToastUtil.showToast("未配置Rtmp推流地址")
+                return
+            }
         }
         if (configBinding.rbRtsp.isChecked) {
             if (TextUtils.isEmpty(configBinding.etRtspUserName.text)) {
@@ -254,24 +254,6 @@ class ConfigActivity : BaseActivity() {
 //            ToastUtil.showToast("未标定起飞朝向")
 //            return
 //        }
-        if (TextUtils.isEmpty(configBinding.etMinimumBattery.text) || TextUtils.isEmpty(configBinding.etForcedBattery.text)) {
-            ToastUtil.showToast("未配置电池阈值")
-            return
-        }
-        var minimumBattery=configBinding.etMinimumBattery.text.toString()
-        var forcedBattery=configBinding.etForcedBattery.text.toString()
-        if (minimumBattery.toInt()<35){
-            ToastUtil.showToast("允许起飞电量不得低于35%")
-            return
-        }
-        if (forcedBattery.toInt()>=minimumBattery.toInt()){
-            ToastUtil.showToast("强制返航电量需小于允许起飞电量")
-            return
-        }
-        if ((minimumBattery.toInt()-forcedBattery.toInt())<10){
-            ToastUtil.showToast("强制返航电量需小于允许起飞电量最少10%")
-            return
-        }
         if (TextUtils.isEmpty(configBinding.etAlternateLat.text) || TextUtils.isEmpty(configBinding.etAlternateLon.text)) {
             ToastUtil.showToast("未配置备降点经纬度")
             return
@@ -285,11 +267,6 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置飞往备降点高度")
             return
         }
-
-        PreferenceUtils.getInstance().minumumBattery =
-            configBinding.etMinimumBattery.text.toString()
-        PreferenceUtils.getInstance().forcedBattery =
-            configBinding.etForcedBattery.text.toString()
 
         PreferenceUtils.getInstance().alternatePointLat =
             configBinding.etAlternateLat.text.toString()
@@ -314,7 +291,7 @@ class ConfigActivity : BaseActivity() {
         PreferenceUtils.getInstance().isDebugMode = configBinding.cbDebuggingMode.isChecked
         PreferenceUtils.getInstance().isCleanMode = configBinding.cbCleanMode.isChecked
         PreferenceUtils.getInstance().navigationLEDsOn = configBinding.cbLEDsSettings.isChecked
-        PreferenceUtils.getInstance().lteEnable = configBinding.cbLteEnable.isChecked
+
         if (configBinding.rbRtsp.isChecked) {
             PreferenceUtils.getInstance().customStreamType = 1
         } else if (configBinding.rbRtmp.isChecked) {
@@ -337,7 +314,6 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().rtspPort =
                 configBinding.etRtspPort.text.toString().replace("", "")
         }
-
         PreferenceUtils.getInstance().ntrip = configBinding.etNtrip.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().ntrPort =
             configBinding.etNtrPort.text.toString().replace(" ", "")
@@ -356,6 +332,8 @@ class ConfigActivity : BaseActivity() {
             configBinding.etMqttPassword.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().mqttSn =
             configBinding.etMqttSn.text.toString().replace(" ", "")
+        PreferenceUtils.getInstance().wtUrl =
+            configBinding.etWtUrl.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
         if (configBinding.rbAd2.isChecked) {
@@ -378,11 +356,6 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().landType = 2
         } else {
             PreferenceUtils.getInstance().landType = 1
-        }
-        if (configBinding.rbCameraCenter.isChecked) {
-            PreferenceUtils.getInstance().cameraLocationType = 1
-        } else {
-            PreferenceUtils.getInstance().cameraLocationType = 2
         }
         ToastUtil.showToast("配置已保存")
         Handler().postDelayed(Runnable {

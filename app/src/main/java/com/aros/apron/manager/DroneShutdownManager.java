@@ -5,7 +5,6 @@ import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
-import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
@@ -17,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DroneShutdownManager extends BaseManager {
 
-    private final int maxRetries = 20;
+    private final int maxRetries = 10;
     private int sendDroneShutDownSuccessTimes;
     private boolean isSendDroneShutDownSuccess;
 
@@ -61,24 +60,13 @@ public class DroneShutdownManager extends BaseManager {
                 message.setResult(1);
                 message.setMsg("关机");
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         LogUtil.log(TAG, "关机发送成功：60011---"+sendDroneShutDownSuccessTimes+"clientId:"+client.getClientId());
                         sendMissionExecuteEvents(client, "AMS通知机库执行无人机关机");
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (ApronExecutionStatus.getInstance().isServerReplyDroneShut()) {
-                                    isSendDroneShutDownSuccess = true;
-                                    LogUtil.log(TAG, "已收到服务端响应飞机关机");
-                                } else {
-                                    LogUtil.log(TAG, "未收到服务端响应飞机关机,重新发送");
-                                    retrySend(client);
-                                }
-                            }
-                        }, 2000);
+                        isSendDroneShutDownSuccess = true;
                     }
 
                     @Override

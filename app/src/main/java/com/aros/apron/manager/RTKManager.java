@@ -19,6 +19,7 @@ import dji.sdk.keyvalue.value.rtkbasestation.RTKReferenceStationSource;
 import dji.sdk.keyvalue.value.rtkbasestation.RTKServiceState;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
+import dji.v5.inner.aircraft.rtk.network.QXRTKManager;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.rtk.RTKCenter;
 import dji.v5.manager.aircraft.rtk.RTKSystemState;
@@ -120,6 +121,7 @@ public class RTKManager extends BaseManager {
     //开启自定义网络RTK服务
     private void startNetworkRTKService() {
         if (PreferenceUtils.getInstance().getRtkType()==1){
+
             RTKCustomNetworkSetting rtkCustomNetworkSetting = new RTKCustomNetworkSetting();
             rtkCustomNetworkSetting.setServerAddress(PreferenceUtils.getInstance().getNTRIP());
             rtkCustomNetworkSetting.setPort(Integer.valueOf(PreferenceUtils.getInstance().getNTRPort()));
@@ -152,6 +154,7 @@ public class RTKManager extends BaseManager {
             });
         }else if (PreferenceUtils.getInstance().getRtkType()==2){
 
+
             RTKCenter.getInstance().getCMCCRTKManager().startNetworkRTKService(CoordinateSystem.WGS84, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
@@ -176,7 +179,7 @@ public class RTKManager extends BaseManager {
                     }
                 }
             });
-        }else{
+        } else{
             LogUtil.log(TAG,"RTK类型设置有误");
         }
 

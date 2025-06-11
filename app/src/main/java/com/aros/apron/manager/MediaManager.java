@@ -74,7 +74,7 @@ public class MediaManager extends BaseManager {
     }
 
     public static MediaManager getInstance() {
-        return MediaManager.MediaManagerHolder.INSTANCE;
+        return MediaManagerHolder.INSTANCE;
     }
 
     public  void init(MqttAndroidClient mqttAndroidClient) {
@@ -91,36 +91,19 @@ public class MediaManager extends BaseManager {
         }
     }
 
-    private int enterPlayBackFailTimes;
-    private boolean isEnablePlayback;
-
     public void enablePlayback() {
        MediaDataCenter.getInstance().getMediaManager().enable(new CommonCallbacks.CompletionCallback() {
            @Override
            public void onSuccess() {
                LogUtil.log(TAG, "进入媒体模式成功");
                pullMediaFileListFromCamera();
-               isEnablePlayback=true;
            }
 
            @Override
            public void onFailure(@NonNull IDJIError idjiError) {
-               LogUtil.log(TAG, "第"+enterPlayBackFailTimes+"次进入媒体模式失败:"+new Gson().toJson(idjiError));
-
-               if (!isEnablePlayback){
-                   new Handler().postDelayed(new Runnable() {
-                       @Override
-                       public void run() {
-                           if (enterPlayBackFailTimes < 10) {
-                               enterPlayBackFailTimes++;
-                               enablePlayback();
-                           }else{
-                               DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
-                               sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
-                           }
-                       }
-                   }, 1500);
-               }
+               LogUtil.log(TAG, "enablePlayback fail:"+new Gson().toJson(idjiError));
+               DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttClient);
+               sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
            }
        });
     }

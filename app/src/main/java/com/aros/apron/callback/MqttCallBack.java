@@ -1,15 +1,12 @@
 package com.aros.apron.callback;
 
 
-import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
-import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.AlternateLandingManager;
@@ -33,6 +30,8 @@ import com.google.gson.Gson;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,25 +41,55 @@ public class MqttCallBack implements MqttCallbackExtended {
 
     private String TAG = "MqttCallBack";
     private MqttAndroidClient mqttClient;
+    private MqttConnectOptions mMqttConnectOptions;
 
-    public MqttCallBack(MqttAndroidClient mqttClient) {
+    public MqttCallBack(MqttAndroidClient mqttClient, MqttConnectOptions mMqttConnectOptions) {
         this.mqttClient = mqttClient;
+        this.mMqttConnectOptions = mMqttConnectOptions;
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        LogUtil.log(TAG, "MQtt connectionLost:"+cause.toString());
-        try {
-            reConnect();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        LogUtil.log(TAG, "MQtt connectionLost-----");
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    reConnect();
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        }, 1000);
+        new Thread(() -> {
+            while (true) {
+                try {
+                    if (mqttClient!=null&&!mqttClient.isConnected()) {
+                        LogUtil.log(TAG,"Attempting to reconnect...");
+                        mqttClient.connect(mMqttConnectOptions);
+                        LogUtil.log(TAG,"Reconnected!");
+                        break; // 成功连接，退出循环
+                    }
+                } catch (MqttException e) {
+                    LogUtil.log(TAG,"Reconnect failed. Retrying in a few seconds...");
+                    try {
+                        // 等待一段时间后再次尝试重连
+                        Thread.sleep(3000); // 等待5秒
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+        }).start();
+
     }
 
     //断线重连
     public void reConnect() throws Exception {
         if (null != mqttClient) {
             LogUtil.log(TAG, "MQtt reConnect-----");
+            mqttClient.connect(mMqttConnectOptions);
         }
     }
 
@@ -93,6 +122,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60003:
                 //默认规定不在返航时才可以上传航线
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
+                    PreferenceUtils.getInstance().setMissionType(message.getIsGuidingFlight());
                     if (message.getIsGuidingFlight() == 0) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         if (isReceiverMission == false) {
@@ -101,10 +131,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                             PreferenceUtils.getInstance().setStreamAndMinIOConfig(message);
                             // 2.收到60003直接回复
                             StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                            if (PreferenceUtils.getInstance().getCustomStreamType()==3){
-                                // 3.开启推流
-                                StreamManager.getInstance().startLive(mqttClient, message);
-                            }
+                            // 3.开启推流
+                            StreamManager.getInstance().startLive(mqttClient, message);
                             // 4.关闭避障
                             PerceptionManager.getInstance().setPerceptionEnable(false);
                             // 5.清空sd卡
@@ -115,8 +143,6 @@ public class MqttCallBack implements MqttCallbackExtended {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
                                 }
                             }, 1000);
-                        }else{
-SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
                         }
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
@@ -407,41 +433,6 @@ SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
                 LogUtil.log(TAG, "收到命令：切换直播视角" + jsonString);
                 StreamManager.getInstance().switchCurrentView(mqttClient,message);
                 break;
-            //设置云台控制的最大速度
-            case 60142:
-                LogUtil.log(TAG, "收到命令：设置云台控制的最大速度" + jsonString);
-                GimbalManager.getInstance().setGimbalControlMaxSpeed(mqttClient,message);
-                break;
-            //紧急悬停
-            case 60143:
-                LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
-                FlightManager.getInstance().emergencyHover(mqttClient,message);
-                break;
-            //设置失控动作
-            case 60144:
-                LogUtil.log(TAG, "收到命令：设置失控动作" + jsonString);
-                FlightManager.getInstance().setFailsafeAction(mqttClient,message);
-                break;
-            //设置返航高度
-            case 60145:
-                LogUtil.log(TAG, "收到命令：设置返航高度" + jsonString);
-                FlightManager.getInstance().setGoHomeHeight(mqttClient,message);
-                break;
-            //设置低电量报警阈值
-            case 60146:
-                LogUtil.log(TAG, "收到命令：设置低电量报警阈值" + jsonString);
-                FlightManager.getInstance().setLowBatteryWarningThreshold(mqttClient,message);
-                break;
-            //设置严重低电量报警阈值
-            case 60147:
-                LogUtil.log(TAG, "收到命令：设置严重低电量报警阈值" + jsonString);
-                FlightManager.getInstance().setSeriousLowBatteryWarningThreshold(mqttClient,message);
-                break;
-            //设置智能低电量返航
-            case 60148:
-                LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
-                FlightManager.getInstance().setLowBatteryRTHEnabled(mqttClient,message);
-                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
@@ -450,15 +441,12 @@ SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
                             LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
                             break;
                         case "1":
-                            ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
                             LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
                             break;
                         case "2":
-                            ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
                             LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
                             break;
                         case "3":
-                            ApronExecutionStatus.getInstance().setServerReplyDroneShut(true);
                             LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
                             break;
                     }
@@ -482,12 +470,12 @@ SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
     public void connectComplete(boolean reconnect, String serverURI) {
         try {
             if (reconnect) {//重新订阅
-                LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
+                Log.e(TAG, "MQtt ConnectComplete:" + serverURI);
                 mqttClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 1);//订阅主题:注册
                 // publish(topic,"注册",0);
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "MQtt ConnectException:" + e.toString());
+            Log.e(TAG, "MQtt ConnectException:" + e.toString());
         }
     }
 }

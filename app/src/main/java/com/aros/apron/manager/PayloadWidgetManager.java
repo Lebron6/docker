@@ -1,10 +1,9 @@
 package com.aros.apron.manager;
 
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
@@ -47,6 +46,7 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
+
     public void initPayloadInfo(MqttAndroidClient client) {
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -58,7 +58,15 @@ public class PayloadWidgetManager extends BaseManager {
                     iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
                         @Override
                         public void onDataFromPayloadUpdate(byte[] data) {
-//                            sendMsgFromPSDK2Server(client, data);
+//
+//                            ByteArrayOutputStream filteredData = new ByteArrayOutputStream();
+//                            for (byte b : data) {
+//                                if (b != 0) {
+//                                    filteredData.write(b);
+//                                }
+//                            }
+//                            String str = new String(filteredData.toByteArray(), StandardCharsets.UTF_8);
+                            sendMsgFromPSDK2Server(client, byte2HexString(data));
                         }
                     });
                 } else {
@@ -71,6 +79,17 @@ public class PayloadWidgetManager extends BaseManager {
             LogUtil.log(TAG, "设备未连接");
         }
     }
+
+    private  String byte2HexString(byte[] bytes) {
+        String hex = "";
+        if (bytes != null) {
+            for (Byte b : bytes) {
+                hex += String.format("%02X", b.intValue() & 0xFF);
+            }
+        }
+        return hex;
+    }
+
     //锁定
     public void lock(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -88,9 +107,8 @@ public class PayloadWidgetManager extends BaseManager {
                 }
 
                 @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(error));
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
                 }
             });
         }
@@ -115,8 +133,7 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
 
                 }
             });
@@ -166,8 +183,7 @@ public class PayloadWidgetManager extends BaseManager {
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                                    LogUtil.log(TAG,"抛投失败:" +new Gson().toJson(idjiError));
-                                                    sendMsg2Server(client, message, "抛投失败:" + getIDJIErrorMsg(idjiError));
+                                                    sendMsg2Server(client, message, "抛投失败:" + new Gson().toJson(idjiError));
 
                                                 }
                                             });
@@ -177,8 +193,7 @@ public class PayloadWidgetManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
 
                                 }
                             });
@@ -188,8 +203,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(client, message, "锁定失败:" + new Gson().toJson(idjiError));
+
                 }
             });
 
@@ -239,8 +254,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                                    LogUtil.log(TAG,"全抛失败:" +new Gson().toJson(idjiError));
-                                                    sendMsg2Server(client, message, "全抛失败:" + getIDJIErrorMsg(idjiError));
+                                                    sendMsg2Server(client, message, "全抛失败:" + new Gson().toJson(idjiError));
+
                                                 }
                                             });
                                         }
@@ -249,8 +264,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
-                                    LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                                    sendMsg2Server(client, message, "解锁失败:" + new Gson().toJson(idjiError));
+
                                 }
                             });
                         }
@@ -259,8 +274,8 @@ public class PayloadWidgetManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-                    LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(client, message, "锁定失败:" + new Gson().toJson(idjiError));
+
                 }
             });
 
@@ -276,17 +291,15 @@ public class PayloadWidgetManager extends BaseManager {
                     sendMsg2Server(mqttClient, message, "发送数据到psdk失败:参数有误");
                     return;
                 }
-                iPayloadManager.sendDataToPayload(Utils.getByte(message.getPayloadData()), new CommonCallbacks.CompletionCallback() {
+                iPayloadManager.sendDataToPayload(hexStringToByteArray(message.getPayloadData()), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        LogUtil.log(TAG, "发送数据到psdk:" + Utils.getByte(message.getPayloadData()));
                         sendMsg2Server(mqttClient, message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
-                        LogUtil.log(TAG,"发送数据到psdk失败:" +new Gson().toJson(idjiError));
-                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + getIDJIErrorMsg(idjiError));
+                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + new Gson().toJson(idjiError));
                     }
                 });
             } else {
@@ -295,5 +308,19 @@ public class PayloadWidgetManager extends BaseManager {
         } else {
             sendMsg2Server(mqttClient, message, "发送数据到psdk失败:未检测到设备");
         }
+    }
+
+    public  byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        try {
+            for (int i = 0; i < len; i += 2) {
+                data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                        + Character.digit(s.charAt(i+1), 16));
+            }
+        } catch (Exception e) {
+            // Log.d("", "Argument(s) for hexStringToByteArray(String s)"+ "was not a hex string");
+        }
+        return data;
     }
 }

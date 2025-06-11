@@ -72,10 +72,9 @@ public class OffSiteLandingManager extends BaseManager {
         KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyGoHomeHeight), this, new CommonCallbacks.KeyListener<Integer>() {
             @Override
             public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
-                if (t1 != null&&t1>=0) {
+                if (t1 != null&&goHomeHeight>=0) {
                     goHomeHeight = t1;
                     LogUtil.log(TAG,"返航高度:"+goHomeHeight);
-                    Movement.getInstance().setGoHomeHeight(goHomeHeight);
                 }else{
                     goHomeHeight=80;
                     LogUtil.log(TAG,"返航高度监听失败:"+goHomeHeight);

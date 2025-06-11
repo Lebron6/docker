@@ -13,7 +13,6 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
@@ -118,34 +117,14 @@ public class AlternateArucoDetect {
 
     //根据识别到的二维码移动无人机
     private void moveOnArucoDetected(List<ArucoMarker> arucoMarkers, int imageWidth, int imageHeight) {
-        // 计算图像中心
-        Point imgCenter = new Point(imageWidth / 2.0, imageHeight / 2.0);
-        double sumX = 0, sumY = 0;
-        int markerCount = arucoMarkers.size();
-        // 遍历所有 marker 计算中心点
-        for (int i = 0; i < markerCount; i++) {
-            Mat markerCorners = arucoMarkers.get(i).getConner();
-            double centerX = 0, centerY = 0;
-
-            for (int j = 0; j < 4; j++) {
-                double[] point = markerCorners.get(0, j);
-                centerX += point[0];
-                centerY += point[1];
-            }
-            centerX /= 4.0;
-            centerY /= 4.0;
-
-            sumX += centerX;
-            sumY += centerY;
+        //计算标记中心
+        double centerX = 0, centerY = 0;
+        for (int i = 0; i < arucoMarkers.size(); i++) {
+            centerX = centerX + Core.mean(arucoMarkers.get(i).getConner()).val[0] - (imageWidth / 2f);
+            centerY = centerY + Core.mean(arucoMarkers.get(i).getConner()).val[1] - (imageHeight / 2f);
         }
-
-        // 计算所有 marker 的平均中心点
-        double avgCenterX = sumX / markerCount;
-        double avgCenterY = sumY / markerCount;
-
-        // 计算整体偏移量
-        double offsetX = avgCenterX - imgCenter.x;
-        double offsetY = avgCenterY - imgCenter.y;
+        //计算相对于图像中心的图像矢量
+        Scalar imageVector = new Scalar(centerX / arucoMarkers.size(), centerY / arucoMarkers.size());
         double outX;
         double outY;
         double outZ;
@@ -221,27 +200,27 @@ public class AlternateArucoDetect {
             outZ = 0.0f;
         } else {
 
-            if (Math.abs(offsetX)<100){
+            if (Math.abs(imageVector.val[0])<100){
                 outX=0;
             }else{
-                outX = offsetX < 0 ? -(Math.abs(offsetX)/600)
-                        : (Math.abs(offsetX)/600);
+                outX = imageVector.val[0] < 0 ? -(Math.abs(imageVector.val[0])/600)
+                        : (Math.abs(imageVector.val[0])/600);
             }
-            if (Math.abs(offsetY)<100) {
+            if (Math.abs(imageVector.val[1])<100) {
                 outY=0;
             }else {
-                outY = offsetY < 0 ? (Math.abs(offsetY)/600)
-                        : -(Math.abs(offsetY)/600);
+                outY = imageVector.val[1] < 0 ? (Math.abs(imageVector.val[1])/600)
+                        : -(Math.abs(imageVector.val[1])/600);
             }
             outZ = -0.6f;
         }
-        LogUtil.log(TAG, "Aruco:" + arucoMarkers.size()+ "  杆量x=" + outX + "  偏移:x=" + offsetX + "    杆量y=" + outY + "  偏移:y=" + offsetY);
+        LogUtil.log(TAG, "Aruco:" + arucoMarkers.size()+ "  杆量x=" + outX + "  偏移:x=" + imageVector.val[0] + "    杆量y=" + outY + "  偏移:y=" + imageVector.val[1]);
 
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,
                 resultYaw, outZ);
 
-        if (Movement.getInstance().getFlyingHeight()<=2||Movement.getInstance().getUltrasonicHeight()<25) {
+        if (Movement.getInstance().getFlyingHeight()<=2) {
             canLanding = true;
         } else {
             canLanding = false;

@@ -38,6 +38,8 @@ open class ApronApp : Application() {
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         com.cySdkyc.clx.Helper.install(this)
+        GeoidManager.getInstance().init(this)
+        WPMZManager.getInstance().init(this)
 
     }
 

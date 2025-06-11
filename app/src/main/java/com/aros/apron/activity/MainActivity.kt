@@ -30,10 +30,12 @@ import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
-import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
+import com.aros.apron.manager.MediaPushFormManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
+import com.aros.apron.manager.PayloadWidgetManager
+import com.aros.apron.manager.PerceptionManager
 import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
@@ -43,9 +45,7 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
-import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
-import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -55,7 +55,6 @@ import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
 import dji.v5.common.error.IDJIError
-import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
@@ -99,7 +98,6 @@ import dji.v5.ux.visualcamera.zoom.FocalZoomWidget
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.Consumer
-import org.eclipse.paho.client.mqttv3.MqttException
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -253,9 +251,6 @@ open class MainActivity : BaseActivity() {
 //            uiSetting?.setZoomControlsEnabled(false)
 //        })
 //        mapWidget?.onCreate(savedInstanceState)
-        GeoidManager.getInstance().init(this)
-        WPMZManager.getInstance().init(this)
-
         needConnect()
         initDJIManager()
         initCameraStream()
@@ -338,6 +333,7 @@ open class MainActivity : BaseActivity() {
             MissionManager.getInstance().initMissionManager(mqttAndroidClient)
             BatteryManager.getInstance().initBatteryInfo(mqttAndroidClient)
             MediaManager.getInstance().init(mqttAndroidClient)
+            MediaPushFormManager.init(mqttAndroidClient)
             LEDsSettingsManager.getInstance().initLEDsInfo()
             AlternateLandingManager.getInstance().initAlterLandingInfo(mqttAndroidClient)
             WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)
@@ -345,12 +341,8 @@ open class MainActivity : BaseActivity() {
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
-            ApronArucoDetect.getInstance().init()
-            if (PreferenceUtils.getInstance().lteEnable){
-                MLTEManager.getInstance().initLTEManager()
-                Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)
-
-            }
+            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
+            PerceptionManager.getInstance().initPerceptionInfo()
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {
                 Handler().postDelayed(Runnable {
@@ -366,26 +358,15 @@ open class MainActivity : BaseActivity() {
 
                 }, 5000)
             }
+
             val productType =
                 KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
-            val cameraType = KeyManager.getInstance().getValue(
-                KeyTools.createKey(
-                    CameraKey.KeyCameraType,
-                    ComponentIndexType.LEFT_OR_MAIN
-                )
-            )
-
-            if (cameraType != null && productType != null) {
-                LogUtil.log(TAG, "设备类型:" + productType.name + "相机类型:" + cameraType.name)
-            } else {
-                LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
-            }
-
+            LogUtil.log(TAG, "设备类型:" + productType!!.name)
             ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }
 
-//    var shouldExecute = true
+    var shouldExecute = true
 
     private fun initCameraStream() {
 //        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
@@ -414,7 +395,7 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
-//            if (shouldExecute) {
+            if (shouldExecute) {
                 if (startArucoType == 1) {
 
                     ApronArucoDetect.getInstance()?.detectArucoTags(
@@ -433,8 +414,8 @@ open class MainActivity : BaseActivity() {
                         dictionary,
                     )
                 }
-//            }
-//            shouldExecute = !shouldExecute
+            }
+            shouldExecute = !shouldExecute
 
         }
     }
@@ -758,14 +739,6 @@ open class MainActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         isAppStarted = false
-        try {
-            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
-                mqttAndroidClient.unregisterResources()
-                mqttAndroidClient.disconnect() //断开连接
-            }
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
     }
 
 

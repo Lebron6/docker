@@ -81,9 +81,8 @@ public abstract class BaseManager {
         try {
             if (client.isConnected()) {
                 client.publish(topic, message);
-//                LogUtil.log(TAG, "推送消息==》"+message);
             } else {
-                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
+//                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +146,7 @@ public abstract class BaseManager {
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
 
             } else {
@@ -181,13 +180,34 @@ public abstract class BaseManager {
         }
     }
 
-
     public boolean getGimbalAndCameraEnabled() {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
             return true;
         } else {
             LogUtil.log(TAG, "降落时不允许操作云台或相机");
             return false;
+        }
+    }
+
+    //推送MSDK收到的PSDK数据
+    public void sendMsgFromPSDK2Server(MqttAndroidClient client,String data) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60119);
+                message.setResult(1);
+                message.setPayloadData(data);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "psdkData发送失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
+            e.printStackTrace();
         }
     }
 }

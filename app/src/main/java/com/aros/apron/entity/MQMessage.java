@@ -17,11 +17,9 @@ public class MQMessage {
     private int cameraZoomRatios;//设置变焦镜头倍率 (isContinuousH20T为true,关键倍率[2,5,10,20,40,80,160,200])
     private int thermalZoomRatios;//设置红外镜头倍率 (1x 2x 4x 8x)
     private int heightLimit;//限高
-    private int heightLimitEnabled;//限高是否启用 1启用 0不启用
     private int distanceLimitEnabled;//限远是否启用 1启用 0不启用
     private int distanceLimit;//限远
     private String flightId;//航线id
-    private String task_id;//任务ID(张闯让加的，开始推流、起飞、降落都推送一次)
     private int isGuidingFlight;//是否是指点飞行 0否 1是
 
     private int x=0;//前后
@@ -61,71 +59,6 @@ public class MQMessage {
     private String metersureAreaWidth;//测温矩形长度
     private String metersureAreaHeight;//测温矩形宽度
     private int currentView;//直播视频源
-    private int gimbalControlSpeed;//云台控制速度
-    private int failsafeAction;//设置飞行器的失控行为类型 0悬停  1降落 2返航
-    private int goHomeHeight;//设置飞行器的返航高度
-    private int lowBatteryWarningThreshold;//设置电池低电量警告的阈值。该数值为百分比，范围：[15,50]。当电池电量低于该阀值时，飞行器将进行低电量报警
-    private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
-    private int lowBatteryRTHEnabled;//智能低电量返航功能。
-
-
-
-
-    public String getTask_id() {
-        return task_id;
-    }
-
-    public void setTask_id(String task_id) {
-        this.task_id = task_id;
-    }
-
-    public int getHeightLimitEnabled() {
-        return heightLimitEnabled;
-    }
-
-    public void setHeightLimitEnabled(int heightLimitEnabled) {
-        this.heightLimitEnabled = heightLimitEnabled;
-    }
-
-    public int getFailsafeAction() {
-        return failsafeAction;
-    }
-
-    public void setFailsafeAction(int failsafeAction) {
-        this.failsafeAction = failsafeAction;
-    }
-
-    public int getGoHomeHeight() {
-        return goHomeHeight;
-    }
-
-    public void setGoHomeHeight(int goHomeHeight) {
-        this.goHomeHeight = goHomeHeight;
-    }
-
-    public int getLowBatteryWarningThreshold() {
-        return lowBatteryWarningThreshold;
-    }
-
-    public void setLowBatteryWarningThreshold(int lowBatteryWarningThreshold) {
-        this.lowBatteryWarningThreshold = lowBatteryWarningThreshold;
-    }
-
-    public int getSeriousLowBatteryWarningThreshold() {
-        return seriousLowBatteryWarningThreshold;
-    }
-
-    public void setSeriousLowBatteryWarningThreshold(int seriousLowBatteryWarningThreshold) {
-        this.seriousLowBatteryWarningThreshold = seriousLowBatteryWarningThreshold;
-    }
-
-    public int getLowBatteryRTHEnabled() {
-        return lowBatteryRTHEnabled;
-    }
-
-    public void setLowBatteryRTHEnabled(int lowBatteryRTHEnabled) {
-        this.lowBatteryRTHEnabled = lowBatteryRTHEnabled;
-    }
 
     public int getCurrentView() {
         return currentView;
@@ -576,11 +509,6 @@ public class MQMessage {
         this.rtmp_push_url = rtmp_push_url;
     }
 
-    public int getGimbalControlSpeed() {
-        return gimbalControlSpeed;
-    }
 
-    public void setGimbalControlSpeed(int gimbalControlSpeed) {
-        this.gimbalControlSpeed = gimbalControlSpeed;
-    }
+
 }

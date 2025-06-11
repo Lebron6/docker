@@ -22,7 +22,6 @@ public class PreferenceUtils extends BasePreference {
     private String SECRET_KEY = "secret_key";
     private String BUCKET_NAME = "bucket_name";
     private String FLIGHT_NAME = "flight_name";
-    private String TASK_ID = "task_id";
     private String KEY = "key";
     private String SORTIES_ID = "sortiesId";
     private String FLIGHT_ID = "flightId";
@@ -49,7 +48,6 @@ public class PreferenceUtils extends BasePreference {
     private String NEED_UPLOAD_VEDIO = "need_upload_vedio";
     private String AIRPORT_TYPE = "airport_type";
     private String LANDING_TYPE = "land_type"; //1RTK优先 2视觉优先
-    private String CAMERA_LOCATION = "camera_location"; //主相机位置
     private String RTK_TYPE = "rtk_type"; //1自定义网络RTK 2DJI赠送RTK
     private String DOCKER_LON = "docker_lon"; //机库经纬度
     private String DOCKER_LAT = "docker_lat"; //机库经纬度
@@ -64,24 +62,20 @@ public class PreferenceUtils extends BasePreference {
     private String NAVIGATION_LEDS_ON = "navigation_LEDs_On"; //夜航灯
     private String CLOSE_OBS_ENABLE = "close_obstacle_enable"; //是否关闭避障
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
-    private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
-    private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
-    private String LTE_ENABLE = "lte_enable";
+    private String MISSION_TYPE = "mission_type"; //航线终止后动作
+    private String WT_URL = "wt_url"; //风机巡检上传地址
 
-    //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
+
     public void setStreamAndMinIOConfig(MQMessage message) {
         setString(RTMP_PUSH_URL, getRTMPUrl());
-        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
-        if (!TextUtils.isEmpty(message.getTask_id())){
-            setString(TASK_ID,message.getTask_id());
-        }
         if (!TextUtils.isEmpty(message.getUpload_url())) {
-            String[] splitUrl = message.getUpload_url().split("://|/");
-            if (splitUrl.length>=5){
-                setString(UPLOAD_URL, splitUrl[0] +"://"+ splitUrl[1]);
-                setString(BUCKET_NAME, splitUrl[2]);
-                setString(KEY, splitUrl[3]);
-                setString(SORTIES_ID, splitUrl[4]);
+            String[] split = message.getUpload_url().split("//");
+            String[] split1 = split[1].split("/");
+            if (!(split1.length < 4)) {
+                setString(UPLOAD_URL, "http://" + split1[0]);
+                setString(BUCKET_NAME, split1[1]);
+                setString(KEY, split1[2]);
+                setString(SORTIES_ID, split1[3]);
             } else {
                 LogUtil.log(TAG, "minio参数有误");
             }
@@ -101,13 +95,6 @@ public class PreferenceUtils extends BasePreference {
 
     public String getSortiesId() {
         return getString(SORTIES_ID);
-    }
-    public void setTaskId() {
-        setString(TASK_ID,"");
-    }
-
-    public String getTaskId() {
-        return getString(TASK_ID);
     }
 
     public String getFlightId() {
@@ -177,6 +164,7 @@ public class PreferenceUtils extends BasePreference {
     public boolean getTriggerToAlternatePoint() {
         return getBoolean(TRIGGER_TO_ALTERNATE_POINT);
     }
+
     public void setCustomStreamType(int customStreamType) {
         setInt(CUSTOM_STREAM_TYPE, customStreamType);
     }
@@ -216,6 +204,7 @@ public class PreferenceUtils extends BasePreference {
     public String getRtspPort() {
         return getString(CUSTOM_STREAM_RTSP_PORT);
     }
+
 
     public String getNTRIP() {
         return getString(NTR_IP);
@@ -297,14 +286,6 @@ public class PreferenceUtils extends BasePreference {
         setBoolean(NEED_UPLOAD_VEDIO, needUpLoadVideo);
     }
 
-    public boolean getLteEnable() {
-        return getBoolean(LTE_ENABLE);
-    }
-
-    public void setLteEnable(boolean lteEnable) {
-        setBoolean(LTE_ENABLE, lteEnable);
-    }
-
     public int getAirPortType() {
         return getInt(AIRPORT_TYPE);
     }
@@ -328,13 +309,15 @@ public class PreferenceUtils extends BasePreference {
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
     }
-    public int getCameraLocationType() {
-        return getInt(CAMERA_LOCATION);
+
+    public int getMissionType() {
+        return getInt(MISSION_TYPE);
+    }
+    public void setMissionType(int missionType) {
+         setInt(MISSION_TYPE,missionType);
     }
 
-    public void setCameraLocationType(int locationType) {
-        setInt(CAMERA_LOCATION, locationType);
-    }
+
     public String getDockerLat() {
         return getString(DOCKER_LAT);
     }
@@ -357,22 +340,6 @@ public class PreferenceUtils extends BasePreference {
 
     public void setAircraftHeading(String dockerLon) {
         setString(AIRCRAFT_HEADING, dockerLon);
-    }
-
-    public String getMinumumBattery() {
-        return getString(MINIMUM_BATTERY);
-    }
-
-    public void setMinumumBattery(String minumumBattery) {
-        setString(MINIMUM_BATTERY, minumumBattery);
-    }
-
-    public String getForcedBattery() {
-        return getString(FORCED_BATTERY);
-    }
-
-    public void setForcedBattery(String forcedBattery) {
-        setString(FORCED_BATTERY, forcedBattery);
     }
 
     public String getAlternatePointLat() {
@@ -445,6 +412,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setCloseObsEnable(boolean close_obs_enable) {
         setBoolean(CLOSE_OBS_ENABLE, close_obs_enable);
+    }
+
+    public String getWTUrl() {
+        return getString(WT_URL);
+    }
+
+    public void setWTUrl(String wtUrl) {
+        setString(WT_URL, wtUrl);
     }
 
     private PreferenceUtils(Context context) {

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -21,7 +20,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <SurfaceView
+            <dji.v5.ux.core.widget.fpv.FPVWidget
                 android:id="@+id/widget_primary_fpv"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -42,7 +41,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="0dp" />
-            </SurfaceView>
+            </dji.v5.ux.core.widget.fpv.FPVWidget>
 
             <!--            <dji.v5.ux.core.widget.fpv.FPVWidget-->
             <!--                android:id="@+id/widget_secondary_fpv"-->
@@ -239,7 +238,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <SurfaceView
+        <dji.v5.ux.core.widget.fpv.FPVWidget
             android:id="@+id/widget_secondary_fpv"
             android:layout_width="@dimen/uxsdk_150_dp"
             android:layout_height="@dimen/uxsdk_100_dp"

@@ -26,14 +26,16 @@
             android:text="disable"
             android:layout_height="match_parent"/>
         <Button
+            android:id="@+id/btn_remove_all"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="test"
+            android:text="remove_all"
             android:layout_height="match_parent"/>
         <Button
+            android:id="@+id/btn_refresh_file_list"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="test"
+            android:text="pull"
             android:layout_height="match_parent"/>
     </LinearLayout>
 

@@ -1,7 +1,5 @@
 package com.aros.apron.manager;
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -14,12 +12,8 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
-import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.DJIKey;
-import dji.sdk.keyvalue.key.DJIKeyInfo;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
@@ -44,9 +38,18 @@ public class GimbalManager extends BaseManager {
         return GimbalHolder.INSTANCE;
     }
 
-    public void initGimbalInfo() {
-        ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getCameraLocationType() == 2);
-
+    public void initGimbalInfo(){
+        KeyManager.getInstance().listen(KeyTools.createKey(GimbalKey.
+                KeyConnection, ComponentIndexType.RIGHT), this, new CommonCallbacks.KeyListener<Boolean>() {
+            @Override
+            public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                if (t1!=null){
+                    //双挂
+                    ApronArucoDetect.getInstance().setDoublePayload(t1);
+                    LogUtil.log(TAG,"检测是否双挂:"+t1);
+                }
+            }
+        });
 
     }
 
@@ -69,12 +72,13 @@ public class GimbalManager extends BaseManager {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
                                 sendMsg2Server(mqttAndroidClient, message);
+                                LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG,"云台控制失败:"+new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + new Gson().toJson(error));
+                                LogUtil.log(TAG, "云台控制失败:" + new Gson().toJson(error));
                             }
                         }
                 );
@@ -82,8 +86,6 @@ public class GimbalManager extends BaseManager {
         } else {
             sendMsg2Server(mqttAndroidClient, message, "云台未连接");
         }
-
-
     }
 
 //    //用绝对角度模式旋转云台
@@ -132,7 +134,6 @@ public class GimbalManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
-
                         }
                     }
             );
@@ -146,8 +147,7 @@ public class GimbalManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0),
-                    GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             sendMsg2Server(client, message);
@@ -155,8 +155,7 @@ public class GimbalManager extends BaseManager {
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG,"云台重置失败:"+new Gson().toJson(error));
-                            sendMsg2Server(client, message, "云台控制失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server(client, message, "云台重置失败:" + new Gson().toJson(error));
                         }
                     }
             );
@@ -165,49 +164,34 @@ public class GimbalManager extends BaseManager {
         }
     }
 
-
-    //设置云台控制的最大速度[1,100]
-    public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
-            message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
-        if (isConnect!=null&&isConnect) {
-            DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, 0);
-            DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, 0);
-            if (pitchKey != null) {
-                setGimbalControlSpeed(mqttAndroidClient, message, pitchKey, "云台俯仰控制速度设置失败:");
-            } else {
-                LogUtil.log(TAG, "云台俯仰控制速度设置失败:pitchKey is null!");
-            }
-            if (yawKey != null) {
-                setGimbalControlSpeed(mqttAndroidClient, message, yawKey, "云台偏航控制速度设置失败:");
-            } else {
-                LogUtil.log(TAG, "云台偏航控制速度设置失败:yawKey is null!");
-            }
-        } else {
-            sendMsg2Server(mqttAndroidClient, message, "云台未连接");
-        }
-    }
-
-
-    private void setGimbalControlSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
-            message, DJIKey<Integer> key, String errorMessage) {
-        int value = message.getGimbalControlSpeed();
-        KeyManager.getInstance().setValue(key, value, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                sendMsg2Server(mqttAndroidClient, message);
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG,errorMessage+new Gson().toJson(error));
-                sendMsg2Server(mqttAndroidClient, message, errorMessage + getIDJIErrorMsg(error));
-            }
-        });
-    }
-
     //
+//    //设置云台控制的最大速度[1,100]
+//    public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
+//            message) {
+//        MQMessage.Data data = message.getData();
+//        if (data != null) {
+//            Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+//                    KeyConnection, Integer.parseInt(data.getComponentIndex())));
+//            if (isConnect) {
+//                String value = data.getGimbalControlMaxSpeed();
+//                String type = data.getGimbalControlMaxSpeedType();
+//                KeyManager.getInstance().setValue(KeyTools.createKey(type.equals("0") ? GimbalKey.KeyPitchControlMaxSpeed : GimbalKey.KeyYawControlMaxSpeed, Integer.parseInt(data.getComponentIndex())), Integer.parseInt(value), new CommonCallbacks.CompletionCallback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        sendMsg2Server(mqttAndroidClient, message);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NonNull IDJIError error) {
+//                        sendMsg2Server(mqttAndroidClient, message, "云台偏航速度设置失败:" + error.description());
+//                    }
+//                });
+//            } else {
+//                sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//            }
+//        }
+//    }
+//
 //    //恢复出厂设置
 //    public void setRestoreFactorySettings(MqttAndroidClient mqttAndroidClient, MQMessage
 //            message) {
@@ -322,47 +306,47 @@ public class GimbalManager extends BaseManager {
 //
     //设置云台模式
     public void setGimbalMode(int gimbalMode) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,
-                    0), GimbalMode.find(gimbalMode), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    switch (gimbalMode) {
-                        case 0:
-                            LogUtil.log(TAG, "设置云台自由模式成功");
-                            gimbalReset();
-                            break;
-                        case 1:
-                            LogUtil.log(TAG, "设置云台FPV模式成功");
-                            break;
-                        case 2:
-                            LogUtil.log(TAG, "设置云台跟随模式成功");
-                            break;
-                    }
-                }
+            Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                    KeyConnection, 0));
+            if (isConnect!=null&&isConnect) {
+                    KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,
+                            0), GimbalMode.find(gimbalMode), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            switch (gimbalMode){
+                                case 0:
+                                    LogUtil.log(TAG,"设置云台自由模式成功");
+                                    gimbalReset();
+                                    break;
+                                case 1:
+                                    LogUtil.log(TAG,"设置云台FPV模式成功");
+                                    break;
+                                case 2:
+                                    LogUtil.log(TAG,"设置云台跟随模式成功");
+                                    break;
+                            }
+                        }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    switch (gimbalMode) {
-                        case 0:
-                            LogUtil.log(TAG, "设置云台自由模式失败:" + error.description());
-                            break;
-                        case 1:
-                            LogUtil.log(TAG, "设置云台FPV模式失败:" + error.description());
-                            break;
-                        case 2:
-                            LogUtil.log(TAG, "设置云台跟随模式失败:" + error.description());
-                            break;
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            switch (gimbalMode){
+                                    case 0:
+                                        LogUtil.log(TAG,"设置云台自由模式失败:"+error.description());
+                                        break;
+                                    case 1:
+                                        LogUtil.log(TAG,"设置云台FPV模式失败:"+error.description());
+                                        break;
+                                    case 2:
+                                        LogUtil.log(TAG,"设置云台跟随模式失败:"+error.description());
+                                        break;
 
-                    }
-                }
-            });
+                            }
+                        }
+                    });
 
-        } else {
-            LogUtil.log(TAG, "设置云台模式失败:未连接");
-        }
+            } else {
+                LogUtil.log(TAG,"设置云台模式失败:未连接");
+            }
 
     }
 

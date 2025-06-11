@@ -5,7 +5,6 @@ import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
-import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
@@ -19,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DroneStorageManager extends BaseManager {
 
-    private final int maxRetries = 20;
+    private final int maxRetries = 10;
     private int sendDroneStorageSuccessTimes;
     private boolean isSendDroneStorageSuccess;
 
@@ -64,21 +63,9 @@ public class DroneStorageManager extends BaseManager {
             client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "入库已发送：60010---" + sendDroneStorageSuccessTimes + "clientId:" + client.getClientId());
+                    LogUtil.log(TAG, "入库发送成功：60010---"+sendDroneStorageSuccessTimes+"clientId:"+client.getClientId());
                     sendMissionExecuteEvents(client, "AMS通知机库入库");
-
-                    mainHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (ApronExecutionStatus.getInstance().isServerReplyDockIn()) {
-                                isSendDroneStorageSuccess = true;
-                                LogUtil.log(TAG, "已经收到服务端响应入库");
-                            } else {
-                                LogUtil.log(TAG, "未收到服务端响应入库,重新发送");
-                                retrySend(client,result);
-                            }
-                        }
-                    }, 2000);
+                    isSendDroneStorageSuccess = true;
                 }
 
                 @Override

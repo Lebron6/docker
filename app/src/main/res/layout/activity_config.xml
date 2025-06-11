@@ -265,6 +265,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="35dp"
+
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingLeft="10dp"
@@ -382,6 +383,36 @@
 
                     <EditText
                         android:id="@+id/et_mqtt_sn"
+                        android:layout_width="0dp"
+                        android:textSize="10sp"
+
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_weight="7"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:gravity="center_vertical"
+                        android:text="风机照片上传地址："
+                        android:textSize="10sp" />
+
+                    <EditText
+                        android:id="@+id/et_wt_url"
                         android:layout_width="0dp"
                         android:textSize="10sp"
 
@@ -576,43 +607,6 @@
                             android:text="视觉" />
                     </RadioGroup>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_weight="3"
-                        android:text="主相机位置" />
-
-                    <RadioGroup
-                        android:id="@+id/rg_camera_location"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/rb_camera_left"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="左侧" />
-
-                        <RadioButton
-                            android:id="@+id/rb_camera_center"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="中间" />
-                    </RadioGroup>
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -693,7 +687,7 @@
                 <LinearLayout
                     android:id="@+id/layout_stream_rtsp"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="90dp"
                     android:gravity="center_vertical"
                     android:orientation="vertical"
                     android:paddingLeft="10dp"
@@ -702,8 +696,7 @@
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_height="30dp">
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -730,8 +723,7 @@
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_height="30dp">
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -757,8 +749,7 @@
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1">
+                        android:layout_height="30dp">
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -912,60 +903,7 @@
                     </LinearLayout>
 
                 </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
 
-                    <TextView
-                        android:id="@+id/txt_minimum_battery"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="允许起飞最低电量" />
-
-                    <EditText
-                        android:id="@+id/et_minimum_battery"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/txt_minimum_battery"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:textSize="10sp"
-
-                        />
-
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:id="@+id/txt_forced_battery"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="强制返航电量" />
-
-                    <EditText
-                        android:id="@+id/et_forced_battery"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/txt_forced_battery"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:textSize="10sp"
-
-                        />
-
-                </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="35dp"
@@ -1068,26 +1006,6 @@
 
                     <CheckBox
                         android:id="@+id/cb_LEDsSettings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true" />
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="增强图传启用" />
-
-                    <CheckBox
-                        android:id="@+id/cb_lte_enable"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"

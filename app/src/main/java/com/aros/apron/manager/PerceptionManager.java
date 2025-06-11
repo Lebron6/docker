@@ -1,24 +1,22 @@
 package com.aros.apron.manager;//package com.aros.apron.manager;
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
-
 import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.ObstacleAvoidanceType;
+import dji.v5.manager.aircraft.perception.data.ObstacleData;
 import dji.v5.manager.aircraft.perception.data.PerceptionDirection;
+import dji.v5.manager.aircraft.perception.listener.ObstacleDataListener;
 import dji.v5.manager.interfaces.IPerceptionManager;
 
 public class PerceptionManager extends BaseManager {
@@ -36,14 +34,30 @@ public class PerceptionManager extends BaseManager {
         return PerceptionManagerHolder.INSTANCE;
     }
 
+    public void initPerceptionInfo() {
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
+            if (perceptionManager!=null){
+                perceptionManager.addObstacleDataListener(new ObstacleDataListener() {
+                    @Override
+                    public void onUpdate(ObstacleData obstacleData) {
+                        if (obstacleData != null) {
+                            Movement.getInstance().setHorizontalObstacleDistance(obstacleData.getHorizontalObstacleDistance());
+                            Movement.getInstance().setHorizontalAngleInterval(obstacleData.getHorizontalAngleInterval());
+                            Movement.getInstance().setDownwardObstacleDistance(obstacleData.getDownwardObstacleDistance());
+                            Movement.getInstance().setUpwardObstacleDistance(obstacleData.getUpwardObstacleDistance());
+                        }
+                    }
+                });
+            }
+        }
+    }
+
     private int closePerceptionTimes;
     private boolean closePerceptionSuccess;
 
     public void setPerceptionEnable(boolean perceptionEnable) {
-        if (PreferenceUtils.getInstance().getCloseObsEnable() && perceptionEnable) {
-            LogUtil.log(TAG, "全局避障关闭,不开启避障");
-            return;
-        }
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
@@ -81,6 +95,7 @@ public class PerceptionManager extends BaseManager {
                 }
             });
         }
+
     }
 
     //开启水平避障
@@ -107,6 +122,4 @@ public class PerceptionManager extends BaseManager {
         }
 
     }
-
-
 }

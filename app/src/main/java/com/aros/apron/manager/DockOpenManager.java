@@ -5,9 +5,7 @@ import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
-import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MessageReply;
-import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.google.gson.Gson;
 
@@ -20,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DockOpenManager extends BaseManager {
 
-    private final int maxRetries = 20;
+    private final int maxRetries = 15;
     private int sendDockOpenSuccessTimes;
     private boolean isSendDockOpenSuccess;
     private DockOpenManager() {
@@ -64,28 +62,13 @@ public class DockOpenManager extends BaseManager {
                 message.setMsg("开门");
 
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         LogUtil.log(TAG, "开舱发送成功：60108---" + sendDockOpenSuccessTimes + "clientId:" + client.getClientId());
                         sendMissionExecuteEvents(client, "AMS通知机库开舱");
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (ApronExecutionStatus.getInstance().isServerReplyDockOpen()) {
-                                    isSendDockOpenSuccess = true;
-                                    LogUtil.log(TAG, "已经收到服务端响应开门");
-                                } else {
-                                    if (Movement.getInstance().isPlaneWing()&&Movement.getInstance().getFlyingHeight()>40){
-                                        LogUtil.log(TAG, "未收到收到服务端响应开门,重新发送");
-                                        retrySend(client);
-                                    }else{
-                                        LogUtil.log(TAG,"飞机状态不满足开舱门条件:"+Movement.getInstance().isPlaneWing()+"--"+Movement.getInstance().getFlyingHeight());
-                                    }
-                                }
-                            }
-                        }, 2000);
+                        isSendDockOpenSuccess = true;
                     }
 
                     @Override

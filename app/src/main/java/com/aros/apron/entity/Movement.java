@@ -87,6 +87,11 @@ public class Movement {
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
 
 
+    //避障
+    private List<Integer> horizontalObstacleDistance;
+    public int upwardObstacleDistance;
+    public int downwardObstacleDistance;
+    public int horizontalAngleInterval;
     public int flightControlAuthority;//当前控制权所属
     private String alternatePointLat;//设置备降点经纬度
     private String alternatePointLon;
@@ -99,96 +104,6 @@ public class Movement {
     private String maxTemperaturePointY;
     private String minTemperaturePointX;//最小位置的位置
     private String minTemperaturePointY;
-    private String LTELinkType;//图传类型  1cusync 图传 3LTE 增强图传
-    private String sn;//设备SN，用于区别是哪台飞机
-    private int goHomeHeight;//返航高度
-    private int failsafeAction;//失控动作
-    private int heightLimit;//限高
-    private int distanceLimit;//限远
-    private int distanceLimitEnabled;//限远是否启用 0未启用 1启用
-    private int lowBatteryWarningThreshold;//低电量报警阈值
-    private int seriousLowBatteryWarningThreshold;//严重低电量报警阈值
-    private int lowBatteryRTHEnabled;//智能低电量返航是否启用 0 未启用 1启用
-
-    public int getLowBatteryRTHEnabled() {
-        return lowBatteryRTHEnabled;
-    }
-
-    public void setLowBatteryRTHEnabled(int lowBatteryRTHEnabled) {
-        this.lowBatteryRTHEnabled = lowBatteryRTHEnabled;
-    }
-
-    public int getSeriousLowBatteryWarningThreshold() {
-        return seriousLowBatteryWarningThreshold;
-    }
-
-    public void setSeriousLowBatteryWarningThreshold(int seriousLowBatteryWarningThreshold) {
-        this.seriousLowBatteryWarningThreshold = seriousLowBatteryWarningThreshold;
-    }
-
-    public int getLowBatteryWarningThreshold() {
-        return lowBatteryWarningThreshold;
-    }
-
-    public void setLowBatteryWarningThreshold(int lowBatteryWarningThreshold) {
-        this.lowBatteryWarningThreshold = lowBatteryWarningThreshold;
-    }
-
-    public int getDistanceLimitEnabled() {
-        return distanceLimitEnabled;
-    }
-
-    public void setDistanceLimitEnabled(int distanceLimitEnabled) {
-        this.distanceLimitEnabled = distanceLimitEnabled;
-    }
-
-    public int getDistanceLimit() {
-        return distanceLimit;
-    }
-
-    public void setDistanceLimit(int distanceLimit) {
-        this.distanceLimit = distanceLimit;
-    }
-
-    public int getHeightLimit() {
-        return heightLimit;
-    }
-
-    public void setHeightLimit(int heightLimit) {
-        this.heightLimit = heightLimit;
-    }
-
-    public int getFailsafeAction() {
-        return failsafeAction;
-    }
-
-    public void setFailsafeAction(int failsafeAction) {
-        this.failsafeAction = failsafeAction;
-    }
-
-    public int getGoHomeHeight() {
-        return goHomeHeight;
-    }
-
-    public void setGoHomeHeight(int goHomeHeight) {
-        this.goHomeHeight = goHomeHeight;
-    }
-
-    public String getSn() {
-        return sn;
-    }
-
-    public void setSn(String sn) {
-        this.sn = sn;
-    }
-
-    public String getLTELinkType() {
-        return LTELinkType;
-    }
-
-    public void setLTELinkType(String LTELinkType) {
-        this.LTELinkType = LTELinkType;
-    }
 
     public int getIsVirtualStickAdvancedModeEnabled() {
         return isVirtualStickAdvancedModeEnabled;
@@ -292,6 +207,38 @@ public class Movement {
 
     public void setEgm96Altitude(double egm96Altitude) {
         this.egm96Altitude = egm96Altitude;
+    }
+
+    public List<Integer> getHorizontalObstacleDistance() {
+        return horizontalObstacleDistance;
+    }
+
+    public void setHorizontalObstacleDistance(List<Integer> horizontalObstacleDistance) {
+        this.horizontalObstacleDistance = horizontalObstacleDistance;
+    }
+
+    public int getUpwardObstacleDistance() {
+        return upwardObstacleDistance;
+    }
+
+    public void setUpwardObstacleDistance(int upwardObstacleDistance) {
+        this.upwardObstacleDistance = upwardObstacleDistance;
+    }
+
+    public int getDownwardObstacleDistance() {
+        return downwardObstacleDistance;
+    }
+
+    public void setDownwardObstacleDistance(int downwardObstacleDistance) {
+        this.downwardObstacleDistance = downwardObstacleDistance;
+    }
+
+    public int getHorizontalAngleInterval() {
+        return horizontalAngleInterval;
+    }
+
+    public void setHorizontalAngleInterval(int horizontalAngleInterval) {
+        this.horizontalAngleInterval = horizontalAngleInterval;
     }
 
     public String getAlternatePointLat() {

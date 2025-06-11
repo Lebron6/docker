@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +25,6 @@ import com.aros.apron.tools.ToastUtil
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.v5.utils.common.StringUtils
-
 
 class ConnectionActivity : AppCompatActivity() {
 
@@ -126,7 +126,6 @@ class ConnectionActivity : AppCompatActivity() {
         msdkInfoVm.msdkInfo.observe(this) {
             connectionBinding.textViewVersion.text =
                 StringUtils.getResStr(R.string.sdk_version, it.SDKVersion + " " + it.buildVer)
-
             connectionBinding.textViewProductName.text =
                 StringUtils.getResStr(R.string.product_name, it.productType.name)
             connectionBinding.textViewPackageProductCategory.text =
@@ -134,13 +133,6 @@ class ConnectionActivity : AppCompatActivity() {
             connectionBinding.textViewIsDebug.text =
                 StringUtils.getResStr(R.string.is_sdk_debug, it.isDebug)
         }
-        // 获取当前应用的 PackageManager 实例
-        val packageManager = packageManager
-        // 获取当前应用的 PackageInfo 对象
-        val packageInfo = packageManager.getPackageInfo(packageName, 0)
-        // 获取版本名
-        val versionName = packageInfo.versionName
-        connectionBinding.textViewAmsVersion?.text=versionName
     }
 
     private fun observeSDKManagerStatus() {
@@ -191,13 +183,9 @@ class ConnectionActivity : AppCompatActivity() {
                             ||TextUtils.isEmpty(PreferenceUtils.getInstance().rtspPort))) {
                     ToastUtil.showToast("未配置rtsp参数")
                     LogUtil.log(TAG, "未配置rtsp参数")
-                }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
-                    ToastUtil.showToast("未配置主相机位置")
-                    LogUtil.log(TAG, "未配置主相机位置")
-                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)||
-                    TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)) {
-                    ToastUtil.showToast("未配置允许起飞或强制返航电量阈值")
-                    LogUtil.log(TAG, "未配置允许起飞或强制返航电量阈值")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().wtUrl)) {
+                    ToastUtil.showToast("未配置风机巡检文件上传地址")
+                    LogUtil.log(TAG, "未配置风机巡检文件上传地址")
                 }
 //                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
 //                    ToastUtil.showToast("未设置备降点")
@@ -244,7 +232,7 @@ class ConnectionActivity : AppCompatActivity() {
                     if (!MainActivity.isAppStarted) {
                         Handler().postDelayed(Runnable {
                             startActivity(Intent(this, MainActivity::class.java))
-                        },500)
+                        },2000)
 
                     }
 
@@ -268,7 +256,7 @@ class ConnectionActivity : AppCompatActivity() {
         }
 
         msdkManagerVM.lvInitProcess.observe(this) { processPair ->
-//            ToastUtil.showToast("Init Process event: ${processPair.first.name}")
+            ToastUtil.showToast("Init Process event: ${processPair.first.name}")
         }
 
         msdkManagerVM.lvDBDownloadProgress.observe(this) { resultPair ->
@@ -303,10 +291,5 @@ class ConnectionActivity : AppCompatActivity() {
                 startActivity(it)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        LogUtil.log(TAG,"进入首页连接")
     }
 }
