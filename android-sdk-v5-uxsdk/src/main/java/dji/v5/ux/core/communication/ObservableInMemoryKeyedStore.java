@@ -33,8 +33,6 @@ import dji.v5.ux.core.base.SchedulerProvider;
 import dji.v5.ux.core.base.UXSDKError;
 import dji.v5.ux.core.base.UXSDKErrorDescription;
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.CompletableEmitter;
-import io.reactivex.rxjava3.core.CompletableOnSubscribe;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.processors.PublishProcessor;
@@ -55,12 +53,11 @@ public class ObservableInMemoryKeyedStore implements ObservableKeyedStore {
         store = FlatStore.getInstance();
         //Initialize any internal default UXKey classes here
         UXKeys.addNewKeyClass(GlobalPreferenceKeys.class);
-        UXKeys.addNewKeyClass(CameraKeys.class);
         UXKeys.addNewKeyClass(MessagingKeys.class);
     }
 
     public static ObservableInMemoryKeyedStore getInstance() {
-        return SingletonHolder.instance;
+        return ObservableInMemoryKeyedStore.SingletonHolder.instance;
     }
 
     /**

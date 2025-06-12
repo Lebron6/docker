@@ -8,7 +8,7 @@ public class Viewport implements Parcelable {
     public float top;
     public float right;
     public float bottom;
-    public static final Creator<Viewport> CREATOR = new Creator<Viewport>() {
+    public static final Parcelable.Creator<Viewport> CREATOR = new Parcelable.Creator<Viewport>() {
         public Viewport createFromParcel(Parcel in) {
             Viewport v = new Viewport();
             v.readFromParcel(in);

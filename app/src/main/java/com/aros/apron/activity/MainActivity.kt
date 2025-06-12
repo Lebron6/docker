@@ -81,7 +81,6 @@ import dji.v5.ux.core.extension.toggleVisibility
 import dji.v5.ux.core.panel.systemstatus.SystemStatusListPanelWidget
 import dji.v5.ux.core.panel.topbar.TopBarPanelWidget
 import dji.v5.ux.core.util.CameraUtil
-import dji.v5.ux.core.util.CommonUtils
 import dji.v5.ux.core.util.DataProcessor
 import dji.v5.ux.core.util.ViewUtil
 import dji.v5.ux.core.widget.fpv.FPVStreamSourceListener
@@ -641,7 +640,7 @@ open class MainActivity : BaseActivity() {
         //如果无需使能或者显示的，也就没有必要切换了。
         if (fpvInteractionWidget!!.isInteractionEnabled) {
             fpvInteractionWidget!!.updateCameraSource(devicePosition, lensType)
-            fpvInteractionWidget!!.updateGimbalIndex(CommonUtils.getGimbalIndex(devicePosition))
+//            fpvInteractionWidget!!.updateGimbalIndex(CommonUtils.getGimbalIndex(devicePosition))
         }
 //        if (lensControlWidget!!.visibility == View.VISIBLE) {
 //            lensControlWidget!!.updateCameraSource(devicePosition, lensType)

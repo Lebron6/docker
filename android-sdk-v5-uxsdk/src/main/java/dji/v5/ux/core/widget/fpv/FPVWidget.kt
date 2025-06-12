@@ -362,7 +362,7 @@ open class FPVWidget @JvmOverloads constructor(
     private fun updateCameraName(cameraName: String) {
         cameraNameTextView.text = cameraName
         if (cameraName.isNotEmpty() && isCameraSourceNameVisible) {
-            cameraNameTextView.visibility = View.INVISIBLE
+            cameraNameTextView.visibility = View.VISIBLE
         } else {
             cameraNameTextView.visibility = View.INVISIBLE
         }
@@ -371,7 +371,7 @@ open class FPVWidget @JvmOverloads constructor(
     private fun updateCameraSide(cameraSide: String) {
         cameraSideTextView.text = cameraSide
         if (cameraSide.isNotEmpty() && isCameraSourceSideVisible) {
-            cameraSideTextView.visibility = View.INVISIBLE
+            cameraSideTextView.visibility = View.VISIBLE
         } else {
             cameraSideTextView.visibility = View.INVISIBLE
         }
@@ -499,7 +499,7 @@ open class FPVWidget @JvmOverloads constructor(
                 it,
                 width,
                 height,
-                ICameraStreamManager.ScaleType.FIX_XY
+                ICameraStreamManager.ScaleType.CENTER_INSIDE
             )
         }
     }
