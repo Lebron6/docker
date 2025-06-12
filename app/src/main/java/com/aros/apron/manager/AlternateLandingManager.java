@@ -300,7 +300,8 @@ public class AlternateLandingManager extends BaseManager {
         MissionPoint missionPoint1 = new MissionPoint();
         missionPoint1.setLat(PreferenceUtils.getInstance().getAlternatePointLat());
         missionPoint1.setLng(PreferenceUtils.getInstance().getAlternatePointLon());
-        LogUtil.log(TAG, "备降点经纬度:" + PreferenceUtils.getInstance().getAlternatePointLat() + "/" + PreferenceUtils.getInstance().getAlternatePointLon());
+        LogUtil.log(TAG, "备降点经纬度:" + PreferenceUtils.getInstance().getAlternatePointLat()
+                + "/" + PreferenceUtils.getInstance().getAlternatePointLon());
         missionPoint1.setSpeed(7.0);
         missionPoint1.setExecuteHeight(Movement.getInstance().getFlyingHeight()
                 > Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointHeight())
@@ -316,7 +317,8 @@ public class AlternateLandingManager extends BaseManager {
         FlightMission flightMission = new FlightMission();
         flightMission.setPoints(missionPoints);
         flightMission.setMissionId(2);
-        flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
+        flightMission.setTakeOffSecurityHeight(
+                Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
 
         LogUtil.log(TAG, "当前高度:" + Movement.getInstance().getFlyingHeight()
