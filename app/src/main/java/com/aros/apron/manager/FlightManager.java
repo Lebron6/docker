@@ -45,6 +45,9 @@ import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommand;
+import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandMsg;
+import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandResult;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -462,7 +465,14 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyPropellerRotation), this, new CommonCallbacks.KeyListener<PropellerRotationCommand>() {
+                @Override
+                public void onValueChange(@Nullable PropellerRotationCommand propellerRotationCommand, @Nullable PropellerRotationCommand t1) {
+                    if (t1!=null){
+                        LogUtil.log(TAG,"监听低速转动状态:"+t1.name());
+                    }
+                }
+            });
         } else {
             Log.e(TAG, "初始化飞控失败" + "flight controller is null");
         }
@@ -1217,5 +1227,52 @@ public class FlightManager extends BaseManager {
         }
     }
 
+    public void startPropellerRotation(){
 
+        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
+            @Override
+            public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
+                LogUtil.log(TAG,"开始低速转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG,"开始低速转浆失败:"+getIDJIErrorMsg(error));
+
+            }
+        });
+    }
+
+    public void stopPropellerRotation(){
+
+        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
+                PropellerRotationCommand.EXIT_LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
+            @Override
+            public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
+                LogUtil.log(TAG,"停止低速转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG,"停止低速转浆失败:"+getIDJIErrorMsg(error));
+
+            }
+        });
+    }
+    public void startPropellerRotationRverse(){
+
+        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
+                PropellerRotationCommand.LOW_SPEED_REVERSE_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
+            @Override
+            public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
+                LogUtil.log(TAG,"反向转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                LogUtil.log(TAG,"反向转浆失败:"+getIDJIErrorMsg(error));
+
+            }
+        });
+    }
 }
