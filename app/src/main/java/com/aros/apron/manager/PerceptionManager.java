@@ -108,5 +108,29 @@ public class PerceptionManager extends BaseManager {
 
     }
 
+    //关闭下视避障
+    public void setObstacleAvoidanceDownWardEnabled() {
+        if (PreferenceUtils.getInstance().getCloseObsEnable()) {
+            LogUtil.log(TAG, "全局避障关闭,不开启避障");
+            return;
+        }
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
+            perceptionManager.setObstacleAvoidanceEnabled(false, PerceptionDirection.DOWNWARD, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "关闭下避障");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    LogUtil.log(TAG, "关闭下避障失败:"+new Gson().toJson(idjiError));
+
+                }
+            });
+        }
+
+    }
 
 }
