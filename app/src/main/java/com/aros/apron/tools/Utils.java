@@ -4,10 +4,15 @@ package com.aros.apron.tools;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.Locale;
+
+import dji.v5.common.error.IDJIError;
 
 public class Utils {
     /**
@@ -90,4 +95,11 @@ return Double.parseDouble(latLonStr);        }
         return number;
     }
 
+    public static String getIDJIErrorMsg(IDJIError idjiError){
+        if (TextUtils.isEmpty(idjiError.description())){
+            return new Gson().toJson(idjiError);
+        }else{
+            return idjiError.description();
+        }
+    }
 }

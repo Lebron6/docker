@@ -75,7 +75,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void doClientConnection() {
         if (!mqttAndroidClient.isConnected() && isConnectIsNomarl()) {
             try {
-                mqttAndroidClient.connect(mMqttConnectOptions, null, new MqttActionCallBack(mqttAndroidClient));
+                mqttAndroidClient.connect(mMqttConnectOptions, null, new MqttActionCallBack(mqttAndroidClient,mMqttConnectOptions));
             } catch (MqttException e) {
                 LogUtil.log(TAG,"mqtt连接异常:"+e.toString());
                 e.printStackTrace();
@@ -83,6 +83,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
     }
+
 
     /**
      * 判断网络是否连接

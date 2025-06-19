@@ -314,7 +314,7 @@ public class PreferenceUtils extends BasePreference {
         return getInt(MISSION_TYPE);
     }
     public void setMissionType(int missionType) {
-         setInt(MISSION_TYPE,missionType);
+        setInt(MISSION_TYPE,missionType);
     }
 
 

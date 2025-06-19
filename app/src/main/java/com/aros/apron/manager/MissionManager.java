@@ -86,65 +86,6 @@ public class MissionManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect) {
             WaypointMissionManager waypointMissionManager = WaypointMissionManager.getInstance();
-            waypointMissionManager.addWaypointActionListener(new WaypointActionListener() {
-                @Override
-                public void onExecutionStart(int actionId) {
-//CameraManager.getInstance().setCustomExpandNameSetting();
-                }
-
-                @Override
-                public void onExecutionFinish(int actionId, @Nullable IDJIError error) {
-
-                }
-
-                @Override
-                public void onExecutionStart(int actionGroup, int actionId) {
-                    LogUtil.log(TAG,"onExecutionStart:"+actionGroup);
-                    if (mStartGroupId!=actionGroup){
-                        mStartGroupId=actionGroup;
-                        sendMsgWaypointActionState2Server(client, "0",""+(actionGroup+1));
-                        LogUtil.log(TAG, "动作组开始:" + "actionGroup--" + actionGroup+1 + "actionId--"
-                                + actionId + "waypointIndex--" + Movement.getInstance().getCurrentWaypointIndex());
-
-                    }
-
-                }
-
-                @Override
-                public void onExecutionFinish(int actionGroup, int actionId, @Nullable IDJIError error) {
-//                    sendMsgWaypointActionState2Server(client, "1");
-                    if (error!=null){
-                        LogUtil.log(TAG,"动作结束异常:"+new Gson().toJson(error));
-                    }
-//                    if (mFinishGroupId!=actionGroup){
-//                        mFinishGroupId=actionGroup;
-//                        sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
-//                        LogUtil.log(TAG, "动作组结束:" + " actionGroup=" + (actionGroup+1) + "  actionId="
-//                                + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
-//                    }
-
-                    if (mActionGroups != null && mActionGroups.size() > actionGroup) {
-                        if (mActionGroups.get(actionGroup).getActions().size()>actionId){
-                            //判断是否是该动作组第一个动作
-                            if (actionId == mActionGroups.get(actionGroup).getActions().size()-1) {
-                                //根据一个航点只有一个动作组，确保每个动作组只发送一次，区别出需要发送开始测流
-//                                if (actionGroupEndIndex != actionGroup) {
-//                                    actionGroupEndIndex = actionGroup;
-                                sendMsgWaypointActionState2Server(client, "1",""+(actionGroup+1));
-                                LogUtil.log(TAG, "航点动作组结束:" + "actionGroup=" + (actionGroup+1) + "  actionId="
-                                        + actionId + "  waypointIndex=" + Movement.getInstance().getCurrentWaypointIndex());
-//                                }
-                            }
-
-                        }else{
-                            LogUtil.log(TAG,"动作下标异常:getActions().size()= "+mActionGroups.get(actionGroup).getActions().size() +"actionId="+actionId);
-                        }
-
-                    }else{
-                        LogUtil.log(TAG,"动作组下标异常:mActionGroups.size()= "+mActionGroups.size() +"actionGroup="+actionGroup);
-                    }
-                }
-            });
             waypointMissionManager.addWaylineExecutingInfoListener(waylineExecutingInfoListener);
             waypointMissionManager.addWaypointMissionExecuteStateListener(new WaypointMissionExecuteStateListener() {
                 @Override

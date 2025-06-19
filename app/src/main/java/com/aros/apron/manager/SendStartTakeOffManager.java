@@ -58,9 +58,6 @@ public class SendStartTakeOffManager extends BaseManager {
         MessageReply message = new MessageReply();
         message.setMsg_type(60031);
         message.setResult(1);
-        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getTaskId())){
-            message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-        }
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
         LogUtil.log(TAG,"sendStartTakeOffMessage:"+new Gson().toJson(message));
 

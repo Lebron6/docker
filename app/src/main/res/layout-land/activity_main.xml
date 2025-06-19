@@ -291,30 +291,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.95"
             app:uxsdk_titleBarBackgroundColor="@color/uxsdk_black" />
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            tools:ignore="MissingConstraints">
-            <Button
-                android:id="@+id/btn_test"
-                android:text="旋转"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                />
-            <Button
-                android:id="@+id/btn_test1"
-                android:text="停转"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                />
-            <Button
-                android:id="@+id/btn_test2"
-                android:text="反转"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                />
-        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <dji.v5.ux.core.widget.setting.SettingPanelWidget

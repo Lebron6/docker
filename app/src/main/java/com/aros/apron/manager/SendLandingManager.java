@@ -59,9 +59,7 @@ public class SendLandingManager extends BaseManager {
         message.setMsg_type(60032);
         message.setResult(1);
 
-        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getTaskId())){
-            message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-        }
+
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
         LogUtil.log(TAG,"sendLandingMessage:"+new Gson().toJson(message));
 
@@ -70,10 +68,9 @@ public class SendLandingManager extends BaseManager {
             client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+client.getClientId()+"task_id"+PreferenceUtils.getInstance().getTaskId());
+                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+client.getClientId());
                     sendMissionExecuteEvents(client, "AMS通知服务器已降落");
                     isSendLandingSuccess = true;
-                    PreferenceUtils.getInstance().setTaskId();
 
                 }
                 @Override
