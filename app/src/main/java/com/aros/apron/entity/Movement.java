@@ -112,6 +112,15 @@ public class Movement {
     private boolean taskFail;//任务是否执行失败
     private String taskId;
     private String version;
+    private boolean waylineCanResume;//航线是否可恢复(暂停航线或者虚拟摇杆退出航线)
+
+    public boolean isWaylineCanResume() {
+        return waylineCanResume;
+    }
+
+    public void setWaylineCanResume(boolean waylineCanResume) {
+        this.waylineCanResume = waylineCanResume;
+    }
 
     public String getVersion() {
         return version;

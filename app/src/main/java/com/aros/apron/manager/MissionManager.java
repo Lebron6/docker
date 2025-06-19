@@ -138,14 +138,17 @@ public class MissionManager extends BaseManager {
                         switch (missionState) {
                             case DISCONNECTED:
                                 Movement.getInstance().setAirlineFlight(false);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:未连接");
                                 break;
                             case IDLE:
                                 Movement.getInstance().setAirlineFlight(false);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:初始化");
                                 break;
                             case NOT_SUPPORTED:
                                 Movement.getInstance().setAirlineFlight(false);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:此机型不支持航线任务3.0");
                                 break;
                             case READY:
@@ -154,43 +157,48 @@ public class MissionManager extends BaseManager {
                                 break;
                             case UPLOADING:
                                 Movement.getInstance().setAirlineFlight(false);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:上传中");
                                 break;
                             case PREPARING:
                                 Movement.getInstance().setAirlineFlight(false);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:执行准备中");
                                 break;
                             case ENTER_WAYLINE:
                                 enterWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(true);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:进入航线飞行,飞往指定航线的第一个航点");
                                 break;
                             case EXECUTING:
                                 Movement.getInstance().setAirlineFlight(true);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:航线任务执行中");
                                 break;
                             case INTERRUPTED:
                                 Movement.getInstance().setAirlineFlight(true);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:航线任务执行中断");
                                 break;
                             case RECOVERING:
                                 Movement.getInstance().setAirlineFlight(true);
+                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:航线任务恢复中");
                                 break;
                             case FINISHED:
                                 finishWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(false);
+//                                Movement.getInstance().setWaylineCanResume(false);
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing()) {
+                                        if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing() && !message.isNewRoute()) {
                                             LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
-                                            if (message.isNewRoute()) {
-                                                Movement.getInstance().setTaskFail(true);
-                                                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-                                                sendMissionExecuteEvents(client, "任务非正常结束");
-                                            }
+                                            Movement.getInstance().setTaskFail(true);
+                                            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                                            DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                            sendMissionExecuteEvents(client, "任务非正常结束");
                                         }
                                     }
                                 }, 5000);
