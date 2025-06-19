@@ -42,7 +42,7 @@ public class DJISDKModel {
     }
 
     public static DJISDKModel getInstance() {
-        return SingletonHolder.instance;
+        return DJISDKModel.SingletonHolder.instance;
     }
 
     /**

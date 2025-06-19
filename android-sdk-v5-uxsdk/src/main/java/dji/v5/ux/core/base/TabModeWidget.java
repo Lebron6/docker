@@ -86,7 +86,7 @@ public class TabModeWidget extends RoundedLinearLayout implements View.OnClickLi
             addView(tab);
 
             if (mFixedSize) {
-                LayoutParams params = (LayoutParams)tab.getLayoutParams();
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)tab.getLayoutParams();
                 if (params != null) {
                     params.weight = 1;
                     params.width = 0;

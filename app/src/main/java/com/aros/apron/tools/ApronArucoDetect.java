@@ -248,7 +248,7 @@ public class ApronArucoDetect {
                             if (!triggerToAlternateLandingPoint) {
                                 triggerToAlternateLandingPoint = true;
                                 LogUtil.log(TAG, "判定未识别到二维码,飞往备降点");
-                                AlternateLandingManager.getInstance().startTaskProcess(null);
+                                AlternateLandingManager.getInstance().startTaskProcess( null);
                             }
                         }
                     }

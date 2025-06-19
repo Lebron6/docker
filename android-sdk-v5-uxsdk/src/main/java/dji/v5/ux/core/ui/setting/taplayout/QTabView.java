@@ -66,8 +66,8 @@ public class QTabView extends TabView {
 
     private void initBadge() {
         mBadge = new TextView(mContext);
-        LayoutParams
-                params2 = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams
+                params2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params2.gravity = Gravity.RIGHT | Gravity.TOP;
         params2.setMargins(0, dp2px(5), dp2px(5), 0);
         mBadge.setLayoutParams(params2);
@@ -104,7 +104,7 @@ public class QTabView extends TabView {
         int dp = AndUtil.isTabletDevice(ContextUtil.getContext()) ? 10 : 7;
         mIcon.setPadding(dp2px(dp), dp2px(dp), dp2px(dp), dp2px(dp));
         mIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LayoutParams params = new LayoutParams(getResources().getDimensionPixelSize(R.dimen.uxsdk_38_dp),
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.uxsdk_38_dp),
                 getResources().getDimensionPixelSize(R.dimen.uxsdk_38_dp));
         mIcon.setLayoutParams(params);
         if (mTabIcon.mNormalIcon != 0) {
@@ -119,15 +119,15 @@ public class QTabView extends TabView {
     }
 
     private void setBadgeImp(int num) {
-        LayoutParams lp = (LayoutParams) mBadge.getLayoutParams();
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mBadge.getLayoutParams();
         if (num <= 9) {
             lp.width = dp2px(12);
             lp.height = dp2px(12);
             gd.setShape(GradientDrawable.OVAL);
             mBadge.setPadding(0, 0, 0, 0);
         } else {
-            lp.width = LayoutParams.WRAP_CONTENT;
-            lp.height = LayoutParams.WRAP_CONTENT;
+            lp.width = FrameLayout.LayoutParams.WRAP_CONTENT;
+            lp.height = FrameLayout.LayoutParams.WRAP_CONTENT;
             mBadge.setPadding(dp2px(3), 0, dp2px(3), 0);
             gd.setShape(GradientDrawable.RECTANGLE);
             gd.setCornerRadius(dp2px(6));
@@ -291,8 +291,8 @@ public class QTabView extends TabView {
             public Builder() {
                 mSelectedIcon = 0;
                 mNormalIcon = 0;
-                mIconWidth = LayoutParams.WRAP_CONTENT;
-                mIconHeight = LayoutParams.WRAP_CONTENT;
+                mIconWidth = FrameLayout.LayoutParams.WRAP_CONTENT;
+                mIconHeight = FrameLayout.LayoutParams.WRAP_CONTENT;
                 mIconGravity = Gravity.LEFT;
                 mBackground = 0;
             }

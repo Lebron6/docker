@@ -86,7 +86,7 @@ public class MobileGPSLocationUtil {
     }
 
     public static MobileGPSLocationUtil getInstance() {
-        return LazyHolder.INSTANCE;
+        return MobileGPSLocationUtil.LazyHolder.INSTANCE;
     }
 
     private MobileGPSLocationUtil() {
