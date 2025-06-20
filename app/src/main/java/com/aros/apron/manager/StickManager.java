@@ -72,20 +72,24 @@ public class StickManager extends BaseManager {
     public void setVirtualStickModeEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-            VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
-                    LogUtil.log(TAG,"控制权设置成功");
-                }
+//            if (Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")){
+                VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(mqttAndroidClient, message);
+                        LogUtil.log(TAG,"控制权设置成功");
+                        Movement.getInstance().setWaylineCanResume(true);
+                    }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG,"控制权设置失败:"+error.description());
-                    sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
-                }
-            });
-            VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        LogUtil.log(TAG,"控制权设置失败:"+error.description());
+                        sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                    }
+                });
+                VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+//            }
+
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
         }

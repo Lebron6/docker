@@ -70,6 +70,7 @@ public class Movement {
     private int remainFlightTime;//剩余飞行时间
     private int returnHomePower;//返航电量所需百分比
     private int landingPower;//降落电量所需百分比
+    private int lowBatteryRTHState;//智能低电量返航状态 0未触发智能低电量返航 1触发智能低电量返航，飞行器正在倒计时 2执行智能低电量返航 3智能低电量返航被取消
     private String missionName;//当前正在执行的航线名
     private int currentWaypointIndex;//当前航点下标
     private String currentLongitude="0.0";//当前经度
@@ -113,6 +114,14 @@ public class Movement {
     private String taskId;
     private String version;
     private boolean waylineCanResume;//航线是否可恢复(暂停航线或者虚拟摇杆退出航线)
+
+    public int getLowBatteryRTHState() {
+        return lowBatteryRTHState;
+    }
+
+    public void setLowBatteryRTHState(int lowBatteryRTHState) {
+        this.lowBatteryRTHState = lowBatteryRTHState;
+    }
 
     public boolean isWaylineCanResume() {
         return waylineCanResume;

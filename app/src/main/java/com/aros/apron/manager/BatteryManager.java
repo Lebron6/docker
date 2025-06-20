@@ -43,6 +43,9 @@ public class BatteryManager extends BaseManager {
                 Movement.getInstance().setRemainFlightTime(lowBatteryRTHInfo.getRemainingFlightTime());
                 Movement.getInstance().setReturnHomePower(lowBatteryRTHInfo.getBatteryPercentNeededToGoHome());
                 Movement.getInstance().setLandingPower(lowBatteryRTHInfo.getBatteryPercentNeededToLand());
+                if (lowBatteryRTHInfo != null) {
+                    Movement.getInstance().setLowBatteryRTHState(lowBatteryRTHInfo.getLowBatteryRTHStatus().value());
+                }
             }
 
             KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.
@@ -53,6 +56,9 @@ public class BatteryManager extends BaseManager {
                         Movement.getInstance().setRemainFlightTime(t1.getRemainingFlightTime());
                         Movement.getInstance().setReturnHomePower(t1.getBatteryPercentNeededToGoHome());
                         Movement.getInstance().setLandingPower(t1.getBatteryPercentNeededToLand());
+                        if (t1.getLowBatteryRTHStatus() != null) {
+                            Movement.getInstance().setLowBatteryRTHState(t1.getLowBatteryRTHStatus().value());
+                        }
                     }
                 }
             });

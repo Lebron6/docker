@@ -587,13 +587,22 @@ public class ApronArucoDetect {
         double outY;
         double outZ;
 
-        //相机内参
+        //相机内参（H20/H20T）
         Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-        cameraMatrix.put(0, 0,  1131.3484309796945);
-        cameraMatrix.put(1, 1, 1143.0319750579686);
-        cameraMatrix.put(0, 2, 676.696876660099);
-        cameraMatrix.put(1, 2, 532.6254545540435);
+        cameraMatrix.put(0, 0,  982.98055);
+        cameraMatrix.put(1, 1, 989.54587);
+        cameraMatrix.put(0, 2, 490.07804);
+        cameraMatrix.put(1, 2, 355.95493);
         cameraMatrix.put(2, 2, 1.0);
+
+//        //相机内参（H30/H30T）
+//        Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
+//        cameraMatrix.put(0, 0,  1494.39627);
+//        cameraMatrix.put(1, 1, 1493.40287);
+//        cameraMatrix.put(0, 2, 471.27012);
+//        cameraMatrix.put(1, 2, 362.42223);
+//        cameraMatrix.put(2, 2, 1.0);
+
         //相机畸变
         Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
         distCoeffs.put(0, 0, -0.16879686656897544);
@@ -677,6 +686,7 @@ public class ApronArucoDetect {
             outY = 0.0f;
             outZ = 0.0f;
         } else {
+
             if(z <=0.4){
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
@@ -780,31 +790,31 @@ public class ApronArucoDetect {
                         && (absY < 180)
                         ? -0.4 : 0;
             }else if(z <=1.5){
-                pidControlX.setInputFilterAll((float)offsetX/1550);
-                pidControlY.setInputFilterAll(-(float)offsetY/1550);
+                pidControlX.setInputFilterAll((float)offsetX/1250);
+                pidControlY.setInputFilterAll(-(float)offsetY/1250);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.165){
-                        outX=absX<120?0:-0.165;
+                    if (pidControlX.get_pid()<-0.185){
+                        outX=absX<120?0:-0.185;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.165){
-                        outX=absX<120?0:0.165;
+                    if (pidControlX.get_pid()>0.185){
+                        outX=absX<120?0:0.185;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.165){
-                        outY=absY<120?0:-0.165;
+                    if (pidControlY.get_pid()<-0.185){
+                        outY=absY<120?0:-0.185;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.165){
-                        outY=absY<120?0:0.165;
+                    if (pidControlY.get_pid()>0.185){
+                        outY=absY<120?0:0.185;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -821,6 +831,7 @@ public class ApronArucoDetect {
                 outZ = (absX < 200)
                         && (absY < 200)
                         ? -0.575 : 0;
+
             }else if(z <=3){
                 pidControlX.setInputFilterAll((float)offsetX/950);
                 pidControlY.setInputFilterAll(-(float)offsetY/950);
@@ -870,10 +881,14 @@ public class ApronArucoDetect {
                         " X=" + x +
                         " Z=" + z
         );
-
-        if ((outX>0.3||outY>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5&&ultrasonicHeight<=15)){
-            LogUtil.log(TAG,"过滤帧："+" 杆量x=" + outX);
-            return;
+        if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5)){
+            if (ultrasonicHeight<=15){
+                outX=outX>0?0.135:-0.135;
+                outY=outY>0?0.135:-0.135;
+                LogUtil.log(TAG,"过滤帧："+" 杆量x=" + outX+" 杆量y=" + y);
+            }else{
+                LogUtil.log(TAG,"过滤帧>："+" 杆量x=" + outX+" 杆量y=" + y);
+            }
         }
         DroneHelper.getInstance().moveVxVyYawrateHeight(outX,
                 outY,

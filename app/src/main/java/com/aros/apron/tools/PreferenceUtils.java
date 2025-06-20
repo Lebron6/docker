@@ -67,6 +67,7 @@ public class PreferenceUtils extends BasePreference {
     private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
     private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
     private String LTE_ENABLE = "lte_enable";
+    private String IS_NEW_ROUTE = "is_new_route";
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
 //    public void setStreamAndMinIOConfig(MQMessage message) {
@@ -468,6 +469,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setCloseObsEnable(boolean close_obs_enable) {
         setBoolean(CLOSE_OBS_ENABLE, close_obs_enable);
+    }
+
+    public boolean getIsNewRoute() {
+        return getBoolean(IS_NEW_ROUTE);
+    }
+
+    public void setIsNewRoute(boolean isNewRoute) {
+        setBoolean(IS_NEW_ROUTE, isNewRoute);
     }
 
     private PreferenceUtils(Context context) {
