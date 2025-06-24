@@ -88,6 +88,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "失控拉高,控制权获取成功");
+                    Movement.getInstance().setVirtualStickEnableReason(1);
                     VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
                     pullUp();
                 }
@@ -115,7 +116,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             @Override
             public void run() {
                 if (Movement.getInstance().getFlyingHeight() < 100) {
-
+                    Movement.getInstance().setVirtualStickEnableReason(1);
                     if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
                         handler.removeCallbacks(this);
                     } else {

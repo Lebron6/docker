@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.aros.apron.entity.Movement;
 import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.CameraKey;
@@ -85,6 +86,7 @@ public class DroneHelper {
             VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
+                    Movement.getInstance().setVirtualStickEnableReason(2);
                     LogUtil.log(TAG, "第" + enableVirtualStickTimes + "次获取控制权成功");
                     virtualStickEnable = true;
                     enableVirtualStickTimes = 0;

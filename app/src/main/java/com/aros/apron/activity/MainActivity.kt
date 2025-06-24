@@ -46,7 +46,6 @@ import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
-import com.aros.apron.tools.Utils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
@@ -60,12 +59,9 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
-import dji.v5.common.callback.CommonCallbacks.CompletionCallback
 import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithParam
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
-import dji.v5.et.action
-import dji.v5.et.create
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
@@ -495,6 +491,13 @@ open class MainActivity : BaseActivity() {
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             LogUtil.log(TAG, "取消降落,识别机库二维码")
+                            Handler().postDelayed(Runnable {
+                                if (!ApronArucoDetect.getInstance().isTriggerSuccess) {
+                                    LogUtil.log(TAG, "图传异常:飞往备降点")
+                                    //测试图传丢失
+                                    AlternateLandingManager.getInstance().startTaskProcess(null)
+                                }
+                            }, 6000)
                             if (startArucoType == 1) {
                                 return
                             }
@@ -502,7 +505,7 @@ open class MainActivity : BaseActivity() {
                             ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
-                            DroneHelper.getInstance().isVirtualStickEnable=false
+                            DroneHelper.getInstance().isVirtualStickEnable = false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
 
@@ -526,13 +529,20 @@ open class MainActivity : BaseActivity() {
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             LogUtil.log(TAG, "取消降落,识别备降点二维码")
+                            Handler().postDelayed(Runnable {
+                                if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
+                                    LogUtil.log(TAG, "图传异常:备降点直接降落")
+                                    //测试图传丢失
+                                    FlightManager.getInstance().startAutoLanding(null, null)
+                                }
+                            }, 4000)
                             if (startArucoType == 2) {
                                 return
                             }
                             startArucoType = 2
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
-                            DroneHelper.getInstance().isVirtualStickEnable=false
+                            DroneHelper.getInstance().isVirtualStickEnable = false
                             DroneHelper.getInstance().setVerticalModeToVelocity()
                         }
 

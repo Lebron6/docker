@@ -31,6 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ApronArucoDetect {
 
+    //是否触发识别(如果丢失图传，此值为false)
+    private boolean isTriggerSuccess;
+
     //没识别到二维码
     private boolean arucoNotFoundTag;
 
@@ -64,6 +67,13 @@ public class ApronArucoDetect {
     public PIDControl pidControlX = null;
     public PIDControl pidControlY = null;
 
+    public boolean isTriggerSuccess() {
+        return isTriggerSuccess;
+    }
+
+    public void setTriggerSuccess(boolean triggerSuccess) {
+        isTriggerSuccess = triggerSuccess;
+    }
 
     public boolean isDoublePayload() {
         return isDoublePayload;
@@ -101,6 +111,8 @@ public class ApronArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
+        //这里说明图传正常
+        isTriggerSuccess=true;
         if (isStartAruco || startFastStick) {
             LogUtil.log(TAG, "过滤:" + isStartAruco + startFastStick);
             return;
@@ -211,7 +223,6 @@ public class ApronArucoDetect {
                             Point[] points = corner.toArray();
                             // 计算宽度（两个相邻角点之间的距离）
                             double width = calculateDistance(points[0], points[1]);
-
                             moveOnArucoDetected(mFindArucoList, rgbMat.width(), rgbMat.height(), width);
                         }
                         dropTimesTag = true;
@@ -271,6 +282,7 @@ public class ApronArucoDetect {
 
 
     }
+
 
     /**
      * 61     * 计算两个点之间的欧几里得距离
@@ -587,22 +599,13 @@ public class ApronArucoDetect {
         double outY;
         double outZ;
 
-        //相机内参（H20/H20T）
+        //相机内参
         Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-        cameraMatrix.put(0, 0,  982.98055);
-        cameraMatrix.put(1, 1, 989.54587);
-        cameraMatrix.put(0, 2, 490.07804);
-        cameraMatrix.put(1, 2, 355.95493);
+        cameraMatrix.put(0, 0,  1131.3484309796945);
+        cameraMatrix.put(1, 1, 1143.0319750579686);
+        cameraMatrix.put(0, 2, 676.696876660099);
+        cameraMatrix.put(1, 2, 532.6254545540435);
         cameraMatrix.put(2, 2, 1.0);
-
-//        //相机内参（H30/H30T）
-//        Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
-//        cameraMatrix.put(0, 0,  1494.39627);
-//        cameraMatrix.put(1, 1, 1493.40287);
-//        cameraMatrix.put(0, 2, 471.27012);
-//        cameraMatrix.put(1, 2, 362.42223);
-//        cameraMatrix.put(2, 2, 1.0);
-
         //相机畸变
         Mat distCoeffs = Mat.zeros(5, 1, CvType.CV_64FC1);
         distCoeffs.put(0, 0, -0.16879686656897544);
@@ -790,8 +793,8 @@ public class ApronArucoDetect {
                         && (absY < 180)
                         ? -0.4 : 0;
             }else if(z <=1.5){
-                pidControlX.setInputFilterAll((float)offsetX/1250);
-                pidControlY.setInputFilterAll(-(float)offsetY/1250);
+                pidControlX.setInputFilterAll((float)offsetX/1450);
+                pidControlY.setInputFilterAll(-(float)offsetY/1450);
                 if (pidControlX.get_pid()<0){
                     if (pidControlX.get_pid()<-0.185){
                         outX=absX<120?0:-0.185;
@@ -824,8 +827,8 @@ public class ApronArucoDetect {
                         && (absY < 180)
                         ? -0.4 : 0;
             }else if(z <=2){
-                pidControlX.setInputFilterAll((float)offsetX/1050);
-                pidControlY.setInputFilterAll(-(float)offsetY/1050);
+                pidControlX.setInputFilterAll((float)offsetX/1350);
+                pidControlY.setInputFilterAll(-(float)offsetY/1350);
                 outX = absX<120?0:pidControlX.get_pid();
                 outY = absY<120?0:pidControlY.get_pid();
                 outZ = (absX < 200)
@@ -833,6 +836,22 @@ public class ApronArucoDetect {
                         ? -0.575 : 0;
 
             }else if(z <=3){
+                pidControlX.setInputFilterAll((float)offsetX/1250);
+                pidControlY.setInputFilterAll(-(float)offsetY/1250);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+            }else if(z <=5){
+                pidControlX.setInputFilterAll((float)offsetX/1050);
+                pidControlY.setInputFilterAll(-(float)offsetY/1050);
+                outX = absX<120?0:pidControlX.get_pid();
+                outY = absY<120?0:pidControlY.get_pid();
+                outZ = (absX < 200)
+                        && (absY < 200)
+                        ? -0.575 : 0;
+            }else if (z <= 7) {
                 pidControlX.setInputFilterAll((float)offsetX/950);
                 pidControlY.setInputFilterAll(-(float)offsetY/950);
                 outX = absX<120?0:pidControlX.get_pid();
@@ -840,26 +859,10 @@ public class ApronArucoDetect {
                 outZ = (absX < 200)
                         && (absY < 200)
                         ? -0.575 : 0;
-            }else if(z <=5){
-                pidControlX.setInputFilterAll((float)offsetX/850);
-                pidControlY.setInputFilterAll(-(float)offsetY/850);
-                outX = absX<120?0:pidControlX.get_pid();
-                outY = absY<120?0:pidControlY.get_pid();
-                outZ = (absX < 200)
-                        && (absY < 200)
-                        ? -0.575 : 0;
-            }else if (z <= 7) {
-                pidControlX.setInputFilterAll((float)offsetX/750);
-                pidControlY.setInputFilterAll(-(float)offsetY/750);
-                outX = absX<120?0:pidControlX.get_pid();
-                outY = absY<120?0:pidControlY.get_pid();
-                outZ = (absX < 200)
-                        && (absY < 200)
-                        ? -0.575 : 0;
 
             }else {
-                pidControlX.setInputFilterAll((float)offsetX/650);
-                pidControlY.setInputFilterAll(-(float)offsetY/650);
+                pidControlX.setInputFilterAll((float)offsetX/850);
+                pidControlY.setInputFilterAll(-(float)offsetY/850);
                 outX = absX<80?0:pidControlX.get_pid();
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 130)
@@ -882,7 +885,7 @@ public class ApronArucoDetect {
                         " Z=" + z
         );
         if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5)){
-            if (ultrasonicHeight<=15){
+            if (ultrasonicHeight<=25){
                 outX=outX>0?0.135:-0.135;
                 outY=outY>0?0.135:-0.135;
                 LogUtil.log(TAG,"过滤帧："+" 杆量x=" + outX+" 杆量y=" + y);
@@ -979,11 +982,10 @@ public class ApronArucoDetect {
 
     private void performNextStep() {
         handler.removeCallbacks(runnable); // 防止重复执行
-        handlerCallbackCount=0;
+        handlerCallbackCount = 0;
         canLanding = true;
-        dropTimes=0;//手动测试避免多次累加后直接飞往备降点
-        markerId5MaxFindHeight=0.7;
+        dropTimes = 0;//手动测试避免多次累加后直接飞往备降点
+        markerId5MaxFindHeight = 0.7;
     }
-
 
 }

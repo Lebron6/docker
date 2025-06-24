@@ -897,13 +897,17 @@ public class FlightManager extends BaseManager {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    if (mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "降落失败:" + new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "降落失败:" + getIDJIErrorMsg(error));
+                    if (mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message, "降落失败:" + getIDJIErrorMsg(error));
+                    }
                 }
             });
         } else {

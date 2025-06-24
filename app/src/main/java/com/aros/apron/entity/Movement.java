@@ -114,6 +114,15 @@ public class Movement {
     private String taskId;
     private String version;
     private boolean waylineCanResume;//航线是否可恢复(暂停航线或者虚拟摇杆退出航线)
+    private int virtualStickEnableReason;//虚拟摇杆启用原因 1异常拉高返航触发 2视觉降落触发 3手动触发
+
+    public int getVirtualStickEnableReason() {
+        return virtualStickEnableReason;
+    }
+
+    public void setVirtualStickEnableReason(int virtualStickEnableReason) {
+        this.virtualStickEnableReason = virtualStickEnableReason;
+    }
 
     public int getLowBatteryRTHState() {
         return lowBatteryRTHState;

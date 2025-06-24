@@ -23,7 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AlternateArucoDetect {
-
+    //是否触发识别(如果丢失图传，此值为false)
+    private boolean isTriggerSuccess;
     //没识别到二维码
     private boolean arucoNotFoundTag;
 
@@ -33,7 +34,13 @@ public class AlternateArucoDetect {
     Double resultYaw = 0.0;
     private List<ArucoMarker> mFindArucoList = new ArrayList<>();
     List<Mat> mArucoCornerList = new ArrayList<>();
+    public boolean isTriggerSuccess() {
+        return isTriggerSuccess;
+    }
 
+    public void setTriggerSuccess(boolean triggerSuccess) {
+        isTriggerSuccess = triggerSuccess;
+    }
 
 
     private AlternateArucoDetect() {
@@ -49,6 +56,8 @@ public class AlternateArucoDetect {
 
 
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
+        //这里说明图传正常
+        isTriggerSuccess=true;
         if (isStartAruco) {
             return;
         }

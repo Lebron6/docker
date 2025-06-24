@@ -154,6 +154,9 @@ public class MissionManager extends BaseManager {
                             case READY:
                                 Movement.getInstance().setAirlineFlight(false);
                                 sendMissionExecuteEvents(client, "任务状态:准备中");
+                                if (PreferenceUtils.getInstance().getIsNewRoute()){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }
                                 break;
                             case UPLOADING:
                                 Movement.getInstance().setAirlineFlight(false);
@@ -737,6 +740,9 @@ public class MissionManager extends BaseManager {
                     sendMsg2Server(mqttAndroidClient, message);
                     LogUtil.log(TAG, "航线终止成功");
                     Movement.getInstance().setFlightPathStatus(2);
+                    if (PreferenceUtils.getInstance().getIsNewRoute()){
+                        Movement.getInstance().setWaylineCanResume(true);
+                    }
                 }
 
                 @Override
