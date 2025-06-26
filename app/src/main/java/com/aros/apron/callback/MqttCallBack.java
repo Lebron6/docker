@@ -108,7 +108,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                                 public void run() {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
                                 }
-                            }, 1000);
+                            }, 300);
                         }else{
                             SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
                         }

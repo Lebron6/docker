@@ -21,7 +21,6 @@ import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -46,7 +45,6 @@ import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
-import dji.sdk.keyvalue.value.flightcontroller.LowBatteryRTHInfo;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -159,6 +157,10 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
+                        if (newValue) {
+                            Movement.getInstance().setTaskFail(false);
+                            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
+                        }
                         isFlying = newValue;
                         Movement.getInstance().setPlaneWing(newValue);
                         pushFlightAttitude();
@@ -356,8 +358,14 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setGoHomeState(newValue.value());
                         LogUtil.log(TAG, "GoHomeStatus:" + newValue.name());
                         goHomeExecutionState = newValue.value();
+                        //返航或降落中不允许恢复断点航线
+                        if (newValue.value() == 1 || newValue.value() == 2 || newValue.value() == 3) {
+                            Movement.getInstance().setWaylineCanResume(false);
+                            Movement.getInstance().setCurrentWaypointIndex(0);
+                        }
                         //返航后触发可入库条件
                         if (newValue.value() == 2) {
+                            PreferenceUtils.getInstance().setIsNewRoute(false);
                             triggerLandOrGoHome = true;
                         }
                         pushFlightAttitude();
@@ -501,8 +509,6 @@ public class FlightManager extends BaseManager {
     }
 
     private void pushFlightAttitude() {
-        //强制返航
-        batteryLowLanding();
         //关仓门
         closeCabinDoor();
         //开舱门
@@ -517,13 +523,16 @@ public class FlightManager extends BaseManager {
         droneStorage();
 
         if (isFlyClickTime()) {
+            Log.e(TAG, "飞行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
+                    + "---canResume:" + Movement.getInstance().isWaylineCanResume()
+                    + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
 //            XcFileLog.getInstace().f(TAG,new Gson().toJson(Movement.getInstance()));
-            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
-                    + Movement.getInstance().getCurrentLatitude()
-                    + "--altitude:" + Movement.getInstance().getFlyingHeight()
-                    + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
-                    + "--heath:" + Movement.getInstance().getWarningMessage()
-                    + "--status:" + Movement.getInstance().getPlaneMessage() + "--advancedMode" + Movement.getInstance().getIsVirtualStickAdvancedModeEnabled());
+//            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+//                    + Movement.getInstance().getCurrentLatitude()
+//                    + "--altitude:" + Movement.getInstance().getFlyingHeight()
+//                    + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
+//                    + "--heath:" + Movement.getInstance().getWarningMessage()
+//                    + "--status:" + Movement.getInstance().getPlaneMessage() + "--advancedMode" + Movement.getInstance().getIsVirtualStickAdvancedModeEnabled());
             Movement.getInstance().setEgm96Altitude(
                     GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                     Movement.getInstance().getFlyingHeight()),
@@ -546,43 +555,7 @@ public class FlightManager extends BaseManager {
 
     }
 
-    //(决定飞机触发电量低的返航)
-    public boolean isTriggerRoomBattrryLanding;
 
-    private void batteryLowLanding() {
-        if (isTriggerRoomBattrryLanding) {
-            return;
-        }
-        int forcedBattery = Integer.valueOf(PreferenceUtils.getInstance().getForcedBattery());
-        Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
-                KeyBatteryPowerPercent, 0));
-        String missionState = Movement.getInstance().getWaypointMissionExecuteState();
-        boolean isMissionExecuting = (!TextUtils.isEmpty(missionState) &&
-                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"))
-                || (!TextUtils.isEmpty(Movement.getInstance().getPlaneMode())
-                && Movement.getInstance().getPlaneMode().equals("WAYPOINT")));
-        // 获取飞行状态和航线状态
-        boolean isFlyingAndBatteryOk = isFlying && value != null && value < forcedBattery && isMissionExecuting;
-        boolean isAlterLandStatus = (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() || PreferenceUtils.getInstance().getTriggerToAlternatePoint());
-
-        if (isFlyingAndBatteryOk && !isTriggerRoomBattrryLanding && !isAlterLandStatus) {
-            isTriggerRoomBattrryLanding = true;
-            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    LogUtil.log(TAG, "电量低于阈值，直接返航");
-                    sendMissionExecuteEvents(mqttAndroidClient, "电量低于阈值，强制返航");
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "电量低于阈值，返航失败:" + new Gson().toJson(error));
-                    sendMissionExecuteEvents(mqttAndroidClient, "电量低于阈值，返航失败");
-                }
-            });
-
-        }
-    }
 
     private void closeCabinDoor() {
         // 获取飞行状态和航线状态
@@ -830,11 +803,11 @@ public class FlightManager extends BaseManager {
     public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
-        if (Movement.getInstance().isPlaneWing()&&Movement.getInstance().getDistance() < 20
-                && Movement.getInstance().getFlyingHeight() < 75
-                && Movement.getInstance().getElectricityInfoA() > 35
-                &&((flightMode != null&&flightMode==FlightMode.WAYPOINT)||
-                (flightMode != null&&flightMode==FlightMode.AUTO_TAKE_OFF))) {
+        if (Movement.getInstance().isPlaneWing() && Movement.getInstance().getDistance() < 20
+                && Movement.getInstance().getFlyingHeight() < 88
+                && Movement.getInstance().getElectricityInfoA() > 25
+                && ((flightMode != null && flightMode == FlightMode.WAYPOINT) ||
+                (flightMode != null && flightMode == FlightMode.AUTO_TAKE_OFF))) {
             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
         } else {
             Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));

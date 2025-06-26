@@ -65,7 +65,6 @@ public class PreferenceUtils extends BasePreference {
     private String CLOSE_OBS_ENABLE = "close_obstacle_enable"; //是否关闭避障
     private String MISSION_INTERRUPT_ACTION = "mission_interrupt_action"; //航线终止后动作
     private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
-    private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
     private String LTE_ENABLE = "lte_enable";
     private String IS_NEW_ROUTE = "is_new_route";
 
@@ -391,13 +390,6 @@ public class PreferenceUtils extends BasePreference {
         setString(MINIMUM_BATTERY, minumumBattery);
     }
 
-    public String getForcedBattery() {
-        return getString(FORCED_BATTERY);
-    }
-
-    public void setForcedBattery(String forcedBattery) {
-        setString(FORCED_BATTERY, forcedBattery);
-    }
 
     public String getAlternatePointLat() {
         return getString(ALTERNATE_POINT_LAT);

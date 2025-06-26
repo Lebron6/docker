@@ -153,31 +153,54 @@ public class MissionManager extends BaseManager {
                                 break;
                             case READY:
                                 Movement.getInstance().setAirlineFlight(false);
-                                sendMissionExecuteEvents(client, "任务状态:准备中");
-                                if (PreferenceUtils.getInstance().getIsNewRoute()){
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
                                     Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
                                 }
+                                sendMissionExecuteEvents(client, "任务状态:准备中");
                                 break;
                             case UPLOADING:
                                 Movement.getInstance().setAirlineFlight(false);
-                                Movement.getInstance().setWaylineCanResume(false);
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
+                                }
                                 sendMissionExecuteEvents(client, "任务状态:上传中");
                                 break;
                             case PREPARING:
                                 Movement.getInstance().setAirlineFlight(false);
-                                Movement.getInstance().setWaylineCanResume(false);
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
+                                }
                                 sendMissionExecuteEvents(client, "任务状态:执行准备中");
                                 break;
                             case ENTER_WAYLINE:
                                 enterWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(true);
-                                Movement.getInstance().setWaylineCanResume(false);
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
+                                }
                                 sendMissionExecuteEvents(client, "任务状态:进入航线飞行,飞往指定航线的第一个航点");
                                 break;
                             case EXECUTING:
                                 Movement.getInstance().setAirlineFlight(true);
-                                Movement.getInstance().setWaylineCanResume(false);
                                 sendMissionExecuteEvents(client, "任务状态:航线任务执行中");
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
+                                }
                                 break;
                             case INTERRUPTED:
                                 Movement.getInstance().setAirlineFlight(true);
@@ -192,7 +215,12 @@ public class MissionManager extends BaseManager {
                             case FINISHED:
                                 finishWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(false);
-//                                Movement.getInstance().setWaylineCanResume(false);
+                                if (PreferenceUtils.getInstance().getIsNewRoute()&&
+                                        !(Movement.getInstance().getCurrentWaypointIndex()>0)){
+                                    Movement.getInstance().setWaylineCanResume(true);
+                                }else {
+                                    Movement.getInstance().setWaylineCanResume(false);
+                                }
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
@@ -229,6 +257,9 @@ public class MissionManager extends BaseManager {
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
                 Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+                Log.e(TAG, "航线执行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
+                        + "---canResume:" + Movement.getInstance().isWaylineCanResume()
+                        + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
             }
         }
 
@@ -320,7 +351,7 @@ public class MissionManager extends BaseManager {
                         public void run() {
                             downLoadKMZFile(client, message);
                         }
-                    }, 3000);
+                    }, 1000);
                 } else {
                     downLoadKMZFile(client, message);
                 }

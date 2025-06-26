@@ -106,7 +106,6 @@ class ConfigActivity : BaseActivity() {
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
         configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
-        configBinding.etForcedBattery.setText(PreferenceUtils.getInstance().forcedBattery)
         configBinding.etAlternateLat.setText(PreferenceUtils.getInstance().alternatePointLat)
         configBinding.etAlternateLon.setText(PreferenceUtils.getInstance().alternatePointLon)
         configBinding.etSetAlternateSecurityHeight.setText(PreferenceUtils.getInstance().alternatePointSecurityHeight)
@@ -279,22 +278,13 @@ class ConfigActivity : BaseActivity() {
 //            ToastUtil.showToast("未标定起飞朝向")
 //            return
 //        }
-        if (TextUtils.isEmpty(configBinding.etMinimumBattery.text) || TextUtils.isEmpty(configBinding.etForcedBattery.text)) {
+        if (TextUtils.isEmpty(configBinding.etMinimumBattery.text) ) {
             ToastUtil.showToast("未配置电池阈值")
             return
         }
         var minimumBattery=configBinding.etMinimumBattery.text.toString()
-        var forcedBattery=configBinding.etForcedBattery.text.toString()
         if (minimumBattery.toInt()<35){
             ToastUtil.showToast("允许起飞电量不得低于35%")
-            return
-        }
-        if (forcedBattery.toInt()>=minimumBattery.toInt()){
-            ToastUtil.showToast("强制返航电量需小于允许起飞电量")
-            return
-        }
-        if ((minimumBattery.toInt()-forcedBattery.toInt())<10){
-            ToastUtil.showToast("强制返航电量需小于允许起飞电量最少10%")
             return
         }
         if (TextUtils.isEmpty(configBinding.etAlternateLat.text) || TextUtils.isEmpty(configBinding.etAlternateLon.text)) {
@@ -313,8 +303,7 @@ class ConfigActivity : BaseActivity() {
 
         PreferenceUtils.getInstance().minumumBattery =
             configBinding.etMinimumBattery.text.toString()
-        PreferenceUtils.getInstance().forcedBattery =
-            configBinding.etForcedBattery.text.toString()
+
 
         PreferenceUtils.getInstance().alternatePointLat =
             configBinding.etAlternateLat.text.toString()

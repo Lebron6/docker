@@ -113,7 +113,7 @@ public class Movement {
     private boolean taskFail;//任务是否执行失败
     private String taskId;
     private String version;
-    private boolean waylineCanResume;//航线是否可恢复(暂停航线或者虚拟摇杆退出航线)
+    private boolean waylineCanResume;//航线是否可断点恢复(指点飞行结束/虚拟摇杆退出航线)
     private int virtualStickEnableReason;//虚拟摇杆启用原因 1异常拉高返航触发 2视觉降落触发 3手动触发
 
     public int getVirtualStickEnableReason() {
