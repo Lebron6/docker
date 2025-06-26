@@ -213,6 +213,7 @@ public class MissionManager extends BaseManager {
                                 sendMissionExecuteEvents(client, "任务状态:航线任务恢复中");
                                 break;
                             case FINISHED:
+                                Movement.getInstance().setCurrentWaypointIndex(0);
                                 finishWayLineTime = System.currentTimeMillis();
                                 Movement.getInstance().setAirlineFlight(false);
                                 if (PreferenceUtils.getInstance().getIsNewRoute()&&
