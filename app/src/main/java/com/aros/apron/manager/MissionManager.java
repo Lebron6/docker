@@ -37,9 +37,7 @@ import java.util.List;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
-import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
 import dji.v5.common.callback.CommonCallbacks;
@@ -267,9 +265,7 @@ public class MissionManager extends BaseManager {
         @Override
         public void onWaylineExecutingInterruptReasonUpdate(IDJIError error) {
             if (error != null) {
-                ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
-                if (productType != null) {
-                    LogUtil.log(TAG, "航线中断:" + productType.name() + "---" + new Gson().toJson(error));
+                LogUtil.log(TAG, "航线中断: ---" + new Gson().toJson(error));
                     if (isManualPause || error.errorCode().equals("USER_BREAK")
                             || error.errorCode().equals("INTERRUPT_REASON_AVOID_USER_REQ_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
                         isManualPause = false;
@@ -292,7 +288,7 @@ public class MissionManager extends BaseManager {
                         sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
 
                     }
-                }
+
             }
         }
     };

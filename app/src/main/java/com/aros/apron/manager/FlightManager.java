@@ -21,6 +21,7 @@ import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -523,16 +524,16 @@ public class FlightManager extends BaseManager {
         droneStorage();
 
         if (isFlyClickTime()) {
-            Log.e(TAG, "飞行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
-                    + "---canResume:" + Movement.getInstance().isWaylineCanResume()
-                    + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
+//            Log.e(TAG, "飞行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
+//                    + "---canResume:" + Movement.getInstance().isWaylineCanResume()
+//                    + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
 //            XcFileLog.getInstace().f(TAG,new Gson().toJson(Movement.getInstance()));
-//            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
-//                    + Movement.getInstance().getCurrentLatitude()
-//                    + "--altitude:" + Movement.getInstance().getFlyingHeight()
-//                    + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
-//                    + "--heath:" + Movement.getInstance().getWarningMessage()
-//                    + "--status:" + Movement.getInstance().getPlaneMessage() + "--advancedMode" + Movement.getInstance().getIsVirtualStickAdvancedModeEnabled());
+            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+                    + Movement.getInstance().getCurrentLatitude()
+                    + "--altitude:" + Movement.getInstance().getFlyingHeight()
+                    + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
+                    + "--heath:" + Movement.getInstance().getWarningMessage()
+                    + "--status:" + Movement.getInstance().getPlaneMessage() + "--advancedMode" + Movement.getInstance().getIsVirtualStickAdvancedModeEnabled());
             Movement.getInstance().setEgm96Altitude(
                     GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                     Movement.getInstance().getFlyingHeight()),
