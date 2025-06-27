@@ -134,8 +134,22 @@ public class StickManager extends BaseManager {
                         sendMsg2Server(mqttAndroidClient, message, "已获取控制权,无需重复获取");
                         break;
                     default:
-                        LogUtil.log(TAG, "拒绝获取控制权,当前飞机状态:" + flightMode.name());
-                        sendMsg2Server(mqttAndroidClient, message, "拒绝获取控制权,当前飞机状态:" + flightMode.name());
+                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server(mqttAndroidClient, message);
+                                LogUtil.log(TAG, "控制权设置成功");
+                                Movement.getInstance().setWaylineCanResume(true);
+                                Movement.getInstance().setVirtualStickEnableReason(3);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                LogUtil.log(TAG, "控制权设置失败:" + error.description());
+                                sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
+                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
                         break;
                 }
             }
