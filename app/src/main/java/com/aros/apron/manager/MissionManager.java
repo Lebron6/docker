@@ -17,6 +17,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
@@ -716,6 +717,7 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "航线暂停成功");
                     Movement.getInstance().setFlightPathStatus(1);
                     isManualPause = true;
+                    sendPausePosition2Server(mqttAndroidClient);
                 }
 
                 @Override
@@ -790,5 +792,29 @@ public class MissionManager extends BaseManager {
 //            missionManager.removeWaylineExecutingInfoListener(waylineExecutingInfoListener);
 //            missionManager.removeWaypointMissionExecuteStateListener(waypointMissionExecuteStateListener);
 //        }
+    }
+
+    //收到暂停航线命令后，发送经纬度给后端
+    public void sendPausePosition2Server(MqttAndroidClient client) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60200);
+                message.setResult(1);
+                message.setLat(Movement.getInstance().getCurrentLatitude());
+                message.setLon(Movement.getInstance().getCurrentLongitude());
+                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "暂停航线发送经纬度失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "暂停航线发送经纬度失败：mqtt 未连接");
+            e.printStackTrace();
+        }
     }
 }

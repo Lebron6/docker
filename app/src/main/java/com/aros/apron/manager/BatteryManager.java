@@ -4,9 +4,15 @@ package com.aros.apron.manager;
 import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
+import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import dji.sdk.keyvalue.key.BatteryKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
@@ -31,6 +37,8 @@ public class BatteryManager extends BaseManager {
     public static BatteryManager getInstance() {
         return BatteryManagerHolder.INSTANCE;
     }
+
+    private boolean sendLowBatteryRTHPosition2Server;
 
     public void initBatteryInfo(MqttAndroidClient client) {
         this.client = client;
@@ -58,6 +66,10 @@ public class BatteryManager extends BaseManager {
                         Movement.getInstance().setLandingPower(t1.getBatteryPercentNeededToLand());
                         if (t1.getLowBatteryRTHStatus() != null) {
                             Movement.getInstance().setLowBatteryRTHState(t1.getLowBatteryRTHStatus().value());
+                            if (t1.getLowBatteryRTHStatus().value()==1&&!sendLowBatteryRTHPosition2Server){
+                                sendLowBatteryRTHPosition2Server = true;
+                                sendLowBatteryRTHPosition2Server(client);
+                            }
                         }
                     }
                 }
@@ -140,6 +152,31 @@ public class BatteryManager extends BaseManager {
                 }
             });
 
+        }
+    }
+
+    //收到暂停航线命令后，发送经纬度给后端
+    public void sendLowBatteryRTHPosition2Server(MqttAndroidClient client) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60201);
+                message.setResult(1);
+                message.setLat(Movement.getInstance().getCurrentLatitude());
+                message.setLon(Movement.getInstance().getCurrentLongitude());
+                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
+                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
+            e.printStackTrace();
         }
     }
 
