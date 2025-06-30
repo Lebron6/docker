@@ -329,7 +329,7 @@ public class CameraManager extends BaseManager {
         }
     }
 
-    //设置拍照模式
+    //设置定时拍照参数
     public void setPhotoIntervalShootSettings(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));

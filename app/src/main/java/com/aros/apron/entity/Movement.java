@@ -98,7 +98,7 @@ public class Movement {
     private String maxAreaTemperature;//最大温度
     private String maxTemperaturePointX;//最大温度的位置
     private String maxTemperaturePointY;
-    private String minTemperaturePointX;//最小位置的位置
+    private String minTemperaturePointX;//最小温度的位置
     private String minTemperaturePointY;
     private String LTELinkType;//图传类型  1cusync 图传 3LTE 增强图传
     private String sn;//设备SN，用于区别是哪台飞机

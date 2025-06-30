@@ -91,8 +91,6 @@ public class DroneHelper {
                     virtualStickEnable = true;
                     enableVirtualStickTimes = 0;
                     VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-
-
                 }
 
                 @Override
