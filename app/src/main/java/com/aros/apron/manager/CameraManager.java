@@ -66,17 +66,77 @@ public class CameraManager extends BaseManager {
         this.client = client;
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, 0));
         if (isConnect != null && isConnect) {
+            ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
+            if (productType != null) {
+                if (productType == ProductType.M300_RTK) {
+                    KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                            KeyCameraFlatMode, 0), this, new CommonCallbacks.KeyListener<CameraFlatMode>() {
+                        @Override
+                        public void onValueChange(@Nullable CameraFlatMode cameraFlatMode, @Nullable CameraFlatMode t1) {
+                            if (t1 != null) {
+                                switch (t1.value()) {
+                                    case 5:
+                                        Movement.getInstance().setCameraMode(0);
+                                        break;
+                                    case 1:
+                                        Movement.getInstance().setCameraMode(1);
+                                        break;
+                                    case 8:
+                                        Movement.getInstance().setCameraMode(8);
+                                        break;
+                                    case 12:
+                                        Movement.getInstance().setCameraMode(12);
+                                        break;
+                                    default:
+                                        Movement.getInstance().setCameraMode(t1.value());
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                            KeyCameraMode, 0), this, new CommonCallbacks.KeyListener<CameraMode>() {
+                        @Override
+                        public void onValueChange(@Nullable CameraMode oldValue, @Nullable CameraMode newValue) {
+                            if (newValue != null) {
+                                Movement.getInstance().setCameraMode(newValue.value());
+                            }
+                        }
+                    });
+                }
+            }
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyCameraMode, 0), this, new CommonCallbacks.KeyListener<CameraMode>() {
+                    KeyPhotoIntervalShootSettings, 0), this, new CommonCallbacks.KeyListener<PhotoIntervalShootSettings>() {
                 @Override
-                public void onValueChange(@Nullable CameraMode oldValue, @Nullable CameraMode newValue) {
-                    if (newValue != null) {
-                        Movement.getInstance().setCameraMode(newValue.value());
+                public void onValueChange(@Nullable PhotoIntervalShootSettings photoIntervalShootSettings, @Nullable PhotoIntervalShootSettings t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setPhotoInterval(t1.getInterval());
+                        Movement.getInstance().setPhotoIntervalCount(t1.getCount());
                     }
                 }
             });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyPhotoPanoramaProgress, 0), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setPhotoPanoramaProgress(t1);
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyIsShootingPhotoPanorama, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setShootingPhotoPanorama(t1);
+                    }
+                }
+            });
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
                     KeyIsShootingPhoto, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
@@ -285,11 +345,11 @@ public class CameraManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
-                                    LogUtil.log(TAG,"相机模式切换失败:"+new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换失败:" + getIDJIErrorMsg(error));
+                                    LogUtil.log(TAG, "相机模式切换拍照失败:" + new Gson().toJson(error));
+                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
-                        }else{
+                        } else if (cameraMode == 1) {
                             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
@@ -298,10 +358,39 @@ public class CameraManager extends BaseManager {
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
-                                    LogUtil.log(TAG,"相机模式切换失败:"+new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换失败:" + getIDJIErrorMsg(error));
+                                    LogUtil.log(TAG, "相机模式切换录像失败:" + new Gson().toJson(error));
+                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换录像失败:" + getIDJIErrorMsg(error));
                                 }
                             });
+                        } else if (cameraMode == 8) {
+                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_INTERVAL, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    sendMsg2Server(mqttAndroidClient, message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    LogUtil.log(TAG, "相机模式切换定时拍照失败:" + new Gson().toJson(error));
+                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换定时拍照失败:" + getIDJIErrorMsg(error));
+                                }
+                            });
+                        } else if (cameraMode == 12) {
+                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_PANO, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    sendMsg2Server(mqttAndroidClient, message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    LogUtil.log(TAG, "相机模式切换全景拍照失败:" + new Gson().toJson(error));
+                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换全景拍照失败:" + getIDJIErrorMsg(error));
+                                }
+                            });
+                        } else {
+                            LogUtil.log(TAG, "相机模式切换失败:暂不支持" + cameraMode);
+                            sendMsg2Server(mqttAndroidClient, message, "相机模式切换失败:暂不支持");
                         }
 
                     }else{
@@ -330,7 +419,7 @@ public class CameraManager extends BaseManager {
     }
 
     //设置定时拍照参数
-    public void setPhotoIntervalShootSettings(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startTakePhotoWithInterval(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -340,13 +429,29 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyPhotoIntervalShootSettings), shootSettings, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    sendMsg2Server(mqttAndroidClient, message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    LogUtil.log(TAG, "定时拍照失败:" + new Gson().toJson(error));
+                                    sendMsg2Server(mqttAndroidClient, message, "定时拍照失败:" + getIDJIErrorMsg(error));
+                                }
+                            });
+                        }
+                    }, 500);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG,"设置连拍配置失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "设置连拍配置失败:" + getIDJIErrorMsg(error));
+                    LogUtil.log(TAG, "设置定时拍照参数失败:" + new Gson().toJson(error));
+                    sendMsg2Server(mqttAndroidClient, message, "设置定时拍照参数失败:" + getIDJIErrorMsg(error));
 
                 }
             });

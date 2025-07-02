@@ -224,6 +224,8 @@ public class StickManager extends BaseManager {
             param.setYaw(Double.valueOf(message.getR()));//旋转(角速度模式-100-100)
             param.setVerticalThrottle(Double.valueOf(message.getZ()));//上下(速度模式-4m/s-4m/s)
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+            Movement.getInstance().setVirtualStickEnableReason(3);
+
 //            sendMsg2Server(mqttAndroidClient, message, "移动...");
         } else {
             sendMsg2Server(mqttAndroidClient, message, "飞控未连接");

@@ -113,6 +113,7 @@ public class ApronArucoDetect {
     public void detectArucoTags(int height, int width, byte[] data, Dictionary dictionary) {
         //这里说明图传正常
         isTriggerSuccess=true;
+        Movement.getInstance().setVirtualStickEnableReason(2);
         if (isStartAruco || startFastStick) {
             LogUtil.log(TAG, "过滤:" + isStartAruco + startFastStick);
             return;

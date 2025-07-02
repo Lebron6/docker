@@ -166,6 +166,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             param.setYaw(0.0);//旋转
             param.setVerticalThrottle(4.0);//上下
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+            Movement.getInstance().setVirtualStickEnableReason(1);
         }
     }
 

@@ -115,6 +115,42 @@ public class Movement {
     private String version;
     private boolean waylineCanResume;//航线是否可断点恢复(指点飞行结束/虚拟摇杆退出航线)
     private int virtualStickEnableReason;//0未启用 虚拟摇杆启用原因 1异常拉高返航触发 2视觉降落触发 3手动触发
+    private int photoIntervalCount;//当前定时拍照默认设置张数
+    private double photoInterval;//当前定时拍照默认时间间隔
+    private boolean isShootingPhotoPanorama;//当前是否正在全景拍照
+    private int photoPanoramaProgress;//全景拍照进度百分比
+
+    public int getPhotoPanoramaProgress() {
+        return photoPanoramaProgress;
+    }
+
+    public void setPhotoPanoramaProgress(int photoPanoramaProgress) {
+        this.photoPanoramaProgress = photoPanoramaProgress;
+    }
+
+    public boolean isShootingPhotoPanorama() {
+        return isShootingPhotoPanorama;
+    }
+
+    public void setShootingPhotoPanorama(boolean shootingPhotoPanorama) {
+        isShootingPhotoPanorama = shootingPhotoPanorama;
+    }
+
+    public int getPhotoIntervalCount() {
+        return photoIntervalCount;
+    }
+
+    public void setPhotoIntervalCount(int photoIntervalCount) {
+        this.photoIntervalCount = photoIntervalCount;
+    }
+
+    public double getPhotoInterval() {
+        return photoInterval;
+    }
+
+    public void setPhotoInterval(double photoInterval) {
+        this.photoInterval = photoInterval;
+    }
 
     public int getVirtualStickEnableReason() {
         return virtualStickEnableReason;

@@ -533,7 +533,8 @@ public class FlightManager extends BaseManager {
                     + "--altitude:" + Movement.getInstance().getFlyingHeight()
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
                     + "--heath:" + Movement.getInstance().getWarningMessage()
-                    + "--status:" + Movement.getInstance().getPlaneMessage() + "--advancedMode" + Movement.getInstance().getIsVirtualStickAdvancedModeEnabled());
+                    + "--status:" + Movement.getInstance().getPlaneMessage()
+                    + "--virtualStickEnableReason" + Movement.getInstance().getVirtualStickEnableReason());
             Movement.getInstance().setEgm96Altitude(
                     GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                     Movement.getInstance().getFlyingHeight()),

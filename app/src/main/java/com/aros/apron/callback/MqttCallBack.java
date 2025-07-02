@@ -292,15 +292,17 @@ public class MqttCallBack implements MqttCallbackExtended {
             //一键全抛
             case 60118:
                 LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
-                PayloadWidgetManager.getInstance().throwAll(mqttClient,message); break;
+                PayloadWidgetManager.getInstance().throwAll(mqttClient, message);
+                break;
             //设置备降点
 //            case 60119:
 //                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
 //                AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
-            //设置定时拍照参数
+            //开始定时拍照
             case 60120:
-                LogUtil.log(TAG, "收到命令：设置定时拍照参数" + jsonString);
-                CameraManager.getInstance().setPhotoIntervalShootSettings(mqttClient,message); break;
+                LogUtil.log(TAG, "收到命令：开始定时拍照" + jsonString);
+                CameraManager.getInstance().startTakePhotoWithInterval(mqttClient, message);
+                break;
             //结束拍照
             case 60121:
                 LogUtil.log(TAG, "收到命令：结束拍照" + jsonString);

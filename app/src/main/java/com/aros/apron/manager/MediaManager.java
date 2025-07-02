@@ -7,10 +7,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
@@ -29,7 +27,6 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.io.BufferedOutputStream;
@@ -88,7 +85,7 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onUpdate(MediaFileListState mediaFileListState) {
                     mState = mediaFileListState;
-                    Log.e(TAG, "当前媒体文件状态：" + mediaFileListState.name());
+                    LogUtil.log(TAG, "当前媒体文件状态：" + mediaFileListState.name());
                 }
             });
         }
