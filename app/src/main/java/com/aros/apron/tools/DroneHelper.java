@@ -160,8 +160,6 @@ public class DroneHelper {
                         }
                     }
             );
-
-
         } else {
             LogUtil.log(TAG, "云台未连接");
         }

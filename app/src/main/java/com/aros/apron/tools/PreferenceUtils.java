@@ -67,6 +67,7 @@ public class PreferenceUtils extends BasePreference {
     private String MINIMUM_BATTERY = "minimum_battery"; //允许起飞最低电量
     private String LTE_ENABLE = "lte_enable";
     private String IS_NEW_ROUTE = "is_new_route";
+    private String PAUSE_WAYPOINT_INDEX = "pause_index";//暂停航线前记录index，暂停成功后将下标推送给服务器
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
 //    public void setStreamAndMinIOConfig(MQMessage message) {
@@ -429,6 +430,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setAlternatePointTimes(String alternatePointTimes) {
         setString(ALTERNATE_POINT_TIMES, alternatePointTimes);
+    }
+
+    public String getPauseIndex() {
+        return getString(PAUSE_WAYPOINT_INDEX);
+    }
+
+    public void setPauseIndex(String pauseIndex) {
+        setString(PAUSE_WAYPOINT_INDEX, pauseIndex);
     }
 
     public boolean getIsDebugMode() {

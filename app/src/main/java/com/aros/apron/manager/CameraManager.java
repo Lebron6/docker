@@ -118,6 +118,7 @@ public class CameraManager extends BaseManager {
                 }
             });
 
+
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
                     KeyPhotoPanoramaProgress, 0), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override

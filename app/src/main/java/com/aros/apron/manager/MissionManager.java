@@ -706,6 +706,8 @@ public class MissionManager extends BaseManager {
     private boolean isManualPause;
 
     public void pauseMission(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        //暂停前将index保存
+        PreferenceUtils.getInstance().setPauseIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -714,10 +716,11 @@ public class MissionManager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
+                    sendPausePosition2Server(mqttAndroidClient);
+
                     LogUtil.log(TAG, "航线暂停成功");
                     Movement.getInstance().setFlightPathStatus(1);
                     isManualPause = true;
-                    sendPausePosition2Server(mqttAndroidClient);
                 }
 
                 @Override
@@ -804,11 +807,12 @@ public class MissionManager extends BaseManager {
                 message.setResult(1);
                 message.setLat(Movement.getInstance().getCurrentLatitude());
                 message.setLon(Movement.getInstance().getCurrentLongitude());
+                message.setWaypointIndex(PreferenceUtils.getInstance().getPauseIndex());
                 message.setTask_id(PreferenceUtils.getInstance().getTaskId());
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-
+                mqttMessage.setQos(0);
+                client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+                LogUtil.log(TAG, "暂停航线发送经纬度成功");
             } else {
                 LogUtil.log(TAG, "暂停航线发送经纬度失败：mqtt 未连接");
             }

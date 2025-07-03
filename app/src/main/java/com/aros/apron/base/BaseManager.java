@@ -25,7 +25,7 @@ public abstract class BaseManager {
                 messageReply.setResult(-1);
                 messageReply.setMsg(msg);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -44,7 +44,7 @@ public abstract class BaseManager {
                 messageReply.setMsg_type(entity.getMsg_type());
                 messageReply.setResult(1);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(1);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");

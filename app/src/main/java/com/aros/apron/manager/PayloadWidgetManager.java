@@ -68,15 +68,20 @@ public class PayloadWidgetManager extends BaseManager {
 //                            Log.e(TAG, "打印DataFromPayload" + "--1111---");
                         }
                     });
-//                    iPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
-//                        @Override
-//                        public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-//                            Log.e(TAG, "打印PayloadWidgetInfo" + new Gson().toJson(info));
-//                        }
-//                    });
+
                 } else {
                     LogUtil.log(TAG, "监听psdk数据失败:设备未连接");
                 }
+//                IPayloadManager lPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
+//                if (lPayloadManager!=null){
+//                    lPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+//                        @Override
+//                        public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+//                            Log.e(TAG, "打印PayloadWidgetInfo" + new Gson().toJson(info));
+//
+//                        }
+//                    });
+//                }
             } else {
                 LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
             }
