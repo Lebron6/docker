@@ -83,6 +83,51 @@ class ConnectionActivity : AppCompatActivity() {
 //            startService(it)
 //        }
         initBugly()
+        initConfig()
+
+    }
+    private fun initConfig(){
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)){
+            PreferenceUtils.getInstance().minumumBattery =
+                "35"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)){
+            PreferenceUtils.getInstance().mqttServerUri =
+                "tcp://192.168.2.90:2883"
+        }
+
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)){
+            PreferenceUtils.getInstance().mqttUserName =
+                "admin"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttPassword)){
+            PreferenceUtils.getInstance().mqttPassword =
+                "Admin123"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttSn)){
+            PreferenceUtils.getInstance().mqttSn =
+                "1"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl)){
+            PreferenceUtils.getInstance().uploadUrl =
+                "tcp://192.168.2.90:9090"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName)){
+            PreferenceUtils.getInstance().bucketName =
+                "media"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().objectKey)){
+            PreferenceUtils.getInstance().objectKey =
+                "1"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().accessKey)){
+            PreferenceUtils.getInstance().accessKey =
+                "aro"
+        }
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().secretKey)){
+            PreferenceUtils.getInstance().secretKey =
+                "Aros2023"
+        }
 
     }
 
