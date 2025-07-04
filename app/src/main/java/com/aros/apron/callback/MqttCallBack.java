@@ -443,6 +443,10 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60149:
                 LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
                 break;
+            //msdk日志上传
+            case 60666:
+                LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
