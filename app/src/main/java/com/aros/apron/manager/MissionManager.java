@@ -286,7 +286,7 @@ public class MissionManager extends BaseManager {
                         } else if (PreferenceUtils.getInstance().getMissionInterruptAction() == 3) {
                             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                         }
-                        sendMissionExecuteEvents(client, "任务中断:" + error.errorCode());
+                        sendMissionExecuteEvents(client, "任务意外发生中断:" + error.errorCode());
 
                     }
 
@@ -308,7 +308,7 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
             }
-            sendMissionExecuteEvents(client, "任务执行失败,电量过低 " + "  " + Movement.getInstance().isPlaneWing());
+            sendMissionExecuteEvents(client, "剩余电量不足以执行任务,请尽快返航");
             LogUtil.log(TAG, "任务执行失败,电量过低");
             return;
         }

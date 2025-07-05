@@ -198,7 +198,7 @@ public class AlternateLandingManager extends BaseManager {
     public void toAlternatePoint(MQMessage message) {
         if (Movement.getInstance().getFlyingHeight() < 10) {
             LogUtil.log(TAG, "toAlternatePoint:" + "高度低于10米,拉高");
-            sendMissionExecuteEvents(mqttClient, "拉高去备降点...");
+            sendMissionExecuteEvents(mqttClient, "正在拉高去备降点");
             raisesDrone(message);
         } else {
             sendMissionExecuteEvents(mqttClient, "开始创建备降任务");

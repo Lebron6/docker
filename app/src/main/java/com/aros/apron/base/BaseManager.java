@@ -115,14 +115,13 @@ public abstract class BaseManager {
 
 
     //媒体文件上传结果上报
-    public void sendFileUploadCallback(MqttAndroidClient client, FileUploadResult result) {
+    public void sendFileUploadCallback(int msgType,MqttAndroidClient client, FileUploadResult result) {
         try {
             if (client.isConnected()) {
                 MqttMessage mqttMessage = null;
-                result.setMsg_type(60102);
+                result.setMsg_type(msgType);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
-
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功：60102"+new Gson().toJson(result));
 

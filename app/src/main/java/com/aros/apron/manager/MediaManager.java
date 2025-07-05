@@ -148,7 +148,7 @@ public class MediaManager extends BaseManager {
                                     }
                                 } else {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                    sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败,当前状态:"+mState);
+                                    sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败:"+mState);
                                     LogUtil.log(TAG, "拉取媒体文件失败,当前状态:"+mState);
                                     disablePlayback();
                                     LogUtil.log(TAG, "发送关闭无人机");
@@ -248,7 +248,7 @@ public class MediaManager extends BaseManager {
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                    sendMissionExecuteEvents(mqttClient, "File " + downLoadMediaFileIndex + " download failed.");
+                    sendMissionExecuteEvents(mqttClient, "第" + downLoadMediaFileIndex + "个文件下载失败");
                     downLoadMediaFileIndex = 0;
                 }
             });
@@ -349,7 +349,7 @@ public class MediaManager extends BaseManager {
                         fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
 
-                        sendFileUploadCallback(mqttClient, fileUploadResult);
+                        sendFileUploadCallback(60102,mqttClient, fileUploadResult);
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)
@@ -375,12 +375,12 @@ public class MediaManager extends BaseManager {
                         // 每上传一张就清除缓存
                         FileUtil.deleteFile(file);
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " uploaded successfully.");
-                        sendMissionExecuteEvents(mqttClient, "File " + downLoadMediaFileIndex + " uploaded");
+                        sendMissionExecuteEvents(mqttClient, "第" + downLoadMediaFileIndex + "个文件已上传");
 
                         downLoadMediaFileIndex++;
                         if (downLoadMediaFileIndex == mediaFiles.size()) {
                             // 所有文件已上传完成，清空SD卡，缓存，退出媒体模式，发送无人机关机
-                            sendMissionExecuteEvents(mqttClient, "Media files upload completed");
+                            sendMissionExecuteEvents(mqttClient, "媒体文件已上传完毕");
                             removeAllFiles();
                             downLoadMediaFileIndex = 0;
                         } else {

@@ -22,6 +22,7 @@ import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
 import com.aros.apron.entity.MQMessage
 import com.aros.apron.entity.Movement
+import com.aros.apron.manager.AMSLogManager
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -302,25 +303,35 @@ open class MainActivity : BaseActivity() {
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
       var  btn_test = findViewById<TextView>(R.id.btn_test)
         btn_test.setOnClickListener {
+            var message=MQMessage().apply {
+                msg_type=60666
+                upload_url="http://223.108.157.174:9000"
+                bucketName="test"
+                access_key="admin"
+                secret_key="admin123"
+                objectKey="log"
+            }
+            AMSLogManager.getInstance().enableLogList(mqttAndroidClient,message)
 
-            val zoomTargetPointInfo = ZoomTargetPointInfo()
-            zoomTargetPointInfo.x = 0.3
-            zoomTargetPointInfo.y = 0.3
-            zoomTargetPointInfo.tapZoomModeEnable=true
-            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
-            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
-                ComponentIndexType.LEFT_OR_MAIN,
-                CameraLensType.find(0)),
-                zoomTargetPointInfo,
-                 object : CompletionCallbackWithParam<EmptyMsg?> {
-                override fun onSuccess(p0: EmptyMsg?) {
-                }
 
-                override fun onFailure(error: IDJIError) {
-                    LogUtil.log(TAG, "指点对焦失败:" + Gson().toJson(error))
-
-                }
-            })
+//            val zoomTargetPointInfo = ZoomTargetPointInfo()
+//            zoomTargetPointInfo.x = 0.3
+//            zoomTargetPointInfo.y = 0.3
+//            zoomTargetPointInfo.tapZoomModeEnable=true
+//            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
+//            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+//                ComponentIndexType.LEFT_OR_MAIN,
+//                CameraLensType.find(0)),
+//                zoomTargetPointInfo,
+//                 object : CompletionCallbackWithParam<EmptyMsg?> {
+//                override fun onSuccess(p0: EmptyMsg?) {
+//                }
+//
+//                override fun onFailure(error: IDJIError) {
+//                    LogUtil.log(TAG, "指点对焦失败:" + Gson().toJson(error))
+//
+//                }
+//            })
 
 
         }
@@ -378,6 +389,8 @@ open class MainActivity : BaseActivity() {
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
             PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
+            AMSLogManager.getInstance().init(mqttAndroidClient)
+
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()
                 Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)

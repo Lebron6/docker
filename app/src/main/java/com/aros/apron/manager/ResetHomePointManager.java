@@ -93,7 +93,7 @@ private int droneStatus;
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(client, "取消返航失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(client, "取消返航失败:" + Utils.getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -110,7 +110,7 @@ private int droneStatus;
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(client, "取消降落失败:" + new Gson().toJson(error));
+                            sendMissionExecuteEvents(client, "取消降落失败:" +Utils.getIDJIErrorMsg(error));
                         }
                     });
                     break;

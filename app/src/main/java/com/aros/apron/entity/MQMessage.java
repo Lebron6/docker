@@ -8,6 +8,9 @@ public class MQMessage {
     private String upload_url;
     private String access_key;
     private String secret_key;
+    private String bucketName;
+    private String objectKey;
+
     private String region;
     private String flight_name;
     private int streamIndex=0;//0 云台视角 1FPV
@@ -68,6 +71,22 @@ public class MQMessage {
     private int lowBatteryWarningThreshold;//设置电池低电量警告的阈值。该数值为百分比，范围：[15,50]。当电池电量低于该阀值时，飞行器将进行低电量报警
     private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
     private int lowBatteryRTHEnabled;//智能低电量返航功能。
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public String getObjectKey() {
+        return objectKey;
+    }
+
+    public void setObjectKey(String objectKey) {
+        this.objectKey = objectKey;
+    }
 
     public boolean isNewRoute() {
         return newRoute;
