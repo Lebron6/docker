@@ -122,7 +122,7 @@ class ConnectionActivity : AppCompatActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().accessKey)){
             PreferenceUtils.getInstance().accessKey =
-                "aro"
+                "aros"
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().secretKey)){
             PreferenceUtils.getInstance().secretKey =
