@@ -10,6 +10,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.manager.AMSLogManager;
 import com.aros.apron.manager.AlternateLandingManager;
 import com.aros.apron.manager.CameraManager;
 import com.aros.apron.manager.FlightManager;
@@ -313,10 +314,10 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：重置相机设置" + jsonString);
                 CameraManager.getInstance().resetCameraSetting(mqttClient, message);
                 break;
-            //重置云台
+            //云台回中
             case 60123:
-                LogUtil.log(TAG, "收到命令：重置云台" + jsonString);
-                GimbalManager.getInstance().gimbalReset(mqttClient, message);
+                LogUtil.log(TAG, "收到命令：云台回中" + jsonString);
+                GimbalManager.getInstance().gimbalResetWithPitchAndYaw(mqttClient, message);
                 break;
             //设置对焦模式
             case 60124:
@@ -443,9 +444,25 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60149:
                 LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
                 break;
+            //云台偏航回中
+            case 60150:
+                LogUtil.log(TAG, "收到命令：云台偏航回中" + jsonString);
+                GimbalManager.getInstance().gimbalResetWithYaw(mqttClient, message);
+                break;
+            //云台偏航向下
+            case 60151:
+                LogUtil.log(TAG, "收到命令：云台偏航向下" + jsonString);
+                GimbalManager.getInstance().gimbalDownWithPitch(mqttClient, message);
+                break;
+            //云台向下
+            case 60152:
+                LogUtil.log(TAG, "收到命令：云台向下" + jsonString);
+                GimbalManager.getInstance().gimbalDownWithPitchAndYaw(mqttClient, message);
+                break;
             //msdk日志上传
             case 60666:
                 LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
+                AMSLogManager.getInstance().enableLogList(mqttClient,message);
                 break;
             //监听机库收到AMS命令后的回执
             case 60999:

@@ -123,7 +123,7 @@ public abstract class BaseManager {
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
-                LogUtil.log(TAG, "文件上传发送成功：60102"+new Gson().toJson(result));
+                LogUtil.log(TAG, "文件上传发送成功："+new Gson().toJson(result));
 
             } else {
                 LogUtil.log(TAG, "文件上传发送失败：mqtt 未连接");

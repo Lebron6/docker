@@ -141,8 +141,8 @@ public class GimbalManager extends BaseManager {
         }
     }
 
-    //云台重置
-    public void gimbalReset(MqttAndroidClient client, MQMessage message) {
+    //云台回中
+    public void gimbalResetWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -165,6 +165,83 @@ public class GimbalManager extends BaseManager {
         }
     }
 
+    //云台偏航回中
+    public void gimbalResetWithYaw(MqttAndroidClient client, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, 0));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0),
+                    GimbalResetType.ONLY_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(client, message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG,"云台偏航回中失败:"+new Gson().toJson(error));
+                            sendMsg2Server(client, message, "云台偏航回中失败:" + getIDJIErrorMsg(error));
+                        }
+                    }
+            );
+        } else {
+            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+        }
+    }
+
+    //偏航向下
+    public void gimbalDownWithPitch(MqttAndroidClient client, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, 0));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            GimbalAngleRotation rotation = new GimbalAngleRotation();
+                rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+                rotation.setPitch(-90.0);
+                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                            @Override
+                            public void onSuccess(EmptyMsg emptyMsg) {
+                                sendMsg2Server(client,message);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendMsg2Server(client,message,"偏航向下失败:"+getIDJIErrorMsg(error));
+                            }
+                        }
+                );
+
+        } else {
+            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+        }
+    }
+
+    //云台朝下
+    public void gimbalDownWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, 0));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            GimbalAngleRotation rotation = new GimbalAngleRotation();
+            rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+            rotation.setYaw(0.0);
+            rotation.setRoll(0.0);
+            rotation.setPitch(-90.0);
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(client,message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendMsg2Server(client,message,"云台向下失败:"+getIDJIErrorMsg(error));
+                        }
+                    }
+            );
+
+        } else {
+            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+        }
+    }
 
     //设置云台控制的最大速度[1,100]
     public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
