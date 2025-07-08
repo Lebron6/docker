@@ -8,6 +8,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -164,8 +165,9 @@ public class BatteryManager extends BaseManager {
                 message.setResult(1);
                 message.setLat(Movement.getInstance().getCurrentLatitude());
                 message.setLon(Movement.getInstance().getCurrentLongitude());
-//                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-//                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
+                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
+                message.setFlyingHeight(Movement.getInstance().getFlyingHeight());
+                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);

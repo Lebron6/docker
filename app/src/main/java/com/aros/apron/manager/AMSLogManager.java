@@ -3,6 +3,7 @@ package com.aros.apron.manager;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -54,21 +55,38 @@ public class AMSLogManager extends BaseManager {
         mqttClient = mqttAndroidClient;
     }
 
+    private boolean isUploadingAMSLog;
+
+    public boolean isUploadingAMSLog() {
+        return isUploadingAMSLog;
+    }
+
+    public void setUploadingAMSLog(boolean uploadingAMSLog) {
+        isUploadingAMSLog = uploadingAMSLog;
+    }
+
     private File[] files = new File[]{};
 
     public void enableLogList(MqttAndroidClient client, MQMessage message) {
+        setUploadingAMSLog(true);
         File logDir = new File(getLogDir());
         if (logDir != null) {
             files = logDir.listFiles();
             if (files == null || files.length == 0) {
                 sendMsg2Server(client, message, "日志文件夹暂无日志文件");
+                setUploadingAMSLog(false);
+
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     pullOriginalFile(message);
                 }
             }
+            sendMsg2Server(client,message);
+
         } else {
             sendMsg2Server(client, message, "日志文件夹为空");
+            setUploadingAMSLog(false);
+
         }
 
     }
@@ -143,9 +161,8 @@ public class AMSLogManager extends BaseManager {
                         fileUploadResult.setFileNum(files.length);
                         fileUploadResult.setBuckName(message.getBucketName());
                         fileUploadResult.setObjectKey(message.getObjectKey());
-                        fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
+                        fileUploadResult.setUrl(message.getUpload_url());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
-
                         sendFileUploadCallback(60202, mqttClient, fileUploadResult);
                     }
 
@@ -154,19 +171,21 @@ public class AMSLogManager extends BaseManager {
                     public void onError(Throwable e) {
                         LogUtil.log(TAG, "Error uploading file " + downLoadMediaFileIndex +file.getName()+ ": " + e.getMessage());
 
-                            File tempFile = new File(file.getParent(), "temp_" + file.getName());
-                            try {
-                                // 复制文件内容到临时文件
-                                Files.copy(file.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                // 上传临时文件
-                                minIOUpLoadAMSLog(message,tempFile);
-                            } catch (Exception ex) {
-                                throw new RuntimeException(ex);
-                            }
+//                            File tempFile = new File(file.getParent(), "temp_" + file.getName());
+//                            try {
+//                                // 复制文件内容到临时文件
+//                                Files.copy(file.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                                // 上传临时文件
+//                                minIOUpLoadAMSLog(message,tempFile);
+//                            } catch (Exception ex) {
+//                                throw new RuntimeException(ex);
+//                            }
                             downLoadMediaFileIndex++;
                             if (downLoadMediaFileIndex == files.length) {
                                 // 所有文件已经下载完成或失败
                                 downLoadMediaFileIndex = 0;
+                                setUploadingAMSLog(false);
+
                             } else {
                                 pullOriginalFile(message);
                             }
@@ -184,6 +203,8 @@ public class AMSLogManager extends BaseManager {
                             // 所有文件已上传完成，清空SD卡，缓存，退出媒体模式，发送无人机关机
                             sendMissionExecuteEvents(mqttClient, "所有AMS日志已上传完毕");
                             downLoadMediaFileIndex = 0;
+                            setUploadingAMSLog(false);
+
                         } else {
                             pullOriginalFile(message);
                         }

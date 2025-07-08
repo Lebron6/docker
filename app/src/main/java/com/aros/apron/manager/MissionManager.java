@@ -308,7 +308,7 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
             }
-            sendMissionExecuteEvents(client, "剩余电量不足以执行任务,请尽快返航");
+            sendMissionExecuteEvents(client, "任务执行失败,电量过低");
             LogUtil.log(TAG, "任务执行失败,电量过低");
             return;
         }
@@ -390,12 +390,12 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                         sendMissionExecuteEvents(client, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                     } else {
-                        LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage());
-                        sendMissionExecuteEvents(client, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage());
+                        LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
+                        sendMissionExecuteEvents(client, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
                     }
                 } else {
-                    LogUtil.log(TAG, "飞行器自检异常:通知关机");
-                    sendMissionExecuteEvents(client, "飞行器自检异常,入库 ");
+                    LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
+                    sendMissionExecuteEvents(client, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
                 }
 
             } else {

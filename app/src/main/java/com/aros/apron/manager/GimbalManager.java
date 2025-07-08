@@ -2,11 +2,14 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
@@ -196,6 +199,9 @@ public class GimbalManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             GimbalAngleRotation rotation = new GimbalAngleRotation();
                 rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+                if (!TextUtils.isEmpty(Movement.getInstance().getGimbalYaw())){
+                    rotation.setYaw(Double.parseDouble(Movement.getInstance().getGimbalYaw()));
+                }
                 rotation.setPitch(-90.0);
                 KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override

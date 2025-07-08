@@ -13,6 +13,15 @@ public class MessageReply {
     private String task_id;
     private String lat;
     private String lon;
+    private double flyingHeight=0.0;//飞行高度
+
+    public double getFlyingHeight() {
+        return flyingHeight;
+    }
+
+    public void setFlyingHeight(double flyingHeight) {
+        this.flyingHeight = flyingHeight;
+    }
 
     public String getLat() {
         return lat;
