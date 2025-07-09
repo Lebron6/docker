@@ -340,6 +340,7 @@ public class MediaManager extends BaseManager {
                     @Override
                     public void onNext(String url) {
                         FileUploadResult fileUploadResult = new FileUploadResult();
+                        fileUploadResult.setResult(1);
                         fileUploadResult.setFileName(mediaFile.getFileName());
                         fileUploadResult.setFileSize(mediaFile.getFileSize());
                         fileUploadResult.setFileNum(mediaFiles.size());

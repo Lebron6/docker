@@ -389,7 +389,6 @@ open class MainActivity : BaseActivity() {
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
             PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
-            AMSLogManager.getInstance().init(mqttAndroidClient)
 
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()

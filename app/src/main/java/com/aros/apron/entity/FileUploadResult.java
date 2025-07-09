@@ -2,6 +2,7 @@ package com.aros.apron.entity;
 
 public class FileUploadResult {
     private int msg_type;
+    private int result;
     private String url;
     private String buckName;
     private String objectKey;
@@ -10,6 +11,14 @@ public class FileUploadResult {
     private int offIndex;
     private int fileNum;
     private Long fileSize;
+
+    public int getResult() {
+        return result;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
 
     public String getTask_id() {
         return task_id;

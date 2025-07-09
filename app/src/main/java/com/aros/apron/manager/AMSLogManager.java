@@ -51,9 +51,6 @@ public class AMSLogManager extends BaseManager {
         return AMSLogManager.MediaManagerHolder.INSTANCE;
     }
 
-    public void init(MqttAndroidClient mqttAndroidClient) {
-        mqttClient = mqttAndroidClient;
-    }
 
     private boolean isUploadingAMSLog;
 
@@ -68,6 +65,7 @@ public class AMSLogManager extends BaseManager {
     private File[] files = new File[]{};
 
     public void enableLogList(MqttAndroidClient client, MQMessage message) {
+        this.mqttClient=client;
         setUploadingAMSLog(true);
         File logDir = new File(getLogDir());
         if (logDir != null) {
@@ -158,6 +156,7 @@ public class AMSLogManager extends BaseManager {
                     public void onNext(String url) {
                         FileUploadResult fileUploadResult = new FileUploadResult();
                         fileUploadResult.setFileName(file.getName());
+                        fileUploadResult.setResult(1);
                         fileUploadResult.setFileNum(files.length);
                         fileUploadResult.setBuckName(message.getBucketName());
                         fileUploadResult.setObjectKey(message.getObjectKey());
