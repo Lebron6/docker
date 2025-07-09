@@ -166,7 +166,7 @@ public class BatteryManager extends BaseManager {
                 message.setLat(Movement.getInstance().getCurrentLatitude());
                 message.setLon(Movement.getInstance().getCurrentLongitude());
                 message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-                message.setFlyingHeight(Movement.getInstance().getFlyingHeight());
+                message.setFlyingHeight(Movement.getInstance().getFlyingHeight()+"");
                 message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(0);

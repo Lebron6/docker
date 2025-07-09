@@ -13,13 +13,13 @@ public class MessageReply {
     private String task_id;
     private String lat;
     private String lon;
-    private double flyingHeight=0.0;//飞行高度
+    private String flyingHeight;//飞行高度
 
-    public double getFlyingHeight() {
+    public String getFlyingHeight() {
         return flyingHeight;
     }
 
-    public void setFlyingHeight(double flyingHeight) {
+    public void setFlyingHeight(String flyingHeight) {
         this.flyingHeight = flyingHeight;
     }
 
