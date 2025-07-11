@@ -91,7 +91,7 @@ public class RTKManager extends BaseManager {
                         public void run() {
                             startNetworkRTKService();
                         }
-                    }, 3000);
+                    }, 2000);
 //                }
 
                 }
@@ -141,12 +141,12 @@ public class RTKManager extends BaseManager {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if (startNetWorkRtkTimes < 8) {
+                                if (startNetWorkRtkTimes < 20) {
                                     startNetWorkRtkTimes++;
                                     startNetworkRTKService();
                                 }
                             }
-                        }, 200);
+                        }, 2000);
                     }
                 }
             });
@@ -167,12 +167,12 @@ public class RTKManager extends BaseManager {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if (startNetWorkRtkTimes < 8) {
+                                if (startNetWorkRtkTimes < 20) {
                                     startNetWorkRtkTimes++;
                                     startNetworkRTKService();
                                 }
                             }
-                        }, 200);
+                        }, 2000);
                     }
                 }
             });

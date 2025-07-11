@@ -5,6 +5,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.aros.apron.entity.Movement;
+import com.aros.apron.manager.PayloadWidgetManager;
 import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.CameraKey;
@@ -139,7 +140,8 @@ public class DroneHelper {
     }
 
     public void setGimbalPitchDegree() {
-
+        //通知拓挂载云台朝下
+        PayloadWidgetManager.getInstance().sendMsgToLeftPayload("#TPPG2wPTZ0A76");
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect!=null&&isConnect) {

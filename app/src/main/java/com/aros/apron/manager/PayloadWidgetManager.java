@@ -315,6 +315,31 @@ public class PayloadWidgetManager extends BaseManager {
         }
     }
 
+    public void sendMsgToLeftPayload(String txt) {
+        Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+        if (payloadManager != null) {
+            IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
+            if (iPayloadManager != null) {
+
+                iPayloadManager.sendDataToPayload(txt.getBytes(), new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        LogUtil.log(TAG,"send"+txt+"to psdk success");
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        LogUtil.log(TAG,"send"+txt+"to psdk fail:"+new Gson().toJson(idjiError));
+                    }
+                });
+            } else {
+                LogUtil.log(TAG,"发送数据到psdk失败:设备未连接");
+            }
+        } else {
+            LogUtil.log(TAG,"发送数据到psdk失败:未检测到设备");
+        }
+    }
+
     //推送MSDK收到的PSDK数据
     public void sendMsgFromPSDK2Server(MqttAndroidClient client,byte[] data) {
         try {

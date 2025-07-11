@@ -303,25 +303,32 @@ open class MainActivity : BaseActivity() {
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
       var  btn_test = findViewById<TextView>(R.id.btn_test)
         btn_test.setOnClickListener {
+//            var message=MQMessage().apply {
+//                msg_type=60666
+//                upload_url="http://223.108.157.174:9000"
+//                bucketName="test"
+//                access_key="admin"
+//                secret_key="admin123"
+//                objectKey="log"
+//            }
+//            AMSLogManager.getInstance().enableLogList(mqttAndroidClient,message)
+
             var message=MQMessage().apply {
-                msg_type=60666
-                upload_url="http://223.108.157.174:9000"
-                bucketName="test"
-                access_key="admin"
-                secret_key="admin123"
-                objectKey="log"
+                msg_type=60125
+                zoomTargetX=0.6
+                zoomTargetY=0.6
+                zoom=4.0
             }
-            AMSLogManager.getInstance().enableLogList(mqttAndroidClient,message)
+CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
 
-
-//            val zoomTargetPointInfo = ZoomTargetPointInfo()
-//            zoomTargetPointInfo.x = 0.3
-//            zoomTargetPointInfo.y = 0.3
+            val zoomTargetPointInfo = ZoomTargetPointInfo()
+            zoomTargetPointInfo.x = 0.3
+            zoomTargetPointInfo.y = 0.3
 //            zoomTargetPointInfo.tapZoomModeEnable=true
 //            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
 //            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
 //                ComponentIndexType.LEFT_OR_MAIN,
-//                CameraLensType.find(0)),
+//                CameraLensType.CAMERA_LENS_ZOOM),
 //                zoomTargetPointInfo,
 //                 object : CompletionCallbackWithParam<EmptyMsg?> {
 //                override fun onSuccess(p0: EmptyMsg?) {
