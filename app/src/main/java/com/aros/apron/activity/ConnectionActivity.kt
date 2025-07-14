@@ -110,7 +110,7 @@ class ConnectionActivity : AppCompatActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl)){
             PreferenceUtils.getInstance().uploadUrl =
-                "tcp://192.168.2.90:9090"
+                "http://192.168.2.90:9090"
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName)){
             PreferenceUtils.getInstance().bucketName =
