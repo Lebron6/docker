@@ -301,9 +301,9 @@ public class AlternateLandingManager extends BaseManager {
         LogUtil.log(TAG, "备降点经纬度:" + PreferenceUtils.getInstance().getAlternatePointLat() + "/" + PreferenceUtils.getInstance().getAlternatePointLon());
         missionPoint1.setSpeed(7.0);
         missionPoint1.setExecuteHeight(Movement.getInstance().getFlyingHeight()
-                > Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointHeight())
+                > Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointSecurityHeight())
                 ? Movement.getInstance().getFlyingHeight() - 1 :
-                Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointHeight()));
+                Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
 
         // 创建一个 MissionPoint 列表
         List<MissionPoint> missionPoints = new ArrayList<>();
@@ -318,7 +318,7 @@ public class AlternateLandingManager extends BaseManager {
         flightMission.setSpeed(15.0);
 
         LogUtil.log(TAG, "当前高度:" + Movement.getInstance().getFlyingHeight()
-                + "---飞往备降点高度:" + Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointHeight())
+                + "---飞往备降点高度:" + Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointSecurityHeight())
                 + "---航线安全起飞高度:" + Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
 
         sendMissionExecuteEvents(mqttClient, "开始生成备降点航线");
@@ -374,6 +374,9 @@ public class AlternateLandingManager extends BaseManager {
             public void onSuccess() {
                 LogUtil.log(TAG, "备降点航线上传成功");
                 sendMissionExecuteEvents(mqttClient, "备降点航线上传成功");
+                if (PreferenceUtils.getInstance().getHaveRTK() && !Movement.getInstance().isRtkSign()) {
+                    RTKManager.getInstance().enableRtk(false);
+                }
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -420,18 +423,6 @@ public class AlternateLandingManager extends BaseManager {
                 }
             }
         });
-    }
-
-    public void setAlternatePoint(MqttAndroidClient client, MQMessage message) {
-        if (message != null && !TextUtils.isEmpty(message.getAlternatePointLat()) && !TextUtils.isEmpty(message.getAlternatePointLon())) {
-            PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternatePointLat());
-            PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternatePointLon());
-            Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
-            Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
-            sendMsg2Server(client, message);
-        } else {
-            sendMsg2Server(client, message, "设置备降点失败:参数有误");
-        }
     }
 
     private static class AlternateLandingHolder {

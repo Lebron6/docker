@@ -41,13 +41,11 @@ public class MQMessage {
     private double shootInterval;//拍照间隔时间
     private int shootCount;//拍照的张数
     private int msg_type;
-    private String alternatePointLat;//设置备降点经纬度
-    private String alternatePointLon;
+    private String alternate_lat;//设置备降点经纬度
+    private String alternate_lng;
     private String offSitePointLat;//设置异地降落经纬度
     private String offSitePointLon;
-    private String alternatePointSecurityHeight; //备降点安全起飞高度
-    private String alternatePointHeight; //备降点高度
-    private String alternatePointTimes; //允许复降次数
+    private String safe_land_height; //备降点安全起飞高度
     private double zoomTargetX; //坐标x,范围0-1
     private double zoomTargetY; //坐标y,范围0-1
     private int cameraFocusMode; //对焦模式
@@ -71,6 +69,30 @@ public class MQMessage {
     private int lowBatteryWarningThreshold;//设置电池低电量警告的阈值。该数值为百分比，范围：[15,50]。当电池电量低于该阀值时，飞行器将进行低电量报警
     private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
     private int lowBatteryRTHEnabled;//智能低电量返航功能。
+
+    public String getAlternate_lat() {
+        return alternate_lat;
+    }
+
+    public void setAlternate_lat(String alternate_lat) {
+        this.alternate_lat = alternate_lat;
+    }
+
+    public String getAlternate_lng() {
+        return alternate_lng;
+    }
+
+    public void setAlternate_lng(String alternate_lng) {
+        this.alternate_lng = alternate_lng;
+    }
+
+    public String getSafe_land_height() {
+        return safe_land_height;
+    }
+
+    public void setSafe_land_height(String safe_land_height) {
+        this.safe_land_height = safe_land_height;
+    }
 
     public String getBucketName() {
         return bucketName;
@@ -328,45 +350,6 @@ public class MQMessage {
         this.shootCount = shootCount;
     }
 
-    public String getAlternatePointSecurityHeight() {
-        return alternatePointSecurityHeight;
-    }
-
-    public void setAlternatePointSecurityHeight(String alternatePointSecurityHeight) {
-        this.alternatePointSecurityHeight = alternatePointSecurityHeight;
-    }
-
-    public String getAlternatePointHeight() {
-        return alternatePointHeight;
-    }
-
-    public void setAlternatePointHeight(String alternatePointHeight) {
-        this.alternatePointHeight = alternatePointHeight;
-    }
-
-    public String getAlternatePointTimes() {
-        return alternatePointTimes;
-    }
-
-    public void setAlternatePointTimes(String alternatePointTimes) {
-        this.alternatePointTimes = alternatePointTimes;
-    }
-
-    public String getAlternatePointLat() {
-        return alternatePointLat;
-    }
-
-    public void setAlternatePointLat(String alternatePointLat) {
-        this.alternatePointLat = alternatePointLat;
-    }
-
-    public String getAlternatePointLon() {
-        return alternatePointLon;
-    }
-
-    public void setAlternatePointLon(String alternatePointLon) {
-        this.alternatePointLon = alternatePointLon;
-    }
 
     public int getAELockEnabled() {
         return AELockEnabled;

@@ -474,7 +474,7 @@ public class FlightManager extends BaseManager {
                 }
             });
         } else {
-            Log.e(TAG, "初始化飞控失败" + "flight controller is null");
+            LogUtil.log(TAG, "初始化飞控失败" + "flight controller is null");
         }
     }
 
@@ -534,7 +534,9 @@ public class FlightManager extends BaseManager {
                     + "--uAltitude:" + Movement.getInstance().getUltrasonicHeight()
                     + "--heath:" + Movement.getInstance().getWarningMessage()
                     + "--status:" + Movement.getInstance().getPlaneMessage()
-                    + "--virtualStickEnableReason" + Movement.getInstance().getVirtualStickEnableReason());
+                    + "--virtualStickEnableReason" + Movement.getInstance().getVirtualStickEnableReason()
+                    + "--batteryTemperatureA" + Movement.getInstance().getBatteryTemperatureA()
+                    + "--isStreaming" + Movement.getInstance().getLiveStatus());
             Movement.getInstance().setEgm96Altitude(
                     GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                     Movement.getInstance().getFlyingHeight()),

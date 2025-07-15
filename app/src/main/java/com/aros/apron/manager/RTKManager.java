@@ -51,7 +51,7 @@ public class RTKManager extends BaseManager {
                             if (newValue!=null){
                                 if (newValue.getRTKHealthy()!=Movement.getInstance().isRtkSign()){
                                     Movement.getInstance().setRtkSign(newValue.getRTKHealthy());
-                                    LogUtil.log(TAG, "机身RTK状态" + newValue.getRTKHealthy());
+                                    LogUtil.log(TAG, "机身RTK状态:" + newValue.getRTKHealthy());
                                 }
                             }
                         }
@@ -60,7 +60,7 @@ public class RTKManager extends BaseManager {
                     //是否开启RTK模块
 //                Boolean isRTKEnable = KeyManager.getInstance().getValue(KeyTools.createKey(RtkMobileStationKey.KeyRTKEnable));
 //                if (isRTKEnable!=null&&!isRTKEnable) {
-                    enableRtk();
+                    enableRtk(true);
 //                }
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -130,7 +130,7 @@ public class RTKManager extends BaseManager {
             RTKCenter.getInstance().getCustomRTKManager().startNetworkRTKService(CoordinateSystem.WGS84, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.log(TAG, "自定义RTK服务"+"第"+startNetWorkRtkTimes+"次开启成功----");
+                    LogUtil.log(TAG, "自定义RTK服务"+"第"+startNetWorkRtkTimes+"次开启成功");
                     isStartNetworkRTKService=true;
                 }
 
@@ -190,29 +190,26 @@ public class RTKManager extends BaseManager {
         RTKCenter.getInstance().setRTKReferenceStationSource(rtkReferenceStationSource, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                LogUtil.log(TAG, "RTK类型设置成功-----");
+                LogUtil.log(TAG, "RTK类型设置成功");
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG, "RTK类型设置失败" + error.description() + "-----");
+                LogUtil.log(TAG, "RTK类型设置失败:" +new Gson().toJson(error) );
             }
         });
     }
 
-    private void enableRtk() {
-        RTKCenter.getInstance().setAircraftRTKModuleEnabled(true, new CommonCallbacks.CompletionCallback() {
+    public void enableRtk(boolean isEnabled) {
+        RTKCenter.getInstance().setAircraftRTKModuleEnabled(isEnabled, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-
-                LogUtil.log(TAG, "RTK启用成功-----");
-
+                LogUtil.log(TAG, "RTK使能"+isEnabled+"成功");
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG, "RTK启用失败" + error.description());
-
+                LogUtil.log(TAG, "RTK使能"+isEnabled+"失败:"+new Gson().toJson(error));
             }
         });
     }
@@ -222,7 +219,7 @@ public class RTKManager extends BaseManager {
         RTKCenter.getInstance().setRTKMaintainAccuracyEnabled(true, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                LogUtil.log(TAG, "RTK精度保持启用成功-----");
+                LogUtil.log(TAG, "RTK精度保持启用成功");
 
             }
 

@@ -231,10 +231,7 @@ class ConnectionActivity : AppCompatActivity() {
                 } else if (PreferenceUtils.getInstance().landType == 1 && !PreferenceUtils.getInstance().haveRTK) {
                     ToastUtil.showToast("RTK降落未配置网络RTK参数")
                     LogUtil.log(TAG, "RTK降落未配置网络RTK参数")
-                } else if (PreferenceUtils.getInstance().airPortType != 1 && PreferenceUtils.getInstance().airPortType != 2 && PreferenceUtils.getInstance().airPortType != 3) {
-                    ToastUtil.showToast("未配置机库类型")
-                    LogUtil.log(TAG, "未配置机库类型")
-                }else if (PreferenceUtils.getInstance().customStreamType==2&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
+                } else if (PreferenceUtils.getInstance().customStreamType==2&&TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)) {
                     ToastUtil.showToast("未配置自定义推流地址")
                     LogUtil.log(TAG, "未配置自定义推流地址")
                 }else if (PreferenceUtils.getInstance().customStreamType==1&&
@@ -249,22 +246,10 @@ class ConnectionActivity : AppCompatActivity() {
                 }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)) {
                     ToastUtil.showToast("未配置允许起飞电量阈值")
                     LogUtil.log(TAG, "未配置允许起飞电量阈值")
+                } else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointTimes) ) {
+                    ToastUtil.showToast("未设置最大允许复降次数")
+                    LogUtil.log(TAG, "未设置最大允许复降次数")
                 }
-//                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLon) ||TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointLat)) {
-//                    ToastUtil.showToast("未设置备降点")
-//                    LogUtil.log(TAG, "未设置备降点")
-//                }
-//                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointSecurityHeight) ) {
-//                    ToastUtil.showToast("未设置备降点安全起飞高度")
-//                    LogUtil.log(TAG, "未设置备降点安全起飞高度")
-//                }
-//                else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointHeight) ) {
-//                    ToastUtil.showToast("未设置飞往备降点高度")
-//                    LogUtil.log(TAG, "未设置飞往备降点高度")
-//                } else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointTimes) ) {
-//                    ToastUtil.showToast("未设置最大允许复降次数")
-//                    LogUtil.log(TAG, "未设置最大允许复降次数")
-//                }
                 else {
                     LogUtil.log(TAG, "已加载AMS配置文件")
                     AMSConfig.getInstance().mqttServerUri =
@@ -282,16 +267,7 @@ class ConnectionActivity : AppCompatActivity() {
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
                     AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/events"
-                    if (PreferenceUtils.getInstance().airPortType == 1) {
-                        AMSConfig.getInstance().descentUltrasonicAltitude = 3
-                        AMSConfig.getInstance().descentAltitude = 0.5
-                    } else if (PreferenceUtils.getInstance().airPortType == 2) {
-                        AMSConfig.getInstance().descentUltrasonicAltitude = 5
-                        AMSConfig.getInstance().descentAltitude = 0.5
-                    } else if (PreferenceUtils.getInstance().airPortType == 3) {
-                        AMSConfig.getInstance().descentUltrasonicAltitude = 5
-                        AMSConfig.getInstance().descentAltitude = 0.5
-                    }
+
                     if (!MainActivity.isAppStarted) {
                         Handler().postDelayed(Runnable {
                             startActivity(Intent(this, MainActivity::class.java))

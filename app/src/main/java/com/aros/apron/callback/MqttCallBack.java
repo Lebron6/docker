@@ -93,17 +93,20 @@ public class MqttCallBack implements MqttCallbackExtended {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         if (isReceiverMission == false) {
                             isReceiverMission = true;
-                            PreferenceUtils.getInstance().setTaskId(message.getTask_id());
-                            // 2.收到60003直接回复
+                            // 1.收到60003直接回复
                             StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                            if (PreferenceUtils.getInstance().getCustomStreamType()==3){
+                            //2.检查航线参数
+                            if (!SystemManager.getInstance().checkMissionParameter(mqttClient, message)){
+                                return;
+                            }
+                            if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
                                 // 3.开启推流
                                 StreamManager.getInstance().startLive(mqttClient, message);
                             }
                             // 4.关闭避障
                             PerceptionManager.getInstance().setPerceptionEnable(false);
                             // 5.清空sd卡
-                            CameraManager.getInstance().formatStorage(null,null);
+                            CameraManager.getInstance().formatStorage(null, null);
                             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                 @Override
                                 public void run() {

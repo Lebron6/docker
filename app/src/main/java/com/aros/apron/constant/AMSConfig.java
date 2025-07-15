@@ -16,10 +16,6 @@ public class AMSConfig {
         return AMSConfig.MqttConfigHolder.INSTANCE;
     }
 
-    //直接降落的超声波高度
-    private int descentUltrasonicAltitude;
-    //直接降落的椭球高度
-    private double descentAltitude;
 
     private String mqttServerUri;
     private String userName;
@@ -40,21 +36,6 @@ public class AMSConfig {
         this.alternateLandingTimes = alternateLandingTimes;
     }
 
-    public double getDescentAltitude() {
-        return descentAltitude;
-    }
-
-    public void setDescentAltitude(double descentAltitude) {
-        this.descentAltitude = descentAltitude;
-    }
-
-    public int getDescentUltrasonicAltitude() {
-        return descentUltrasonicAltitude;
-    }
-
-    public void setDescentUltrasonicAltitude(int descentUltrasonicAltitude) {
-        this.descentUltrasonicAltitude = descentUltrasonicAltitude;
-    }
 
     public String getMqttMsdkPushEvent2ServerTopic() {
         return mqttMsdkPushEvent2ServerTopic;

@@ -637,51 +637,6 @@
                             android:text="拉高返航" />
                     </RadioGroup>
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_weight="3"
-                        android:text="机巢类型" />
-
-                    <RadioGroup
-                        android:id="@+id/rg_port_type"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/rb_ad2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="AD2" />
-
-                        <RadioButton
-                            android:id="@+id/rb_ad3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="AD3" />
-
-
-                        <RadioButton
-                            android:id="@+id/rb_ars350"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="ARS350" />
-                    </RadioGroup>
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -965,7 +920,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -977,7 +932,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -988,7 +943,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="0.7"
-                               
+
                             android:gravity="center"
                             android:singleLine="true"
                             android:text=""
@@ -998,64 +953,6 @@
 
                 </RelativeLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:id="@+id/txt_alternate"
-                        android:textSize="10sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="标记备降点" />
-
-                    <TextView
-                        android:id="@+id/tv_set_alternate"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:gravity="center"
-                        android:text="⭕" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_toLeftOf="@+id/tv_set_alternate"
-                        android:layout_toRightOf="@+id/txt_alternate"
-                        android:orientation="horizontal">
-
-                        <EditText
-
-                            android:id="@+id/et_alternate_lat"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                               
-                            android:gravity="center"
-                            android:singleLine="true"
-                            android:text=""
-                            android:textColor="@color/white"
-                            android:textSize="8sp" />
-
-                        <EditText
-                            android:id="@+id/et_alternate_lon"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                               
-                            android:gravity="center"
-                            android:singleLine="true"
-                            android:text=""
-                            android:textColor="@color/white"
-                            android:textSize="8sp" />
-                    </LinearLayout>
-
-                </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="35dp"
@@ -1084,63 +981,6 @@
 
                 </RelativeLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:id="@+id/txt_alternate_s_h"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="备降点起飞高度" />
-
-                    <EditText
-                        android:id="@+id/et_set_alternate_security_height"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/txt_alternate_s_h"
-                           
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:textSize="10sp"
-
-                        />
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:id="@+id/txt_alternate_height"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:text="飞往备降点高度" />
-
-                    <EditText
-                        android:id="@+id/et_set_alternate_height"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/txt_alternate_height"
-                           
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:textSize="10sp"
-
-                        />
-
-                </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -1162,7 +1002,7 @@
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/txt_alternate_times"
-                           
+
                         android:gravity="center"
                         android:inputType="number"
                         android:textSize="10sp"

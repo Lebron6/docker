@@ -47,7 +47,6 @@ public class PreferenceUtils extends BasePreference {
     private String MQTT_PASSWORD = "mqtt_password";
     private String MQTT_SN = "mqtt_sn";
     private String NEED_UPLOAD_VEDIO = "need_upload_vedio";
-    private String AIRPORT_TYPE = "airport_type";
     private String LANDING_TYPE = "land_type"; //1RTK优先 2视觉优先
     private String CAMERA_LOCATION = "camera_location"; //主相机位置
     private String RTK_TYPE = "rtk_type"; //1自定义网络RTK 2DJI赠送RTK
@@ -57,7 +56,6 @@ public class PreferenceUtils extends BasePreference {
     private String ALTERNATE_POINT_LON = "alternate_point_lon"; //备降点经纬度
     private String ALTERNATE_POINT_LAT = "alternate_point_lat"; //备降点经纬度
     private String ALTERNATE_POINT_SECURITY_HEIGHT = "alternate_point_security_height"; //备降点安全起飞高度
-    private String ALTERNATE_POINT_HEIGHT = "alternate_point_height"; //备降点安全起飞高度
     private String ALTERNATE_POINT_TIMES = "alternate_point_times"; //允许复降次数
     private String DEBUG_MODE = "debug_mode"; //调试模式
     private String CLEAN_MODE = "clean_mode"; //纯净模式
@@ -329,13 +327,6 @@ public class PreferenceUtils extends BasePreference {
         setBoolean(LTE_ENABLE, lteEnable);
     }
 
-    public int getAirPortType() {
-        return getInt(AIRPORT_TYPE);
-    }
-
-    public void setAirPortType(int airPortType) {
-        setInt(AIRPORT_TYPE, airPortType);
-    }
 
     public int getMissionInterruptAction() {
         return getInt(MISSION_INTERRUPT_ACTION);
@@ -414,14 +405,6 @@ public class PreferenceUtils extends BasePreference {
 
     public void setAlternatePointSecurityHeight(String alternatePointSecurityHeight) {
         setString(ALTERNATE_POINT_SECURITY_HEIGHT, alternatePointSecurityHeight);
-    }
-
-    public String getAlternatePointHeight() {
-        return getString(ALTERNATE_POINT_HEIGHT);
-    }
-
-    public void setAlternatePointHeight(String alternatePointHeight) {
-        setString(ALTERNATE_POINT_HEIGHT, alternatePointHeight);
     }
 
     public String getAlternatePointTimes() {

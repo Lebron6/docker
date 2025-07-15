@@ -106,18 +106,10 @@ class ConfigActivity : BaseActivity() {
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
         configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
-        configBinding.etAlternateLat.setText(PreferenceUtils.getInstance().alternatePointLat)
-        configBinding.etAlternateLon.setText(PreferenceUtils.getInstance().alternatePointLon)
-        configBinding.etSetAlternateSecurityHeight.setText(PreferenceUtils.getInstance().alternatePointSecurityHeight)
-        configBinding.etSetAlternateHeight.setText(PreferenceUtils.getInstance().alternatePointHeight)
         configBinding.etSetAlternateTimes.setText(PreferenceUtils.getInstance().alternatePointTimes)
 
         configBinding.cbNeedUploadVideo.isChecked = PreferenceUtils.getInstance().needUpLoadVideo
-        when (PreferenceUtils.getInstance().airPortType) {
-            1 -> configBinding.rbAd2.isChecked = true
-            2 -> configBinding.rbAd3.isChecked = true
-            3 -> configBinding.rbArs350.isChecked = true
-        }
+
         when (PreferenceUtils.getInstance().missionInterruptAction) {
             1 -> configBinding.rbHover.isChecked = true
             2 -> configBinding.rbResume.isChecked = true
@@ -129,25 +121,7 @@ class ConfigActivity : BaseActivity() {
         configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().cameraLocationType ==1//中间
         configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//左边
         configBinding.btnConfig.setOnClickListener { config() }
-        configBinding.tvSetAlternate.setOnClickListener {
-            val isConnect = KeyManager.getInstance()
-                .getValue(KeyTools.createKey(FlightControllerKey.KeyConnection))
-            if (isConnect != null && isConnect) {
-                var locationCoordinate3D = KeyManager.getInstance()
-                    .getValue(KeyTools.createKey(FlightControllerKey.KeyAircraftLocation3D))
-                if (locationCoordinate3D != null) {
-                    LogUtil.log(TAG,"标定备降点经纬度:${locationCoordinate3D?.latitude.toString()}---${locationCoordinate3D?.longitude.toString()}")
-                    configBinding.etAlternateLat.setText(locationCoordinate3D?.latitude.toString())
-                    configBinding.etAlternateLon.setText(locationCoordinate3D?.longitude.toString())
-                } else {
-                    configBinding.etAlternateLat.setText("")
-                    configBinding.etAlternateLon.setText("")
-                    ToastUtil.showToast("获取备降点经纬度失败")
-                }
-            } else {
-                ToastUtil.showToast("设备未连接")
-            }
-        }
+
 
         configBinding.tvSetAircraftLoc.setOnClickListener {
             val isConnect = KeyManager.getInstance()
@@ -236,10 +210,7 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("未配置minio SecretKey")
             return
         }
-        if (!configBinding.rbAd2.isChecked && !configBinding.rbAd3.isChecked && !configBinding.rbArs350.isChecked) {
-            ToastUtil.showToast("未配置机库类型")
-            return
-        }
+
         if (!configBinding.rbHover.isChecked && !configBinding.rbResume.isChecked && !configBinding.rbGohome.isChecked) {
             ToastUtil.showToast("未配置航线中断动作")
             return
@@ -287,32 +258,12 @@ class ConfigActivity : BaseActivity() {
             ToastUtil.showToast("允许起飞电量不得低于35%")
             return
         }
-        if (TextUtils.isEmpty(configBinding.etAlternateLat.text) || TextUtils.isEmpty(configBinding.etAlternateLon.text)) {
-            ToastUtil.showToast("未配置备降点经纬度")
-            return
-        }
 
-        if (TextUtils.isEmpty(configBinding.etSetAlternateSecurityHeight.text) ) {
-            ToastUtil.showToast("未配置备降点安全起飞高度")
-            return
-        }
-        if (TextUtils.isEmpty(configBinding.etSetAlternateHeight.text) ) {
-            ToastUtil.showToast("未配置飞往备降点高度")
-            return
-        }
 
         PreferenceUtils.getInstance().minumumBattery =
             configBinding.etMinimumBattery.text.toString()
 
 
-        PreferenceUtils.getInstance().alternatePointLat =
-            configBinding.etAlternateLat.text.toString()
-        PreferenceUtils.getInstance().alternatePointLon =
-            configBinding.etAlternateLon.text.toString()
-        PreferenceUtils.getInstance().alternatePointHeight =
-            configBinding.etSetAlternateHeight.text.toString()
-        PreferenceUtils.getInstance().alternatePointSecurityHeight =
-            configBinding.etSetAlternateSecurityHeight.text.toString()
         PreferenceUtils.getInstance().alternatePointTimes =
             configBinding.etSetAlternateTimes.text.toString()
 
@@ -382,13 +333,6 @@ class ConfigActivity : BaseActivity() {
             configBinding.etMinioSecretKey.text.toString().replace(" ", "")
         PreferenceUtils.getInstance().needUpLoadVideo = configBinding.cbNeedUploadVideo.isChecked
 
-        if (configBinding.rbAd2.isChecked) {
-            PreferenceUtils.getInstance().airPortType = 1
-        } else if (configBinding.rbAd3.isChecked) {
-            PreferenceUtils.getInstance().airPortType = 2
-        } else {
-            PreferenceUtils.getInstance().airPortType = 3
-        }
 
         if (configBinding.rbHover.isChecked) {
             PreferenceUtils.getInstance().missionInterruptAction = 1

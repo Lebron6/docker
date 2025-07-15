@@ -370,7 +370,7 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
     }
 
     private val handler: Handler = Handler(Looper.getMainLooper())
-    var initTimes=0
+    private var initTimes=0
     private fun initDJIManager() {
         val isFlightControllerConnect =
             KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
@@ -380,7 +380,7 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
             }, 1000)
         } else {
             initTimes++
-            Log.e(TAG,"初始化"+initTimes)
+            LogUtil.log(TAG, "初始化$initTimes")
             RTKManager.getInstance().initRTKInfo()
             StreamManager.getInstance().initStreamManager(mqttAndroidClient)
             FlightManager.getInstance().initFlightInfo(mqttAndroidClient)
