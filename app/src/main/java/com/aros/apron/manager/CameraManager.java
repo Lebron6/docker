@@ -530,28 +530,35 @@ public class CameraManager extends BaseManager {
         }
     }
 
-    //
     //停止录像
     public void stopRecordVideo(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection));
-        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+        //降落时也允许停止录像
+//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+        if (isConnect != null && isConnect ) {
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    if(mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message);
+                    }
+                    LogUtil.log(TAG,"停止录像成功");
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
+                    if(mqttAndroidClient!=null&&message!=null){
+                        sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + getIDJIErrorMsg(error));
+                    }
                     LogUtil.log(TAG,"停止录像失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
             sendMsg2Server(mqttAndroidClient, message, "相机未连接");
         }
     }
+
 
     //设置变焦倍率
     public void setCameraZoomRatios(MqttAndroidClient mqttAndroidClient, MQMessage message) {

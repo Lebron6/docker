@@ -611,6 +611,9 @@ public class FlightManager extends BaseManager {
             DroneHelper.getInstance().setCameraFocusMode();
             isGimbalDownwards = true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
+            if (Movement.getInstance().getIsRecording()==1){
+                CameraManager.getInstance().stopRecordVideo(null,null);
+            }
 
         }
     }
