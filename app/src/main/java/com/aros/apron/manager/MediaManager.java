@@ -125,10 +125,14 @@ public class MediaManager extends BaseManager {
        });
     }
 
+    private int pullMediaFileListFromCameraFailTimes;
+    private boolean isPullMediaFileListFromCameraSuccess;
+
     private void pullMediaFileListFromCamera(){
         MediaDataCenter.getInstance().getMediaManager().pullMediaFileListFromCamera(new PullMediaFileListParam.Builder().count(-1).build(), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
+                        isPullMediaFileListFromCameraSuccess=true;
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -159,11 +163,25 @@ public class MediaManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
-                        LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
-                        ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                        sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败");
-                        disablePlayback();
-                        LogUtil.log(TAG, "发送关闭无人机");
+                        LogUtil.log(TAG, "第"+pullMediaFileListFromCameraFailTimes+"拉取媒体文件失败:"+new Gson().toJson(idjiError));
+
+                        if (!isPullMediaFileListFromCameraSuccess){
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (pullMediaFileListFromCameraFailTimes < 10) {
+                                        pullMediaFileListFromCameraFailTimes++;
+                                        pullMediaFileListFromCamera();
+                                    }else{
+                                        LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
+                                        ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                                        sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败");
+                                        disablePlayback();
+                                        LogUtil.log(TAG, "发送关闭无人机");
+                                    }
+                                }
+                            }, 1500);
+                        }
                     }
                 }
 

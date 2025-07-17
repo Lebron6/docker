@@ -97,7 +97,8 @@ public class FlightManager extends BaseManager {
                 Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
             }
             Movement.getInstance().setTimestamp(System.currentTimeMillis());
-
+            // 开始定时推送任务
+            handler.postDelayed(runnable, TIME);
             Boolean gimBalIsConnect = KeyManager.getInstance().getValue(createKey(GimbalKey.KeyConnection, 0));
             if (gimBalIsConnect != null && gimBalIsConnect) {
                 KeyManager.getInstance().listen(createKey(GimbalKey.KeyGimbalAttitude, 0), this, new CommonCallbacks.KeyListener<Attitude>() {
@@ -174,6 +175,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
                         isMotorsOn = newValue;
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -183,6 +186,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
                         Movement.getInstance().setTakeoffLocationAltitude(t1);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -192,6 +197,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable RTKTakeoffAltitudeInfo rtkTakeoffAltitudeInfo, @Nullable RTKTakeoffAltitudeInfo t1) {
                     if (t1 != null) {
                         Movement.getInstance().setRTKTakeoffAltitude(t1.getAltitude());
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -422,6 +429,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable FailsafeAction failsafeAction, @Nullable FailsafeAction t1) {
                     if (t1 != null) {
                         Movement.getInstance().setFailsafeAction(t1.value());
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -430,6 +439,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setHeightLimit(t1);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -438,6 +449,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setDistanceLimit(t1);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -446,6 +459,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                     if (t1 != null) {
                         Movement.getInstance().setDistanceLimitEnabled(t1 ? 1 : 0);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -454,6 +469,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setLowBatteryWarningThreshold(t1);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -462,6 +479,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setSeriousLowBatteryWarningThreshold(t1);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -470,6 +489,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                     if (t1 != null) {
                         Movement.getInstance().setLowBatteryRTHEnabled(t1 ? 1 : 0);
+                        pushFlightAttitude();
+
                     }
                 }
             });
@@ -523,44 +544,59 @@ public class FlightManager extends BaseManager {
         //触发入库
         droneStorage();
 
-        if (isFlyClickTime()) {
+//        if (isFlyClickTime()) {
 //            Log.e(TAG, "飞行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
 //                    + "---canResume:" + Movement.getInstance().isWaylineCanResume()
 //                    + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
 //            XcFileLog.getInstace().f(TAG,new Gson().toJson(Movement.getInstance()));
-            XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
-                    + Movement.getInstance().getCurrentLatitude()
-                    + " altitude:" + Movement.getInstance().getFlyingHeight()
-                    + " uAltitude:" + Movement.getInstance().getUltrasonicHeight()
-                    + " heath:" + Movement.getInstance().getWarningMessage()
-                    + " status:" + Movement.getInstance().getPlaneMessage()
-                    + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
-                    + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
-                    + " isStreaming:" + Movement.getInstance().getLiveStatus()
-                    + " rtkRTKHealthy:" + Movement.getInstance().isRtkSign());
-            Movement.getInstance().setEgm96Altitude(
-                    GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
-                                    Movement.getInstance().getFlyingHeight()),
-                            Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
-            Movement.getInstance().setTimestamp(System.currentTimeMillis());
-            Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
-            if (isFlying) {
-                Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
-            }
-            //推送飞行状态
-            MqttMessage flightMessage = null;
-            try {
-                flightMessage = new MqttMessage(gson.toJson(Movement.getInstance()).getBytes("UTF-8"));
-            } catch (Exception e) {
-                LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
-            }
-            flightMessage.setQos(0);
-            publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
-        }
+
+//        }
 
     }
 
+    private int TIME = 1000; // 每隔1s执行一次.
+    Handler handler = new Handler();
 
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+                        + Movement.getInstance().getCurrentLatitude()
+                        + " altitude:" + Movement.getInstance().getFlyingHeight()
+                        + " uAltitude:" + Movement.getInstance().getUltrasonicHeight()
+                        + " heath:" + Movement.getInstance().getWarningMessage()
+                        + " status:" + Movement.getInstance().getPlaneMessage()
+                        + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
+                        + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
+                        + " isStreaming:" + Movement.getInstance().getLiveStatus()
+                        + " rtkRTKHealthy:" + Movement.getInstance().isRtkSign());
+                Movement.getInstance().setEgm96Altitude(
+                        GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
+                                        Movement.getInstance().getFlyingHeight()),
+                                Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
+                Movement.getInstance().setTimestamp(System.currentTimeMillis());
+                Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
+                if (isFlying) {
+                    Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
+                }
+                //推送飞行状态
+                MqttMessage flightMessage = null;
+                try {
+                    flightMessage = new MqttMessage(gson.toJson(Movement.getInstance()).getBytes("UTF-8"));
+                } catch (Exception e) {
+                    LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
+                }
+                flightMessage.setQos(0);
+                publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
+
+                // 再次调用postDelayed来保证每一秒都会执行run方法
+                handler.postDelayed(this, TIME);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     private void closeCabinDoor() {
         // 获取飞行状态和航线状态

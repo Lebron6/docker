@@ -56,26 +56,16 @@ public abstract class BaseManager {
     }
 
 
-    public static long lastTime;
-    public static long lastGisTime;
-
-    public boolean isFlyClickTime() {
-        long time = System.currentTimeMillis();
-        if (time - lastTime > 1000) {
-            lastTime = time;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isGisFlyClickTime() {
-        long time = System.currentTimeMillis();
-        if (time - lastGisTime > 5000) {
-            lastGisTime = time;
-            return true;
-        }
-        return false;
-    }
+//    public static long lastTime;
+//
+//    public boolean isFlyClickTime() {
+//        long time = System.currentTimeMillis();
+//        if (time - lastTime > 1000||time-lastTime<0) {
+//            lastTime = time;
+//            return true;
+//        }
+//        return false;
+//    }
 
     public void publish(MqttAndroidClient client, String topic, MqttMessage message) {
         try {
