@@ -170,6 +170,32 @@ public abstract class BaseManager {
         }
     }
 
+    //收到暂停航线命令后，发送经纬度给后端
+    public void sendLowBatteryRTHPosition2Server(MqttAndroidClient client) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60201);
+                message.setResult(1);
+                message.setLat(Movement.getInstance().getCurrentLatitude());
+                message.setLon(Movement.getInstance().getCurrentLongitude());
+                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
+                message.setFlyingHeight(Movement.getInstance().getFlyingHeight()+"");
+                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+                LogUtil.log(TAG,"低电量返航发送成功");
+            } else {
+                LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
+            e.printStackTrace();
+        }
+    }
+
 
     public boolean getGimbalAndCameraEnabled() {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {

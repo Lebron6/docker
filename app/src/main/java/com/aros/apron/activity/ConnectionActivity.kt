@@ -87,6 +87,10 @@ class ConnectionActivity : AppCompatActivity() {
 
     }
     private fun initConfig(){
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)){
+            PreferenceUtils.getInstance().forcedBattery =
+                "20"
+        }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)){
             PreferenceUtils.getInstance().minumumBattery =
                 "35"
@@ -243,10 +247,11 @@ class ConnectionActivity : AppCompatActivity() {
                 }else if (PreferenceUtils.getInstance().cameraLocationType == 0){
                     ToastUtil.showToast("未配置主相机位置")
                     LogUtil.log(TAG, "未配置主相机位置")
-                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)) {
-                    ToastUtil.showToast("未配置允许起飞电量阈值")
-                    LogUtil.log(TAG, "未配置允许起飞电量阈值")
-                } else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointTimes) ) {
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)) {
+                    ToastUtil.showToast("未配置允许起飞或强制返航电量阈值")
+                    LogUtil.log(TAG, "未配置允许起飞或强制返航电量阈值")
+                }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointTimes) ) {
                     ToastUtil.showToast("未设置最大允许复降次数")
                     LogUtil.log(TAG, "未设置最大允许复降次数")
                 }

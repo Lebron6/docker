@@ -10,7 +10,10 @@ public class MQMessage {
     private String secret_key;
     private String bucketName;
     private String objectKey;
-
+    //最低起飞电量
+    String min_takeoff_electricity;
+    //强制返航电量
+    String force_return_electricity;
     private String region;
     private String flight_name;
     private int streamIndex=0;//0 云台视角 1FPV
@@ -69,6 +72,22 @@ public class MQMessage {
     private int lowBatteryWarningThreshold;//设置电池低电量警告的阈值。该数值为百分比，范围：[15,50]。当电池电量低于该阀值时，飞行器将进行低电量报警
     private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
     private int lowBatteryRTHEnabled;//智能低电量返航功能。
+
+    public String getMin_takeoff_electricity() {
+        return min_takeoff_electricity;
+    }
+
+    public void setMin_takeoff_electricity(String min_takeoff_electricity) {
+        this.min_takeoff_electricity = min_takeoff_electricity;
+    }
+
+    public String getForce_return_electricity() {
+        return force_return_electricity;
+    }
+
+    public void setForce_return_electricity(String force_return_electricity) {
+        this.force_return_electricity = force_return_electricity;
+    }
 
     public String getAlternate_lat() {
         return alternate_lat;

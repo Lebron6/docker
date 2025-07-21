@@ -62,13 +62,32 @@ public class SystemManager extends BaseManager {
 
     //检查航线下发时参数是否缺少
     public boolean checkMissionParameter(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        if (message != null && !TextUtils.isEmpty(message.getAlternate_lat()) && !TextUtils.isEmpty(message.getAlternate_lng()) && !TextUtils.isEmpty(message.getSafe_land_height())&& !TextUtils.isEmpty(message.getTask_id())) {
+        if (message != null && !TextUtils.isEmpty(message.getAlternate_lat())
+                && !TextUtils.isEmpty(message.getAlternate_lng()) &&
+                !TextUtils.isEmpty(message.getSafe_land_height()) &&
+                !TextUtils.isEmpty(message.getTask_id())&&
+                !TextUtils.isEmpty(message.getRtmp_push_url())
+                ) {
             PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternate_lat());
             PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternate_lng());
             PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getSafe_land_height());
             PreferenceUtils.getInstance().setTaskId(message.getTask_id());
+            PreferenceUtils.getInstance().setCustomStreamUrl(message.getRtmp_push_url());
             Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
+
             Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
+
+            if (!TextUtils.isEmpty(message.getMin_takeoff_electricity())&&Integer.valueOf(message.getMin_takeoff_electricity()) >= 35) {
+                PreferenceUtils.getInstance().setMinumumBattery(message.getMin_takeoff_electricity());
+            } else {
+                LogUtil.log(TAG, "启用AMS默认起飞电量阈值");
+            }
+
+            if (!TextUtils.isEmpty(message.getForce_return_electricity())&&Integer.valueOf(message.getMin_takeoff_electricity()) - Integer.valueOf(message.getForce_return_electricity()) >= 10) {
+                PreferenceUtils.getInstance().setForcedBattery(message.getForce_return_electricity());
+            } else {
+                LogUtil.log(TAG, "启用AMS默认强制返航电量阈值");
+            }
             return true;
         } else {
             LogUtil.log(TAG, "航线参数有误,直接入库："+new Gson().toJson(message));

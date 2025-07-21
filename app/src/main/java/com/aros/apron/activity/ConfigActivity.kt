@@ -106,6 +106,7 @@ class ConfigActivity : BaseActivity() {
 //        configBinding.etDockerLon.setText(PreferenceUtils.getInstance().dockerLon)
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
         configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
+        configBinding.etForcedBattery.setText(PreferenceUtils.getInstance().forcedBattery)
         configBinding.etSetAlternateTimes.setText(PreferenceUtils.getInstance().alternatePointTimes)
 
         configBinding.cbNeedUploadVideo.isChecked = PreferenceUtils.getInstance().needUpLoadVideo
@@ -249,20 +250,30 @@ class ConfigActivity : BaseActivity() {
 //            ToastUtil.showToast("未标定起飞朝向")
 //            return
 //        }
-        if (TextUtils.isEmpty(configBinding.etMinimumBattery.text) ) {
+        if (TextUtils.isEmpty(configBinding.etMinimumBattery.text) || TextUtils.isEmpty(configBinding.etForcedBattery.text)) {
             ToastUtil.showToast("未配置电池阈值")
             return
         }
         var minimumBattery=configBinding.etMinimumBattery.text.toString()
+        var forcedBattery=configBinding.etForcedBattery.text.toString()
         if (minimumBattery.toInt()<35){
             ToastUtil.showToast("允许起飞电量不得低于35%")
+            return
+        }
+        if (forcedBattery.toInt()>=minimumBattery.toInt()){
+            ToastUtil.showToast("强制返航电量需小于允许起飞电量")
+            return
+        }
+        if ((minimumBattery.toInt()-forcedBattery.toInt())<10){
+            ToastUtil.showToast("强制返航电量需小于允许起飞电量最少10%")
             return
         }
 
 
         PreferenceUtils.getInstance().minumumBattery =
             configBinding.etMinimumBattery.text.toString()
-
+        PreferenceUtils.getInstance().forcedBattery =
+            configBinding.etForcedBattery.text.toString()
 
         PreferenceUtils.getInstance().alternatePointTimes =
             configBinding.etSetAlternateTimes.text.toString()

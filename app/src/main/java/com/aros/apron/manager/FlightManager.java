@@ -531,6 +531,8 @@ public class FlightManager extends BaseManager {
     }
 
     private void pushFlightAttitude() {
+        //强制返航
+        batteryLowLanding();
         //关仓门
         closeCabinDoor();
         //开舱门
@@ -543,15 +545,6 @@ public class FlightManager extends BaseManager {
         checkAndStartVisionLanding();
         //触发入库
         droneStorage();
-
-//        if (isFlyClickTime()) {
-//            Log.e(TAG, "飞行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
-//                    + "---canResume:" + Movement.getInstance().isWaylineCanResume()
-//                    + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
-//            XcFileLog.getInstace().f(TAG,new Gson().toJson(Movement.getInstance()));
-
-//        }
-
     }
 
     private int TIME = 1000; // 每隔1s执行一次.
@@ -597,6 +590,46 @@ public class FlightManager extends BaseManager {
             }
         }
     };
+
+    //(决定飞机触发电量低的返航)
+    public boolean isTriggerRoomBattrryLanding;
+    private void batteryLowLanding() {
+        if (isTriggerRoomBattrryLanding){
+            return;
+        }
+        int forcedBattery = Integer.valueOf(PreferenceUtils.getInstance().getForcedBattery());
+        Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
+                KeyBatteryPowerPercent, 0));
+        String missionState = Movement.getInstance().getWaypointMissionExecuteState();
+        boolean isMissionExecuting = (!TextUtils.isEmpty(missionState) &&
+                (missionState.equals("EXECUTING") || missionState.equals("ENTER_WAYLINE"))
+                ||(!TextUtils.isEmpty(Movement.getInstance().getPlaneMode())
+                &&Movement.getInstance().getPlaneMode().equals("WAYPOINT")));
+        // 获取飞行状态和航线状态
+        boolean isFlyingAndBatteryOk = isFlying &&value!=null&&value< forcedBattery&&isMissionExecuting;
+        boolean isAlterLandStatus=(PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()||PreferenceUtils.getInstance().getTriggerToAlternatePoint());
+
+        if (isFlyingAndBatteryOk&& !isTriggerRoomBattrryLanding&&!isAlterLandStatus) {
+            isTriggerRoomBattrryLanding = true;
+            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    LogUtil.log(TAG,"电量低于阈值，直接返航");
+                    //低电量强制返航通知服务器
+                    sendLowBatteryRTHPosition2Server(mqttAndroidClient);
+                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，强制返航");
+
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG,"电量低于阈值，返航失败:"+new Gson().toJson(error));
+                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，返航失败");
+                }
+            });
+
+        }
+    }
 
     private void closeCabinDoor() {
         // 获取飞行状态和航线状态

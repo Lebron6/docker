@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -415,6 +416,11 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
                         LogUtil.log(TAG,"推流方式配置有误")
                     }
 
+                }, 5000)
+            }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
+                Handler().postDelayed(Runnable {
+                        StreamManager.getInstance()
+                            .startLiveWithCustom()
                 }, 5000)
             }
             val productType =

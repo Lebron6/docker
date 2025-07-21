@@ -1,9 +1,12 @@
 package com.aros.apron.manager;
+
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
@@ -12,6 +15,7 @@ import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
+
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -115,12 +119,47 @@ public class StreamManager extends BaseManager {
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "推流失败:" + error.description() + "---");
-                                sendMsg2Server(client, message, "推流失败:"+getIDJIErrorMsg(error));
+                                sendMsg2Server(client, message, "推流失败:" + getIDJIErrorMsg(error));
 
                             }
                         });
                     }
                 }, 1000);
+                //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
+            } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
+                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getRtmp_push_url())) {
+                liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        LogUtil.log(TAG, "改变地址推流成功");
+                                        sendMsg2Server(client, message);
+                                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NonNull IDJIError error) {
+                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description() + "---");
+                                        sendMsg2Server(client, message, "改变地址推流失败:" + getIDJIErrorMsg(error));
+
+                                    }
+                                });
+                            }
+                        }, 1000);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description() + "---");
+                        sendMsg2Server(client, message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
+                    }
+                });
             }
         }
     }
