@@ -39,6 +39,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
 
+import retrofit2.http.HEAD;
+
 public class MqttCallBack implements MqttCallbackExtended {
 
     private String TAG = "MqttCallBack";
