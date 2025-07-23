@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
@@ -27,6 +28,7 @@ import com.aros.apron.manager.StreamManager;
 import com.aros.apron.manager.SystemManager;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.tools.RestartAPPTool;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -120,41 +122,24 @@ public class MqttCallBack implements MqttCallbackExtended {
                             }, 300);
                             //可能遥控器上次流程结束未关机，就再次起飞
                         }else {
-                            if (isReceiverMissionAgain==false){
-                                isReceiverMissionAgain=true;
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //这里需要考虑taskFail和waitForShutDown等参数的重置
-                                        isWaiting30Min=true;
-                                    }
-                                },30000);
-                            }else{
-                                if (isWaiting30Min&&!Movement.getInstance().isPlaneWing()){
-                                    // 1.收到60003直接回复
-                                    StreamManager.getInstance().sendReply2Server(mqttClient, message);
-                                    //2.检查航线参数
-                                    if (!SystemManager.getInstance().checkMissionParameter(mqttClient, message)){
-                                        return;
-                                    }
-                                    if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
-                                        // 3.开启推流
-                                        StreamManager.getInstance().startLive(mqttClient, message);
-                                    }
-                                    // 4.关闭避障
-                                    PerceptionManager.getInstance().setPerceptionEnable(false);
-                                    // 5.清空sd卡
-                                    CameraManager.getInstance().formatStorage(null, null);
-                                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MissionManager.getInstance().startTaskProcess(mqttClient, message);
-                                        }
-                                    }, 300);
-                                }else{
-                                    LogUtil.log(TAG,"重复收到航线,正在确认飞机状态后飞行:"+"isWaiting30Min="+isWaiting30Min+"isPlaneWing="+Movement.getInstance().isPlaneWing());
-                                }
-                            }
+                            SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
+//                            if (isReceiverMissionAgain==false){
+//                                isReceiverMissionAgain=true;
+//                                new Handler().postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        //这里需要考虑taskFail和waitForShutDown等参数的重置
+//                                        isWaiting30Min=true;
+//                                    }
+//                                },30000);
+//                            }else{
+//                                //等待30秒，如果飞机
+//                                if (isWaiting30Min&&!Movement.getInstance().isPlaneWing()){
+//                                    RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
+//                                }else{
+//                                    LogUtil.log(TAG,"重复收到航线,正在确认飞机状态后飞行:"+"isWaiting30Min="+isWaiting30Min+"isPlaneWing="+Movement.getInstance().isPlaneWing());
+//                                }
+//                            }
                         }
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
