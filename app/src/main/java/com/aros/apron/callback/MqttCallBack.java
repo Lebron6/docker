@@ -61,6 +61,8 @@ public class MqttCallBack implements MqttCallbackExtended {
 
 
     private boolean isReceiverMission = false;
+    private boolean isReceiverMissionAgain = false;
+    private boolean isWaiting30Min = false;
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
@@ -87,8 +89,11 @@ public class MqttCallBack implements MqttCallbackExtended {
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
             case 60003:
                 //默认规定不在返航时才可以上传航线
+                //收到航线时将状态设置为不可关机状态
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
+                Movement.getInstance().setTaskFail(false);
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
-                   PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
+                    PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
                     if (!message.isNewRoute()) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         if (isReceiverMission == false) {
@@ -113,8 +118,43 @@ public class MqttCallBack implements MqttCallbackExtended {
                                     MissionManager.getInstance().startTaskProcess(mqttClient, message);
                                 }
                             }, 300);
-                        }else{
-                            SystemManager.getInstance().replyAlreadyFlown(mqttClient,message);
+                            //可能遥控器上次流程结束未关机，就再次起飞
+                        }else {
+                            if (isReceiverMissionAgain==false){
+                                isReceiverMissionAgain=true;
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //这里需要考虑taskFail和waitForShutDown等参数的重置
+                                        isWaiting30Min=true;
+                                    }
+                                },30000);
+                            }else{
+                                if (isWaiting30Min&&!Movement.getInstance().isPlaneWing()){
+                                    // 1.收到60003直接回复
+                                    StreamManager.getInstance().sendReply2Server(mqttClient, message);
+                                    //2.检查航线参数
+                                    if (!SystemManager.getInstance().checkMissionParameter(mqttClient, message)){
+                                        return;
+                                    }
+                                    if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
+                                        // 3.开启推流
+                                        StreamManager.getInstance().startLive(mqttClient, message);
+                                    }
+                                    // 4.关闭避障
+                                    PerceptionManager.getInstance().setPerceptionEnable(false);
+                                    // 5.清空sd卡
+                                    CameraManager.getInstance().formatStorage(null, null);
+                                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MissionManager.getInstance().startTaskProcess(mqttClient, message);
+                                        }
+                                    }, 300);
+                                }else{
+                                    LogUtil.log(TAG,"重复收到航线,正在确认飞机状态后飞行:"+"isWaiting30Min="+isWaiting30Min+"isPlaneWing="+Movement.getInstance().isPlaneWing());
+                                }
+                            }
                         }
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
@@ -284,15 +324,18 @@ public class MqttCallBack implements MqttCallbackExtended {
             //解锁抛投器
             case 60115:
                 LogUtil.log(TAG, "收到命令：解锁" + jsonString);
-                PayloadWidgetManager.getInstance().unlock(mqttClient,message); break;
+                PayloadWidgetManager.getInstance().unlock(mqttClient,message);
+                break;
             //锁定抛投器
             case 60116:
                 LogUtil.log(TAG, "收到命令：锁定" + jsonString);
-                PayloadWidgetManager.getInstance().lock(mqttClient,message); break;
+                PayloadWidgetManager.getInstance().lock(mqttClient,message);
+                break;
             //抛投
             case 60117:
                 LogUtil.log(TAG, "收到命令：抛投" + jsonString);
-                PayloadWidgetManager.getInstance().throwOne(mqttClient,message); break;
+                PayloadWidgetManager.getInstance().throwOne(mqttClient,message);
+                break;
             //一键全抛
             case 60118:
                 LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
@@ -301,7 +344,8 @@ public class MqttCallBack implements MqttCallbackExtended {
             //设置备降点
 //            case 60119:
 //                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
-//                AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message); break;
+//                AlternateLandingManager.getInstance().setAlternatePoint(mqttClient,message);
+//                break;
             //开始定时拍照
             case 60120:
                 LogUtil.log(TAG, "收到命令：开始定时拍照" + jsonString);
