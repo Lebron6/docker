@@ -572,7 +572,6 @@ public class MissionManager extends BaseManager {
             }
 
             IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-
             missionManager.pushKMZFileToAircraft(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
                 @Override
                 public void onProgressUpdate(Double progress) {
