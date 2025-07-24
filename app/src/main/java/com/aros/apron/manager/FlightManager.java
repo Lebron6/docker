@@ -709,7 +709,6 @@ public class FlightManager extends BaseManager {
 //                && !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         if (shouldStartVisionLanding) {
             startVisionLanding();
-
             // 检查是否满足降落条件
             checkLandingConditions();
 
@@ -751,6 +750,10 @@ public class FlightManager extends BaseManager {
 
 
     private void triggerArucoDetection() {
+        //当电池电量大于40时，允许复降次数设置为10次
+        if(Movement.getInstance().getElectricityInfoA()>40){
+            AMSConfig.getInstance().setAlternateLandingTimes(10+"");
+        }
 
         if (PreferenceUtils.getInstance().getTriggerToAlternatePoint()) {
             LogUtil.log(TAG, "识别AlterTag:" + PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand());

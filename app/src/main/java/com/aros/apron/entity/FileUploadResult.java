@@ -11,6 +11,24 @@ public class FileUploadResult {
     private int offIndex;
     private int fileNum;
     private Long fileSize;
+    private String progress;
+    private String msg;
+
+    public String getProgress() {
+        return progress;
+    }
+
+    public void setProgress(String progress) {
+        this.progress = progress;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
     public int getResult() {
         return result;
