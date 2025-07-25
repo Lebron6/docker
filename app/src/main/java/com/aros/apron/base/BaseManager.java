@@ -111,7 +111,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = null;
                 result.setMsg_type(msgType);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功："+new Gson().toJson(result));
 
