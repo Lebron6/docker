@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
+import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
@@ -73,6 +74,7 @@ public class FlightManager extends BaseManager {
     private IDeviceStatusManager iDeviceStatusManager;
     private boolean isFlying;
     private boolean isMotorsOn;
+    private int waypointIndexAlreadySend;
     DecimalFormat decimalFormat = new DecimalFormat("#.0"); // 保留一位小数
 
     private FlightManager() {
@@ -208,7 +210,10 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
 
-                        double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
+                        double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(),
+                                Movement.getInstance().getHomepointLat(),
+                                String.valueOf(newValue.getLongitude()),
+                                String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
 
                         Movement.getInstance().setEgm96Altitude(GpsUtils.egm96Altitude(newValue.getAltitude(),
@@ -219,6 +224,29 @@ public class FlightManager extends BaseManager {
                         }
                         Movement.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
                         Movement.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
+                        //当前位置与当前航点下标的距离
+                        if (waypointIndexAlreadySend!=Movement.getInstance().getCurrentWaypointIndex()&&
+                                Movement.getInstance().getWaypointMissionExecuteState() != null &&
+                                Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") &&
+                                !PreferenceUtils.getInstance().getIsNewRoute() &&
+                                CurrentWayline.getInstance().getWaypoints()!=null&&
+                                CurrentWayline.getInstance().getWaypoints().size()>Movement.getInstance().getCurrentWaypointIndex()){
+
+                            double pointDistance = LocationUtils.getDistance(
+                                    CurrentWayline.getInstance().getWaypoints()
+                                            .get(Movement.getInstance().getCurrentWaypointIndex())
+                                            .getLocation().getLongitude().toString(),
+                                    CurrentWayline.getInstance().getWaypoints()
+                                            .get(Movement.getInstance().getCurrentWaypointIndex())
+                                            .getLocation().getLatitude().toString(),
+                                    String.valueOf(newValue.getLongitude()),
+                                    String.valueOf(newValue.getLatitude()));
+                            if (pointDistance>2){
+                                waypointIndexAlreadySend=Movement.getInstance().getCurrentWaypointIndex();
+                                sendCustomReachOrLeave2Server(mqttAndroidClient,"1",String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
+                            }
+
+                        }
                         pushFlightAttitude();
                     }
                 }

@@ -72,7 +72,7 @@ public class Movement {
     private int landingPower;//降落电量所需百分比
     private int lowBatteryRTHState;//智能低电量返航状态 0未触发智能低电量返航 1触发智能低电量返航，飞行器正在倒计时 2执行智能低电量返航 3智能低电量返航被取消
     private String missionName;//当前正在执行的航线名
-    private int currentWaypointIndex;//当前航点下标
+    private int currentWaypointIndex=-1;//当前航点下标
     private String currentLongitude="0.0";//当前经度
     private String currentLatitude="0.0";//当前纬度
     private double flyingHeight=0.0;//飞行高度

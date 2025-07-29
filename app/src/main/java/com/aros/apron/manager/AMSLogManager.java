@@ -166,7 +166,7 @@ public class AMSLogManager extends BaseManager {
                         if (files.length==(downLoadMediaFileIndex+1)){
                             fileUploadResult.setMsg("所有日志已上传完毕");
                         }else{
-                            fileUploadResult.setMsg("第"+(downLoadMediaFileIndex+1)+"个文件:"+file.getName()+"已上传");
+                            fileUploadResult.setMsg("文件:"+file.getName()+"已上传");
                         }
                         fileUploadResult.setProgress(String.valueOf(calculatePercentage(downLoadMediaFileIndex+1,files.length)));
                         sendFileUploadCallback(60202, mqttClient, fileUploadResult);
