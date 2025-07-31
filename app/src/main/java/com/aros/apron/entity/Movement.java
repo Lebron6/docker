@@ -120,6 +120,61 @@ public class Movement {
     private boolean isShootingPhotoPanorama;//当前是否正在全景拍照
     private int photoPanoramaProgress;//全景拍照进度百分比
 
+    private String productName;//产品类型 例:M350_RTK
+    private String serialNumber;//飞控序列号
+    private String remoteSerialNumber;//遥控器序列号
+    private String remoteBatteryPercent;//遥控器剩余电量百分比
+    private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
+    private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
+
+    public List<PayloadInfo> getPayloadInfos() {
+        return payloadInfos;
+    }
+
+    public void setPayloadInfos(List<PayloadInfo> payloadInfos) {
+        this.payloadInfos = payloadInfos;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getRemoteSecondBatteryPercent() {
+        return remoteSecondBatteryPercent;
+    }
+
+    public void setRemoteSecondBatteryPercent(String remoteSecondBatteryPercent) {
+        this.remoteSecondBatteryPercent = remoteSecondBatteryPercent;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getRemoteSerialNumber() {
+        return remoteSerialNumber;
+    }
+
+    public void setRemoteSerialNumber(String remoteSerialNumber) {
+        this.remoteSerialNumber = remoteSerialNumber;
+    }
+
+    public String getRemoteBatteryPercent() {
+        return remoteBatteryPercent;
+    }
+
+    public void setRemoteBatteryPercent(String remoteBatteryPercent) {
+        this.remoteBatteryPercent = remoteBatteryPercent;
+    }
+
     public int getPhotoPanoramaProgress() {
         return photoPanoramaProgress;
     }

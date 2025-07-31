@@ -44,7 +44,6 @@ public class ApronArucoDetect {
 
     private String TAG = getClass().getSimpleName();
     Double resultYaw = 0.0;
-    private String productType;
     private List<ArucoMarker> mFindArucoList = new ArrayList<>();
     List<Mat> mArucoCornerList = new ArrayList<>();
     //触发去备降点
@@ -83,13 +82,6 @@ public class ApronArucoDetect {
         isDoublePayload = doublePayload;
     }
 
-    public String getProductType() {
-        return productType;
-    }
-
-    public void setProductType(String productType) {
-        this.productType = productType;
-    }
 
     private ApronArucoDetect() {
     }

@@ -37,6 +37,7 @@ import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
 import dji.sdk.keyvalue.value.common.Attitude;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
@@ -47,6 +48,7 @@ import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -178,7 +180,24 @@ public class FlightManager extends BaseManager {
                     if (newValue != null) {
                         isMotorsOn = newValue;
                         pushFlightAttitude();
+                    }
+                }
+            });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(ProductKey.KeyProductType), this, new CommonCallbacks.KeyListener<ProductType>() {
+                @Override
+                public void onValueChange(@Nullable ProductType productType, @Nullable ProductType t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setProductName(t1.name());
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeySerialNumber), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setSerialNumber(t1);
                     }
                 }
             });
@@ -591,7 +610,7 @@ public class FlightManager extends BaseManager {
                         + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
                         + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
                         + " isStreaming:" + Movement.getInstance().getLiveStatus()
-                        + " rtkRTKHealthy:" + Movement.getInstance().isRtkSign());
+                        + " rtkHealthy:" + Movement.getInstance().isRtkSign());
                 Movement.getInstance().setEgm96Altitude(
                         GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                         Movement.getInstance().getFlyingHeight()),

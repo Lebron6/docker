@@ -3,16 +3,13 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
@@ -27,16 +24,13 @@ import com.dji.wpmzsdk.common.data.Template;
 import com.dji.wpmzsdk.common.data.TemplateParseInfo;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
@@ -425,9 +419,9 @@ public class MissionManager extends BaseManager {
                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                         Movement.getInstance().setTaskFail(true);
                         DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-                        sendMissionExecuteEvents(client, "任务下载失败,关机");
+                        sendMissionExecuteEvents(client, "任务下载失败:"+ e.toString());
                     } else {
-                        sendMissionExecuteEvents(client, "指点任务下载失败");
+                        sendMissionExecuteEvents(client, "指点任务下载失败:"+ e.toString());
                     }
                 }
 

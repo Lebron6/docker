@@ -40,6 +40,7 @@ import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.RTKManager
+import com.aros.apron.manager.RemoteManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
@@ -395,6 +396,7 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
+            RemoteManager.getInstance().initRemoteInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
             PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
 
@@ -437,8 +439,6 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
             } else {
                 LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
             }
-
-            ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }
 
