@@ -270,11 +270,14 @@ public class MissionManager extends BaseManager {
                             //到达航点(航点下标=0)
                             sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                         }
+
                     }else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()){
                         //到达航点(航点下标>0)
                         sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                     }
                 }
+                Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+
 //                if (!(excutingWaylineInfo.getCurrentWaypointIndex()==0&&!PreferenceUtils.getInstance().getIsNewRoute())){
 //                    Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
 //
