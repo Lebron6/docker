@@ -76,7 +76,7 @@ public class FlightManager extends BaseManager {
     private IDeviceStatusManager iDeviceStatusManager;
     private boolean isFlying;
     private boolean isMotorsOn;
-    private int waypointIndexAlreadySend;
+    private int waypointIndexAlreadySend=-1;
     DecimalFormat decimalFormat = new DecimalFormat("#.0"); // 保留一位小数
 
     private FlightManager() {
@@ -248,7 +248,7 @@ public class FlightManager extends BaseManager {
                                 Movement.getInstance().getWaypointMissionExecuteState() != null &&
                                 Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") &&
                                 !PreferenceUtils.getInstance().getIsNewRoute() &&
-                                CurrentWayline.getInstance().getWaypoints()!=null&&
+                                CurrentWayline.getInstance().getWaypoints()!=null &&
                                 CurrentWayline.getInstance().getWaypoints().size()>Movement.getInstance().getCurrentWaypointIndex()){
 
                             double pointDistance = LocationUtils.getDistance(
@@ -261,8 +261,17 @@ public class FlightManager extends BaseManager {
                                     String.valueOf(newValue.getLongitude()),
                                     String.valueOf(newValue.getLatitude()));
                             if (pointDistance>2){
-                                waypointIndexAlreadySend=Movement.getInstance().getCurrentWaypointIndex();
-                                sendCustomReachOrLeave2Server(mqttAndroidClient,"1",String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
+                                //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的inde基础上+1得到最后一个航点的真实下标
+                                if (Movement.getInstance().getCurrentWaypointIndex()==0&&waypointIndexAlreadySend>0){
+                                    waypointIndexAlreadySend=waypointIndexAlreadySend+1;
+                                    sendCustomReachOrLeave2Server(mqttAndroidClient,"1",
+                                            String.valueOf(waypointIndexAlreadySend));
+                                }else{
+                                    waypointIndexAlreadySend=Movement.getInstance().getCurrentWaypointIndex();
+                                    sendCustomReachOrLeave2Server(mqttAndroidClient,"1",
+                                            String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
+                                }
+
                             }
 
                         }

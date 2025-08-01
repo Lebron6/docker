@@ -3,13 +3,16 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
@@ -24,13 +27,16 @@ import com.dji.wpmzsdk.common.data.Template;
 import com.dji.wpmzsdk.common.data.TemplateParseInfo;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
@@ -245,21 +251,34 @@ public class MissionManager extends BaseManager {
         }
     }
 
+    private boolean waypointIndex0AlreadySend;
 
     WaylineExecutingInfoListener waylineExecutingInfoListener = new WaylineExecutingInfoListener() {
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
+                Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+
                 //判断航线状态为EXECUTING，且当前index发生变化，且不在指点任务时，发送到达航点
                 if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
                         Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") &&
-                        Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex() &&
                         !PreferenceUtils.getInstance().getIsNewRoute()) {
-                    //到达航点
-                    sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                    if (excutingWaylineInfo.getCurrentWaypointIndex()==0){
+                        if (!waypointIndex0AlreadySend){
+                            waypointIndex0AlreadySend=true;
+                            //到达航点(航点下标=0)
+                            sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                        }
+                    }else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()){
+                        //到达航点(航点下标>0)
+                        sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                    }
                 }
-                Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+//                if (!(excutingWaylineInfo.getCurrentWaypointIndex()==0&&!PreferenceUtils.getInstance().getIsNewRoute())){
+//                    Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+//
+//                }
 
             }
         }

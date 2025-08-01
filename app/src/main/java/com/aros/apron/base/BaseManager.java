@@ -208,13 +208,17 @@ public abstract class BaseManager {
                 message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-
+                client.publish(AMSConfig.getInstance().getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+                if (data.equals("0")){
+                    LogUtil.log(TAG, "已进入第" + index + "个航点");
+                }else{
+                    LogUtil.log(TAG, "已离开第" + index + "个航点");
+                }
             } else {
-                LogUtil.log(TAG, "推送航点动作组失败：mqtt 未连接");
+                LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, "推送航点动作组发送异常：mqtt 未连接");
+            LogUtil.log(TAG, "推送自定义到达/离开航点的事件异常：mqtt 未连接");
             e.printStackTrace();
         }
     }
@@ -224,7 +228,7 @@ public abstract class BaseManager {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
             return true;
         } else {
-            LogUtil.log(TAG, "降落时不允许操作云台或相机");
+            LogUtil.log(TAG, "降落时不允许操作云台/相机/虚拟摇杆");
             return false;
         }
     }
