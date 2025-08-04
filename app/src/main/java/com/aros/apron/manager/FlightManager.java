@@ -260,7 +260,7 @@ public class FlightManager extends BaseManager {
                                             .getLocation().getLatitude().toString(),
                                     String.valueOf(newValue.getLongitude()),
                                     String.valueOf(newValue.getLatitude()));
-                            if (pointDistance>2){
+                            if (pointDistance>1){
                                 //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的inde基础上+1得到最后一个航点的真实下标
                                 if (Movement.getInstance().getCurrentWaypointIndex()==0&&waypointIndexAlreadySend>0){
                                     waypointIndexAlreadySend=waypointIndexAlreadySend+1;
