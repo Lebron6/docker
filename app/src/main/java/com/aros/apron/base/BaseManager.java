@@ -209,11 +209,6 @@ public abstract class BaseManager {
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 client.publish(AMSConfig.getInstance().getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
-                if (data.equals("0")){
-                    LogUtil.log(TAG, "已进入第" + index + "个航点");
-                }else{
-                    LogUtil.log(TAG, "已离开第" + index + "个航点");
-                }
             } else {
                 LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
             }

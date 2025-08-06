@@ -268,19 +268,18 @@ public class MissionManager extends BaseManager {
                             waypointIndex0AlreadySend=true;
                             //到达航点(航点下标=0)
                             sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                            LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                         }
 
                     }else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()){
+                        LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                         //到达航点(航点下标>0)
                         sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                     }
                 }
+                //状态等执行完发送再更新
                 Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
 
-//                if (!(excutingWaylineInfo.getCurrentWaypointIndex()==0&&!PreferenceUtils.getInstance().getIsNewRoute())){
-//                    Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
-//
-//                }
 
             }
         }
@@ -322,6 +321,17 @@ public class MissionManager extends BaseManager {
 
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
+        if (!TextUtils.isEmpty(Movement.getInstance().getWarningMessage())&&
+                Movement.getInstance().getWarningMessage().equals("camera进程异常")){
+            if (!message.isNewRoute() && !Movement.getInstance().isPlaneWing()) {
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                Movement.getInstance().setTaskFail(true);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+            }
+            sendMissionExecuteEvents(client, "挂载相机进程异常,获取图传失败");
+            LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
+            return;
+        }
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                 KeyBatteryPowerPercent, 0));
         if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery()) && !PreferenceUtils.getInstance().getIsDebugMode()) {
