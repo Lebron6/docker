@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
+import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
@@ -250,16 +251,36 @@ public class MissionManager extends BaseManager {
         }
     }
 
+    private boolean waypointIndex0AlreadySend;
 
     WaylineExecutingInfoListener waylineExecutingInfoListener = new WaylineExecutingInfoListener() {
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
+
+                //判断航线状态为EXECUTING，且当前index发生变化，且不在指点任务时，发送到达航点
+                if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
+                        Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") &&
+                        !PreferenceUtils.getInstance().getIsNewRoute()) {
+                    if (excutingWaylineInfo.getCurrentWaypointIndex()==0){
+                        if (!waypointIndex0AlreadySend){
+                            waypointIndex0AlreadySend=true;
+                            //到达航点(航点下标=0)
+                            sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                            LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                        }
+
+                    }else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()){
+                        LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                        //到达航点(航点下标>0)
+                        sendCustomReachOrLeave2Server(client, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                    }
+                }
+                //状态等执行完发送再更新
                 Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
-                Log.e(TAG, "航线执行状态:" + Movement.getInstance().getWaypointMissionExecuteState()
-                        + "---canResume:" + Movement.getInstance().isWaylineCanResume()
-                        + "---WaypointIndex:" + Movement.getInstance().getCurrentWaypointIndex());
+
+
             }
         }
 
@@ -300,6 +321,17 @@ public class MissionManager extends BaseManager {
 
     public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
         this.message = message;
+        if (!TextUtils.isEmpty(Movement.getInstance().getWarningMessage())&&
+                Movement.getInstance().getWarningMessage().equals("camera进程异常")){
+            if (!message.isNewRoute() && !Movement.getInstance().isPlaneWing()) {
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                Movement.getInstance().setTaskFail(true);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+            }
+            sendMissionExecuteEvents(client, "挂载相机进程异常,获取图传失败");
+            LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
+            return;
+        }
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                 KeyBatteryPowerPercent, 0));
         if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery()) && !PreferenceUtils.getInstance().getIsDebugMode()) {
@@ -362,7 +394,7 @@ public class MissionManager extends BaseManager {
 
     //等待航线任务状态更新或RTK健康状态刷新
     private void verifyAircraftStatus(MqttAndroidClient client, MQMessage message) {
-        if (checkMissionStateTimes < 50) {
+        if (checkMissionStateTimes < 100) {
             mainHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -418,9 +450,9 @@ public class MissionManager extends BaseManager {
                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                         Movement.getInstance().setTaskFail(true);
                         DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-                        sendMissionExecuteEvents(client, "任务下载失败,关机");
+                        sendMissionExecuteEvents(client, "任务下载失败:"+ e.toString());
                     } else {
-                        sendMissionExecuteEvents(client, "指点任务下载失败");
+                        sendMissionExecuteEvents(client, "指点任务下载失败:"+ e.toString());
                     }
                 }
 
@@ -544,12 +576,16 @@ public class MissionManager extends BaseManager {
                     List<Template> templates = waylineTemplatesParseInfo.getTemplates();
                     if (templates != null && templates.size() > 0) {
                         WaylineTemplateWaypointInfo waypointInfo = templates.get(0).getWaypointInfo();
-                        if (waypointInfo != null) {
-                            Log.e(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
+                        if (waypointInfo != null&&waypointInfo.getWaypoints()!=null) {
+                            //将航点列表保存在本地，方便对比得出是否离开航点
+                            if (!PreferenceUtils.getInstance().getIsNewRoute()){
+                                CurrentWayline.getInstance().setWaypoints(waypointInfo.getWaypoints());
+                            }
+                            LogUtil.log(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
                             List<WaylineActionGroup> actionGroups = waypointInfo.getActionGroups();
                             if (actionGroups != null && actionGroups.size() > 0) {
                                 mActionGroups = actionGroups;
-                                Log.e(TAG, "该航线有" + actionGroups.size() + "个动作组");
+                                LogUtil.log(TAG, "该航线有" + actionGroups.size() + "个动作组");
                                 for (int i = 0; i < actionGroups.size(); i++) {
                                     Log.e(TAG, "第" + i + "个动作组有" + actionGroups.get(i).getActions().size() + "个动作");
                                 }

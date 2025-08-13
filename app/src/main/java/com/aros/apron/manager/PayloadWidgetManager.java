@@ -5,7 +5,6 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -13,6 +12,8 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.MessageReply;
+import com.aros.apron.entity.Movement;
+import com.aros.apron.entity.PayloadInfo;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
@@ -20,6 +21,8 @@ import com.google.gson.Gson;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
@@ -32,15 +35,14 @@ import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
 import dji.v5.manager.aircraft.payload.data.PayloadBasicInfo;
-import dji.v5.manager.aircraft.payload.data.PayloadWidgetInfo;
 import dji.v5.manager.aircraft.payload.listener.PayloadBasicInfoListener;
 import dji.v5.manager.aircraft.payload.listener.PayloadDataListener;
-import dji.v5.manager.aircraft.payload.listener.PayloadWidgetInfoListener;
 import dji.v5.manager.interfaces.IPayloadManager;
 
 
 public class PayloadWidgetManager extends BaseManager {
 
+    private List<PayloadInfo> payloadInfos = new ArrayList<>();
 
     private PayloadWidgetManager() {
     }
@@ -57,7 +59,6 @@ public class PayloadWidgetManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
-
             if (payloadManager != null) {
                 IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
                 if (iPayloadManager != null) {
@@ -68,20 +69,96 @@ public class PayloadWidgetManager extends BaseManager {
 //                            Log.e(TAG, "打印DataFromPayload" + "--1111---");
                         }
                     });
+                    iPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
+                        @Override
+                        public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
+                            if (info != null && info.isConnected() &&
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.EXTERNAL.name())) {
+                                PayloadInfo payloadInfo = new PayloadInfo();
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.EXTERNAL.name());
+                                payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
+                                payloadInfo.setProductName(info.getPayloadProductName());
+                                payloadInfo.setSerialNumber(info.getSerialNumber());
+                                payloadInfos.add(payloadInfo);
+                                Movement.getInstance().setPayloadInfos(payloadInfos);
+                            }
+                        }
+                    });
 
                 } else {
-                    LogUtil.log(TAG, "监听psdk数据失败:设备未连接");
+                    LogUtil.log(TAG, "监听EXTERNAL PSDK数据失败:设备未连接");
                 }
-//                IPayloadManager lPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
-//                if (lPayloadManager!=null){
-//                    lPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
-//                        @Override
-//                        public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-//                            Log.e(TAG, "打印PayloadWidgetInfo" + new Gson().toJson(info));
-//
-//                        }
-//                    });
-//                }
+
+                /*******************************************************************************************************/
+
+                IPayloadManager leftOrMainPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
+                if (leftOrMainPayloadManager != null) {
+                    leftOrMainPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
+                        @Override
+                        public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
+                            if (info != null && info.isConnected() &&
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.LEFT_OR_MAIN.name())) {
+                                PayloadInfo payloadInfo = new PayloadInfo();
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.LEFT_OR_MAIN.name());
+                                payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
+                                payloadInfo.setProductName(info.getPayloadProductName());
+                                payloadInfo.setSerialNumber(info.getSerialNumber());
+                                payloadInfos.add(payloadInfo);
+                                Movement.getInstance().setPayloadInfos(payloadInfos);
+                            }
+                        }
+                    });
+
+                } else {
+                    LogUtil.log(TAG, "监听LEFT_OR_MAIN PSDK数据失败:设备未连接");
+                }
+
+                /*******************************************************************************************************/
+
+                IPayloadManager rightPayloadManager = payloadManager.get(PayloadIndexType.RIGHT);
+                if (rightPayloadManager != null) {
+                    rightPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
+                        @Override
+                        public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
+                            if (info != null && info.isConnected() &&
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.RIGHT.name())) {
+                                PayloadInfo payloadInfo = new PayloadInfo();
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.RIGHT.name());
+                                payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
+                                payloadInfo.setProductName(info.getPayloadProductName());
+                                payloadInfo.setSerialNumber(info.getSerialNumber());
+                                payloadInfos.add(payloadInfo);
+                                Movement.getInstance().setPayloadInfos(payloadInfos);
+                            }
+                        }
+                    });
+
+                } else {
+                    LogUtil.log(TAG, "监听RIGHT PSDK数据失败:设备未连接");
+                }
+                /*******************************************************************************************************/
+
+                IPayloadManager upPayloadManager = payloadManager.get(PayloadIndexType.UP);
+                if (upPayloadManager != null) {
+                    upPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
+                        @Override
+                        public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
+                            if (info != null && info.isConnected() &&
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.UP.name())) {
+                                PayloadInfo payloadInfo = new PayloadInfo();
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.UP.name());
+                                payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
+                                payloadInfo.setProductName(info.getPayloadProductName());
+                                payloadInfo.setSerialNumber(info.getSerialNumber());
+                                payloadInfos.add(payloadInfo);
+                                Movement.getInstance().setPayloadInfos(payloadInfos);
+                            }
+                        }
+                    });
+
+                } else {
+                    LogUtil.log(TAG, "监听UP PSDK数据失败:设备未连接");
+                }
             } else {
                 LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
             }
@@ -351,7 +428,7 @@ public class PayloadWidgetManager extends BaseManager {
                 message.setPayloadData(data);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
-                client.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+                client.publish(AMSConfig.getInstance().getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
 
             } else {
                 LogUtil.log(TAG, "psdkData发送失败：mqtt 未连接");
@@ -360,5 +437,18 @@ public class PayloadWidgetManager extends BaseManager {
             LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * 检查列表中是否已经存在指定payloadIndexType的PayloadInfo对象。
+     */
+    private boolean isPayloadIndexTypeExists(List<PayloadInfo> list, String payloadIndexType) {
+        for (PayloadInfo payloadInfo : list) {
+            if (payloadInfo.getPayloadIndexType().equals(payloadIndexType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -111,7 +111,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = null;
                 result.setMsg_type(msgType);
                 mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "文件上传发送成功："+new Gson().toJson(result));
 
@@ -196,12 +196,34 @@ public abstract class BaseManager {
         }
     }
 
+    //自定义到达/离开航点的事件
+    public void sendCustomReachOrLeave2Server(MqttAndroidClient client,String data,String index) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60203);
+                message.setResult(1);
+                message.setWaypointActionState(data);
+                message.setWaypointIndex(index);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(0);
+                client.publish(AMSConfig.getInstance().getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+            } else {
+                LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "推送自定义到达/离开航点的事件异常：mqtt 未连接");
+            e.printStackTrace();
+        }
+    }
+
 
     public boolean getGimbalAndCameraEnabled() {
         if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
             return true;
         } else {
-            LogUtil.log(TAG, "降落时不允许操作云台或相机");
+            LogUtil.log(TAG, "降落时不允许操作云台/相机/虚拟摇杆");
             return false;
         }
     }

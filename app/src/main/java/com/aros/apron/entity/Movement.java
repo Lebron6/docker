@@ -72,7 +72,7 @@ public class Movement {
     private int landingPower;//降落电量所需百分比
     private int lowBatteryRTHState;//智能低电量返航状态 0未触发智能低电量返航 1触发智能低电量返航，飞行器正在倒计时 2执行智能低电量返航 3智能低电量返航被取消
     private String missionName;//当前正在执行的航线名
-    private int currentWaypointIndex;//当前航点下标
+    private int currentWaypointIndex=-1;//当前航点下标
     private String currentLongitude="0.0";//当前经度
     private String currentLatitude="0.0";//当前纬度
     private double flyingHeight=0.0;//飞行高度
@@ -119,6 +119,61 @@ public class Movement {
     private double photoInterval;//当前定时拍照默认时间间隔
     private boolean isShootingPhotoPanorama;//当前是否正在全景拍照
     private int photoPanoramaProgress;//全景拍照进度百分比
+
+    private String productName;//产品类型 例:M350_RTK
+    private String serialNumber;//飞控序列号
+    private String remoteSerialNumber;//遥控器序列号
+    private String remoteBatteryPercent;//遥控器剩余电量百分比
+    private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
+    private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
+
+    public List<PayloadInfo> getPayloadInfos() {
+        return payloadInfos;
+    }
+
+    public void setPayloadInfos(List<PayloadInfo> payloadInfos) {
+        this.payloadInfos = payloadInfos;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getRemoteSecondBatteryPercent() {
+        return remoteSecondBatteryPercent;
+    }
+
+    public void setRemoteSecondBatteryPercent(String remoteSecondBatteryPercent) {
+        this.remoteSecondBatteryPercent = remoteSecondBatteryPercent;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getRemoteSerialNumber() {
+        return remoteSerialNumber;
+    }
+
+    public void setRemoteSerialNumber(String remoteSerialNumber) {
+        this.remoteSerialNumber = remoteSerialNumber;
+    }
+
+    public String getRemoteBatteryPercent() {
+        return remoteBatteryPercent;
+    }
+
+    public void setRemoteBatteryPercent(String remoteBatteryPercent) {
+        this.remoteBatteryPercent = remoteBatteryPercent;
+    }
 
     public int getPhotoPanoramaProgress() {
         return photoPanoramaProgress;

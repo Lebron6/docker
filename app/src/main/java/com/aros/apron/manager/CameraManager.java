@@ -707,8 +707,7 @@ public class CameraManager extends BaseManager {
         }
     }
 
-//
-//
+
 //设置对焦模式
 public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
     Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
@@ -736,7 +735,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
         sendMsg2Server(mqttAndroidClient, message, "相机未连接");
     }
 }
-//
+
     //格式化SD卡
     public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.

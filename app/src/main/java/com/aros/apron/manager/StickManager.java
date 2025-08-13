@@ -211,7 +211,14 @@ public class StickManager extends BaseManager {
     //飞行器虚拟摇杆
     public void sendVirtualStickAdvancedParam(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
+        if (isConnect != null && isConnect ) {
+            if (!getGimbalAndCameraEnabled()){
+                return;
+            }
+            if (!Movement.getInstance().isPlaneWing()){
+                LogUtil.log(TAG,"飞机未起飞:禁止手控");
+                return;
+            }
             if (param == null) {
                 param = new VirtualStickFlightControlParam();
                 param.setRollPitchControlMode(RollPitchControlMode.VELOCITY);//

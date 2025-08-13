@@ -90,11 +90,12 @@ public class SystemManager extends BaseManager {
             }
             return true;
         } else {
+            sendMissionExecuteEvents(mqttAndroidClient, "航线参数有误");
             LogUtil.log(TAG, "航线参数有误,直接入库："+new Gson().toJson(message));
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
             Movement.getInstance().setTaskFail(true);
-            sendMsg2Server(mqttAndroidClient, message, "航线参数有误");
+            sendMsg2Server(mqttAndroidClient, message,"航线参数有误");
             return false;
         }
     }

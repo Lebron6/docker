@@ -48,7 +48,7 @@ public class AMSLogManager extends BaseManager {
     }
 
     public static AMSLogManager getInstance() {
-        return AMSLogManager.MediaManagerHolder.INSTANCE;
+        return MediaManagerHolder.INSTANCE;
     }
 
 
@@ -65,6 +65,7 @@ public class AMSLogManager extends BaseManager {
     private File[] files = new File[]{};
 
     public void enableLogList(MqttAndroidClient client, MQMessage message) {
+        downLoadMediaFileIndex=0;
         this.mqttClient=client;
         setUploadingAMSLog(true);
         File logDir = new File(getLogDir());
@@ -162,6 +163,12 @@ public class AMSLogManager extends BaseManager {
                         fileUploadResult.setObjectKey(message.getObjectKey());
                         fileUploadResult.setUrl(message.getUpload_url());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
+                        if (files.length==(downLoadMediaFileIndex+1)){
+                            fileUploadResult.setMsg("所有日志已上传完毕");
+                        }else{
+                            fileUploadResult.setMsg("文件:"+file.getName()+"已上传");
+                        }
+                        fileUploadResult.setProgress(String.valueOf(calculatePercentage(downLoadMediaFileIndex+1,files.length)));
                         sendFileUploadCallback(60202, mqttClient, fileUploadResult);
                     }
 
@@ -232,6 +239,13 @@ public class AMSLogManager extends BaseManager {
 
     private boolean checkSDCard() {
         return TextUtils.equals(Environment.MEDIA_MOUNTED, Environment.getExternalStorageState());
+    }
+
+    public  int calculatePercentage(int a, int b) {
+        if (b == 0) {
+            return 0; // 避免除以0错误
+        }
+        return (a * 100) / b;
     }
 
 }

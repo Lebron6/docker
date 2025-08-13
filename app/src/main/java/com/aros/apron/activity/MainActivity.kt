@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
@@ -21,9 +22,9 @@ import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
+import com.aros.apron.entity.CurrentWayline
 import com.aros.apron.entity.MQMessage
 import com.aros.apron.entity.Movement
-import com.aros.apron.manager.AMSLogManager
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -40,6 +41,7 @@ import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.RTKManager
+import com.aros.apron.manager.RemoteManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
@@ -55,19 +57,19 @@ import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
 import dji.sdk.keyvalue.key.ProductKey
-import dji.sdk.keyvalue.value.camera.TapZoomMode
-import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo
 import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
-import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithParam
+import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithProgress
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
+import dji.v5.manager.interfaces.IWaypointMissionManager
 import dji.v5.network.DJINetworkManager
 import dji.v5.network.IDJINetworkStatusListener
 import dji.v5.utils.common.JsonUtil
@@ -304,6 +306,96 @@ open class MainActivity : BaseActivity() {
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
       var  btn_test = findViewById<TextView>(R.id.btn_test)
         btn_test.setOnClickListener {
+
+            //此处可能会SDK内部出错
+            //            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
+//            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
+//            if (value != null && value.size() > 0) {
+//                if (message.getIsGuidingFlight() == 0) {
+//                    SystemManager.getInstance().setMediaFilePushOver(true);
+//                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+//                }
+//                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
+//                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
+//                return;
+//            }
+
+            //此处可能会SDK内部出错
+            val kmzInfo = WPMZManager.getInstance().getKMZInfo(
+                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz"
+            )
+            if (kmzInfo != null) {
+                val waylineTemplatesParseInfo = kmzInfo.waylineTemplatesParseInfo
+                if (waylineTemplatesParseInfo != null) {
+                    val templates = waylineTemplatesParseInfo.templates
+                    if (templates != null && templates.size > 0) {
+                        val waypointInfo = templates[0].waypointInfo
+                        if (waypointInfo != null && waypointInfo.waypoints != null) {
+                            //将航点列表保存在本地，方便对比得出是否离开航点
+                            if (!PreferenceUtils.getInstance().isNewRoute) {
+                                CurrentWayline.getInstance().waypoints = waypointInfo.waypoints
+                            }
+                            LogUtil.log(TAG, "该航线有" + waypointInfo.waypoints.size + "个航点")
+                            val actionGroups = waypointInfo.actionGroups
+                            if (actionGroups != null && actionGroups.size > 0) {
+                                LogUtil.log(TAG, "该航线有" + actionGroups.size + "个动作组")
+                                for (i in actionGroups.indices) {
+                                    Log.e(
+                                        TAG,
+                                        "第" + i + "个动作组有" + actionGroups[i].actions.size + "个动作"
+                                    )
+                                }
+                            } else {
+                                LogUtil.log(TAG, "WPMZManager getActionGroups有误")
+                            }
+                        } else {
+                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误")
+                        }
+                    } else {
+                        LogUtil.log(TAG, "WPMZManager getTemplates有误")
+                    }
+                } else {
+                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
+                }
+            } else {
+                LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
+            }
+
+            val missionManager: IWaypointMissionManager = WaypointMissionManager.getInstance()
+
+            missionManager.pushKMZFileToAircraft(
+                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz",
+                object : CompletionCallbackWithProgress<Double> {
+                    override fun onProgressUpdate(progress: Double) {
+                        LogUtil.log(TAG, "航线上传进度:$progress")
+                    }
+
+                    override fun onSuccess() {
+                        LogUtil.log(TAG, "航线上传成功,准备执行任务")
+                        Handler().postDelayed(Runnable {
+                            missionManager.startMission("aros",
+                                object : CommonCallbacks.CompletionCallback {
+                                    override fun onSuccess() {
+                                        LogUtil.log(TAG, "开始航线success")
+                                    }
+
+                                    override fun onFailure(p0: IDJIError) {
+                                        LogUtil.log(TAG, "开始航线失败:${p0.description()}")
+                                    }
+
+                                })
+                        }, 1000)
+
+
+                    }
+
+                    override fun onFailure(error: IDJIError) {
+                        LogUtil.log(TAG, "航线上传失败:${Gson().toJson(error)}")
+
+                    }
+                })
+
+
 //            var message=MQMessage().apply {
 //                msg_type=60666
 //                upload_url="http://223.108.157.174:9000"
@@ -314,17 +406,19 @@ open class MainActivity : BaseActivity() {
 //            }
 //            AMSLogManager.getInstance().enableLogList(mqttAndroidClient,message)
 
-            var message=MQMessage().apply {
-                msg_type=60125
-                zoomTargetX=0.6
-                zoomTargetY=0.6
-                zoom=4.0
-            }
-CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
+//            var message=MQMessage().apply {
+//                msg_type=60125
+//                zoomTargetX=0.6
+//                zoomTargetY=0.6
+//                zoom=4.0
+//            }
+//CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
+//
+//            val zoomTargetPointInfo = ZoomTargetPointInfo()
+//            zoomTargetPointInfo.x = 0.3
+//            zoomTargetPointInfo.y = 0.3
 
-            val zoomTargetPointInfo = ZoomTargetPointInfo()
-            zoomTargetPointInfo.x = 0.3
-            zoomTargetPointInfo.y = 0.3
+
 //            zoomTargetPointInfo.tapZoomModeEnable=true
 //            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
 //            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
@@ -395,6 +489,7 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
             StickManager.getInstance().initStickInfo(mqttAndroidClient)
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
+            RemoteManager.getInstance().initRemoteInfo(mqttAndroidClient)
             ApronArucoDetect.getInstance().init()
             PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
 
@@ -437,8 +532,6 @@ CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
             } else {
                 LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
             }
-
-            ApronArucoDetect.getInstance().productType = productType!!.name
         }
     }
 

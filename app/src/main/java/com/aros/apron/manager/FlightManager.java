@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
+import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
@@ -36,6 +37,7 @@ import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
 import dji.sdk.keyvalue.value.common.Attitude;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
@@ -46,6 +48,7 @@ import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -73,6 +76,7 @@ public class FlightManager extends BaseManager {
     private IDeviceStatusManager iDeviceStatusManager;
     private boolean isFlying;
     private boolean isMotorsOn;
+    private int waypointIndexAlreadySend=-1;
     DecimalFormat decimalFormat = new DecimalFormat("#.0"); // 保留一位小数
 
     private FlightManager() {
@@ -122,8 +126,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setPlaneMessage(to.description());
                         pushFlightAttitude();
                     }
-                    Log.e(TAG, "监听飞机状态:" + to.name());
-
                 }
             });
             iPerceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
@@ -176,7 +178,24 @@ public class FlightManager extends BaseManager {
                     if (newValue != null) {
                         isMotorsOn = newValue;
                         pushFlightAttitude();
+                    }
+                }
+            });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(ProductKey.KeyProductType), this, new CommonCallbacks.KeyListener<ProductType>() {
+                @Override
+                public void onValueChange(@Nullable ProductType productType, @Nullable ProductType t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setProductName(t1.name());
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeySerialNumber), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setSerialNumber(t1);
                     }
                 }
             });
@@ -208,7 +227,10 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
 
-                        double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(), Movement.getInstance().getHomepointLat(), String.valueOf(newValue.getLongitude()), String.valueOf(newValue.getLatitude()));
+                        double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(),
+                                Movement.getInstance().getHomepointLat(),
+                                String.valueOf(newValue.getLongitude()),
+                                String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
 
                         Movement.getInstance().setEgm96Altitude(GpsUtils.egm96Altitude(newValue.getAltitude(),
@@ -219,6 +241,55 @@ public class FlightManager extends BaseManager {
                         }
                         Movement.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
                         Movement.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
+                        //当前位置与当前航点下标的距离
+                        if (waypointIndexAlreadySend != Movement.getInstance().getCurrentWaypointIndex() &&
+                                Movement.getInstance().getWaypointMissionExecuteState() != null &&
+                                (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") ||
+                                        Movement.getInstance().getWaypointMissionExecuteState().equals("FINISHED"))
+                                &&
+                                !PreferenceUtils.getInstance().getIsNewRoute() &&
+                                CurrentWayline.getInstance().getWaypoints() != null &&
+                                CurrentWayline.getInstance().getWaypoints().size() >
+                                        Movement.getInstance().getCurrentWaypointIndex() &&
+                                CurrentWayline.getInstance().getWaypoints().size() >
+                                        waypointIndexAlreadySend) {
+
+                            double pointDistance = LocationUtils.getDistance(
+                                    CurrentWayline.getInstance().getWaypoints()
+                                            .get(Movement.getInstance().getCurrentWaypointIndex())
+                                            .getLocation().getLongitude().toString(),
+                                    CurrentWayline.getInstance().getWaypoints()
+                                            .get(Movement.getInstance().getCurrentWaypointIndex())
+                                            .getLocation().getLatitude().toString(),
+                                    String.valueOf(newValue.getLongitude()),
+                                    String.valueOf(newValue.getLatitude()));
+                            if (pointDistance>1) {
+                                //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的index基础上+1得到最后一个航点的真实下标
+                                if (Movement.getInstance().getCurrentWaypointIndex() == 0 && waypointIndexAlreadySend > 0
+                                ) {
+                                    //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
+                                    waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
+                                    if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
+                                        sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
+                                                String.valueOf(waypointIndexAlreadySend));
+                                        LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
+                                                + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                    }else{
+                                        LogUtil.log(TAG, "x已超出第" + waypointIndexAlreadySend
+                                                + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                    }
+                                } else {
+                                    waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
+                                    sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
+                                            String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
+                                    LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
+                                            + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+
+                                }
+
+                            }
+
+                        }
                         pushFlightAttitude();
                     }
                 }
@@ -563,7 +634,7 @@ public class FlightManager extends BaseManager {
                         + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
                         + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
                         + " isStreaming:" + Movement.getInstance().getLiveStatus()
-                        + " rtkRTKHealthy:" + Movement.getInstance().isRtkSign());
+                        + " rtkHealthy:" + Movement.getInstance().isRtkSign());
                 Movement.getInstance().setEgm96Altitude(
                         GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                         Movement.getInstance().getFlyingHeight()),
@@ -709,7 +780,6 @@ public class FlightManager extends BaseManager {
 //                && !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         if (shouldStartVisionLanding) {
             startVisionLanding();
-
             // 检查是否满足降落条件
             checkLandingConditions();
 
@@ -751,6 +821,10 @@ public class FlightManager extends BaseManager {
 
 
     private void triggerArucoDetection() {
+        //当电池电量大于40时，允许复降次数设置为10次
+        if(Movement.getInstance().getElectricityInfoA()>40){
+            AMSConfig.getInstance().setAlternateLandingTimes(10+"");
+        }
 
         if (PreferenceUtils.getInstance().getTriggerToAlternatePoint()) {
             LogUtil.log(TAG, "识别AlterTag:" + PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand());
