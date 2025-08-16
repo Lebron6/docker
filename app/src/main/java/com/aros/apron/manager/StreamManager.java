@@ -95,7 +95,7 @@ public class StreamManager extends BaseManager {
                     .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getRtmp_push_url()).build()).build();
             liveStreamManager.setLiveStreamSettings(streamSettings);
 //            if (message.getStreamIndex() == 0) {
-            liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+            liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
 //            } else {
 //                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
 //            }
@@ -191,7 +191,7 @@ public class StreamManager extends BaseManager {
             if (message.getCurrentView()==1){
                 liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
             }else{
-                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
             }
 
         }
@@ -219,7 +219,7 @@ public class StreamManager extends BaseManager {
             if (value != null && (value == CameraType.ZENMUSE_H20T ||
                     value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
                     || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
-                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
             } else {
                 liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
             }
@@ -278,7 +278,7 @@ public class StreamManager extends BaseManager {
             if (value != null && (value == CameraType.ZENMUSE_H20T ||
                     value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
                     || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
-                liveStreamManager.setCameraIndex(ComponentIndexType.LEFT_OR_MAIN);
+                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
             } else {
                 liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
             }

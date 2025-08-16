@@ -170,7 +170,7 @@ public class CameraManager extends BaseManager {
                 }
             });
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Double>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
@@ -179,7 +179,7 @@ public class CameraManager extends BaseManager {
                 }
             });
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
@@ -205,7 +205,7 @@ public class CameraManager extends BaseManager {
                 }
             });
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalDisplayMode>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalDisplayMode>() {
                 @Override
                 public void onValueChange(@Nullable ThermalDisplayMode thermalDisplayMode, @Nullable ThermalDisplayMode t1) {
                     if (t1 != null) {
@@ -246,7 +246,7 @@ public class CameraManager extends BaseManager {
 
             //当前测温模式
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalTemperatureMeasureMode>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalTemperatureMeasureMode>() {
                 @Override
                 public void onValueChange(@Nullable ThermalTemperatureMeasureMode thermalTemperatureMeasureMode, @Nullable ThermalTemperatureMeasureMode t1) {
                     if (t1 != null) {
@@ -257,7 +257,7 @@ public class CameraManager extends BaseManager {
 
             //获取当前测温点的温度
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalSpotMetersureTemperature,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
@@ -269,7 +269,7 @@ public class CameraManager extends BaseManager {
 
             //获取当前测温区域的温度信息。包括测温区域的平均温度、最小温度和最大温度。
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalRegionMetersureTemperature,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalAreaMetersureTemperature>() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ThermalAreaMetersureTemperature>() {
                 @Override
                 public void onValueChange(@Nullable ThermalAreaMetersureTemperature thermalAreaMetersureTemperature,
                                           @Nullable ThermalAreaMetersureTemperature t1) {
@@ -308,7 +308,7 @@ public class CameraManager extends BaseManager {
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue,
-                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
                         message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
@@ -568,7 +568,7 @@ public class CameraManager extends BaseManager {
             if (message != null) {
                 int cameraZoomRatios = message.getCameraZoomRatios();
                 KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
+                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -594,7 +594,7 @@ public class CameraManager extends BaseManager {
             if (message != null) {
                 int type = message.getThermalZoomRatios();
                 KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
-                        ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
+                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -634,7 +634,7 @@ public class CameraManager extends BaseManager {
                 });
                 if (type == 3) {
                     KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
-                                    ComponentIndexType.LEFT_OR_MAIN,
+                                    ComponentIndexType.PORT_1,
                                     CameraLensType.CAMERA_LENS_THERMAL),
                             ThermalDisplayMode.THERMAL_ONLY, new CommonCallbacks.CompletionCallback() {
                                 @Override
@@ -662,7 +662,7 @@ public class CameraManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
-                            ComponentIndexType.LEFT_OR_MAIN,
+                            ComponentIndexType.PORT_1,
                             CameraLensType.CAMERA_LENS_THERMAL),
                     ThermalDisplayMode.PIP, new CommonCallbacks.CompletionCallback() {
                         @Override
@@ -687,7 +687,7 @@ public class CameraManager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalPIPPosition,
-                            ComponentIndexType.LEFT_OR_MAIN,
+                            ComponentIndexType.PORT_1,
                             CameraLensType.CAMERA_LENS_THERMAL),
                     ThermalPIPPosition.SIDE_BY_SIDE,
                     new CommonCallbacks.CompletionCallback() {
@@ -715,7 +715,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
     if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
         if (message != null) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode,
-                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                            ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
                     CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
@@ -775,7 +775,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureMode,
-                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                            ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
                     CameraExposureMode.find(message.getCameraExposureMode()), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
@@ -802,7 +802,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureCompensation,
-                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM),
+                            ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
                     CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
@@ -848,7 +848,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
 
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomEnable,
-                            ComponentIndexType.LEFT_OR_MAIN,CameraLensType.CAMERA_LENS_ZOOM), true, new CommonCallbacks.CompletionCallback() {
+                            ComponentIndexType.PORT_1,CameraLensType.CAMERA_LENS_ZOOM), true, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG,"设置使能指点成功");
@@ -869,7 +869,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             zoomTargetPointInfo.setTapZoomModeEnable(true);
             zoomTargetPointInfo.setMode(TapZoomMode.GIMBAL_FOLLOW);
             KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
-                    ComponentIndexType.LEFT_OR_MAIN,
+                    ComponentIndexType.PORT_1,
                     CameraLensType.CAMERA_LENS_ZOOM),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
@@ -887,7 +887,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                                     @Override
                                                     public void run() {
                                                         KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-                                                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
+                                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                                             @Override
                                                             public void onSuccess() {
                                                                 sendMsg2Server(mqttAndroidClient, message);
@@ -912,7 +912,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                         break;
                                     case 2:
                                         KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-                                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
+                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
                                                 sendMsg2Server(mqttAndroidClient, message);
@@ -927,7 +927,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                         break;
                                     case 3:
                                         KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
-                                                ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),message.getZoom(), new CommonCallbacks.CompletionCallback() {
+                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL),message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
                                                 sendMsg2Server(mqttAndroidClient, message);
@@ -1056,7 +1056,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                 KeyConnection));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
-                            ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),
+                            ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL),
                     ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
@@ -1083,7 +1083,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             doublePoint2D.setX(Double.parseDouble(message.getMetersurePointX()));
             doublePoint2D.setY(Double.parseDouble(message.getMetersurePointY()));
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalSpotMetersurePoint,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doublePoint2D, new CommonCallbacks.CompletionCallback() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), doublePoint2D, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);
@@ -1113,7 +1113,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
             doubleRect.setHeight(Double.parseDouble(message.getMetersureAreaHeight()));
             doubleRect.setWidth(Double.parseDouble(message.getMetersureAreaWidth()));
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalRegionMetersureArea,
-                    ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doubleRect, new CommonCallbacks.CompletionCallback() {
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), doubleRect, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(mqttAndroidClient, message);

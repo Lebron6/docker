@@ -46,7 +46,7 @@ public class MegaphoneManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             IMegaphoneManager iMegaphoneManager = dji.v5.manager.aircraft.megaphone.MegaphoneManager.getInstance();
-            iMegaphoneManager.setMegaphoneIndex(MegaphoneIndex.STARBOARD, new CommonCallbacks.CompletionCallback() {
+            iMegaphoneManager.setMegaphoneIndex(MegaphoneIndex.PORT_2, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "喊话器位置设置成功");

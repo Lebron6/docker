@@ -1,17 +1,15 @@
 package com.aros.apron.activity
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -21,10 +19,7 @@ import com.aros.apron.BuildConfig
 import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
-import com.aros.apron.databinding.ActivityMainBinding
-import com.aros.apron.entity.CurrentWayline
 import com.aros.apron.entity.MQMessage
-import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -61,22 +56,21 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
-import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithProgress
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
-import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
-import dji.v5.manager.interfaces.IWaypointMissionManager
 import dji.v5.network.DJINetworkManager
 import dji.v5.network.IDJINetworkStatusListener
 import dji.v5.utils.common.JsonUtil
+import dji.v5.utils.common.LogPath
 import dji.v5.utils.common.LogUtils
 import dji.v5.ux.accessory.RTKStartServiceHelper.startRtkService
 import dji.v5.ux.cameracore.widget.autoexposurelock.AutoExposureLockWidget
 import dji.v5.ux.cameracore.widget.cameracontrols.CameraControlsWidget
+import dji.v5.ux.cameracore.widget.cameracontrols.lenscontrol.LensControlWidget
 import dji.v5.ux.cameracore.widget.focusexposureswitch.FocusExposureSwitchWidget
 import dji.v5.ux.cameracore.widget.focusmode.FocusModeWidget
 import dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget
@@ -91,14 +85,12 @@ import dji.v5.ux.core.extension.toggleVisibility
 import dji.v5.ux.core.panel.systemstatus.SystemStatusListPanelWidget
 import dji.v5.ux.core.panel.topbar.TopBarPanelWidget
 import dji.v5.ux.core.util.CameraUtil
-import dji.v5.ux.core.util.CommonUtils
 import dji.v5.ux.core.util.DataProcessor
 import dji.v5.ux.core.util.ViewUtil
 import dji.v5.ux.core.widget.fpv.FPVStreamSourceListener
 import dji.v5.ux.core.widget.fpv.FPVWidget
 import dji.v5.ux.core.widget.hsi.HorizontalSituationIndicatorWidget
 import dji.v5.ux.core.widget.hsi.PrimaryFlightDisplayWidget
-import dji.v5.ux.core.widget.remainingflighttime.RemainingFlightTimeWidget
 import dji.v5.ux.core.widget.setting.SettingWidget
 import dji.v5.ux.gimbal.GimbalFineTuneWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget
@@ -127,35 +119,34 @@ open class MainActivity : BaseActivity() {
         // 如果不需要改变 isAppStarted 的值，可以直接这样声明
         var isAppStarted: Boolean = false
     }
-    private var primaryFpvWidget: FPVWidget? = null
-    private var fpvInteractionWidget: FPVInteractionWidget? = null
-    private var secondaryFPVWidget: FPVWidget? = null
-    private var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
-    private var simulatorControlWidget: SimulatorControlWidget? = null
-    //    private var lensControlWidget: LensControlWidget? = null
-    private var autoExposureLockWidget: AutoExposureLockWidget? = null
-    private var focusModeWidget: FocusModeWidget? = null
-    private var focusExposureSwitchWidget: FocusExposureSwitchWidget? = null
-    private var cameraControlsWidget: CameraControlsWidget? = null
-    //    private var takeOffWidget: TakeOffWidget? = null
-//    private var returnHomeWidget: ReturnHomeWidget? = null
-    private var horizontalSituationIndicatorWidget: HorizontalSituationIndicatorWidget? = null
-    private var pfvFlightDisplayWidget: PrimaryFlightDisplayWidget? = null
-    private var ndviCameraPanel: CameraNDVIPanelWidget? = null
-    private var visualCameraPanel: CameraVisiblePanelWidget? = null
-    private var focalZoomWidget: FocalZoomWidget? = null
-    private var settingWidget: SettingWidget? = null
 
-    //    private var mapWidget: MapWidget? = null
-    private var topBarPanel: TopBarPanelWidget? = null
-    private var remainingFlightTimeWidget: RemainingFlightTimeWidget? = null
-    private var fpvParentView: ConstraintLayout? = null
+    protected var primaryFpvWidget: FPVWidget? = null
+    protected var fpvInteractionWidget: FPVInteractionWidget? = null
+    protected var secondaryFPVWidget: FPVWidget? = null
+    protected var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
+    protected var simulatorControlWidget: SimulatorControlWidget? = null
+    protected var lensControlWidget: LensControlWidget? = null
+    protected var autoExposureLockWidget: AutoExposureLockWidget? = null
+    protected var focusModeWidget: FocusModeWidget? = null
+    protected var focusExposureSwitchWidget: FocusExposureSwitchWidget? = null
+    protected var cameraControlsWidget: CameraControlsWidget? = null
+    protected var horizontalSituationIndicatorWidget: HorizontalSituationIndicatorWidget? = null
+    protected var pfvFlightDisplayWidget: PrimaryFlightDisplayWidget? = null
+    protected var ndviCameraPanel: CameraNDVIPanelWidget? = null
+    protected var visualCameraPanel: CameraVisiblePanelWidget? = null
+    protected var focalZoomWidget: FocalZoomWidget? = null
+    protected var settingWidget: SettingWidget? = null
+    protected var topBarPanel: TopBarPanelWidget? = null
+    protected var fpvParentView: ConstraintLayout? = null
     private var mDrawerLayout: DrawerLayout? = null
     private var gimbalAdjustDone: TextView? = null
+    private var btn_test: Button? = null
+    private var btn_test1: Button? = null
+    private var btn_test2: Button? = null
+
     private var gimbalFineTuneWidget: GimbalFineTuneWidget? = null
     private var lastDevicePosition = ComponentIndexType.UNKNOWN
     private var lastLensType = CameraLensType.UNKNOWN
-
 
     private var compositeDisposable: CompositeDisposable? = null
     private val cameraSourceProcessor = DataProcessor.create(
@@ -171,14 +162,21 @@ open class MainActivity : BaseActivity() {
                 startRtkService(false)
             }
         }
-    private val availableCameraUpdatedListener =
-        AvailableCameraUpdatedListener { availableCameraList: List<ComponentIndexType> ->
-            runOnUiThread { updateFPVWidgetSource(availableCameraList) }
+
+    private val availableCameraUpdatedListener: AvailableCameraUpdatedListener =
+        object : AvailableCameraUpdatedListener {
+            override fun onAvailableCameraUpdated(availableCameraList: List<ComponentIndexType>) {
+                runOnUiThread { updateFPVWidgetSource(availableCameraList) }
+            }
+
+            override fun onCameraStreamEnableUpdate(cameraStreamEnableMap: Map<ComponentIndexType, Boolean>) {
+                //
+            }
         }
 
 
-    var cameraManager = MediaDataCenter.getInstance().cameraStreamManager
-    private var mainBinding: ActivityMainBinding? = null
+    private var cameraManager: ICameraStreamManager = MediaDataCenter.getInstance().cameraStreamManager
+
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
     private var mqMessage: MQMessage? = null
@@ -196,7 +194,7 @@ open class MainActivity : BaseActivity() {
         }
         dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_6X6_250)
         compositeDisposable = CompositeDisposable()
-        compositeDisposable?.add(
+        compositeDisposable!!.add(
             systemStatusListPanelWidget!!.closeButtonPressed()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pressed: Boolean ->
@@ -204,17 +202,17 @@ open class MainActivity : BaseActivity() {
                         systemStatusListPanelWidget!!.hide()
                     }
                 })
-        compositeDisposable?.add(
+        compositeDisposable!!.add(
             simulatorControlWidget!!.getUIStateUpdates()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { simulatorControlWidgetState: SimulatorControlWidget.UIState ->
+                .subscribe { simulatorControlWidgetState: SimulatorControlWidget.UIState? ->
                     if (simulatorControlWidgetState is VisibilityUpdated) {
-                        if (simulatorControlWidgetState.isVisible) {
+                        if ((simulatorControlWidgetState as VisibilityUpdated).isVisible) {
                             hideOtherPanels(simulatorControlWidget!!)
                         }
                     }
                 })
-        compositeDisposable?.add(
+        compositeDisposable!!.add(
             cameraSourceProcessor.toFlowable()
                 .observeOn(io())
                 .throttleLast(500, TimeUnit.MILLISECONDS)
@@ -223,7 +221,7 @@ open class MainActivity : BaseActivity() {
                     runOnUiThread { onCameraSourceUpdated(result.devicePosition, result.lensType) }
                 })
         )
-        compositeDisposable?.add(ObservableInMemoryKeyedStore.getInstance()
+        compositeDisposable!!.add(ObservableInMemoryKeyedStore.getInstance()
             .addObserver(UXKeys.create(GlobalPreferenceKeys.GIMBAL_ADJUST_CLICKED))
             .observeOn(ui())
             .subscribe { broadcastValues: BroadcastValues? ->
@@ -239,24 +237,205 @@ open class MainActivity : BaseActivity() {
             compositeDisposable!!.dispose()
             compositeDisposable = null
         }
-//        mapWidget!!.onPause()
         super.onPause()
         ViewUtil.setKeepScreen(this, false)
+    }
+
+    //endregion
+    private  fun hideOtherPanels(widget: View?) {
+        val panels = arrayOf<View>(
+            simulatorControlWidget!!
+        )
+        for (panel in panels) {
+            if (widget !== panel) {
+                panel.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun updateFPVWidgetSource(availableCameraList: List<ComponentIndexType>?) {
+        LogUtils.i(TAG, JsonUtil.toJson(availableCameraList))
+        if (availableCameraList == null) {
+            return
+        }
+        val cameraList = java.util.ArrayList(availableCameraList)
+
+        //没有数据
+        if (cameraList.isEmpty()) {
+            secondaryFPVWidget!!.visibility = View.GONE
+            return
+        }
+
+        //仅一路数据
+        if (cameraList.size == 1) {
+            primaryFpvWidget!!.updateVideoSource(availableCameraList[0])
+            secondaryFPVWidget!!.visibility = View.GONE
+            return
+        }
+
+
+        //大于两路数据
+        val primarySource = getSuitableSource(cameraList, ComponentIndexType.LEFT_OR_MAIN)
+        if (primarySource != null) {
+            primaryFpvWidget!!.updateVideoSource(primarySource)
+        }
+        cameraList.remove(primarySource)
+
+        val secondarySource = getSuitableSource(cameraList, ComponentIndexType.FPV)
+        if (secondarySource != null) {
+            secondaryFPVWidget!!.updateVideoSource(secondarySource)
+        }
+
+        secondaryFPVWidget!!.visibility = View.VISIBLE
+    }
+
+    private fun getSuitableSource(
+        cameraList: List<ComponentIndexType>,
+        defaultSource: ComponentIndexType
+    ): ComponentIndexType? {
+        if (cameraList.contains(ComponentIndexType.LEFT_OR_MAIN)) {
+            return ComponentIndexType.LEFT_OR_MAIN
+        } else if (cameraList.contains(ComponentIndexType.RIGHT)) {
+            return ComponentIndexType.RIGHT
+        } else if (cameraList.contains(ComponentIndexType.UP)) {
+            return ComponentIndexType.UP
+        } else if (cameraList.contains(ComponentIndexType.PORT_1)) {
+            return ComponentIndexType.PORT_1
+        } else if (cameraList.contains(ComponentIndexType.PORT_2)) {
+            return ComponentIndexType.PORT_2
+        } else if (cameraList.contains(ComponentIndexType.PORT_3)) {
+            return ComponentIndexType.PORT_4
+        } else if (cameraList.contains(ComponentIndexType.PORT_4)) {
+            return ComponentIndexType.PORT_4
+        } else if (cameraList.contains(ComponentIndexType.VISION_ASSIST)) {
+            return ComponentIndexType.VISION_ASSIST
+        }
+        return defaultSource
+    }
+
+    private fun onCameraSourceUpdated(
+        devicePosition: ComponentIndexType,
+        lensType: CameraLensType
+    ) {
+        LogUtils.i(LogPath.SAMPLE, "onCameraSourceUpdated", devicePosition, lensType)
+        if (devicePosition == lastDevicePosition && lensType == lastLensType) {
+            return
+        }
+        lastDevicePosition = devicePosition
+        lastLensType = lensType
+        updateViewVisibility(devicePosition, lensType)
+        updateInteractionEnabled()
+        //如果无需使能或者显示的，也就没有必要切换了。
+        if (fpvInteractionWidget!!.isInteractionEnabled) {
+            fpvInteractionWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (lensControlWidget!!.visibility == View.VISIBLE) {
+            lensControlWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (ndviCameraPanel!!.visibility == View.VISIBLE) {
+            ndviCameraPanel!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (visualCameraPanel!!.visibility == View.VISIBLE) {
+            visualCameraPanel!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (autoExposureLockWidget!!.visibility == View.VISIBLE) {
+            autoExposureLockWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (focusModeWidget!!.visibility == View.VISIBLE) {
+            focusModeWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (focusExposureSwitchWidget!!.visibility == View.VISIBLE) {
+            focusExposureSwitchWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (cameraControlsWidget!!.visibility == View.VISIBLE) {
+            cameraControlsWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (focalZoomWidget!!.visibility == View.VISIBLE) {
+            focalZoomWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+        if (horizontalSituationIndicatorWidget!!.visibility == View.VISIBLE) {
+            horizontalSituationIndicatorWidget!!.updateCameraSource(devicePosition, lensType)
+        }
+    }
+
+    private  fun updateViewVisibility(
+        devicePosition: ComponentIndexType,
+        lensType: CameraLensType
+    ) {
+        //只在fpv下显示
+        pfvFlightDisplayWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.VISIBLE else View.INVISIBLE
+
+        //fpv下不显示
+        lensControlWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        ndviCameraPanel!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        visualCameraPanel!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        autoExposureLockWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        focusModeWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        focusExposureSwitchWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        cameraControlsWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        focalZoomWidget!!.visibility =
+            if (CameraUtil.isFPVTypeView(devicePosition)) View.INVISIBLE else View.VISIBLE
+        horizontalSituationIndicatorWidget!!.setSimpleModeEnable(
+            CameraUtil.isFPVTypeView(
+                devicePosition
+            )
+        )
+
+        //只在部分len下显示
+        ndviCameraPanel!!.visibility =
+            if (CameraUtil.isSupportForNDVI(lensType)) View.VISIBLE else View.INVISIBLE
+    }
+
+    /**
+     * Swap the video sources of the FPV and secondary FPV widgets.
+     */
+    private  fun swapVideoSource() {
+        val primarySource = primaryFpvWidget!!.widgetModel.getCameraIndex()
+        val secondarySource = secondaryFPVWidget!!.widgetModel.getCameraIndex()
+        //两个source都存在的情况下才进行切换
+        if (primarySource != ComponentIndexType.UNKNOWN && secondarySource != ComponentIndexType.UNKNOWN) {
+            primaryFpvWidget!!.updateVideoSource(secondarySource)
+            secondaryFPVWidget!!.updateVideoSource(primarySource)
+        }
+    }
+
+    private fun updateInteractionEnabled() {
+        fpvInteractionWidget!!.isInteractionEnabled = !CameraUtil.isFPVTypeView(
+            primaryFpvWidget!!.widgetModel.getCameraIndex()
+        )
+    }
+
+    private class CameraSource(var devicePosition: ComponentIndexType, var lensType: CameraLensType)
+
+    override fun onBackPressed() {
+        if (mDrawerLayout!!.isDrawerOpen(GravityCompat.END)) {
+            mDrawerLayout!!.closeDrawers()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isAppStarted = true
-
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 //        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        mainBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(mainBinding!!.root)
+        setContentView(R.layout.activity_main)
+        isAppStarted = true
+
+
 //        mapWidget = findViewById<MapWidget>(R.id.widget_map)
 //        mapWidget?.initMapLibreMap(applicationContext, OnMapReadyListener { map: DJIMap ->
 //            val uiSetting = map.uiSettings
@@ -272,174 +451,41 @@ open class MainActivity : BaseActivity() {
         initView()
     }
 
-    @SuppressLint("SuspiciousIndentation")
     private fun initView() {
-        fpvParentView = findViewById<ConstraintLayout>(R.id.fpv_holder)
-        mDrawerLayout = findViewById<DrawerLayout>(R.id.root_view)
-        topBarPanel = findViewById<TopBarPanelWidget>(R.id.panel_top_bar)
-        remainingFlightTimeWidget =
-            findViewById<RemainingFlightTimeWidget>(R.id.widget_remaining_flight_time)
+        fpvParentView = findViewById( R.id.fpv_holder)
+        mDrawerLayout = findViewById( R.id.root_view)
+        topBarPanel = findViewById( R.id.panel_top_bar)
         settingWidget = topBarPanel?.settingWidget
-        primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
-//        takeOffWidget = findViewById<TakeOffWidget>(R.id.widget_take_off)
-//        returnHomeWidget = findViewById<ReturnHomeWidget>(R.id.widget_return_to_home)
-        primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
-        fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
-        secondaryFPVWidget = findViewById<FPVWidget>(R.id.widget_secondary_fpv)
-        systemStatusListPanelWidget =
-            findViewById<SystemStatusListPanelWidget>(R.id.widget_panel_system_status_list)
-        simulatorControlWidget = findViewById<SimulatorControlWidget>(R.id.widget_simulator_control)
-//        lensControlWidget = findViewById<LensControlWidget>(R.id.widget_lens_control)
-        ndviCameraPanel = findViewById<CameraNDVIPanelWidget>(R.id.panel_ndvi_camera)
-        visualCameraPanel = findViewById<CameraVisiblePanelWidget>(R.id.panel_visual_camera)
-        autoExposureLockWidget =
-            findViewById<AutoExposureLockWidget>(R.id.widget_auto_exposure_lock)
-        focusModeWidget = findViewById<FocusModeWidget>(R.id.widget_focus_mode)
-        focusExposureSwitchWidget =
-            findViewById<FocusExposureSwitchWidget>(R.id.widget_focus_exposure_switch)
-        pfvFlightDisplayWidget =
-            findViewById<PrimaryFlightDisplayWidget>(R.id.widget_fpv_flight_display_widget)
-        focalZoomWidget = findViewById<FocalZoomWidget>(R.id.widget_focal_zoom)
-        cameraControlsWidget = findViewById<CameraControlsWidget>(R.id.widget_camera_controls)
+        primaryFpvWidget = findViewById( R.id.widget_primary_fpv)
+        fpvInteractionWidget = findViewById( R.id.widget_fpv_interaction)
+        secondaryFPVWidget = findViewById( R.id.widget_secondary_fpv)
+        systemStatusListPanelWidget = findViewById( R.id.widget_panel_system_status_list)
+        simulatorControlWidget = findViewById( R.id.widget_simulator_control)
+        lensControlWidget = findViewById<LensControlWidget>( R.id.widget_lens_control)
+        ndviCameraPanel = findViewById( R.id.panel_ndvi_camera)
+        visualCameraPanel = findViewById( R.id.panel_visual_camera)
+        autoExposureLockWidget = findViewById( R.id.widget_auto_exposure_lock)
+        focusModeWidget = findViewById( R.id.widget_focus_mode)
+        focusExposureSwitchWidget = findViewById( R.id.widget_focus_exposure_switch)
+        pfvFlightDisplayWidget = findViewById( R.id.widget_fpv_flight_display_widget)
+        focalZoomWidget = findViewById( R.id.widget_focal_zoom)
+        cameraControlsWidget = findViewById( R.id.widget_camera_controls)
         horizontalSituationIndicatorWidget =
-            findViewById<HorizontalSituationIndicatorWidget>(R.id.widget_horizontal_situation_indicator)
-//        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
-      var  btn_test = findViewById<TextView>(R.id.btn_test)
-        btn_test.setOnClickListener {
-
-            //此处可能会SDK内部出错
-            //            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
-//            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
-//            if (value != null && value.size() > 0) {
-//                if (message.getIsGuidingFlight() == 0) {
-//                    SystemManager.getInstance().setMediaFilePushOver(true);
-//                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-//                }
-//                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
-//                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
-//                return;
-//            }
-
-            //此处可能会SDK内部出错
-            val kmzInfo = WPMZManager.getInstance().getKMZInfo(
-                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz"
-            )
-            if (kmzInfo != null) {
-                val waylineTemplatesParseInfo = kmzInfo.waylineTemplatesParseInfo
-                if (waylineTemplatesParseInfo != null) {
-                    val templates = waylineTemplatesParseInfo.templates
-                    if (templates != null && templates.size > 0) {
-                        val waypointInfo = templates[0].waypointInfo
-                        if (waypointInfo != null && waypointInfo.waypoints != null) {
-                            //将航点列表保存在本地，方便对比得出是否离开航点
-                            if (!PreferenceUtils.getInstance().isNewRoute) {
-                                CurrentWayline.getInstance().waypoints = waypointInfo.waypoints
-                            }
-                            LogUtil.log(TAG, "该航线有" + waypointInfo.waypoints.size + "个航点")
-                            val actionGroups = waypointInfo.actionGroups
-                            if (actionGroups != null && actionGroups.size > 0) {
-                                LogUtil.log(TAG, "该航线有" + actionGroups.size + "个动作组")
-                                for (i in actionGroups.indices) {
-                                    Log.e(
-                                        TAG,
-                                        "第" + i + "个动作组有" + actionGroups[i].actions.size + "个动作"
-                                    )
-                                }
-                            } else {
-                                LogUtil.log(TAG, "WPMZManager getActionGroups有误")
-                            }
-                        } else {
-                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误")
-                        }
-                    } else {
-                        LogUtil.log(TAG, "WPMZManager getTemplates有误")
-                    }
-                } else {
-                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
-                }
-            } else {
-                LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
-            }
-
-            val missionManager: IWaypointMissionManager = WaypointMissionManager.getInstance()
-
-            missionManager.pushKMZFileToAircraft(
-                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz",
-                object : CompletionCallbackWithProgress<Double> {
-                    override fun onProgressUpdate(progress: Double) {
-                        LogUtil.log(TAG, "航线上传进度:$progress")
-                    }
-
-                    override fun onSuccess() {
-                        LogUtil.log(TAG, "航线上传成功,准备执行任务")
-                        Handler().postDelayed(Runnable {
-                            missionManager.startMission("aros",
-                                object : CommonCallbacks.CompletionCallback {
-                                    override fun onSuccess() {
-                                        LogUtil.log(TAG, "开始航线success")
-                                    }
-
-                                    override fun onFailure(p0: IDJIError) {
-                                        LogUtil.log(TAG, "开始航线失败:${p0.description()}")
-                                    }
-
-                                })
-                        }, 1000)
-
-
-                    }
-
-                    override fun onFailure(error: IDJIError) {
-                        LogUtil.log(TAG, "航线上传失败:${Gson().toJson(error)}")
-
-                    }
-                })
-
-
-//            var message=MQMessage().apply {
-//                msg_type=60666
-//                upload_url="http://223.108.157.174:9000"
-//                bucketName="test"
-//                access_key="admin"
-//                secret_key="admin123"
-//                objectKey="log"
-//            }
-//            AMSLogManager.getInstance().enableLogList(mqttAndroidClient,message)
-
-//            var message=MQMessage().apply {
-//                msg_type=60125
-//                zoomTargetX=0.6
-//                zoomTargetY=0.6
-//                zoom=4.0
-//            }
-//CameraManager.getInstance().tapZoomAtTarget(mqttAndroidClient,message)
-//
-//            val zoomTargetPointInfo = ZoomTargetPointInfo()
-//            zoomTargetPointInfo.x = 0.3
-//            zoomTargetPointInfo.y = 0.3
-
-
-//            zoomTargetPointInfo.tapZoomModeEnable=true
-//            zoomTargetPointInfo.mode=TapZoomMode.GIMBAL_FOLLOW
-//            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
-//                ComponentIndexType.LEFT_OR_MAIN,
-//                CameraLensType.CAMERA_LENS_ZOOM),
-//                zoomTargetPointInfo,
-//                 object : CompletionCallbackWithParam<EmptyMsg?> {
-//                override fun onSuccess(p0: EmptyMsg?) {
-//                }
-//
-//                override fun onFailure(error: IDJIError) {
-//                    LogUtil.log(TAG, "指点对焦失败:" + Gson().toJson(error))
-//
-//                }
-//            })
-
-
+            findViewById(R.id.widget_horizontal_situation_indicator)
+//        gimbalAdjustDone = findViewById<TextView>( R.id.fpv_gimbal_ok_btn)
+        gimbalFineTuneWidget = findViewById( R.id.setting_menu_gimbal_fine_tune)
+        btn_test = findViewById( R.id.btn_test)
+        btn_test1 = findViewById( R.id.btn_test1)
+        btn_test2 = findViewById( R.id.btn_test2)
+        btn_test?.setOnClickListener {
+            FlightManager.getInstance().startPropellerRotation()
         }
-        gimbalFineTuneWidget =
-            findViewById<GimbalFineTuneWidget>(R.id.setting_menu_gimbal_fine_tune)
-
+        btn_test1?.setOnClickListener {
+            FlightManager.getInstance().stopPropellerRotation()
+        }
+        btn_test2?.setOnClickListener {
+            FlightManager.getInstance().startPropellerRotationRverse()
+        }
         initClickListener()
         MediaDataCenter.getInstance().cameraStreamManager.addAvailableCameraUpdatedListener(
             availableCameraUpdatedListener
@@ -454,15 +500,71 @@ open class MainActivity : BaseActivity() {
                 )
             }
         })
+        //小surfaceView放置在顶部，避免被大的遮挡
 
         //小surfaceView放置在顶部，避免被大的遮挡
         secondaryFPVWidget?.setSurfaceViewZOrderOnTop(true)
         secondaryFPVWidget?.setSurfaceViewZOrderMediaOverlay(true)
+
+
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+
         //实现RTK监测网络，并自动重连机制
         DJINetworkManager.getInstance().addNetworkStatusListener(networkStatusListener)
 
     }
+
+    private  fun isGimableAdjustClicked(broadcastValues: BroadcastValues) {
+        if (mDrawerLayout!!.isDrawerOpen(GravityCompat.END)) {
+            mDrawerLayout!!.closeDrawers()
+        }
+        horizontalSituationIndicatorWidget!!.visibility = View.GONE
+        if (gimbalFineTuneWidget != null) {
+            gimbalFineTuneWidget!!.visibility = View.VISIBLE
+        }
+    }
+
+    private  fun initClickListener() {
+        secondaryFPVWidget!!.setOnClickListener { v: View? -> swapVideoSource() }
+        if (settingWidget != null) {
+            settingWidget!!.setOnClickListener { v: View? -> toggleRightDrawer() }
+        }
+
+        // Setup top bar state callbacks
+        val systemStatusWidget = topBarPanel!!.systemStatusWidget
+        systemStatusWidget?.setOnClickListener { v: View? -> systemStatusListPanelWidget!!.toggleVisibility() }
+        val simulatorIndicatorWidget = topBarPanel!!.simulatorIndicatorWidget
+        simulatorIndicatorWidget?.setOnClickListener { v: View? -> simulatorControlWidget!!.toggleVisibility() }
+//        gimbalAdjustDone!!.setOnClickListener { view: View? ->
+//            horizontalSituationIndicatorWidget!!.visibility = View.VISIBLE
+//            if (gimbalFineTuneWidget != null) {
+//                gimbalFineTuneWidget!!.visibility = View.GONE
+//            }
+//        }
+    }
+
+    private  fun toggleRightDrawer() {
+        mDrawerLayout!!.openDrawer(GravityCompat.END)
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isAppStarted = false
+        try {
+            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
+                mqttAndroidClient.unregisterResources()
+                mqttAndroidClient.disconnect() //断开连接
+            }
+        } catch (e: MqttException) {
+            e.printStackTrace()
+        }
+        MediaDataCenter.getInstance().cameraStreamManager.removeAvailableCameraUpdatedListener(
+            availableCameraUpdatedListener
+        )
+        DJINetworkManager.getInstance().removeNetworkStatusListener(networkStatusListener)
+    }
+
 
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
@@ -514,8 +616,8 @@ open class MainActivity : BaseActivity() {
                 }, 5000)
             }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
                 Handler().postDelayed(Runnable {
-                        StreamManager.getInstance()
-                            .startLiveWithCustom()
+                    StreamManager.getInstance()
+                        .startLiveWithCustom()
                 }, 5000)
             }
             val productType =
@@ -523,7 +625,7 @@ open class MainActivity : BaseActivity() {
             val cameraType = KeyManager.getInstance().getValue(
                 KeyTools.createKey(
                     CameraKey.KeyCameraType,
-                    ComponentIndexType.LEFT_OR_MAIN
+                    ComponentIndexType.PORT_1
                 )
             )
 
@@ -534,6 +636,7 @@ open class MainActivity : BaseActivity() {
             }
         }
     }
+
 
 //    var shouldExecute = true
 
@@ -547,7 +650,7 @@ open class MainActivity : BaseActivity() {
 //                height: Int
 //            ) {
 //                cameraManager.putCameraStreamSurface(
-//                    ComponentIndexType.LEFT_OR_MAIN,
+//                    ComponentIndexType.PORT_1,
 //                    holder.surface,
 //                    width,
 //                    height,
@@ -561,7 +664,7 @@ open class MainActivity : BaseActivity() {
 //        })
 
         cameraManager.addFrameListener(
-            ComponentIndexType.LEFT_OR_MAIN,
+            ComponentIndexType.PORT_1,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
 //            if (shouldExecute) {
@@ -593,7 +696,6 @@ open class MainActivity : BaseActivity() {
         override fun onManagerConnected(status: Int) {
             if (status == SUCCESS) {
                 LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
-                Movement.getInstance().version=BuildConfig.VERSION_NAME
             } else {
                 super.onManagerConnected(status)
             }
@@ -702,147 +804,12 @@ open class MainActivity : BaseActivity() {
     }
 
 
-    private fun isGimableAdjustClicked(broadcastValues: BroadcastValues) {
-        if (mDrawerLayout!!.isDrawerOpen(GravityCompat.END)) {
-            mDrawerLayout!!.closeDrawers()
-        }
-        horizontalSituationIndicatorWidget!!.visibility = View.GONE
-        if (gimbalFineTuneWidget != null) {
-            gimbalFineTuneWidget!!.visibility = View.VISIBLE
-        }
-    }
 
-    private fun initClickListener() {
-        secondaryFPVWidget!!.setOnClickListener { v: View? -> swapVideoSource() }
-        if (settingWidget != null) {
-            settingWidget!!.setOnClickListener { v: View? -> toggleRightDrawer() }
-        }
-
-        // Setup top bar state callbacks
-        val systemStatusWidget = topBarPanel!!.systemStatusWidget
-        systemStatusWidget?.setOnClickListener { v: View? -> systemStatusListPanelWidget!!.toggleVisibility() }
-        val simulatorIndicatorWidget = topBarPanel!!.simulatorIndicatorWidget
-        simulatorIndicatorWidget?.setOnClickListener { v: View? -> simulatorControlWidget!!.toggleVisibility() }
-//        gimbalAdjustDone!!.setOnClickListener { view: View? ->
-//            horizontalSituationIndicatorWidget!!.visibility = View.VISIBLE
-//            if (gimbalFineTuneWidget != null) {
-//                gimbalFineTuneWidget!!.visibility = View.GONE
-//            }
-//        }
-    }
-
-    private fun toggleRightDrawer() {
-        mDrawerLayout!!.openDrawer(GravityCompat.END)
-    }
-
-    //endregion
-    private fun hideOtherPanels(widget: View) {
-        val panels = arrayOf(
-            simulatorControlWidget
-        )
-
-        for (panel in panels) {
-            if (widget !== panel) {
-                panel?.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun updateFPVWidgetSource(availableCameraList: List<ComponentIndexType>) {
-        LogUtils.i(TAG, JsonUtil.toJson(availableCameraList))
-        if (availableCameraList == null) {
-            return
-        }
-        val cameraList = ArrayList(availableCameraList)
-
-        //没有数据
-        if (cameraList.isEmpty()) {
-            secondaryFPVWidget!!.visibility = View.GONE
-            return
-        }
-
-        //仅一路数据
-        if (cameraList.size == 1) {
-            primaryFpvWidget!!.updateVideoSource(availableCameraList[0])
-            secondaryFPVWidget!!.visibility = View.GONE
-            return
-        }
-
-        //大于两路数据
-        val primarySource = getSuitableSource(cameraList, ComponentIndexType.LEFT_OR_MAIN)
-        primaryFpvWidget!!.updateVideoSource(primarySource)
-        cameraList.remove(primarySource)
-        val secondarySource = getSuitableSource(cameraList, ComponentIndexType.FPV)
-        secondaryFPVWidget!!.updateVideoSource(secondarySource)
-        secondaryFPVWidget!!.visibility = View.VISIBLE
-    }
-
-    private fun getSuitableSource(
-        cameraList: List<ComponentIndexType>,
-        defaultSource: ComponentIndexType
-    ): ComponentIndexType {
-        if (cameraList.contains(ComponentIndexType.LEFT_OR_MAIN)) {
-            return ComponentIndexType.LEFT_OR_MAIN
-        } else if (cameraList.contains(ComponentIndexType.RIGHT)) {
-            return ComponentIndexType.RIGHT
-        } else if (cameraList.contains(ComponentIndexType.UP)) {
-            return ComponentIndexType.UP
-        }
-        return defaultSource
-    }
-
-    private fun onCameraSourceUpdated(
-        devicePosition: ComponentIndexType,
-        lensType: CameraLensType
-    ) {
-        LogUtils.i(TAG, devicePosition, lensType)
-        if (devicePosition == lastDevicePosition && lensType == lastLensType) {
-            return
-        }
-        lastDevicePosition = devicePosition
-        lastLensType = lensType
-        updateViewVisibility(devicePosition, lensType)
-        updateInteractionEnabled()
-        //如果无需使能或者显示的，也就没有必要切换了。
-        if (fpvInteractionWidget!!.isInteractionEnabled) {
-            fpvInteractionWidget!!.updateCameraSource(devicePosition, lensType)
-            fpvInteractionWidget!!.updateGimbalIndex(CommonUtils.getGimbalIndex(devicePosition))
-        }
-//        if (lensControlWidget!!.visibility == View.VISIBLE) {
-//            lensControlWidget!!.updateCameraSource(devicePosition, lensType)
-//        }
-        if (ndviCameraPanel!!.visibility == View.VISIBLE) {
-            ndviCameraPanel!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (visualCameraPanel!!.visibility == View.VISIBLE) {
-            visualCameraPanel!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (autoExposureLockWidget!!.visibility == View.VISIBLE) {
-            autoExposureLockWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (focusModeWidget!!.visibility == View.VISIBLE) {
-            focusModeWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (focusExposureSwitchWidget!!.visibility == View.VISIBLE) {
-            focusExposureSwitchWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (cameraControlsWidget!!.visibility == View.VISIBLE) {
-            cameraControlsWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (focalZoomWidget!!.visibility == View.VISIBLE) {
-            focalZoomWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        if (horizontalSituationIndicatorWidget!!.visibility == View.VISIBLE) {
-            horizontalSituationIndicatorWidget!!.updateCameraSource(devicePosition, lensType)
-        }
-        setViewVisibilityWithCleanMode()
-    }
 
     private fun setViewVisibilityWithCleanMode() {
         if (PreferenceUtils.getInstance().isCleanMode) {
             fpvInteractionWidget?.visibility = View.GONE
             horizontalSituationIndicatorWidget?.visibility = View.GONE
-            remainingFlightTimeWidget?.visibility=View.GONE
             gimbalFineTuneWidget?.visibility = View.GONE
             ndviCameraPanel?.visibility = View.GONE
             visualCameraPanel?.visibility = View.GONE
@@ -861,77 +828,8 @@ open class MainActivity : BaseActivity() {
         }
     }
 
-    private fun updateViewVisibility(devicePosition: ComponentIndexType, lensType: CameraLensType) {
-        //只在fpv下显示
-        pfvFlightDisplayWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.VISIBLE else View.INVISIBLE
-
-        //fpv下不显示
-//        lensControlWidget!!.visibility =
-//            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        ndviCameraPanel!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        visualCameraPanel!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        autoExposureLockWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        focusModeWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        focusExposureSwitchWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        cameraControlsWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        focalZoomWidget!!.visibility =
-            if (devicePosition == ComponentIndexType.FPV) View.INVISIBLE else View.VISIBLE
-        horizontalSituationIndicatorWidget!!.setSimpleModeEnable(devicePosition != ComponentIndexType.FPV)
-
-        //只在部分len下显示
-        ndviCameraPanel!!.visibility =
-            if (CameraUtil.isSupportForNDVI(lensType)) View.VISIBLE else View.INVISIBLE
 
 
-    }
-
-    /**
-     * Swap the video sources of the FPV and secondary FPV widgets.
-     */
-    private fun swapVideoSource() {
-        val primarySource = primaryFpvWidget!!.widgetModel.getCameraIndex()
-        val secondarySource = secondaryFPVWidget!!.widgetModel.getCameraIndex()
-        //两个source都存在的情况下才进行切换
-        if (primarySource != ComponentIndexType.UNKNOWN && secondarySource != ComponentIndexType.UNKNOWN) {
-            primaryFpvWidget!!.updateVideoSource(secondarySource)
-            secondaryFPVWidget!!.updateVideoSource(primarySource)
-        }
-    }
-
-    private fun updateInteractionEnabled() {
-        fpvInteractionWidget!!.isInteractionEnabled =
-            primaryFpvWidget!!.widgetModel.getCameraIndex() != ComponentIndexType.FPV
-    }
-
-    private class CameraSource(var devicePosition: ComponentIndexType, var lensType: CameraLensType)
-
-    override fun onBackPressed() {
-        if (mDrawerLayout!!.isDrawerOpen(GravityCompat.END)) {
-            mDrawerLayout!!.closeDrawers()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        isAppStarted = false
-        try {
-            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
-                mqttAndroidClient.unregisterResources()
-                mqttAndroidClient.disconnect() //断开连接
-            }
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
-    }
 
 
 }

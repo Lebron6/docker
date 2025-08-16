@@ -687,28 +687,28 @@ public class ApronArucoDetect {
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.125){
-                        outX=absX<120?0:-0.125;
+                    if (pidControlX.get_pid()<-0.145){
+                        outX=absX<120?0:-0.145;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.125){
-                        outX=absX<120?0:0.125;
+                    if (pidControlX.get_pid()>0.145){
+                        outX=absX<120?0:0.145;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.125){
-                        outY=absY<120?0:-0.125;
+                    if (pidControlY.get_pid()<-0.145){
+                        outY=absY<120?0:-0.145;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.125){
-                        outY=absY<120?0:0.125;
+                    if (pidControlY.get_pid()>0.145){
+                        outY=absY<120?0:0.145;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -721,28 +721,28 @@ public class ApronArucoDetect {
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.135){
-                        outX=absX<120?0:-0.135;
+                    if (pidControlX.get_pid()<-0.15){
+                        outX=absX<120?0:-0.15;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.135){
-                        outX=absX<120?0:0.135;
+                    if (pidControlX.get_pid()>0.15){
+                        outX=absX<120?0:0.15;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.135){
-                        outY=absY<120?0:-0.135;
+                    if (pidControlY.get_pid()<-0.15){
+                        outY=absY<120?0:-0.15;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.135){
-                        outY=absY<120?0:0.135;
+                    if (pidControlY.get_pid()>0.15){
+                        outY=absY<120?0:0.15;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }

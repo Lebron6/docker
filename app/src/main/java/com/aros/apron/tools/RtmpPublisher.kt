@@ -28,7 +28,7 @@
 //
 //    fun startLiveStream() {
 //        MediaDataCenter.getInstance().cameraStreamManager.addReceiveStreamListener(
-//            ComponentIndexType.LEFT_OR_MAIN, this@RtmpPublisher
+//            ComponentIndexType.PORT_1, this@RtmpPublisher
 //        )
 //    }
 //
