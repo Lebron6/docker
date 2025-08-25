@@ -142,7 +142,6 @@ open class MainActivity : BaseActivity() {
     private var gimbalAdjustDone: TextView? = null
     private var btn_test: Button? = null
     private var btn_test1: Button? = null
-    private var btn_test2: Button? = null
 
     private var gimbalFineTuneWidget: GimbalFineTuneWidget? = null
     private var lastDevicePosition = ComponentIndexType.UNKNOWN
@@ -476,16 +475,13 @@ open class MainActivity : BaseActivity() {
         gimbalFineTuneWidget = findViewById( R.id.setting_menu_gimbal_fine_tune)
         btn_test = findViewById( R.id.btn_test)
         btn_test1 = findViewById( R.id.btn_test1)
-        btn_test2 = findViewById( R.id.btn_test2)
         btn_test?.setOnClickListener {
             FlightManager.getInstance().startPropellerRotation()
         }
         btn_test1?.setOnClickListener {
             FlightManager.getInstance().stopPropellerRotation()
         }
-        btn_test2?.setOnClickListener {
-            FlightManager.getInstance().startPropellerRotationRverse()
-        }
+
         initClickListener()
         MediaDataCenter.getInstance().cameraStreamManager.addAvailableCameraUpdatedListener(
             availableCameraUpdatedListener
@@ -500,7 +496,6 @@ open class MainActivity : BaseActivity() {
                 )
             }
         })
-        //小surfaceView放置在顶部，避免被大的遮挡
 
         //小surfaceView放置在顶部，避免被大的遮挡
         secondaryFPVWidget?.setSurfaceViewZOrderOnTop(true)

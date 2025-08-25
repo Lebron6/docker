@@ -1387,6 +1387,7 @@ public class FlightManager extends BaseManager {
                     }
                 });
     }
+
     public void startPropellerRotationRverse(){
 
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
