@@ -95,7 +95,6 @@ public class SystemManager extends BaseManager {
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
             Movement.getInstance().setTaskFail(true);
-            sendMsg2Server(mqttAndroidClient, message,"航线参数有误");
             return false;
         }
     }

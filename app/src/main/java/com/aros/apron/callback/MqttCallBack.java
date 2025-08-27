@@ -92,8 +92,13 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60003:
                 //默认规定不在返航时才可以上传航线
                 //收到航线时将状态设置为不可关机状态
-                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                Movement.getInstance().setTaskFail(false);
+                if (Movement.getInstance().isTaskFail()){
+                    LogUtil.log(TAG, "该架次已经执行失败");
+                }else{
+                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
+                    Movement.getInstance().setTaskFail(false);
+                }
+
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
                     if (!message.isNewRoute()) {
