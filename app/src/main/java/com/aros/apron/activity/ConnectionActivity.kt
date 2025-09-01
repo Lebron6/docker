@@ -12,21 +12,30 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.aros.apron.R
 import com.aros.apron.app.ApronApp
+import com.aros.apron.base.BaseActivity
 import com.aros.apron.constant.AMSConfig
 import com.aros.apron.databinding.ActivityConnectionBinding
 import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.models.MSDKManagerVM
 import com.aros.apron.models.globalViewModels
 import com.aros.apron.tools.LogUtil
+import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
+import dji.sdk.keyvalue.key.CameraKey
+import dji.sdk.keyvalue.key.DJIKey
+import dji.sdk.keyvalue.key.FlightControllerKey
+import dji.sdk.keyvalue.key.KeyTools
+import dji.sdk.keyvalue.value.camera.CameraType
+import dji.sdk.keyvalue.value.common.ComponentIndexType
+import dji.v5.manager.KeyManager
 import dji.v5.utils.common.StringUtils
 
 
-class ConnectionActivity : AppCompatActivity() {
+open class ConnectionActivity : BaseActivity() {
 
     private val REQUIRED_PERMISSION_LIST = arrayOf(
         Manifest.permission.VIBRATE,
@@ -191,7 +200,7 @@ class ConnectionActivity : AppCompatActivity() {
         val versionName = packageInfo.versionName
         connectionBinding.textViewAmsVersion?.text=versionName
     }
-
+    private var checkTimes=0
     private fun observeSDKManagerStatus() {
         msdkManagerVM.lvRegisterState.observe(this) { resultPair ->
             val statusText: String?
@@ -272,14 +281,8 @@ class ConnectionActivity : AppCompatActivity() {
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
                     AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/events"
-
-                    if (!MainActivity.isAppStarted) {
-                        Handler().postDelayed(Runnable {
-                            startActivity(Intent(this, MainActivity::class.java))
-                        },500)
-
-                    }
-
+                    MqttManager.getInstance().needConnect()
+                    toMain()
                 }
             } else {
                 LogUtil.log(TAG, "SDK Register Failure: ${resultPair.second}")
@@ -326,7 +329,27 @@ class ConnectionActivity : AppCompatActivity() {
             }
             .start()
     }
-
+    private fun toMain(){
+        val isFlightControllerConnect =
+            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
+        val cameraType = KeyManager.getInstance().getValue(
+            KeyTools.createKey(
+                CameraKey.KeyCameraType,
+                ComponentIndexType.PORT_1
+            )
+        )
+        if (isFlightControllerConnect == null || !isFlightControllerConnect||cameraType==CameraType.NOT_SUPPORTED) {
+            handler.postDelayed({
+                toMain()
+            }, 1000)
+        } else {
+            checkTimes++
+            LogUtil.log(TAG, "飞机是否连接$checkTimes${cameraType?.name}")
+            if (!MainActivity.isAppStarted) {
+                    startActivity(Intent(this, MainActivity::class.java))
+            }
+        }
+    }
 
     private fun <T> enableShowCaseButton(view: View, cl: Class<T>) {
         view.isEnabled = true
@@ -340,5 +363,9 @@ class ConnectionActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         LogUtil.log(TAG,"进入首页连接")
+    }
+
+    override fun useEventBus(): Boolean {
+        return false
     }
 }

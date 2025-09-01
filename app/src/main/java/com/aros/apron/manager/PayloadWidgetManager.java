@@ -15,6 +15,7 @@ import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.entity.PayloadInfo;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 
@@ -54,7 +55,7 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
-    public void initPayloadInfo(MqttAndroidClient client) {
+    public void initPayloadInfo() {
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
@@ -65,7 +66,7 @@ public class PayloadWidgetManager extends BaseManager {
                     iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
                         @Override
                         public void onDataFromPayloadUpdate(byte[] data) {
-                            sendMsgFromPSDK2Server(client, data);
+                            sendMsgFromPSDK2Server(MqttManager.getInstance().mqttAndroidClient, data);
 //                            Log.e(TAG, "打印DataFromPayload" + "--1111---");
                         }
                     });

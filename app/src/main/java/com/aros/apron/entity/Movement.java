@@ -82,7 +82,8 @@ public class Movement {
     private String gimbalRoll;//云台角度
     private String gimbalPitch;
     private String gimbalYaw;
-    private boolean planeWing;//当前飞机的桨叶是否转动
+    private boolean planeWing;//飞机是否在飞
+    private boolean isMotorsOn;//电机是否起转
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
     private String aircraftTotalFlightTimes;//总体飞行次数，飞行器断电后不会清零。
     private String aircraftTotalFlightDuration;//总体飞行时长，单位：秒。飞行器断电后不会清零。
@@ -126,9 +127,26 @@ public class Movement {
     private String remoteBatteryPercent;//遥控器剩余电量百分比
     private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
     private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
+    private boolean propellerRotation;//飞机是否正在低速慢转桨
+
+    public boolean isPropellerRotation() {
+        return propellerRotation;
+    }
+
+    public void setPropellerRotation(boolean propellerRotation) {
+        this.propellerRotation = propellerRotation;
+    }
 
     public List<PayloadInfo> getPayloadInfos() {
         return payloadInfos;
+    }
+
+    public boolean isMotorsOn() {
+        return isMotorsOn;
+    }
+
+    public void setMotorsOn(boolean motorsOn) {
+        isMotorsOn = motorsOn;
     }
 
     public void setPayloadInfos(List<PayloadInfo> payloadInfos) {

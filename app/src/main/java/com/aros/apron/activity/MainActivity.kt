@@ -1,4 +1,5 @@
 package com.aros.apron.activity
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -44,6 +45,7 @@ import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
+import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
@@ -118,6 +120,8 @@ open class MainActivity : BaseActivity() {
     companion object {
         // 如果不需要改变 isAppStarted 的值，可以直接这样声明
         var isAppStarted: Boolean = false
+        var streamReceive: Boolean = false
+
     }
 
     protected var primaryFpvWidget: FPVWidget? = null
@@ -272,20 +276,17 @@ open class MainActivity : BaseActivity() {
             return
         }
 
-
         //大于两路数据
         val primarySource = getSuitableSource(cameraList, ComponentIndexType.LEFT_OR_MAIN)
-        if (primarySource != null) {
-            primaryFpvWidget!!.updateVideoSource(primarySource)
-        }
+        primaryFpvWidget!!.updateVideoSource(primarySource!!)
         cameraList.remove(primarySource)
 
         val secondarySource = getSuitableSource(cameraList, ComponentIndexType.FPV)
-        if (secondarySource != null) {
-            secondaryFPVWidget!!.updateVideoSource(secondarySource)
-        }
+        secondaryFPVWidget!!.updateVideoSource(secondarySource!!)
 
         secondaryFPVWidget!!.visibility = View.VISIBLE
+
+
     }
 
     private fun getSuitableSource(
@@ -412,8 +413,10 @@ open class MainActivity : BaseActivity() {
         )
     }
 
-    private class CameraSource(var devicePosition: ComponentIndexType, var lensType: CameraLensType)
-
+    private data class CameraSource(
+        val devicePosition: ComponentIndexType,
+        val lensType: CameraLensType
+    )
     override fun onBackPressed() {
         if (mDrawerLayout!!.isDrawerOpen(GravityCompat.END)) {
             mDrawerLayout!!.closeDrawers()
@@ -444,7 +447,6 @@ open class MainActivity : BaseActivity() {
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
 
-        needConnect()
         initDJIManager()
         initCameraStream()
         initView()
@@ -476,10 +478,10 @@ open class MainActivity : BaseActivity() {
         btn_test = findViewById( R.id.btn_test)
         btn_test1 = findViewById( R.id.btn_test1)
         btn_test?.setOnClickListener {
-            FlightManager.getInstance().startPropellerRotation()
+            FlightManager.getInstance().startPropellerRotation(null, null)
         }
         btn_test1?.setOnClickListener {
-            FlightManager.getInstance().stopPropellerRotation()
+            FlightManager.getInstance().stopPropellerRotation(null, null)
         }
 
         initClickListener()
@@ -547,9 +549,9 @@ open class MainActivity : BaseActivity() {
         super.onDestroy()
         isAppStarted = false
         try {
-            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
-                mqttAndroidClient.unregisterResources()
-                mqttAndroidClient.disconnect() //断开连接
+            if (MqttManager.getInstance().mqttAndroidClient != null && MqttManager.getInstance().mqttAndroidClient.isConnected) {
+                MqttManager.getInstance().mqttAndroidClient.unregisterResources()
+                MqttManager.getInstance().mqttAndroidClient.disconnect() //断开连接
             }
         } catch (e: MqttException) {
             e.printStackTrace()
@@ -574,21 +576,21 @@ open class MainActivity : BaseActivity() {
             initTimes++
             LogUtil.log(TAG, "初始化$initTimes")
             RTKManager.getInstance().initRTKInfo()
-            StreamManager.getInstance().initStreamManager(mqttAndroidClient)
-            FlightManager.getInstance().initFlightInfo(mqttAndroidClient)
-            MissionManager.getInstance().initMissionManager(mqttAndroidClient)
-            BatteryManager.getInstance().initBatteryInfo(mqttAndroidClient)
-            MediaManager.getInstance().init(mqttAndroidClient)
+            StreamManager.getInstance().initStreamManager()
+            FlightManager.getInstance().initFlightInfo()
+            MissionManager.getInstance().initMissionManager()
+            BatteryManager.getInstance().initBatteryInfo()
+            MediaManager.getInstance().init()
             LEDsSettingsManager.getInstance().initLEDsInfo()
-            AlternateLandingManager.getInstance().initAlterLandingInfo(mqttAndroidClient)
-            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)
-            CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
-            StickManager.getInstance().initStickInfo(mqttAndroidClient)
+            AlternateLandingManager.getInstance().initAlterLandingInfo()
+            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
+            CameraManager.getInstance().initCameraInfo()
+            StickManager.getInstance().initStickInfo()
             GimbalManager.getInstance().initGimbalInfo()
-            OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
-            RemoteManager.getInstance().initRemoteInfo(mqttAndroidClient)
+            OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
+            RemoteManager.getInstance().initRemoteInfo()
             ApronArucoDetect.getInstance().init()
-            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
+            PayloadWidgetManager.getInstance().initPayloadInfo()
 
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()
@@ -635,6 +637,7 @@ open class MainActivity : BaseActivity() {
 
 //    var shouldExecute = true
 
+    @SuppressLint("SuspiciousIndentation")
     private fun initCameraStream() {
 //        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
 //            override fun surfaceCreated(holder: SurfaceHolder) {}
@@ -662,17 +665,16 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.PORT_1,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
+            //检测到图传
+            streamReceive=true
 //            if (shouldExecute) {
                 if (startArucoType == 1) {
-
                     ApronArucoDetect.getInstance()?.detectArucoTags(
                         height,
                         width,
                         frameData,
                         dictionary,
                     )
-
-
                 } else if (startArucoType == 2) {
                     AlternateArucoDetect.getInstance()?.detectArucoTags(
                         height,
@@ -683,7 +685,6 @@ open class MainActivity : BaseActivity() {
                 }
 //            }
 //            shouldExecute = !shouldExecute
-
         }
     }
 

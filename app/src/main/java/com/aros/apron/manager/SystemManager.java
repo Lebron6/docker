@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 
+import com.aros.apron.activity.MainActivity;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MQMessage;
@@ -98,6 +99,21 @@ public class SystemManager extends BaseManager {
             sendMsg2Server(mqttAndroidClient, message,"航线参数有误");
             return false;
         }
+    }
+
+    //检查航线下发时是否有图传
+    public boolean checkStream(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        if (MainActivity.Companion.getStreamReceive()){
+    return true;
+        }else{
+            sendMissionExecuteEvents(mqttAndroidClient, "未获取到图传");
+            LogUtil.log(TAG, "未获取到图传,直接入库："+new Gson().toJson(message));
+            DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, -1);
+            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+            Movement.getInstance().setTaskFail(true);
+            return false;
+        }
+
     }
 
     //收到60012表示飞机已归中,立即回复60012

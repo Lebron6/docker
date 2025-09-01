@@ -491,6 +491,16 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：云台向下" + jsonString);
                 GimbalManager.getInstance().gimbalDownWithPitchAndYaw(mqttClient, message);
                 break;
+            //开启低速转浆
+            case 60153:
+                LogUtil.log(TAG, "收到命令：开启低速转浆" + jsonString);
+                FlightManager.getInstance().startPropellerRotation(mqttClient, message);
+                break;
+            //停止低速转浆
+            case 60154:
+                LogUtil.log(TAG, "收到命令：停止低速转浆" + jsonString);
+                FlightManager.getInstance().stopPropellerRotation(mqttClient, message);
+                break;
             //msdk日志上传
             case 60666:
                 LogUtil.log(TAG, "收到命令：日志上传" + jsonString);

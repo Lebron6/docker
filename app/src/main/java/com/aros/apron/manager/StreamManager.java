@@ -11,6 +11,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -39,7 +40,6 @@ import dji.v5.manager.interfaces.ILiveStreamManager;
 
 
 public class StreamManager extends BaseManager {
-    MqttAndroidClient client;
 
     private StreamManager() {
     }
@@ -56,8 +56,7 @@ public class StreamManager extends BaseManager {
         sendMsg2Server(client, message);
     }
 
-    public void initStreamManager(MqttAndroidClient client) {
-        this.client=client;
+    public void initStreamManager() {
         ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
         if (liveStreamManager != null) {
             liveStreamManager.addLiveStreamStatusListener(new LiveStreamStatusListener() {
@@ -231,7 +230,7 @@ public class StreamManager extends BaseManager {
                     public void onSuccess() {
                         LogUtil.log(TAG, "自定义推流启动成功");
                         isLiveStreamAlreadyStart=true;
-                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(MqttManager.getInstance().mqttAndroidClient);
                     }
 
                     @Override
@@ -290,7 +289,7 @@ public class StreamManager extends BaseManager {
                         public void onSuccess() {
                             LogUtil.log(TAG, "自定义推流启动成功");
                             isLiveStreamAlreadyStart=true;
-                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server(MqttManager.getInstance().mqttAndroidClient);
 
                         }
 

@@ -21,6 +21,7 @@ import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
@@ -50,6 +51,7 @@ import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommand;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandResult;
+import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationStatus;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.v5.common.callback.CommonCallbacks;
@@ -72,7 +74,6 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 public class FlightManager extends BaseManager {
 
 
-    private MqttAndroidClient mqttAndroidClient;
     private IPerceptionManager iPerceptionManager;
     private IDeviceHealthManager iDeviceHealthManager;
     private IDeviceStatusManager iDeviceStatusManager;
@@ -93,8 +94,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    public void initFlightInfo(MqttAndroidClient mqttAndroidClient) {
-        this.mqttAndroidClient = mqttAndroidClient;
+    public void initFlightInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
@@ -180,6 +180,7 @@ public class FlightManager extends BaseManager {
                     if (newValue != null) {
                         isMotorsOn = newValue;
                         pushFlightAttitude();
+                        Movement.getInstance().setMotorsOn(newValue);
                     }
                 }
             });
@@ -272,7 +273,7 @@ public class FlightManager extends BaseManager {
                                     //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
                                     waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
                                     if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                        sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
+                                        sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
                                                 String.valueOf(waypointIndexAlreadySend));
                                         LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
                                                 + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -282,7 +283,7 @@ public class FlightManager extends BaseManager {
                                     }
                                 } else {
                                     waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                    sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
+                                    sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
                                             String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
                                     LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
                                             + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -386,7 +387,7 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                             if (!sendStartTakeOffMsg) {
-                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(mqttAndroidClient);
+                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(MqttManager.getInstance().mqttAndroidClient);
                                 sendStartTakeOffMsg = true;
                             }
                         }
@@ -636,7 +637,9 @@ public class FlightManager extends BaseManager {
                         + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
                         + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
                         + " isStreaming:" + Movement.getInstance().getLiveStatus()
-                        + " rtkHealthy:" + Movement.getInstance().isRtkSign());
+                        + " rtkHealthy:" + Movement.getInstance().isRtkSign()
+                        + " isPlaneWing:" + Movement.getInstance().isPlaneWing()
+                        + " isMotorsOn:" + Movement.getInstance().isMotorsOn());
                 Movement.getInstance().setEgm96Altitude(
                         GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                         Movement.getInstance().getFlyingHeight()),
@@ -654,7 +657,7 @@ public class FlightManager extends BaseManager {
                     LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
                 }
                 flightMessage.setQos(0);
-                publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
+                publish(MqttManager.getInstance().mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
 
                 // 再次调用postDelayed来保证每一秒都会执行run方法
                 handler.postDelayed(this, TIME);
@@ -689,15 +692,15 @@ public class FlightManager extends BaseManager {
                 public void onSuccess(EmptyMsg emptyMsg) {
                     LogUtil.log(TAG,"电量低于阈值，直接返航");
                     //低电量强制返航通知服务器
-                    sendLowBatteryRTHPosition2Server(mqttAndroidClient);
-                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，强制返航");
+                    sendLowBatteryRTHPosition2Server(MqttManager.getInstance().mqttAndroidClient);
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，强制返航");
 
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"电量低于阈值，返航失败:"+new Gson().toJson(error));
-                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，返航失败");
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，返航失败");
                 }
             });
 
@@ -716,7 +719,7 @@ public class FlightManager extends BaseManager {
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启水平避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint() && isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
-            DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
+            DockCloseManager.getInstance().sendDockCloseMsg2Server(MqttManager.getInstance().mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(true);
         }
     }
@@ -738,7 +741,7 @@ public class FlightManager extends BaseManager {
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
-            DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttAndroidClient);
+            DockOpenManager.getInstance().sendDockOpenMsg2Server(MqttManager.getInstance().mqttAndroidClient);
 
         }
     }
@@ -789,7 +792,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 7.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = -2;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
@@ -834,14 +837,14 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "开始备降点视觉降落");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始备降点视觉降落");
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "开始视觉降落");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始视觉降落");
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
@@ -912,10 +915,10 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MqttManager.getInstance().mqttAndroidClient, 1);
                 }
                 // 上传媒体文件
-                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
+                SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
             }
             // 避免在下次起飞时触发视觉识别
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
@@ -925,7 +928,7 @@ public class FlightManager extends BaseManager {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
+                    SendLandingManager.getInstance().sendLandingMsg2Server(MqttManager.getInstance().mqttAndroidClient);
                 }
             }, 1000);
 
@@ -1355,52 +1358,47 @@ public class FlightManager extends BaseManager {
         }
     }
 
-    public void startPropellerRotation(){
-
+    //开启低速转浆
+    public void startPropellerRotation(MqttAndroidClient mqttClient, MQMessage message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation), PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
             @Override
             public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                LogUtil.log(TAG,"开始低速转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
+                sendMsg2Server(mqttClient, message);
+                if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION){
+                    Movement.getInstance().setPropellerRotation(true);
+                }
+                LogUtil.log(TAG, "开始低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG,"开始低速转浆失败:"+getIDJIErrorMsg(error));
-
+                LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                sendMsg2Server(mqttClient, message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
             }
         });
     }
 
-    public void stopPropellerRotation(){
-
+    //停止低速转浆
+    public void stopPropellerRotation(MqttAndroidClient mqttClient, MQMessage message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
                 PropellerRotationCommand.EXIT_LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
                     @Override
                     public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                        LogUtil.log(TAG,"停止低速转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
+                        if (mqttClient!=null&&message!=null){
+                            sendMsg2Server(mqttClient, message);
+                        }
+                        if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.NONE_MOTOR_IN_LOW_SPEED_ROTATION){
+                            Movement.getInstance().setPropellerRotation(false);
+                        }
+                        LogUtil.log(TAG, "停止低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG,"停止低速转浆失败:"+getIDJIErrorMsg(error));
-
-                    }
-                });
-    }
-
-    public void startPropellerRotationRverse(){
-
-        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
-                PropellerRotationCommand.LOW_SPEED_REVERSE_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
-                    @Override
-                    public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                        LogUtil.log(TAG,"反向转浆结果:"+new Gson().toJson(propellerRotationCommandResult));
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG,"反向转浆失败:"+getIDJIErrorMsg(error));
-
+                        if (mqttClient!=null&&message!=null) {
+                            sendMsg2Server(mqttClient, message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
+                        }
+                        LogUtil.log(TAG, "停止低速转浆失败:" + new Gson().toJson(error));
                     }
                 });
     }

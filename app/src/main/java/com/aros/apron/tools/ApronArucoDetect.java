@@ -135,70 +135,7 @@ public class ApronArucoDetect {
                     if (ids.depth() > 0) {
                         arucoNotFoundTag = false;
                         int[] idArray = ids.toArray();
-                        int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
-                        double flyingHeight = Movement.getInstance().getFlyingHeight();
-                        if (idArray.length == 1 && idArray[0] == 5) {
-                            Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                            Point[] points = corner.toArray();
-                            // 计算宽度（两个相邻角点之间的距离）
-                            double width = calculateDistance(points[0], points[1]);
-                            if (!startFastStick&&width >= 1250 && ultrasonicHeight <= 4) {
-                                String logMessage = "参考5号Marker尺寸降落:" + idArray[0] + " arucoW" + width +
-                                        " Flying Height:" + flyingHeight + "--" +
-                                        " Ultrasonic Height:" + ultrasonicHeight;
-                                startFastStick = true;
-                                handler.post(runnable);
-                                LogUtil.log(TAG, logMessage);
-                                return;
-                            }
-                        }
-                        if (idArray.length == 1 && idArray[0] == 6) {
-                            Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                            Point[] points = corner.toArray();
-                            // 计算宽度（两个相邻角点之间的距离）
-                            double width = calculateDistance(points[0], points[1]);
-                            if (!startFastStick&&width >= 960 && ultrasonicHeight <= 2) {
-                                String logMessage = "参考6号Marker尺寸降落:" + idArray[0] + " arucoW" + width +
-                                        " Flying Height:" + flyingHeight + "--" +
-                                        " Ultrasonic Height:" + ultrasonicHeight;
-                                startFastStick = true;
-                                handler.post(runnable);
-                                LogUtil.log(TAG, logMessage);
-                                return;
-                            }
-                        }
-                        if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
-                                idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17
-                                || idArray[0] == 18 || idArray[0] == 19) {
-                            if (!startFastStick) {
-                                if ((idArray.length >= 5 && ultrasonicHeight <= 2 && flyingHeight < 3)) {
-                                    String logMessage = "参考Marker数目降落:" + idArray.length +
-                                            " Flying Height:" + flyingHeight + "--" +
-                                            " Ultrasonic Height:" + ultrasonicHeight;
-                                    startFastStick = true;
-                                    handler.post(runnable);
-                                    LogUtil.log(TAG, logMessage);
-                                    return;
-                                } else {
-                                    Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                                    Point[] points = corner.toArray();
-                                    // 计算宽度（两个相邻角点之间的距离）
-                                    double width = calculateDistance(points[0], points[1]);
-                                    // 计算高度（另外两个相邻角点之间的距离）
-//                                double height = calculateDistance(points[1], points[2]);
-                                    //存在识别到小Marker，但参考5号的尺寸降落的可能性
-                                    if (width >= 260 && idArray.length >= 5 && ultrasonicHeight <= 2) {
-                                        String logMessage = "参考Marker尺寸降落:" + idArray[0] + " arucoW" + width +
-                                                " Flying Height:" + flyingHeight + "--" +
-                                                " Ultrasonic Height:" + ultrasonicHeight;
-                                        startFastStick = true;
-                                        handler.post(runnable);
-                                        LogUtil.log(TAG, logMessage);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
+
 
                         findAruco(idArray);
 
@@ -208,7 +145,6 @@ public class ApronArucoDetect {
                                 sigleMarkerDetectFailsTimes = 0;
                                 setDetectedBigMarkers();
                                 LogUtil.log(TAG, "重置识别二维码状态:" + idArray.length+" id:"+idArray[0]);
-                                markerId5MaxFindHeight=-20.0;
                             }
                         } else {
                             sigleMarkerDetectFailsTimes = 0;
@@ -229,7 +165,7 @@ public class ApronArucoDetect {
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 700 && endTime - startTime <= 8000) {
-                            if (Movement.getInstance().getFlyingHeight() <= 7) {
+                            if (Movement.getInstance().getFlyingHeight() <= 5) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);
@@ -289,257 +225,24 @@ public class ApronArucoDetect {
         double dy = p2.y - p1.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
-    //飞机椭球高度返回过低，导致5号Marker过早的不识别，悬停在3-4米处(浙江海事，汾湖演示出现过)
-    private double markerId5MaxFindHeight=0.7;
-    private double markerId1234MinFindHeight=7;
     public void findAruco(int[] idArray) {
-        if (Movement.getInstance().getFlyingHeight()<markerId1234MinFindHeight){
-            if (Movement.getInstance().getFlyingHeight() <= 1.5
-                    || Movement.getInstance().getUltrasonicHeight() < 15) {
-                if (isDoublePayload) {
-                    if (mFindArucoList.isEmpty()) {
-                        for (int i = 0; i < idArray.length; i++) {
-                            if (idArray[i] == 20) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 20;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 12 && detectedSmallMarkerId != 20) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 12;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 13 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 12) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 13;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-
-                            if (idArray[i] == 16 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 16;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 11 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 11;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 15 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 11) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 15;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-
-                            if (idArray[i] == 14 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 15 && detectedSmallMarkerId != 11) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 14;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-
-                            if (idArray[i] == 18 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 15 && detectedSmallMarkerId != 11 && detectedSmallMarkerId != 14) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 18;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 17 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 15 && detectedSmallMarkerId != 11 && detectedSmallMarkerId != 14 && detectedSmallMarkerId != 18) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 17;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 19 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 15 && detectedSmallMarkerId != 11 && detectedSmallMarkerId != 14 && detectedSmallMarkerId != 17 && detectedSmallMarkerId != 18) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 19;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 21 && detectedSmallMarkerId != 20 && detectedSmallMarkerId != 13 && detectedSmallMarkerId != 12 && detectedSmallMarkerId != 16 && detectedSmallMarkerId != 15 && detectedSmallMarkerId != 11 && detectedSmallMarkerId != 14 && detectedSmallMarkerId != 17 && detectedSmallMarkerId != 18 && detectedSmallMarkerId != 19) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 21;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                        }
-                    }
-
-                } else {
-                    if (mFindArucoList.isEmpty()) {
-                        for (int i = 0; i < idArray.length; i++) {
-                            if (idArray[i] == 15) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 15;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 16 && detectedSmallMarkerId != 15) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 16;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 14&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 14;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 12&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 12;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 13&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 13;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 11&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 11;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 18&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 18;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 19&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 19;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 17&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18&&detectedSmallMarkerId!=17) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 17;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 20&&detectedSmallMarkerId!=17&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18&&detectedSmallMarkerId!=17) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 20;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                            if (idArray[i] == 21&&detectedSmallMarkerId!=20&&detectedSmallMarkerId!=17&&detectedSmallMarkerId!=15&&detectedSmallMarkerId!=16&&detectedSmallMarkerId!=14&&detectedSmallMarkerId!=12&&detectedSmallMarkerId!=13&&detectedSmallMarkerId!=11&&detectedSmallMarkerId!=18&&detectedSmallMarkerId!=17) {
-                                detectedSmallMarkers = true;
-                                detectedSmallMarkerId = 21;
-                                mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (Movement.getInstance().getFlyingHeight() > markerId5MaxFindHeight &&
-                    mFindArucoList.isEmpty() && !detectedSmallMarkers) {
-
-                if (
-                        (detectedBigMarkerId == 0
-                                || detectedBigMarkerId == 1
-                                || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3
-                                || detectedBigMarkerId == 4
-                                || detectedBigMarkerId == 5
-                                || detectedBigMarkerId == 6
-                        )) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 5) {
-                            detectedBigMarkerId = 5;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.12f));
-                            return;
-                        }
-                    }
-                }
-
-                if (
-                        (detectedBigMarkerId == 0
-                                || detectedBigMarkerId == 1
-                                || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3
-                                || detectedBigMarkerId == 4
-                                || detectedBigMarkerId == 6
-                        )) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 6) {
-                            detectedBigMarkerId = 6;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.09f));
-                            return;
-                        }
-                    }
-                }
-
-
-            }
-
-            if (Movement.getInstance().getFlyingHeight() > 2.5) {
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers &&
-                        (detectedBigMarkerId == 0 || detectedBigMarkerId == 1 || detectedBigMarkerId == 2
-                                || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 1) {
-                            detectedBigMarkerId = 1;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                            return;
-                        }
-                    }
-                }
-
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 ||
-                        detectedBigMarkerId == 2 || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 2) {
-                            detectedBigMarkerId = 2;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                            return;
-                        }
-                    }
-                }
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 3)) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 3) {
-                            detectedBigMarkerId = 3;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                            return;
-                        }
-                    }
-                }
-                if (mFindArucoList.isEmpty() && !detectedSmallMarkers && (detectedBigMarkerId == 0 || detectedBigMarkerId == 4)) {
-                    for (int i = 0; i < idArray.length; i++) {
-                        if (idArray[i] == 4) {
-                            detectedBigMarkerId = 4;
-                            mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.295f));
-                            return;
-                        }
-                    }
-                }
-            }
-
-        } else {
+        if (mFindArucoList.isEmpty()) {
             for (int i = 0; i < idArray.length; i++) {
-                if (idArray[i]==1|| idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 5
-                        || idArray[i] == 6|| idArray[i] == 7|| idArray[i] == 8|| idArray[i] == 9){
-                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
+                if (idArray[i] == 19) {
+                    detectedSmallMarkers = true;
+                    detectedSmallMarkerId = 19;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.04f));
+                    return;
                 }
             }
-
-//                mFindArucoList.add(new ArucoMarker(idArray[0], mArucoCornerList.get(0), ArucoMarkerDimensions.getSizeById(idArray[0])));
-
-
+        }
+        if (mFindArucoList.isEmpty()&&!detectedSmallMarkers){
+            for (int i = 0; i < idArray.length; i++) {
+                if (idArray[i]==5||idArray[i]==1|| idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 9
+                        || idArray[i] == 19){
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.24f));
+                }
+            }
         }
 
 
@@ -687,28 +390,28 @@ public class ApronArucoDetect {
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.145){
-                        outX=absX<120?0:-0.145;
+                    if (pidControlX.get_pid()<-0.125){
+                        outX=absX<120?0:-0.125;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.145){
-                        outX=absX<120?0:0.145;
+                    if (pidControlX.get_pid()>0.125){
+                        outX=absX<120?0:0.125;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.145){
-                        outY=absY<120?0:-0.145;
+                    if (pidControlY.get_pid()<-0.125){
+                        outY=absY<120?0:-0.125;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.145){
-                        outY=absY<120?0:0.145;
+                    if (pidControlY.get_pid()>0.125){
+                        outY=absY<120?0:0.125;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -721,28 +424,28 @@ public class ApronArucoDetect {
                 pidControlX.setInputFilterAll((float)offsetX/1750);
                 pidControlY.setInputFilterAll(-(float)offsetY/1750);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.15){
-                        outX=absX<120?0:-0.15;
+                    if (pidControlX.get_pid()<-0.135){
+                        outX=absX<120?0:-0.135;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.15){
-                        outX=absX<120?0:0.15;
+                    if (pidControlX.get_pid()>0.135){
+                        outX=absX<120?0:0.135;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.15){
-                        outY=absY<120?0:-0.15;
+                    if (pidControlY.get_pid()<-0.135){
+                        outY=absY<120?0:-0.135;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.15){
-                        outY=absY<120?0:0.15;
+                    if (pidControlY.get_pid()>0.135){
+                        outY=absY<120?0:0.135;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -755,28 +458,28 @@ public class ApronArucoDetect {
                 pidControlX.setInputFilterAll((float)offsetX/1550);
                 pidControlY.setInputFilterAll(-(float)offsetY/1550);
                 if (pidControlX.get_pid()<0){
-                    if (pidControlX.get_pid()<-0.145){
-                        outX=absX<120?0:-0.145;
+                    if (pidControlX.get_pid()<-0.155){
+                        outX=absX<120?0:-0.155;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }else{
-                    if (pidControlX.get_pid()>0.145){
-                        outX=absX<120?0:0.145;
+                    if (pidControlX.get_pid()>0.155){
+                        outX=absX<120?0:0.155;
                     }else{
                         outX=absX<120?0:pidControlX.get_pid();
                     }
                 }
 
                 if (pidControlY.get_pid()<0){
-                    if (pidControlY.get_pid()<-0.145){
-                        outY=absY<120?0:-0.145;
+                    if (pidControlY.get_pid()<-0.155){
+                        outY=absY<120?0:-0.155;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
                 }else{
-                    if (pidControlY.get_pid()>0.145){
-                        outY=absY<120?0:0.145;
+                    if (pidControlY.get_pid()>0.155){
+                        outY=absY<120?0:0.155;
                     }else{
                         outY=absY<120?0:pidControlY.get_pid();
                     }
@@ -890,10 +593,8 @@ public class ApronArucoDetect {
                 outY,
                 resultYaw, outZ);
 
-        if (id == 11 || id == 12 || id == 13 || id == 14 || id == 15
-                || id == 16 || id == 17 || id == 18 || id == 19|| id == 20|| id == 21) {
+        if (id == 19) {
             checkConditions(absX, absY, id, arucoWidth);
-
         } else {
             canLanding = false;
         }
@@ -917,7 +618,7 @@ public class ApronArucoDetect {
                 handler.post(runnable);
                 return;
             }
-            if (xy && arucoWidth >= 280) {
+            if (xy && arucoWidth >= 185) {
                 logMessage = "参考ArUco宽度+偏移量降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
@@ -926,14 +627,14 @@ public class ApronArucoDetect {
                 handler.post(runnable);
                 return;
             }
-            if (arucoWidth >= 480) {
-                logMessage = "参考ArUco宽度降落:" + id + " arucoW" + arucoWidth +
-                        " Flying Height:" + flyingHeight + "--" +
-                        " Ultrasonic Height:" + ultrasonicHeight;
-                LogUtil.log(TAG, logMessage);
-                startFastStick = true;
-                handler.post(runnable);
-            }
+//            if (arucoWidth >= 480) {
+//                logMessage = "参考ArUco宽度降落:" + id + " arucoW" + arucoWidth +
+//                        " Flying Height:" + flyingHeight + "--" +
+//                        " Ultrasonic Height:" + ultrasonicHeight;
+//                LogUtil.log(TAG, logMessage);
+//                startFastStick = true;
+//                handler.post(runnable);
+//            }
         }
     }
     private boolean startFastStick;
@@ -978,7 +679,6 @@ public class ApronArucoDetect {
         handlerCallbackCount = 0;
         canLanding = true;
         dropTimes = 0;//手动测试避免多次累加后直接飞往备降点
-        markerId5MaxFindHeight = 0.7;
     }
 
 }
