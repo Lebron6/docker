@@ -72,7 +72,7 @@ public class SystemManager extends BaseManager {
             PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternate_lng());
             PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getSafe_land_height());
             PreferenceUtils.getInstance().setTaskId(message.getTask_id());
-            PreferenceUtils.getInstance().setCustomStreamUrl(message.getRtmp_push_url());
+//            PreferenceUtils.getInstance().setCustomStreamUrl(message.getRtmp_push_url());
             Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
 
             Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());

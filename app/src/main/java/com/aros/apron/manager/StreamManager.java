@@ -128,6 +128,7 @@ public class StreamManager extends BaseManager {
                 //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
             } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
                     && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getRtmp_push_url())) {
+                PreferenceUtils.getInstance().setCustomStreamUrl(message.getRtmp_push_url());
                 liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
