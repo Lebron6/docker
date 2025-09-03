@@ -36,13 +36,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
+import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -259,21 +262,51 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
 
                 //判断航线状态为EXECUTING，且当前index发生变化，且不在指点任务时，发送到达航点
-                if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
-                        Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") &&
-                        !PreferenceUtils.getInstance().getIsNewRoute()) {
-                    if (excutingWaylineInfo.getCurrentWaypointIndex()==0){
-                        if (!waypointIndex0AlreadySend){
-                            waypointIndex0AlreadySend=true;
-                            //到达航点(航点下标=0)
-                            sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
-                            LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                        }
+                if (!PreferenceUtils.getInstance().getIsNewRoute()) {
+                    if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
+                            Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
+                    ) {
+                        if (excutingWaylineInfo.getCurrentWaypointIndex() == 0) {
+                            if (!waypointIndex0AlreadySend) {
+                                waypointIndex0AlreadySend = true;
+                                //到达航点(航点下标=0)
+                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                                LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                            }
 
-                    }else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()){
-                        LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                        //到达航点(航点下标>0)
-                        sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                        } else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()) {
+                            LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                            //到达航点(航点下标>0)
+                            sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                        }
+                    }
+
+                    //回到主航线
+                } else if (PreferenceUtils.getInstance().getMissionType() == 2) {
+                    if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
+                            Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
+                    ) {
+                        //这里默认续飞的航线，下标为1以上才算进入主航线
+                        if (excutingWaylineInfo.getCurrentWaypointIndex() != 0) {
+                            if (CurrentWayline.getInstance().getWaypoints() != null
+                                    && CurrentWayline.getInstance().getWaypoints().size() > excutingWaylineInfo.getCurrentWaypointIndex()
+                                    && CurrentWayline.getInstance().getRouteWaypoints() != null
+                                    && CurrentWayline.getInstance().getWaypoints().size() > excutingWaylineInfo.getCurrentWaypointIndex()) {
+                                if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()) {
+                                    //续飞航线当前航点在主航线中的下标
+                                    int indexInWaypoints = findIndexInWaypoints(excutingWaylineInfo.getCurrentWaypointIndex());
+                                    if (indexInWaypoints!=-1){
+                                        LogUtil.log(TAG, "续飞进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点，位于主航线第"+indexInWaypoints+"个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                        sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "0", String.valueOf(indexInWaypoints));
+                                    }else {
+                                        LogUtil.log(TAG, "未查到到主航线中包含该续飞航点");
+                                    }
+                                }
+                            } else {
+                                LogUtil.log(TAG, "数组下标不对");
+                            }
+
+                        }
                     }
                 }
                 //状态等执行完发送再更新
@@ -313,6 +346,22 @@ public class MissionManager extends BaseManager {
             }
         }
     };
+
+    /**
+     * 查找 routeWaypoints 中指定索引的元素在 waypoints 中的索引
+     * @param indexInRouteWaypoints routeWaypoints 中的元素索引
+     * @return 在 waypoints 中的索引，如果不存在返回 -1
+     */
+    public int findIndexInWaypoints(int indexInRouteWaypoints) {
+        // 边界检查
+        if (indexInRouteWaypoints < 0 || indexInRouteWaypoints >= CurrentWayline.getInstance().getRouteWaypoints().size()) {
+            return -1;
+        }
+        // 获取 routeWaypoints 中的指定元素
+        WaylineWaypoint target = CurrentWayline.getInstance().getRouteWaypoints().get(indexInRouteWaypoints);
+        // 在 waypoints 中查找该元素的索引
+        return CurrentWayline.getInstance().getWaypoints().indexOf(target);
+    }
 
     private int checkMissionStateTimes = 0;
 
@@ -587,8 +636,10 @@ public class MissionManager extends BaseManager {
                         WaylineTemplateWaypointInfo waypointInfo = templates.get(0).getWaypointInfo();
                         if (waypointInfo != null&&waypointInfo.getWaypoints()!=null) {
                             //将航点列表保存在本地，方便对比得出是否离开航点
-                            if (!PreferenceUtils.getInstance().getIsNewRoute()){
+                            if (!PreferenceUtils.getInstance().getIsNewRoute()) {
                                 CurrentWayline.getInstance().setWaypoints(waypointInfo.getWaypoints());
+                            } else if (PreferenceUtils.getInstance().getMissionType() == 2) {
+                                CurrentWayline.getInstance().setRouteWaypoints(waypointInfo.getWaypoints());
                             }
                             LogUtil.log(TAG, "该航线有" + waypointInfo.getWaypoints().size() + "个航点");
                             List<WaylineActionGroup> actionGroups = waypointInfo.getActionGroups();

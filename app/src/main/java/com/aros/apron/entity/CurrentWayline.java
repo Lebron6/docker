@@ -29,4 +29,15 @@ public class CurrentWayline {
     public void setWaypoints(List<WaylineWaypoint> waypoints) {
         this.waypoints = waypoints;
     }
+
+    private List<WaylineWaypoint> routeWaypoints=new ArrayList<>();
+
+
+    public List<WaylineWaypoint> getRouteWaypoints() {
+        return routeWaypoints;
+    }
+
+    public void setRouteWaypoints(List<WaylineWaypoint> waypoints) {
+        this.routeWaypoints = waypoints;
+    }
 }
