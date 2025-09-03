@@ -54,6 +54,7 @@ import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandResult;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationStatus;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
+import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.common.utils.GpsUtils;
@@ -291,8 +292,34 @@ public class FlightManager extends BaseManager {
                                 //返回主航线
                             }else if (PreferenceUtils.getInstance().getMissionType()==2){
 
+                                int indexInWaypoints = findIndexInWaypoints(Movement.getInstance().getCurrentWaypointIndex());
+                                if (indexInWaypoints!=-1){
+                                    //当前位置与当前航点下标的距离
+                                    double pointDistance = LocationUtils.getDistance(
+                                            CurrentWayline.getInstance().getWaypoints()
+                                                    .get(indexInWaypoints)
+                                                    .getLocation().getLongitude().toString(),
+                                            CurrentWayline.getInstance().getWaypoints()
+                                                    .get(indexInWaypoints)
+                                                    .getLocation().getLatitude().toString(),
+                                            String.valueOf(newValue.getLongitude()),
+                                            String.valueOf(newValue.getLatitude()));
+                                    if (pointDistance>1) {
+                                            waypointIndexAlreadySend = indexInWaypoints;
+                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
+                                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+                                                        String.valueOf(waypointIndexAlreadySend));
+                                                LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
+                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                            }else{
+                                                LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
+                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                            }
 
-
+                                    }
+                                }else {
+                                    LogUtil.log(TAG, "未查到到主航线中包含该续飞航点");
+                                }
                             }
                         }
 
@@ -1399,12 +1426,23 @@ public class FlightManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (mqttClient!=null&&message!=null) {
+                        if (mqttClient != null && message != null) {
                             sendMsg2Server(mqttClient, message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
                         }
                         LogUtil.log(TAG, "停止低速转浆失败:" + new Gson().toJson(error));
                     }
                 });
+    }
+
+    public int findIndexInWaypoints(int indexInRouteWaypoints) {
+        // 边界检查
+        if (indexInRouteWaypoints < 0 || indexInRouteWaypoints >= CurrentWayline.getInstance().getRouteWaypoints().size()) {
+            return -1;
+        }
+        // 获取 routeWaypoints 中的指定元素
+        WaylineWaypoint target = CurrentWayline.getInstance().getRouteWaypoints().get(indexInRouteWaypoints);
+        // 在 waypoints 中查找该元素的索引
+        return CurrentWayline.getInstance().getWaypoints().indexOf(target);
     }
 
 }
