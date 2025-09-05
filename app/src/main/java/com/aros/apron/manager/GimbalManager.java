@@ -57,7 +57,7 @@ public class GimbalManager extends BaseManager {
     //用相对角度模式旋转云台
     public void gimbalRotateByRelativeAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message.getX() == 0 && message.getY() == 0) {
                 gimbalReset();
@@ -68,7 +68,7 @@ public class GimbalManager extends BaseManager {
                 rotation.setMode(GimbalAngleRotationMode.RELATIVE_ANGLE);
                 rotation.setYaw(Double.valueOf(yaw));
                 rotation.setPitch(Double.valueOf(pitch));
-                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
                                 sendMsg2Server(mqttAndroidClient, message);
@@ -92,7 +92,7 @@ public class GimbalManager extends BaseManager {
 //    //用绝对角度模式旋转云台
 //    public void gimbalRotateByAbsoluteAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
 //        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-//                KeyConnection, 0));
+//                KeyConnection, ComponentIndexType.PORT_1));
 //        if (isConnect != null && isConnect) {
 //            if (message.getX() == 0 && message.getY() == 0) {
 //                gimbalReset();
@@ -103,7 +103,7 @@ public class GimbalManager extends BaseManager {
 //                rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
 //                rotation.setYaw(Double.valueOf(yaw * 10));
 //                rotation.setPitch(Double.valueOf(pitch * 10));
-//                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
 //                            @Override
 //                            public void onSuccess(EmptyMsg emptyMsg) {
 //                                LogUtil.log(TAG, "云台控制成功:" + yaw + "---" + pitch);
@@ -124,9 +124,9 @@ public class GimbalManager extends BaseManager {
     //云台重置
     public void gimbalReset() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "云台复位");
@@ -147,9 +147,9 @@ public class GimbalManager extends BaseManager {
     //云台回中
     public void gimbalResetWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0),
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1),
                     GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
@@ -171,9 +171,9 @@ public class GimbalManager extends BaseManager {
     //云台偏航回中
     public void gimbalResetWithYaw(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, 0),
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1),
                     GimbalResetType.ONLY_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
@@ -195,7 +195,7 @@ public class GimbalManager extends BaseManager {
     //偏航向下
     public void gimbalDownWithPitch(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             GimbalAngleRotation rotation = new GimbalAngleRotation();
                 rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
@@ -203,7 +203,7 @@ public class GimbalManager extends BaseManager {
                     rotation.setYaw(Double.parseDouble(Movement.getInstance().getGimbalYaw()));
                 }
                 rotation.setPitch(-90.0);
-                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
                                 sendMsg2Server(client,message);
@@ -224,14 +224,14 @@ public class GimbalManager extends BaseManager {
     //云台朝下
     public void gimbalDownWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             GimbalAngleRotation rotation = new GimbalAngleRotation();
             rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
             rotation.setYaw(0.0);
             rotation.setRoll(0.0);
             rotation.setPitch(-90.0);
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             sendMsg2Server(client,message);
@@ -253,10 +253,10 @@ public class GimbalManager extends BaseManager {
     public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
             message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect!=null&&isConnect) {
-            DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, 0);
-            DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, 0);
+            DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, ComponentIndexType.PORT_1);
+            DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, ComponentIndexType.PORT_1);
             if (pitchKey != null) {
                 setGimbalControlSpeed(mqttAndroidClient, message, pitchKey, "云台俯仰控制速度设置失败:");
             } else {
@@ -406,10 +406,10 @@ public class GimbalManager extends BaseManager {
     //设置云台模式
     public void setGimbalMode(int gimbalMode) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,
-                    0), GimbalMode.find(gimbalMode), new CommonCallbacks.CompletionCallback() {
+                    ComponentIndexType.PORT_1), GimbalMode.find(gimbalMode), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     switch (gimbalMode) {

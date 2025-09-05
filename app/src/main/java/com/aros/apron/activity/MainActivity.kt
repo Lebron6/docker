@@ -47,6 +47,7 @@ import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.Utils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
@@ -58,6 +59,7 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
+import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithParam
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
@@ -478,6 +480,7 @@ open class MainActivity : BaseActivity() {
         btn_test = findViewById( R.id.btn_test)
         btn_test1 = findViewById( R.id.btn_test1)
         btn_test?.setOnClickListener {
+//            MissionManager.getInstance().test()
             FlightManager.getInstance().startPropellerRotation(null, null)
         }
         btn_test1?.setOnClickListener {

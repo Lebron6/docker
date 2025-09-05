@@ -63,13 +63,13 @@ public class CameraManager extends BaseManager {
     }
 
     public void initCameraInfo() {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, 0));
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
             if (productType != null) {
                 if (productType == ProductType.M300_RTK) {
                     KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                            KeyCameraFlatMode, 0), this, new CommonCallbacks.KeyListener<CameraFlatMode>() {
+                            KeyCameraFlatMode, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<CameraFlatMode>() {
                         @Override
                         public void onValueChange(@Nullable CameraFlatMode cameraFlatMode, @Nullable CameraFlatMode t1) {
                             if (t1 != null) {
@@ -95,7 +95,7 @@ public class CameraManager extends BaseManager {
                     });
                 } else {
                     KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                            KeyCameraMode, 0), this, new CommonCallbacks.KeyListener<CameraMode>() {
+                            KeyCameraMode, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<CameraMode>() {
                         @Override
                         public void onValueChange(@Nullable CameraMode oldValue, @Nullable CameraMode newValue) {
                             if (newValue != null) {
@@ -107,7 +107,7 @@ public class CameraManager extends BaseManager {
             }
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyPhotoIntervalShootSettings, 0), this, new CommonCallbacks.KeyListener<PhotoIntervalShootSettings>() {
+                    KeyPhotoIntervalShootSettings, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<PhotoIntervalShootSettings>() {
                 @Override
                 public void onValueChange(@Nullable PhotoIntervalShootSettings photoIntervalShootSettings, @Nullable PhotoIntervalShootSettings t1) {
                     if (t1 != null) {
@@ -119,7 +119,7 @@ public class CameraManager extends BaseManager {
 
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyPhotoPanoramaProgress, 0), this, new CommonCallbacks.KeyListener<Integer>() {
+                    KeyPhotoPanoramaProgress, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1!=null){
@@ -129,7 +129,7 @@ public class CameraManager extends BaseManager {
             });
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyIsShootingPhotoPanorama, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                    KeyIsShootingPhotoPanorama, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Boolean>() {
                 @Override
                 public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                     if (t1!=null){
@@ -139,7 +139,7 @@ public class CameraManager extends BaseManager {
             });
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyIsShootingPhoto, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                    KeyIsShootingPhoto, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Boolean>() {
                 @Override
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
@@ -149,7 +149,7 @@ public class CameraManager extends BaseManager {
             });
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyIsRecording, 0), this, new CommonCallbacks.KeyListener<Boolean>() {
+                    KeyIsRecording, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Boolean>() {
                 @Override
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
@@ -159,7 +159,7 @@ public class CameraManager extends BaseManager {
             });
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyRecordingTime, 0), this, new CommonCallbacks.KeyListener<Integer>() {
+                    KeyRecordingTime, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
@@ -188,13 +188,13 @@ public class CameraManager extends BaseManager {
 
             //默认视频源
             CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                    KeyCameraVideoStreamSource));
+                    KeyCameraVideoStreamSource,ComponentIndexType.PORT_1));
             if (value!=null){
                 Movement.getInstance().setCameraVideoStreamSource(value.value());
             }
 
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyCameraVideoStreamSource, 0), this, new CommonCallbacks.KeyListener<CameraVideoStreamSourceType>() {
+                    KeyCameraVideoStreamSource, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<CameraVideoStreamSourceType>() {
                 @Override
                 public void onValueChange(@Nullable CameraVideoStreamSourceType cameraVideoStreamSourceType, @Nullable CameraVideoStreamSourceType t1) {
                     if (t1 != null) {
@@ -212,7 +212,7 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
-            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraZoomRatiosRange), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraZoomRatiosRange,ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
                 @Override
                 public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
                     if (zoomRatiosRange != null) {
@@ -227,7 +227,7 @@ public class CameraManager extends BaseManager {
                 }
             });
 
-            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyThermalZoomRatiosRange), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyThermalZoomRatiosRange,ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
                 @Override
                 public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
                     if (zoomRatiosRange != null) {
@@ -301,8 +301,8 @@ public class CameraManager extends BaseManager {
 
     //设置手动对焦值
     public void setCameraFocusRingValue(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue,
@@ -328,8 +328,8 @@ public class CameraManager extends BaseManager {
     }
     //切换相机拍照录像模式
     public void setCameraMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int cameraMode = message.getCameraMode();
@@ -337,7 +337,7 @@ public class CameraManager extends BaseManager {
                 if (productType!=null){
                     if (productType==ProductType.M300_RTK){
                         if (cameraMode==0){
-                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_NORMAL, new CommonCallbacks.CompletionCallback() {
+                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_NORMAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     sendMsg2Server(mqttAndroidClient, message);
@@ -349,8 +349,9 @@ public class CameraManager extends BaseManager {
                                     sendMsg2Server(mqttAndroidClient, message, "相机模式切换拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
+
                         } else if (cameraMode == 1) {
-                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
+                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     sendMsg2Server(mqttAndroidClient, message);
@@ -363,7 +364,7 @@ public class CameraManager extends BaseManager {
                                 }
                             });
                         } else if (cameraMode == 8) {
-                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_INTERVAL, new CommonCallbacks.CompletionCallback() {
+                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_INTERVAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     sendMsg2Server(mqttAndroidClient, message);
@@ -376,7 +377,7 @@ public class CameraManager extends BaseManager {
                                 }
                             });
                         } else if (cameraMode == 12) {
-                            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_PANO, new CommonCallbacks.CompletionCallback() {
+                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_PANO, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     sendMsg2Server(mqttAndroidClient, message);
@@ -394,7 +395,7 @@ public class CameraManager extends BaseManager {
                         }
 
                     }else{
-                        KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraMode), CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
+                        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode, ComponentIndexType.PORT_1),CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
                                 sendMsg2Server(mqttAndroidClient, message);
@@ -420,19 +421,20 @@ public class CameraManager extends BaseManager {
 
     //设置定时拍照参数
     public void startTakePhotoWithInterval(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             PhotoIntervalShootSettings shootSettings = new PhotoIntervalShootSettings();
             shootSettings.setInterval(message.getShootInterval());
             shootSettings.setCount(message.getShootCount());
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyPhotoIntervalShootSettings), shootSettings, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyPhotoIntervalShootSettings, ComponentIndexType.PORT_1),shootSettings, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartShootPhoto,
+                                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                                 @Override
                                 public void onSuccess(EmptyMsg emptyMsg) {
                                     sendMsg2Server(mqttAndroidClient, message);
@@ -463,10 +465,12 @@ public class CameraManager extends BaseManager {
 
     //开始拍照
     public void startShootPhoto(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartShootPhoto,
+                            ComponentIndexType.PORT_1),
+                    new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(mqttAndroidClient, message);
@@ -486,10 +490,11 @@ public class CameraManager extends BaseManager {
 
     //结束拍照
     public void stopShootPhoto(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopShootPhoto,
+                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(mqttAndroidClient, message);
@@ -508,10 +513,11 @@ public class CameraManager extends BaseManager {
 
     //开始录像
     public void startRecordVideo(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartRecord,
+                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(mqttAndroidClient, message);
@@ -530,12 +536,13 @@ public class CameraManager extends BaseManager {
 
     //停止录像
     public void stopRecordVideo(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         //降落时也允许停止录像
 //        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
         if (isConnect != null && isConnect ) {
-            KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopRecord,
+                    ComponentIndexType.PORT_1),new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     if(mqttAndroidClient!=null&&message!=null){
@@ -560,8 +567,8 @@ public class CameraManager extends BaseManager {
 
     //设置变焦倍率
     public void setCameraZoomRatios(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int cameraZoomRatios = message.getCameraZoomRatios();
@@ -586,13 +593,14 @@ public class CameraManager extends BaseManager {
 
     //设置红外变焦倍率(支持1x、2x、4x、8x变焦倍率)
     public void setThermalZoomRatios(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int type = message.getThermalZoomRatios();
                 KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
-                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
+                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type),
+                        new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -612,13 +620,15 @@ public class CameraManager extends BaseManager {
 
     //切换广角变焦红外
     public void setCameraVideoStreamSource(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             if (message != null) {
                 int type = message.getCameraVideoStreamSource();
-
-                KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.find(type), new CommonCallbacks.CompletionCallback() {
+                KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource,
+                                ComponentIndexType.PORT_1)
+                        , CameraVideoStreamSourceType.find(type),
+                        new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         sendMsg2Server(mqttAndroidClient, message);
@@ -656,8 +666,8 @@ public class CameraManager extends BaseManager {
 
     //设置红外镜头的显示模式
     public void setThermalDisplayMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalDisplayMode,
                             ComponentIndexType.PORT_1,
@@ -681,8 +691,8 @@ public class CameraManager extends BaseManager {
 
     //设置红外镜头分屏显示位置
     public void setThermalPIPPosition(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalPIPPosition,
                             ComponentIndexType.PORT_1,
@@ -709,7 +719,7 @@ public class CameraManager extends BaseManager {
 //设置对焦模式
 public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
     Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-            KeyConnection));
+            KeyConnection,ComponentIndexType.PORT_1));
     if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
         if (message != null) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode,
@@ -737,7 +747,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
     //格式化SD卡
     public void formatStorage(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
@@ -769,8 +779,8 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置曝光模式
     public void setExposureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureMode,
                             ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
@@ -796,8 +806,8 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置曝光补偿数值
     public void setExposureCompensation(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyExposureCompensation,
                             ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
@@ -822,7 +832,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
     Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
             KeyConnection));
     if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-        KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyResetCameraSetting), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+        KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyResetCameraSetting,
+                ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
             @Override
             public void onSuccess(EmptyMsg emptyMsg) {
                 sendMsg2Server(mqttAndroidClient, message);
@@ -841,8 +852,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //指点对焦
     public void tapZoomAtTarget(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
 
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomEnable,
@@ -860,7 +871,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
             //默认视频源
             CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                    KeyCameraVideoStreamSource));
+                    KeyCameraVideoStreamSource,ComponentIndexType.PORT_1));
             ZoomTargetPointInfo zoomTargetPointInfo=new ZoomTargetPointInfo();
             zoomTargetPointInfo.setX(message.getZoomTargetX());
             zoomTargetPointInfo.setY(message.getZoomTargetY());
@@ -875,10 +886,12 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (message.getZoom()!=0||message.getZoom()>0){
+                            if (message.getZoom()!=0||message.getZoom()>0&&value!=null){
                                 switch (value.value()){
                                     case 0|1:
-                                        KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.ZOOM_CAMERA, new CommonCallbacks.CompletionCallback() {
+
+                                        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource,
+                                                ComponentIndexType.PORT_1), CameraVideoStreamSourceType.ZOOM_CAMERA, new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
                                                 new Handler().postDelayed(new Runnable() {
@@ -965,11 +978,12 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
      * 设置镜头曝光补偿
      */
     public void resumeLensToWideISOManual() {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             //切换成广角镜头
-            KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.WIDE_CAMERA, new CommonCallbacks.CompletionCallback() {
+            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource,
+                    ComponentIndexType.PORT_1), CameraVideoStreamSourceType.WIDE_CAMERA, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "返航时将镜头切为广角");
@@ -988,8 +1002,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置自定义文件后缀
     public void setCustomExpandNameSetting() {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             CustomExpandNameSettings customExpandNameSettings = new CustomExpandNameSettings();
             customExpandNameSettings.setEncodingType(EnCodingType.UTF8);
@@ -1015,8 +1029,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //切换为广角镜头，恢复曝光
     public void resumeLensToWideISOProgram() {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
 
             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyExposureMode),
@@ -1050,8 +1064,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置测温模式
     public void setThermalTemperatureMeasureMode(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalTemperatureMeasureMode,
                             ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL),
@@ -1074,8 +1088,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置需要测温的点的位置
     public void setThermalSpotMetersurePoint(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
             DoublePoint2D doublePoint2D = new DoublePoint2D();
             doublePoint2D.setX(Double.parseDouble(message.getMetersurePointX()));
@@ -1102,8 +1116,8 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
 
     //设置需要测温的区域位置
     public void setThermalRegionMetersureArea(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection));
+        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             DoubleRect doubleRect = new DoubleRect();
             doubleRect.setX(Double.parseDouble(message.getMetersureAreaX()));

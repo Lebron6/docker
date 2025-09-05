@@ -42,12 +42,14 @@ import java.util.List;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.MediaFileType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.datacenter.MediaDataCenter;
 import dji.v5.manager.datacenter.media.MediaFile;
 import dji.v5.manager.datacenter.media.MediaFileDownloadListener;
+import dji.v5.manager.datacenter.media.MediaFileListDataSource;
 import dji.v5.manager.datacenter.media.MediaFileListState;
 import dji.v5.manager.datacenter.media.MediaFileListStateListener;
 import dji.v5.manager.datacenter.media.PullMediaFileListParam;
@@ -80,6 +82,8 @@ public class MediaManager extends BaseManager {
     public  void init() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
+            MediaFileListDataSource source = new MediaFileListDataSource.Builder().setIndexType(ComponentIndexType.PORT_1).build();
+            MediaDataCenter.getInstance().getMediaManager().setMediaFileDataSource(source);
             MediaDataCenter.getInstance().getMediaManager().addMediaFileListStateListener(new MediaFileListStateListener() {
                 @Override
                 public void onUpdate(MediaFileListState mediaFileListState) {

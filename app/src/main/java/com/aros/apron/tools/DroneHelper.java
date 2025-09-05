@@ -121,7 +121,7 @@ public class DroneHelper {
 
     public void setCameraFocusMode(){
         Boolean cameraConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (cameraConnect!=null&&cameraConnect) {
             KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusMode, ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_WIDE), CameraFocusMode.AF, new CommonCallbacks.CompletionCallback() {
                 @Override
@@ -141,16 +141,16 @@ public class DroneHelper {
 
     public void setGimbalPitchDegree() {
         //通知拓挂载云台朝下
-        PayloadWidgetManager.getInstance().sendMsgToLeftPayload("#TPPG2wPTZ0A76");
+//        PayloadWidgetManager.getInstance().sendMsgToLeftPayload("#TPPG2wPTZ0A76");
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, 0));
+                KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect!=null&&isConnect) {
             GimbalAngleRotation rotation = new GimbalAngleRotation();
             rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
             rotation.setYaw(0.0);
             rotation.setRoll(0.0);
             rotation.setPitch(-90.0);
-            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "云台朝下");

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -15,6 +16,22 @@ import java.util.Locale;
 import dji.v5.common.error.IDJIError;
 
 public class Utils {
+    public static void printJson(String tag, String json) {
+        if (json == null || json.length() == 0) {
+            Log.e(tag, "JSON is empty");
+            return;
+        }
+
+        int maxLogSize = 4000;
+        for (int i = 0; i <= json.length() / maxLogSize; i++) {
+            int start = i * maxLogSize;
+            int end = (i + 1) * maxLogSize;
+            if (end >= json.length()) {
+                end = json.length();
+            }
+            Log.e(tag, json.substring(start, end));
+        }
+    }
     /**
      * //修改变焦数据为从前端拿2-200自己计算然后放入官方的sdk
      *

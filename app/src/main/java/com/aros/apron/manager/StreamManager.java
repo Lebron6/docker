@@ -215,7 +215,7 @@ public class StreamManager extends BaseManager {
                     .setRtmpSettings(new RtmpSettings.Builder().setUrl(PreferenceUtils.getInstance().getCustomStreamUrl()
                     ).build()).build();
             liveStreamManager.setLiveStreamSettings(streamSettings);
-            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, 0));
+            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
             if (value != null && (value == CameraType.ZENMUSE_H20T ||
                     value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
                     || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
@@ -274,7 +274,7 @@ public class StreamManager extends BaseManager {
                             setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
 
             liveStreamManager.setLiveStreamSettings(streamSettings);
-            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, 0));
+            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
             if (value != null && (value == CameraType.ZENMUSE_H20T ||
                     value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
                     || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
