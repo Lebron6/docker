@@ -8,6 +8,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -25,7 +26,6 @@ import dji.v5.manager.KeyManager;
  * 电池
  */
 public class BatteryManager extends BaseManager {
-    MqttAndroidClient client;
 
     private BatteryManager() {
     }
@@ -40,8 +40,7 @@ public class BatteryManager extends BaseManager {
 
     private boolean sendLowBatteryRTHPosition2Server;
 
-    public void initBatteryInfo(MqttAndroidClient client) {
-        this.client = client;
+    public void initBatteryInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(BatteryKey.KeyConnection, 0));
         if (isConnect != null && isConnect) {
 
@@ -68,7 +67,7 @@ public class BatteryManager extends BaseManager {
                             Movement.getInstance().setLowBatteryRTHState(t1.getLowBatteryRTHStatus().value());
                             if (t1.getLowBatteryRTHStatus().value()==1&&!sendLowBatteryRTHPosition2Server){
                                 sendLowBatteryRTHPosition2Server = true;
-                                sendLowBatteryRTHPosition2Server(client);
+                                sendLowBatteryRTHPosition2Server(MqttManager.getInstance().mqttAndroidClient);
                             }
                         }
                     }

@@ -22,7 +22,6 @@ import dji.v5.manager.KeyManager;
  * 遥控器
  */
 public class RemoteManager extends BaseManager {
-    MqttAndroidClient client;
 
     private RemoteManager() {
     }
@@ -36,8 +35,7 @@ public class RemoteManager extends BaseManager {
     }
 
 
-    public void initRemoteInfo(MqttAndroidClient client) {
-        this.client = client;
+    public void initRemoteInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(
                 KeyTools.createKey(RemoteControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {

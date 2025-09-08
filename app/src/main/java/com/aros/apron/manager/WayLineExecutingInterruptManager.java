@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -33,7 +34,6 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 public class WayLineExecutingInterruptManager extends BaseManager {
 
-    private MqttAndroidClient client;
 
     private WayLineExecutingInterruptManager() {
     }
@@ -46,8 +46,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         return WayLineExecutingInterruptHolder.INSTANCE;
     }
 
-    public void initWayLineExecutingInterruptInfo(MqttAndroidClient mqttAndroidClient) {
-        this.client = mqttAndroidClient;
+    public void initWayLineExecutingInterruptInfo() {
     }
 
     public void onExecutingInterruptToDo() {
@@ -70,11 +69,11 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         if (Movement.getInstance().getFlyingHeight() < 90) {
             LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getFlyingHeight());
             raiseTheReturnFlight();
-            sendMissionExecuteEvents(client, "航线中断:拉高后返航");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:拉高后返航");
         } else {
             LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight());
             FlightManager.getInstance().startGoHome(null, null);
-            sendMissionExecuteEvents(client, "航线中断:直接返航");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:直接返航");
 
         }
 
@@ -96,14 +95,14 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "失控拉高,控制权获取失败:" + error.description());
-                    sendMissionExecuteEvents(client, "航线中断:执行拉高失败");
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:执行拉高失败");
 
                 }
             });
 
         } else {
             LogUtil.log(TAG, "失控拉高,飞控未连接");
-            sendMissionExecuteEvents(client, "航线中断:飞控未连接");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:飞控未连接");
 
         }
 
@@ -128,13 +127,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "到达100米,取消虚拟摇杆控制并返航");
-                            sendMissionExecuteEvents(client, "航线中断:到达指定高度,开始返航");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:到达指定高度,开始返航");
                             FlightManager.getInstance().startGoHome(null, null);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
-                            sendMissionExecuteEvents(client, "航线中断:释放控制权失败,开始返航");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "航线中断:释放控制权失败,开始返航");
                             LogUtil.log(TAG, "到达80米,取消虚拟摇杆控制返航失败:" + new Gson().toJson(idjiError));
                             FlightManager.getInstance().startGoHome(null, null);
                         }

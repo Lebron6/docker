@@ -24,6 +24,7 @@ import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
@@ -64,7 +65,6 @@ public class MediaManager extends BaseManager {
     private  final String mediaFileDir = "/apronPic";
     private MediaFileListState mState = null;
     private List<MediaFile> mediaFiles = new ArrayList<>();
-    private  MqttAndroidClient mqttClient;
 
     private MediaManager() {
     }
@@ -77,8 +77,7 @@ public class MediaManager extends BaseManager {
         return MediaManager.MediaManagerHolder.INSTANCE;
     }
 
-    public  void init(MqttAndroidClient mqttAndroidClient) {
-        mqttClient = mqttAndroidClient;
+    public  void init() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             MediaDataCenter.getInstance().getMediaManager().addMediaFileListStateListener(new MediaFileListStateListener() {
@@ -116,7 +115,7 @@ public class MediaManager extends BaseManager {
                                enablePlayback();
                            }else{
                                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                               sendMissionExecuteEvents(mqttClient, "媒体模式进入失败:关机");
+                               sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "媒体模式进入失败:关机");
                            }
                        }
                    }, 1500);
@@ -146,13 +145,13 @@ public class MediaManager extends BaseManager {
                                     } else {
                                         LogUtil.log(TAG, "拉取媒体文件为空");
                                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                        sendMissionExecuteEvents(mqttClient,"拉取媒体文件为空");
+                                        sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"拉取媒体文件为空");
                                         disablePlayback();
                                         LogUtil.log(TAG, "发送关闭无人机");
                                     }
                                 } else {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                    sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败:"+mState);
+                                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"拉取媒体文件失败:"+mState);
                                     LogUtil.log(TAG, "拉取媒体文件失败,当前状态:"+mState);
                                     disablePlayback();
                                     LogUtil.log(TAG, "发送关闭无人机");
@@ -175,7 +174,7 @@ public class MediaManager extends BaseManager {
                                     }else{
                                         LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
                                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                        sendMissionExecuteEvents(mqttClient,"拉取媒体文件失败");
+                                        sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"拉取媒体文件失败");
                                         disablePlayback();
                                         LogUtil.log(TAG, "发送关闭无人机");
                                     }
@@ -266,7 +265,7 @@ public class MediaManager extends BaseManager {
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                    sendMissionExecuteEvents(mqttClient, "第" + downLoadMediaFileIndex + "个文件下载失败");
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "第" + downLoadMediaFileIndex + "个文件下载失败");
                     downLoadMediaFileIndex = 0;
                 }
             });
@@ -368,7 +367,7 @@ public class MediaManager extends BaseManager {
                         fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
 
-                        sendFileUploadCallback(60102,mqttClient, fileUploadResult);
+                        sendFileUploadCallback(60102,MqttManager.getInstance().mqttAndroidClient, fileUploadResult);
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)
@@ -394,12 +393,12 @@ public class MediaManager extends BaseManager {
                         // 每上传一张就清除缓存
                         FileUtil.deleteFile(file);
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " uploaded successfully.");
-                        sendMissionExecuteEvents(mqttClient, "第" + downLoadMediaFileIndex + "个文件已上传");
+                        sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "第" + downLoadMediaFileIndex + "个文件已上传");
 
                         downLoadMediaFileIndex++;
                         if (downLoadMediaFileIndex == mediaFiles.size()) {
                             // 所有文件已上传完成，清空SD卡，缓存，退出媒体模式，发送无人机关机
-                            sendMissionExecuteEvents(mqttClient, "媒体文件已上传完毕");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "媒体文件已上传完毕");
                             removeAllFiles();
                             downLoadMediaFileIndex = 0;
                         } else {
@@ -415,7 +414,7 @@ public class MediaManager extends BaseManager {
             public void onSuccess() {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 LogUtil.log(TAG, "清除文件成功 ");
-                sendMissionExecuteEvents(mqttClient,"媒体文件已清除");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"媒体文件已清除");
                 disablePlayback();
                 LogUtil.log(TAG, "发送关闭无人机");
             }
@@ -424,7 +423,7 @@ public class MediaManager extends BaseManager {
             public void onFailure(@NonNull IDJIError idjiError) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 LogUtil.log(TAG, "清除文件失败: "+new Gson().toJson(idjiError));
-                sendMissionExecuteEvents(mqttClient, "媒体文件清除失败");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "媒体文件清除失败");
                 LogUtil.log(TAG, "发送关闭无人机");
             }
         });

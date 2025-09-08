@@ -36,8 +36,6 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 public class StickManager extends BaseManager {
 
-    MqttAndroidClient client;
-
 
     private StickManager() {
     }
@@ -50,8 +48,7 @@ public class StickManager extends BaseManager {
         return StickHolder.INSTANCE;
     }
 
-    public void initStickInfo(MqttAndroidClient client) {
-        this.client = client;
+    public void initStickInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect!=null&&isConnect) {
 

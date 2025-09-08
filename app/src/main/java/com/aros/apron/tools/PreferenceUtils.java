@@ -66,6 +66,7 @@ public class PreferenceUtils extends BasePreference {
     private String FORCED_BATTERY = "forced_battery"; //低于电量阈值强制返航
     private String LTE_ENABLE = "lte_enable";
     private String IS_NEW_ROUTE = "is_new_route";
+    private String MISSION_TYPE = "mission_type";
     private String PAUSE_WAYPOINT_INDEX = "pause_index";//暂停航线前记录index，暂停成功后将下标推送给服务器
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
@@ -469,6 +470,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setIsNewRoute(boolean isNewRoute) {
         setBoolean(IS_NEW_ROUTE, isNewRoute);
+    }
+
+    public int getMissionType() {
+        return getInt(MISSION_TYPE);
+    }
+
+    public void setMissionType(int missionType) {
+        setInt(MISSION_TYPE, missionType);
     }
 
     private PreferenceUtils(Context context) {

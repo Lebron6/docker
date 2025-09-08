@@ -4,6 +4,7 @@ package com.aros.apron.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
 import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 
 public class CurrentWayline {
@@ -19,14 +20,25 @@ public class CurrentWayline {
         return CurrentWaylineHolder.INSTANCE;
     }
 
-    private List<WaylineWaypoint> waypoints=new ArrayList<>();
+    private List<WaylineExecuteWaypoint> waypoints=new ArrayList<>();
 
 
-    public List<WaylineWaypoint> getWaypoints() {
+    public List<WaylineExecuteWaypoint> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(List<WaylineWaypoint> waypoints) {
+    public void setWaypoints(List<WaylineExecuteWaypoint> waypoints) {
         this.waypoints = waypoints;
+    }
+
+    private List<WaylineExecuteWaypoint> routeWaypoints=new ArrayList<>();
+
+
+    public List<WaylineExecuteWaypoint> getRouteWaypoints() {
+        return routeWaypoints;
+    }
+
+    public void setRouteWaypoints(List<WaylineExecuteWaypoint> waypoints) {
+        this.routeWaypoints = waypoints;
     }
 }

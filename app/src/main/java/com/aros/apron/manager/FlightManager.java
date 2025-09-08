@@ -21,6 +21,7 @@ import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.DroneHelper;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
@@ -50,6 +51,7 @@ import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
+import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.common.utils.GpsUtils;
@@ -70,7 +72,6 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 public class FlightManager extends BaseManager {
 
 
-    private MqttAndroidClient mqttAndroidClient;
     private IPerceptionManager iPerceptionManager;
     private IDeviceHealthManager iDeviceHealthManager;
     private IDeviceStatusManager iDeviceStatusManager;
@@ -91,8 +92,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    public void initFlightInfo(MqttAndroidClient mqttAndroidClient) {
-        this.mqttAndroidClient = mqttAndroidClient;
+    public void initFlightInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())
@@ -241,60 +241,87 @@ public class FlightManager extends BaseManager {
                         }
                         Movement.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
                         Movement.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
-                        //当前位置与当前航点下标的距离
                         if (waypointIndexAlreadySend != Movement.getInstance().getCurrentWaypointIndex() &&
                                 Movement.getInstance().getWaypointMissionExecuteState() != null &&
-                                (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING") ||
-                                        Movement.getInstance().getWaypointMissionExecuteState().equals("FINISHED"))
+                                (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
+//                                        ||Movement.getInstance().getWaypointMissionExecuteState().equals("FINISHED")
+                                )
                                 &&
-                                !PreferenceUtils.getInstance().getIsNewRoute() &&
                                 CurrentWayline.getInstance().getWaypoints() != null &&
                                 CurrentWayline.getInstance().getWaypoints().size() >
                                         Movement.getInstance().getCurrentWaypointIndex() &&
                                 CurrentWayline.getInstance().getWaypoints().size() >
-                                        waypointIndexAlreadySend) {
-
-                            double pointDistance = LocationUtils.getDistance(
-                                    CurrentWayline.getInstance().getWaypoints()
-                                            .get(Movement.getInstance().getCurrentWaypointIndex())
-                                            .getLocation().getLongitude().toString(),
-                                    CurrentWayline.getInstance().getWaypoints()
-                                            .get(Movement.getInstance().getCurrentWaypointIndex())
-                                            .getLocation().getLatitude().toString(),
-                                    String.valueOf(newValue.getLongitude()),
-                                    String.valueOf(newValue.getLatitude()));
-                            if (pointDistance>1) {
-                                //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的index基础上+1得到最后一个航点的真实下标
-                                if (Movement.getInstance().getCurrentWaypointIndex() == 0 && waypointIndexAlreadySend > 0
-                                ) {
-                                    //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
-                                    waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
-                                    if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                        sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
-                                                String.valueOf(waypointIndexAlreadySend));
-                                        LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
-                                                + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                    }else{
-                                        LogUtil.log(TAG, "x已超出第" + waypointIndexAlreadySend
-                                                + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                    }
-                                } else {
+                                        waypointIndexAlreadySend){
+                            if (!PreferenceUtils.getInstance().getIsNewRoute()){
+                                //当前位置与当前航点下标的距离
+                                double pointDistance = LocationUtils.getDistance(
+                                        CurrentWayline.getInstance().getWaypoints()
+                                                .get(Movement.getInstance().getCurrentWaypointIndex())
+                                                .getLocation().getLongitude().toString(),
+                                        CurrentWayline.getInstance().getWaypoints()
+                                                .get(Movement.getInstance().getCurrentWaypointIndex())
+                                                .getLocation().getLatitude().toString(),
+                                        String.valueOf(newValue.getLongitude()),
+                                        String.valueOf(newValue.getLatitude()));
+                                if (pointDistance>1) {
+//                                        //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的index基础上+1得到最后一个航点的真实下标
+//                                        if (Movement.getInstance().getCurrentWaypointIndex() == 0 && waypointIndexAlreadySend > 0
+//                                        ) {
+//                                            //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
+//                                            waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
+//                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
+//                                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+//                                                        String.valueOf(waypointIndexAlreadySend));
+//                                                LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
+//                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+//                                            }else{
+//                                                LogUtil.log(TAG, "x已超出第" + waypointIndexAlreadySend
+//                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+//                                            }
+//                                        } else {
                                     waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                    sendCustomReachOrLeave2Server(mqttAndroidClient, "1",
+                                    sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
                                             String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
                                     LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
                                             + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-
+//                                        }
                                 }
+                                //返回主航线
+                            }else if (PreferenceUtils.getInstance().getMissionType()==2){
+                                int indexInWaypoints = findIndexInWaypoints(Movement.getInstance().getCurrentWaypointIndex());
+                                if (indexInWaypoints!=-1){
+                                    //当前位置与当前航点下标的距离
+                                    double pointDistance = LocationUtils.getDistance(
+                                            CurrentWayline.getInstance().getWaypoints()
+                                                    .get(indexInWaypoints)
+                                                    .getLocation().getLongitude().toString(),
+                                            CurrentWayline.getInstance().getWaypoints()
+                                                    .get(indexInWaypoints)
+                                                    .getLocation().getLatitude().toString(),
+                                            String.valueOf(newValue.getLongitude()),
+                                            String.valueOf(newValue.getLatitude()));
+                                    if (pointDistance>1) {
+                                        waypointIndexAlreadySend = indexInWaypoints;
+                                        if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
+                                            sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+                                                    String.valueOf(waypointIndexAlreadySend));
+                                            LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
+                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                        }else{
+                                            LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
+                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                        }
 
+                                    }
+                                }
                             }
-
                         }
+
+
                         pushFlightAttitude();
                     }
                 }
             });
-
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftVelocity), this, new CommonCallbacks.KeyListener<Velocity3D>() {
                 @Override
                 public void onValueChange(@Nullable Velocity3D oldValue, @Nullable Velocity3D newValue) {
@@ -384,7 +411,7 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                             if (!sendStartTakeOffMsg) {
-                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(mqttAndroidClient);
+                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(MqttManager.getInstance().mqttAndroidClient);
                                 sendStartTakeOffMsg = true;
                             }
                         }
@@ -652,7 +679,7 @@ public class FlightManager extends BaseManager {
                     LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
                 }
                 flightMessage.setQos(0);
-                publish(mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
+                publish(MqttManager.getInstance().mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
 
                 // 再次调用postDelayed来保证每一秒都会执行run方法
                 handler.postDelayed(this, TIME);
@@ -687,15 +714,15 @@ public class FlightManager extends BaseManager {
                 public void onSuccess(EmptyMsg emptyMsg) {
                     LogUtil.log(TAG,"电量低于阈值，直接返航");
                     //低电量强制返航通知服务器
-                    sendLowBatteryRTHPosition2Server(mqttAndroidClient);
-                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，强制返航");
+                    sendLowBatteryRTHPosition2Server(MqttManager.getInstance().mqttAndroidClient);
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，强制返航");
 
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"电量低于阈值，返航失败:"+new Gson().toJson(error));
-                    sendMissionExecuteEvents(mqttAndroidClient,"电量低于阈值，返航失败");
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，返航失败");
                 }
             });
 
@@ -714,7 +741,7 @@ public class FlightManager extends BaseManager {
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启水平避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint() && isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
-            DockCloseManager.getInstance().sendDockCloseMsg2Server(mqttAndroidClient);
+            DockCloseManager.getInstance().sendDockCloseMsg2Server(MqttManager.getInstance().mqttAndroidClient);
             PerceptionManager.getInstance().setPerceptionEnable(true);
         }
     }
@@ -736,7 +763,7 @@ public class FlightManager extends BaseManager {
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
-            DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttAndroidClient);
+            DockOpenManager.getInstance().sendDockOpenMsg2Server(MqttManager.getInstance().mqttAndroidClient);
 
         }
     }
@@ -832,14 +859,14 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "开始备降点视觉降落");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始备降点视觉降落");
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(mqttAndroidClient, "开始视觉降落");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始视觉降落");
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
@@ -910,10 +937,10 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MqttManager.getInstance().mqttAndroidClient, 1);
                 }
                 // 上传媒体文件
-                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
+                SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
             }
             // 避免在下次起飞时触发视觉识别
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
@@ -923,7 +950,7 @@ public class FlightManager extends BaseManager {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    SendLandingManager.getInstance().sendLandingMsg2Server(mqttAndroidClient);
+                    SendLandingManager.getInstance().sendLandingMsg2Server(MqttManager.getInstance().mqttAndroidClient);
                 }
             }, 1000);
 
@@ -1353,5 +1380,14 @@ public class FlightManager extends BaseManager {
         }
     }
 
-
+    public int findIndexInWaypoints(int indexInRouteWaypoints) {
+        // 边界检查
+        if (indexInRouteWaypoints < 0 || indexInRouteWaypoints >= CurrentWayline.getInstance().getRouteWaypoints().size()) {
+            return -1;
+        }
+        // 获取 routeWaypoints 中的指定元素
+        WaylineExecuteWaypoint waylineExecuteWaypoint = CurrentWayline.getInstance().getRouteWaypoints().get(indexInRouteWaypoints);
+        // 在 waypoints 中查找该元素的索引
+        return CurrentWayline.getInstance().getWaypoints().indexOf(waylineExecuteWaypoint);
+    }
 }

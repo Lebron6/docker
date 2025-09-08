@@ -266,7 +266,6 @@ open class MainActivity : BaseActivity() {
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
 
-        needConnect()
         initDJIManager()
         initCameraStream()
         initView()
@@ -306,94 +305,6 @@ open class MainActivity : BaseActivity() {
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
       var  btn_test = findViewById<TextView>(R.id.btn_test)
         btn_test.setOnClickListener {
-
-            //此处可能会SDK内部出错
-            //            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
-//            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();
-//            if (value != null && value.size() > 0) {
-//                if (message.getIsGuidingFlight() == 0) {
-//                    SystemManager.getInstance().setMediaFilePushOver(true);
-//                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
-//                }
-//                sendMissionExecuteEvents(client, "航线文件格式有误:" + value.get(0));
-//                LogUtil.log(TAG, "航线文件格式不正确:" + new Gson().toJson(value));
-//                return;
-//            }
-
-            //此处可能会SDK内部出错
-            val kmzInfo = WPMZManager.getInstance().getKMZInfo(
-                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz"
-            )
-            if (kmzInfo != null) {
-                val waylineTemplatesParseInfo = kmzInfo.waylineTemplatesParseInfo
-                if (waylineTemplatesParseInfo != null) {
-                    val templates = waylineTemplatesParseInfo.templates
-                    if (templates != null && templates.size > 0) {
-                        val waypointInfo = templates[0].waypointInfo
-                        if (waypointInfo != null && waypointInfo.waypoints != null) {
-                            //将航点列表保存在本地，方便对比得出是否离开航点
-                            if (!PreferenceUtils.getInstance().isNewRoute) {
-                                CurrentWayline.getInstance().waypoints = waypointInfo.waypoints
-                            }
-                            LogUtil.log(TAG, "该航线有" + waypointInfo.waypoints.size + "个航点")
-                            val actionGroups = waypointInfo.actionGroups
-                            if (actionGroups != null && actionGroups.size > 0) {
-                                LogUtil.log(TAG, "该航线有" + actionGroups.size + "个动作组")
-                                for (i in actionGroups.indices) {
-                                    Log.e(
-                                        TAG,
-                                        "第" + i + "个动作组有" + actionGroups[i].actions.size + "个动作"
-                                    )
-                                }
-                            } else {
-                                LogUtil.log(TAG, "WPMZManager getActionGroups有误")
-                            }
-                        } else {
-                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误")
-                        }
-                    } else {
-                        LogUtil.log(TAG, "WPMZManager getTemplates有误")
-                    }
-                } else {
-                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
-                }
-            } else {
-                LogUtil.log(TAG, "WPMZManager getKMZInfo有误")
-            }
-
-            val missionManager: IWaypointMissionManager = WaypointMissionManager.getInstance()
-
-            missionManager.pushKMZFileToAircraft(
-                Environment.getExternalStorageDirectory().path + "/" + "aros.kmz",
-                object : CompletionCallbackWithProgress<Double> {
-                    override fun onProgressUpdate(progress: Double) {
-                        LogUtil.log(TAG, "航线上传进度:$progress")
-                    }
-
-                    override fun onSuccess() {
-                        LogUtil.log(TAG, "航线上传成功,准备执行任务")
-                        Handler().postDelayed(Runnable {
-                            missionManager.startMission("aros",
-                                object : CommonCallbacks.CompletionCallback {
-                                    override fun onSuccess() {
-                                        LogUtil.log(TAG, "开始航线success")
-                                    }
-
-                                    override fun onFailure(p0: IDJIError) {
-                                        LogUtil.log(TAG, "开始航线失败:${p0.description()}")
-                                    }
-
-                                })
-                        }, 1000)
-
-
-                    }
-
-                    override fun onFailure(error: IDJIError) {
-                        LogUtil.log(TAG, "航线上传失败:${Gson().toJson(error)}")
-
-                    }
-                })
 
 
 //            var message=MQMessage().apply {
@@ -477,21 +388,21 @@ open class MainActivity : BaseActivity() {
             initTimes++
             LogUtil.log(TAG, "初始化$initTimes")
             RTKManager.getInstance().initRTKInfo()
-            StreamManager.getInstance().initStreamManager(mqttAndroidClient)
-            FlightManager.getInstance().initFlightInfo(mqttAndroidClient)
-            MissionManager.getInstance().initMissionManager(mqttAndroidClient)
-            BatteryManager.getInstance().initBatteryInfo(mqttAndroidClient)
-            MediaManager.getInstance().init(mqttAndroidClient)
+            StreamManager.getInstance().initStreamManager()
+            FlightManager.getInstance().initFlightInfo()
+            MissionManager.getInstance().initMissionManager()
+            BatteryManager.getInstance().initBatteryInfo()
+            MediaManager.getInstance().init()
             LEDsSettingsManager.getInstance().initLEDsInfo()
-            AlternateLandingManager.getInstance().initAlterLandingInfo(mqttAndroidClient)
-            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo(mqttAndroidClient)
-            CameraManager.getInstance().initCameraInfo(mqttAndroidClient)
-            StickManager.getInstance().initStickInfo(mqttAndroidClient)
+            AlternateLandingManager.getInstance().initAlterLandingInfo()
+            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
+            CameraManager.getInstance().initCameraInfo()
+            StickManager.getInstance().initStickInfo()
             GimbalManager.getInstance().initGimbalInfo()
-            OffSiteLandingManager.getInstance().initOffSiteLandingInfo(mqttAndroidClient)
-            RemoteManager.getInstance().initRemoteInfo(mqttAndroidClient)
+            OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
+            RemoteManager.getInstance().initRemoteInfo()
             ApronArucoDetect.getInstance().init()
-            PayloadWidgetManager.getInstance().initPayloadInfo(mqttAndroidClient)
+            PayloadWidgetManager.getInstance().initPayloadInfo()
 
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()
@@ -923,14 +834,7 @@ open class MainActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         isAppStarted = false
-        try {
-            if (mqttAndroidClient != null && mqttAndroidClient.isConnected) {
-                mqttAndroidClient.unregisterResources()
-                mqttAndroidClient.disconnect() //断开连接
-            }
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
+
     }
 
 

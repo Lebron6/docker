@@ -50,8 +50,6 @@ import dji.v5.manager.KeyManager;
 
 public class CameraManager extends BaseManager {
 
-    private MqttAndroidClient client;
-
     private CameraManager() {
     }
 
@@ -63,8 +61,7 @@ public class CameraManager extends BaseManager {
         return CameraHolder.INSTANCE;
     }
 
-    public void initCameraInfo(MqttAndroidClient client) {
-        this.client = client;
+    public void initCameraInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, 0));
         if (isConnect != null && isConnect) {
             ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));

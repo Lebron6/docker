@@ -20,6 +20,7 @@ import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.DomParserKML;
 import com.aros.apron.tools.DomParserWPML;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.tools.ZipUtil;
 import com.google.gson.Gson;
@@ -54,7 +55,6 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
  */
 public class OffSiteLandingManager extends BaseManager {
 
-    MqttAndroidClient mqttClient;
     private int goHomeHeight;
 
     private OffSiteLandingManager() {
@@ -68,8 +68,7 @@ public class OffSiteLandingManager extends BaseManager {
         return OffSiteLandingHolder.INSTANCE;
     }
 
-    public void initOffSiteLandingInfo(MqttAndroidClient client) {
-        this.mqttClient=client;
+    public void initOffSiteLandingInfo() {
         KeyManager.getInstance().listen(KeyTools.createKey(FlightControllerKey.KeyGoHomeHeight), this, new CommonCallbacks.KeyListener<Integer>() {
             @Override
             public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
@@ -87,12 +86,12 @@ public class OffSiteLandingManager extends BaseManager {
 
     public void startTaskProcess(MQMessage message) {
         if (TextUtils.isEmpty(message.getOffSitePointLat())||TextUtils.isEmpty(message.getOffSitePointLon())){
-            sendMissionExecuteEvents(mqttClient, "异地降落点经纬度有误");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落点经纬度有误");
             LogUtil.log(TAG, "异地降落点经纬度有误,不触发异地降落");
             return;
         }
         PerceptionManager.getInstance().setPerceptionEnable(false);
-        DockOpenManager.getInstance().sendDockOpenMsg2Server(mqttClient);
+        DockOpenManager.getInstance().sendDockOpenMsg2Server(MqttManager.getInstance().mqttAndroidClient);
         //飞往异地降落点,关闭视觉识别
         EventBus.getDefault().post(FLAG_STOP_ARUCO);
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
@@ -106,16 +105,16 @@ public class OffSiteLandingManager extends BaseManager {
                     checkDroneState(message);
                 } else {
                     if (message != null) {
-                        sendMsg2Server(mqttClient, message, "挡位不正确,不触发异地降落");
+                        sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "挡位不正确,不触发异地降落");
                     }
-                    sendMissionExecuteEvents(mqttClient, "挡位不正确,不触发异地降落");
+                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "挡位不正确,不触发异地降落");
                     LogUtil.log(TAG, "检测到挡位不正确,不触发异地降落");
                 }
             } else {
                 if (message != null) {
-                    sendMsg2Server(mqttClient, message, "飞机未起飞,不触发异地降落");
+                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "飞机未起飞,不触发异地降落");
                 }
-                sendMissionExecuteEvents(mqttClient, "飞机未起飞,不触发异地降落");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "飞机未起飞,不触发异地降落");
             }
         }
     }
@@ -130,14 +129,14 @@ public class OffSiteLandingManager extends BaseManager {
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消返航成功");
                             toOffsitePoint(message);
-                            sendMissionExecuteEvents(mqttClient, "取消返航:触发异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消返航:触发异地降落");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
                             toOffsitePoint(message);
-                            sendMissionExecuteEvents(mqttClient, "取消返航失败:不触发异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消返航失败:不触发异地降落");
 
                         }
                     });
@@ -149,14 +148,14 @@ public class OffSiteLandingManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "终止任务成功");
-                            sendMissionExecuteEvents(mqttClient, "终止任务成功:去异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "终止任务成功:去异地降落");
                             toOffsitePoint(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "终止任务失败:去异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "终止任务失败:去异地降落");
                             toOffsitePoint(message);
                         }
                     });
@@ -166,14 +165,14 @@ public class OffSiteLandingManager extends BaseManager {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消降落成功");
-                            sendMissionExecuteEvents(mqttClient, "取消降落成功:去异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消降落成功:去异地降落");
                             toOffsitePoint(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(mqttClient, "取消降落失败:去异地降落");
+                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消降落失败:去异地降落");
                             toOffsitePoint(message);
                         }
                     });
@@ -203,10 +202,10 @@ public class OffSiteLandingManager extends BaseManager {
     public void toOffsitePoint(MQMessage message) {
         if (Movement.getInstance().getFlyingHeight() < 10) {
             LogUtil.log(TAG, "高度低于10米,拉高");
-            sendMissionExecuteEvents(mqttClient, "拉高去异地降落点...");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "拉高去异地降落点...");
             raisesDrone(message);
         } else {
-            sendMissionExecuteEvents(mqttClient, "开始创建异地降落任务");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始创建异地降落任务");
             LogUtil.log(TAG, "高度高于10米,创建异地降落任务");
             creatMissionAndUpload(message);
         }
@@ -325,7 +324,7 @@ public class OffSiteLandingManager extends BaseManager {
         flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
 
-        sendMissionExecuteEvents(mqttClient, "开始生成异地降落航线");
+        sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始生成异地降落航线");
 
         // 生成xml文件
         File file1 = new File(
@@ -333,13 +332,13 @@ public class OffSiteLandingManager extends BaseManager {
         if (!file1.exists()) {
             if (file1.mkdirs()) {
                 LogUtil.log(TAG, "生成异地降落航线成功");
-                sendMissionExecuteEvents(mqttClient, "生成异地降落路线文件成功");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "生成异地降落路线文件成功");
 
             } else {
                 LogUtil.log(TAG, "生成异地降落航线失败");
-                sendMissionExecuteEvents(mqttClient, "生成异地降落航线失败");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "生成异地降落航线失败");
                 if (message != null) {
-                    sendMsg2Server(mqttClient, message, "生成异地降落航线失败");
+                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "生成异地降落航线失败");
                 }
             }
         }
@@ -358,9 +357,9 @@ public class OffSiteLandingManager extends BaseManager {
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "offsite.kmz");
         } catch (IOException e) {
             LogUtil.log(TAG, "异地降落航线压缩异常：" + e.toString());
-            sendMissionExecuteEvents(mqttClient, "异地降落任务生成异常");
+            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落任务生成异常");
             if (message != null) {
-                sendMsg2Server(mqttClient, message, "异地降落任务生成异常");
+                sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "异地降落任务生成异常");
             }
             throw new RuntimeException(e);
         }
@@ -370,14 +369,14 @@ public class OffSiteLandingManager extends BaseManager {
             @Override
             public void onProgressUpdate(Double aDouble) {
                 LogUtil.log(TAG, "异地降落航线上传进度:" + aDouble + "%");
-                sendMissionExecuteEvents(mqttClient, "异地降落任务上传中:" + aDouble + "%");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落任务上传中:" + aDouble + "%");
 
             }
 
             @Override
             public void onSuccess() {
                 LogUtil.log(TAG, "异地降落航线上传成功");
-                sendMissionExecuteEvents(mqttClient, "异地降落航线上传成功");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落航线上传成功");
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -387,22 +386,22 @@ public class OffSiteLandingManager extends BaseManager {
                             public void onSuccess() {
 
                                 LogUtil.log(TAG, "开始异地降落航线");
-                                sendMissionExecuteEvents(mqttClient, "开始异地降落航线");
+                                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始异地降落航线");
                                 //设置为未开始识别二维码状态
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);
 
                                 if (message != null) {
-                                    sendMsg2Server(mqttClient, message);
+                                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message);
                                 }
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError idjiError) {
                                 LogUtil.log(TAG, "飞往异地降落点失败:" + new Gson().toJson(idjiError));
-                                sendMissionExecuteEvents(mqttClient, "飞往异地降落点失败");
+                                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "飞往异地降落点失败");
                                 if (message != null) {
-                                    sendMsg2Server(mqttClient, message, "飞往异地降落点失败");
+                                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "飞往异地降落点失败");
                                 }
                             }
                         });
@@ -413,9 +412,9 @@ public class OffSiteLandingManager extends BaseManager {
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
                 LogUtil.log(TAG, "异地降落航线上传失败:" + new Gson().toJson(idjiError));
-                sendMissionExecuteEvents(mqttClient, "异地降落航线上传失败");
+                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落航线上传失败");
                 if (message != null) {
-                    sendMsg2Server(mqttClient, message, "异地降落航线上传失败:"  + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "异地降落航线上传失败:"  + getIDJIErrorMsg(idjiError));
                 }
             }
         });
