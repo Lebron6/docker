@@ -49,7 +49,7 @@ public class MqttManager {
         mMqttConnectOptions.setKeepAliveInterval(20); //设置心跳包发送间隔，单位：秒 ltz denote
         mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
         mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
-        mqttAndroidClient.setCallback(new MqttCallBack(mqttAndroidClient)); //设置监听订阅消息的回调
+        mqttAndroidClient.setCallback(new MqttCallBack()); //设置监听订阅消息的回调
         doClientConnection();
     }
 

@@ -44,9 +44,9 @@ public class ResetHomePointManager extends BaseManager {
     }
 
 
-    public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
+    public void startTaskProcess(MQMessage message) {
         if (TextUtils.isEmpty(message.getOffSitePointLat()) || TextUtils.isEmpty(message.getOffSitePointLon())) {
-            sendMissionExecuteEvents(client, "重置返航点经纬度有误");
+            sendMissionExecuteEvents( "重置返航点经纬度有误");
             LogUtil.log(TAG, "重置返航点经纬度有误");
             return;
         }
@@ -59,24 +59,24 @@ public class ResetHomePointManager extends BaseManager {
             if ((areMotorOn != null && areMotorOn) && (isFlying != null && isFlying)) {
                 RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
                 if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
-                    checkDroneState(client, message);
+                    checkDroneState(message);
                 } else {
                     if (message != null) {
-                        sendMsg2Server(client, message, "挡位不正确,不刷新返航点");
+                        sendMsg2Server(message, "挡位不正确,不刷新返航点");
                     }
-                    sendMissionExecuteEvents(client, "挡位不正确,不刷新返航点");
+                    sendMissionExecuteEvents( "挡位不正确,不刷新返航点");
                     LogUtil.log(TAG, "检测到挡位不正确,不刷新返航点");
                 }
             } else {
                 if (message != null) {
-                    sendMsg2Server(client, message, "飞机未起飞,不刷新返航点");
+                    sendMsg2Server(message, "飞机未起飞,不刷新返航点");
                 }
-                sendMissionExecuteEvents(client, "飞机未起飞,不刷新返航点");
+                sendMissionExecuteEvents( "飞机未起飞,不刷新返航点");
             }
         }
     }
 private int droneStatus;
-    private void checkDroneState(MqttAndroidClient client, MQMessage message) {
+    private void checkDroneState(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -86,14 +86,14 @@ private int droneStatus;
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消返航,刷新返航点成功");
-                            resetHomePoint(client, message);
-                            sendMissionExecuteEvents(client, "取消返航:刷新返航点");
+                            resetHomePoint(message);
+                            sendMissionExecuteEvents( "取消返航:刷新返航点");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(client, "取消返航失败:" + Utils.getIDJIErrorMsg(error));
+                            sendMissionExecuteEvents( "取消返航失败:" + Utils.getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -103,27 +103,27 @@ private int droneStatus;
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消降落,刷新返航点成功");
-                            sendMissionExecuteEvents(client, "取消降落成功:刷新返航点");
-                            resetHomePoint(client, message);
+                            sendMissionExecuteEvents( "取消降落成功:刷新返航点");
+                            resetHomePoint(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(client, "取消降落失败:" +Utils.getIDJIErrorMsg(error));
+                            sendMissionExecuteEvents( "取消降落失败:" +Utils.getIDJIErrorMsg(error));
                         }
                     });
                     break;
                 default:
                     droneStatus = 0;
-                    resetHomePoint(client, message);
+                    resetHomePoint(message);
                     break;
             }
         }
     }
 
 
-    public void resetHomePoint(MqttAndroidClient client, MQMessage message) {
+    public void resetHomePoint(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -136,17 +136,17 @@ private int droneStatus;
                     KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyHomeLocation), homeLocation, new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMissionExecuteEvents(client, "刷新返航点成功");
+                            sendMissionExecuteEvents( "刷新返航点成功");
                             LogUtil.log(TAG, "刷新返航点成功");
                             if (droneStatus==1||droneStatus==2){
-                                startGoHome(client,message);
+                                startGoHome(message);
                             }
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "刷新返航点失败:" + new Gson().toJson(error));
-                            sendMsg2Server(client, message, "刷新返航点失败:"  + getIDJIErrorMsg(error));
+                            sendMsg2Server(message, "刷新返航点失败:"  + getIDJIErrorMsg(error));
                         }
                     });
                 }
@@ -154,12 +154,12 @@ private int droneStatus;
 
         } else {
             LogUtil.log(TAG, "刷新返航点失败:飞控未连接");
-            sendMsg2Server(client, message, "刷新返航点失败:飞控未连接");
+            sendMsg2Server(message, "刷新返航点失败:飞控未连接");
         }
     }
 
     //返航
-    public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startGoHome(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             new Handler().postDelayed(new Runnable() {
@@ -168,14 +168,14 @@ private int droneStatus;
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server( message);
                             LogUtil.log(TAG, "执行继续返航");
-                            sendMissionExecuteEvents(mqttAndroidClient, "刷新返航点成功");
+                            sendMissionExecuteEvents( "刷新返航点成功");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "继续返航执行失败:" + getIDJIErrorMsg(error));
                             LogUtil.log(TAG, "继续返航执行失败：" + new Gson().toJson(error));
                         }
                     });
@@ -183,7 +183,7 @@ private int droneStatus;
             },500);
 
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "继续返航执行失败：飞控未连接");
+            sendMsg2Server( message, "继续返航执行失败：飞控未连接");
             LogUtil.log(TAG, "返航执行失败：飞控未连接");
 
         }

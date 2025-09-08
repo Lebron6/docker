@@ -8,6 +8,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -36,17 +37,17 @@ public class SendLandingManager extends BaseManager {
     }
 
 
-    public void sendLandingMsg2Server(MqttAndroidClient client) {
+    public void sendLandingMsg2Server() {
 //        if (isSendLandingSuccess||sendLandingSuccessTimes >= maxRetries) {
         if (sendLandingSuccessTimes >= maxRetries) {
             LogUtil.log(TAG, "达到最大重试次数或已发送已降落"+isSendLandingSuccess+sendLandingSuccessTimes);
             return;
         }
         try {
-            if (client.isConnected()) {
-                sendLandingMessage(client);
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                sendLandingMessage();
             } else {
-                handleNotConnected(client);
+                handleNotConnected(MqttManager.getInstance().mqttAndroidClient);
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "已降落发送异常：" + e.toString());
@@ -54,7 +55,7 @@ public class SendLandingManager extends BaseManager {
         }
     }
 
-    private void sendLandingMessage(MqttAndroidClient client){
+    private void sendLandingMessage(){
         MessageReply message = new MessageReply();
         message.setMsg_type(60032);
         message.setResult(1);
@@ -67,18 +68,18 @@ public class SendLandingManager extends BaseManager {
 
         mqttMessage.setQos(0);
         try {
-            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+client.getClientId()+"task_id"+PreferenceUtils.getInstance().getTaskId());
-                    sendMissionExecuteEvents(client, "AMS通知服务器已降落");
+                    LogUtil.log(TAG, "已降落发送成功：60032---"+sendLandingSuccessTimes+"clientId:"+MqttManager.getInstance().mqttAndroidClient.getClientId()+"task_id"+PreferenceUtils.getInstance().getTaskId());
+                    sendMissionExecuteEvents( "AMS通知服务器已降落");
                     isSendLandingSuccess = true;
 
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     LogUtil.log(TAG, "通知服务器已降落发送回调失败：" + exception.toString());
-                    retrySend(client);
+                    retrySend();
                 }
             });
         } catch (Exception e) {
@@ -90,10 +91,10 @@ public class SendLandingManager extends BaseManager {
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private void retrySend(MqttAndroidClient client) {
+    private void retrySend() {
         sendLandingSuccessTimes++;
         if (sendLandingSuccessTimes < maxRetries) {
-            mainHandler.postDelayed(() -> sendLandingMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendLandingMsg2Server(), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，已降落发送失败：" + sendLandingSuccessTimes);
         }
@@ -102,7 +103,7 @@ public class SendLandingManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendLandingSuccess && sendLandingSuccessTimes < maxRetries) {
             sendLandingSuccessTimes++;
-            mainHandler.postDelayed(() -> sendLandingMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendLandingMsg2Server(), 2000);
             LogUtil.log(TAG, "已降落发送失败：mqtt未连接" + "--" + sendLandingSuccessTimes);
         } else {
             LogUtil.log(TAG, "已降落发送失败：" + sendLandingSuccessTimes);

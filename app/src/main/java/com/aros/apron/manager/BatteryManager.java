@@ -67,7 +67,7 @@ public class BatteryManager extends BaseManager {
                             Movement.getInstance().setLowBatteryRTHState(t1.getLowBatteryRTHStatus().value());
                             if (t1.getLowBatteryRTHStatus().value()==1&&!sendLowBatteryRTHPosition2Server){
                                 sendLowBatteryRTHPosition2Server = true;
-                                sendLowBatteryRTHPosition2Server(MqttManager.getInstance().mqttAndroidClient);
+                                sendLowBatteryRTHPosition2Server();
                             }
                         }
                     }

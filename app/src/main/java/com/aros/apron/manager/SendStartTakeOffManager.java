@@ -8,6 +8,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -36,17 +37,17 @@ public class SendStartTakeOffManager extends BaseManager {
     }
 
 
-    public void sendStartTakeOff2Server(MqttAndroidClient client) {
+    public void sendStartTakeOff2Server() {
 //        if (isSendStartTakeOffSuccess||sendStartTakeOffSuccessTimes >= maxRetries) {
         if (sendStartTakeOffSuccessTimes >= maxRetries) {
             LogUtil.log(TAG, "达到最大重试次数或已发送开始起飞"+isSendStartTakeOffSuccess+sendStartTakeOffSuccessTimes);
             return;
         }
         try {
-            if (client.isConnected()) {
-                sendStartTakeOffMessage(client);
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                sendStartTakeOffMessage();
             } else {
-                handleNotConnected(client);
+                handleNotConnected();
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "开始起飞发送异常：" + e.toString());
@@ -54,7 +55,7 @@ public class SendStartTakeOffManager extends BaseManager {
         }
     }
 
-    private void sendStartTakeOffMessage(MqttAndroidClient client){
+    private void sendStartTakeOffMessage(){
         MessageReply message = new MessageReply();
         message.setMsg_type(60031);
         message.setResult(1);
@@ -66,17 +67,17 @@ public class SendStartTakeOffManager extends BaseManager {
 
         mqttMessage.setQos(0);
         try {
-            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "开始起飞发送成功：60031---"+sendStartTakeOffSuccessTimes+"clientId:"+client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知服务器开始起飞");
+                    LogUtil.log(TAG, "开始起飞发送成功：60031---"+sendStartTakeOffSuccessTimes+"clientId:"+MqttManager.getInstance().mqttAndroidClient.getClientId());
+                    sendMissionExecuteEvents( "AMS通知服务器开始起飞");
                     isSendStartTakeOffSuccess = true;
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     LogUtil.log(TAG, "通知服务器开始起飞发送回调失败：" + exception.toString());
-                    retrySend(client);
+                    retrySend(MqttManager.getInstance().mqttAndroidClient);
                 }
             });
         } catch (Exception e) {
@@ -91,16 +92,16 @@ public class SendStartTakeOffManager extends BaseManager {
     private void retrySend(MqttAndroidClient client) {
         sendStartTakeOffSuccessTimes++;
         if (sendStartTakeOffSuccessTimes < maxRetries) {
-            mainHandler.postDelayed(() -> sendStartTakeOff2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendStartTakeOff2Server(), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，开始起飞发送失败：" + sendStartTakeOffSuccessTimes);
         }
     }
 
-    private void handleNotConnected(MqttAndroidClient client) {
+    private void handleNotConnected() {
         if (!isSendStartTakeOffSuccess && sendStartTakeOffSuccessTimes < maxRetries) {
             sendStartTakeOffSuccessTimes++;
-            mainHandler.postDelayed(() -> sendStartTakeOff2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendStartTakeOff2Server(), 2000);
             LogUtil.log(TAG, "开始起飞发送失败：mqtt未连接" + "--" + sendStartTakeOffSuccessTimes);
         } else {
             LogUtil.log(TAG, "开始起飞发送失败：" + sendStartTakeOffSuccessTimes);

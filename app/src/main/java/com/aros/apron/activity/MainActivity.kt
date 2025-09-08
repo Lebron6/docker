@@ -481,10 +481,10 @@ open class MainActivity : BaseActivity() {
         btn_test1 = findViewById( R.id.btn_test1)
         btn_test?.setOnClickListener {
 //            MissionManager.getInstance().test()
-            FlightManager.getInstance().startPropellerRotation(null, null)
+            FlightManager.getInstance().startPropellerRotation(null)
         }
         btn_test1?.setOnClickListener {
-            FlightManager.getInstance().stopPropellerRotation(null, null)
+            FlightManager.getInstance().stopPropellerRotation(null)
         }
 
         initClickListener()
@@ -752,7 +752,7 @@ open class MainActivity : BaseActivity() {
                                 if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:备降点直接降落")
                                     //测试图传丢失
-                                    FlightManager.getInstance().startAutoLanding(null, null)
+                                    FlightManager.getInstance().startAutoLanding(null)
                                 }
                             }, 4000)
                             if (startArucoType == 2) {

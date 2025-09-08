@@ -285,7 +285,7 @@ public class FlightManager extends BaseManager {
 //                                            }
 //                                        } else {
                                             waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                            sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+                                            sendCustomReachOrLeave2Server("1",
                                                     String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
                                             LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
                                                     + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -308,7 +308,7 @@ public class FlightManager extends BaseManager {
                                     if (pointDistance>1) {
                                             waypointIndexAlreadySend = indexInWaypoints;
                                             if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+                                                sendCustomReachOrLeave2Server("1",
                                                         String.valueOf(waypointIndexAlreadySend));
                                                 LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
                                                         + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -417,7 +417,7 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                             if (!sendStartTakeOffMsg) {
-                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server(MqttManager.getInstance().mqttAndroidClient);
+                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server();
                                 sendStartTakeOffMsg = true;
                             }
                         }
@@ -723,15 +723,15 @@ public class FlightManager extends BaseManager {
                 public void onSuccess(EmptyMsg emptyMsg) {
                     LogUtil.log(TAG,"电量低于阈值，直接返航");
                     //低电量强制返航通知服务器
-                    sendLowBatteryRTHPosition2Server(MqttManager.getInstance().mqttAndroidClient);
-                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，强制返航");
+                    sendLowBatteryRTHPosition2Server();
+                    sendMissionExecuteEvents("电量低于阈值，强制返航");
 
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"电量低于阈值，返航失败:"+new Gson().toJson(error));
-                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient,"电量低于阈值，返航失败");
+                    sendMissionExecuteEvents("电量低于阈值，返航失败");
                 }
             });
 
@@ -788,7 +788,7 @@ public class FlightManager extends BaseManager {
             isGimbalDownwards = true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
             if (Movement.getInstance().getIsRecording()==1){
-                CameraManager.getInstance().stopRecordVideo(null,null);
+                CameraManager.getInstance().stopRecordVideo(null);
             }
 
         }
@@ -868,14 +868,14 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始备降点视觉降落");
+            sendMissionExecuteEvents( "开始备降点视觉降落");
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始视觉降落");
+            sendMissionExecuteEvents( "开始视觉降落");
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
@@ -946,7 +946,7 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MqttManager.getInstance().mqttAndroidClient, 1);
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server( 1);
                 }
                 // 上传媒体文件
                 SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
@@ -959,7 +959,7 @@ public class FlightManager extends BaseManager {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    SendLandingManager.getInstance().sendLandingMsg2Server(MqttManager.getInstance().mqttAndroidClient);
+                    SendLandingManager.getInstance().sendLandingMsg2Server();
                 }
             }, 1000);
 
@@ -967,27 +967,27 @@ public class FlightManager extends BaseManager {
     }
 
     //起飞
-    public void startTakeoff(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startTakeoff(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartTakeoff), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server(mqttAndroidClient, message, "起飞失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "起飞失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //返航
-    public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startGoHome(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
         if (Movement.getInstance().isPlaneWing() && Movement.getInstance().getDistance() < 20
@@ -1002,8 +1002,8 @@ public class FlightManager extends BaseManager {
                 KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                     @Override
                     public void onSuccess(EmptyMsg emptyMsg) {
-                        if (mqttAndroidClient != null && message != null) {
-                            sendMsg2Server(mqttAndroidClient, message);
+                        if (message != null) {
+                            sendMsg2Server( message);
                         }
                         LogUtil.log(TAG, "返航调用成功");
 
@@ -1011,15 +1011,15 @@ public class FlightManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (mqttAndroidClient != null && message != null) {
-                            sendMsg2Server(mqttAndroidClient, message, "返航执行失败:" + getIDJIErrorMsg(error));
+                        if (message != null) {
+                            sendMsg2Server( message, "返航执行失败:" + getIDJIErrorMsg(error));
                         }
                         LogUtil.log(TAG, "返航执行失败：" + new Gson().toJson(error));
                     }
                 });
             } else {
-                if (mqttAndroidClient != null && message != null) {
-                    sendMsg2Server(mqttAndroidClient, message, "返航执行失败：飞控未连接");
+                if (message != null) {
+                    sendMsg2Server( message, "返航执行失败：飞控未连接");
                 }
                 LogUtil.log(TAG, "返航执行失败：飞控未连接");
 
@@ -1029,75 +1029,75 @@ public class FlightManager extends BaseManager {
     }
 
     //取消返航
-    public void stopGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopGoHome(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "取消返航执行失败:" + new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "取消返航执行失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "取消返航执行失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
 
     //降落
-    public void startAutoLanding(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startAutoLanding(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    if (mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message);
+                    if (message!=null){
+                        sendMsg2Server( message);
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "降落失败:" + new Gson().toJson(error));
-                    if (mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message, "降落失败:" + getIDJIErrorMsg(error));
+                    if (message!=null){
+                        sendMsg2Server( message, "降落失败:" + getIDJIErrorMsg(error));
                     }
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //取消降落
-    public void stopAutoLanding(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopAutoLanding(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "取消降落失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "取消降落失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //飞机失联后的自动操作
-    public void setFailsafeAction(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setFailsafeAction(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
@@ -1105,131 +1105,131 @@ public class FlightManager extends BaseManager {
                         FailsafeAction.find(message.getFailsafeAction()), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server( message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "失控执行动作更新失败:" + new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "失控执行动作更新失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "失控执行动作更新失败:" + getIDJIErrorMsg(error));
                             }
                         });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //设置返航高度
-    public void setGoHomeHeight(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setGoHomeHeight(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
                 KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyGoHomeHeight), message.getGoHomeHeight(), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG, "返航高度设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "返航高度设置失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "返航高度设置失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //设置限高
-    public void setHeightLimit(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setHeightLimit(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
                 KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyHeightLimit), message.getHeightLimit(), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server(message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG, "限高设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "限高设置失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server(message, "限高设置失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //设置限远
-    public void setDistanceLimit(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setDistanceLimit(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyDistanceLimit), message.getDistanceLimit(), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server(message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "限远设置失败:" + new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "限远设置失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server(message, "限远设置失败:" + getIDJIErrorMsg(error));
                 }
             });
 
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //设置是否启用限远
-    public void setDistanceLimitEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setDistanceLimitEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
                 KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyDistanceLimitEnabled), message.getDistanceLimitEnabled() == 0 ? false : true, new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server(message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG, "限远使能设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "限远使能设置失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server(message, "限远使能设置失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //获取总里程
-    public void getAircraftTotalFlightDistance(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void getAircraftTotalFlightDistance(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Double value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
             if (value != null) {
-                sendAircraftTotalFlightDistance2Server(mqttAndroidClient, message, value);
+                sendAircraftTotalFlightDistance2Server(message, value);
             } else {
-                sendMsg2Server(mqttAndroidClient, message, "获取里程数为空");
+                sendMsg2Server(message, "获取里程数为空");
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     /**
      * 紧急悬停
      */
-    public void emergencyHover(MqttAndroidClient mqttClient, MQMessage message) {
+    public void emergencyHover(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -1238,7 +1238,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "紧急悬停，取消返航成功");
-                            sendMsg2Server(mqttClient, message);
+                            sendMsg2Server( message);
                             resetAircrftLandingStatus();
 
                         }
@@ -1246,7 +1246,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "紧急悬停，取消返航失败:" + new Gson().toJson(error));
-                            sendMsg2Server(mqttClient, message, "紧急悬停，取消返航失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "紧急悬停，取消返航失败:" + getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -1257,7 +1257,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "紧急悬停，终止任务成功");
-                            sendMsg2Server(mqttClient, message);
+                            sendMsg2Server( message);
                             resetAircrftLandingStatus();
 
                         }
@@ -1265,7 +1265,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "紧急悬停，终止任务失败:" + new Gson().toJson(error));
-                            sendMsg2Server(mqttClient, message, "紧急悬停，终止任务失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "紧急悬停，终止任务失败:" + getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -1274,7 +1274,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "紧急悬停，取消降落成功");
-                            sendMsg2Server(mqttClient, message);
+                            sendMsg2Server( message);
                             resetAircrftLandingStatus();
 
                         }
@@ -1282,7 +1282,7 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "紧急悬停，取消降落失败:" + new Gson().toJson(error));
-                            sendMsg2Server(mqttClient, message, "紧急悬停，取消降落失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "紧急悬停，取消降落失败:" + getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -1291,14 +1291,14 @@ public class FlightManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "紧急悬停，控制权释放成功");
-                            sendMsg2Server(mqttClient, message);
+                            sendMsg2Server( message);
                             resetAircrftLandingStatus();
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "紧急悬停，控制权释放失败:" + new Gson().toJson(error));
-                            sendMsg2Server(mqttClient, message, "紧急悬停，控制权失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "紧急悬停，控制权失败:" + getIDJIErrorMsg(error));
                         }
                     });
                     break;
@@ -1317,7 +1317,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置低电量阈值【15-50】
-    public void setLowBatteryWarningThreshold(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setLowBatteryWarningThreshold(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -1325,24 +1325,24 @@ public class FlightManager extends BaseManager {
                 KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyLowBatteryWarningThreshold), message.getLowBatteryWarningThreshold(), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server(message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG, "低电量阈值设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "低电量阈值设置失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server(message, "低电量阈值设置失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
 
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //设置严重低电量阈值(该值默认为10%，Matrice 30 Series不可设置。)
-    public void setSeriousLowBatteryWarningThreshold(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setSeriousLowBatteryWarningThreshold(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -1351,23 +1351,23 @@ public class FlightManager extends BaseManager {
                         message.getSeriousLowBatteryWarningThreshold(), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server(message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "严重低电量阈值设置失败:" + new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "严重低电量阈值设置失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server(message, "严重低电量阈值设置失败:" + getIDJIErrorMsg(error));
                             }
                         });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //设置智能低电量返航
-    public void setLowBatteryRTHEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setLowBatteryRTHEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -1375,26 +1375,26 @@ public class FlightManager extends BaseManager {
                     message.getLowBatteryRTHEnabled() == 0 ? false : true, new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "智能低电量返航设置失败:" + new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "智能低电量返航设置失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server(message, "智能低电量返航设置失败:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server(message, "飞控未连接");
         }
     }
 
     //开启低速转浆
-    public void startPropellerRotation(MqttAndroidClient mqttClient, MQMessage message) {
+    public void startPropellerRotation(MQMessage message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation), PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
             @Override
             public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                sendMsg2Server(mqttClient, message);
+                sendMsg2Server( message);
                 if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION){
                     Movement.getInstance().setPropellerRotation(true);
                 }
@@ -1404,19 +1404,19 @@ public class FlightManager extends BaseManager {
             @Override
             public void onFailure(@NonNull IDJIError error) {
                 LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
-                sendMsg2Server(mqttClient, message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                sendMsg2Server( message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
             }
         });
     }
 
     //停止低速转浆
-    public void stopPropellerRotation(MqttAndroidClient mqttClient, MQMessage message) {
+    public void stopPropellerRotation(MQMessage message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
                 PropellerRotationCommand.EXIT_LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
                     @Override
                     public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                        if (mqttClient!=null&&message!=null){
-                            sendMsg2Server(mqttClient, message);
+                        if (message!=null){
+                            sendMsg2Server( message);
                         }
                         if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.NONE_MOTOR_IN_LOW_SPEED_ROTATION){
                             Movement.getInstance().setPropellerRotation(false);
@@ -1426,8 +1426,8 @@ public class FlightManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (mqttClient != null && message != null) {
-                            sendMsg2Server(mqttClient, message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
+                        if (message != null) {
+                            sendMsg2Server( message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
                         }
                         LogUtil.log(TAG, "停止低速转浆失败:" + new Gson().toJson(error));
                     }

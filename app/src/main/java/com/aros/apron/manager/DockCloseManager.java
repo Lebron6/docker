@@ -64,7 +64,7 @@ public class DockCloseManager extends BaseManager {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知机库关舱");
+                    sendMissionExecuteEvents("AMS通知机库关舱");
                     isSendDockCloseSuccess = true;
                 }
                 @Override

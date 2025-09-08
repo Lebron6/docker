@@ -77,7 +77,7 @@ public class StickManager extends BaseManager {
     }
 
     //设置虚拟摇杆控制权
-    public void setVirtualStickModeEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setVirtualStickModeEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
@@ -85,7 +85,7 @@ public class StickManager extends BaseManager {
                 switch (flightMode) {
                     case GO_HOME:
                         LogUtil.log(TAG, "返航时无法手控");
-                        sendMsg2Server(mqttAndroidClient, message, "返航时无法手控");
+                        sendMsg2Server( message, "返航时无法手控");
                         break;
                     case WAYPOINT:
                         IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
@@ -99,7 +99,7 @@ public class StickManager extends BaseManager {
                                         VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
-                                                sendMsg2Server(mqttAndroidClient, message);
+                                                sendMsg2Server( message);
                                                 LogUtil.log(TAG, "终止任务,控制权设置成功");
                                                 Movement.getInstance().setWaylineCanResume(true);
                                                 Movement.getInstance().setVirtualStickEnableReason(3);
@@ -108,7 +108,7 @@ public class StickManager extends BaseManager {
                                             @Override
                                             public void onFailure(@NonNull IDJIError error) {
                                                 LogUtil.log(TAG, "终止任务,控制权设置失败:" + error.description());
-                                                sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                                                sendMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
                                             }
                                         });
                                         VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
@@ -120,23 +120,23 @@ public class StickManager extends BaseManager {
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "终止任务以获取控制权失败:" + new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
                             }
                         });
                         break;
                     case AUTO_LANDING:
                         LogUtil.log(TAG, "降落时无法手控");
-                        sendMsg2Server(mqttAndroidClient, message, "降落时无法手控");
+                        sendMsg2Server( message, "降落时无法手控");
                         break;
                     case VIRTUAL_STICK:
                         LogUtil.log(TAG, "已获取控制权,无需重复获取");
-                        sendMsg2Server(mqttAndroidClient, message, "已获取控制权,无需重复获取");
+                        sendMsg2Server( message, "已获取控制权,无需重复获取");
                         break;
                     default:
                         VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server( message);
                                 LogUtil.log(TAG, "控制权设置成功");
                                 Movement.getInstance().setWaylineCanResume(true);
                                 Movement.getInstance().setVirtualStickEnableReason(3);
@@ -145,7 +145,7 @@ public class StickManager extends BaseManager {
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "控制权设置失败:" + error.description());
-                                sendMsg2Server(mqttAndroidClient, message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
                             }
                         });
                         VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
@@ -157,25 +157,25 @@ public class StickManager extends BaseManager {
     }
 
     //设置虚拟摇杆控制权
-    public void setVirtualStickModeDisable(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setVirtualStickModeDisable(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                     LogUtil.log(TAG,"控制权取消成功");
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"控制权取消失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "控制权取消失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "控制权取消失败:" + getIDJIErrorMsg(error));
                 }
             });
 
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
@@ -205,7 +205,7 @@ public class StickManager extends BaseManager {
     VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
-    public void sendVirtualStickAdvancedParam(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void sendVirtualStickAdvancedParam(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect ) {
             if (!getGimbalAndCameraEnabled()){
@@ -229,9 +229,9 @@ public class StickManager extends BaseManager {
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
             Movement.getInstance().setVirtualStickEnableReason(3);
 
-//            sendMsg2Server(mqttAndroidClient, message, "移动...");
+//            sendMsg2Server( message, "移动...");
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 

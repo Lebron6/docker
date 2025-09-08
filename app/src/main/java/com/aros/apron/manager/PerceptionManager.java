@@ -23,7 +23,6 @@ import dji.v5.manager.interfaces.IPerceptionManager;
 
 public class PerceptionManager extends BaseManager {
 
-    MqttAndroidClient client;
 
     private PerceptionManager() {
     }

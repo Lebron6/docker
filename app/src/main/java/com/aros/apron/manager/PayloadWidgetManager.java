@@ -168,7 +168,7 @@ public class PayloadWidgetManager extends BaseManager {
         }
     }
     //锁定
-    public void lock(MqttAndroidClient client, MQMessage message) {
+    public void lock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -180,13 +180,13 @@ public class PayloadWidgetManager extends BaseManager {
             payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(client, message);
+                    sendMsg2Server(message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server(message, "解锁失败:" + getIDJIErrorMsg(error));
                 }
             });
         }
@@ -194,7 +194,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //解锁
-    public void unlock(MqttAndroidClient client, MQMessage message) {
+    public void unlock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -206,13 +206,13 @@ public class PayloadWidgetManager extends BaseManager {
             payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(client, message);
+                    sendMsg2Server(message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
                     LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(message, "解锁失败:" + getIDJIErrorMsg(idjiError));
 
                 }
             });
@@ -221,7 +221,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //抛投
-    public void throwOne(MqttAndroidClient client, MQMessage message) {
+    public void throwOne(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -257,13 +257,13 @@ public class PayloadWidgetManager extends BaseManager {
                                             payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                                 @Override
                                                 public void onSuccess() {
-                                                    sendMsg2Server(client, message);
+                                                    sendMsg2Server(message);
                                                 }
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
                                                     LogUtil.log(TAG,"抛投失败:" +new Gson().toJson(idjiError));
-                                                    sendMsg2Server(client, message, "抛投失败:" + getIDJIErrorMsg(idjiError));
+                                                    sendMsg2Server(message, "抛投失败:" + getIDJIErrorMsg(idjiError));
 
                                                 }
                                             });
@@ -274,7 +274,7 @@ public class PayloadWidgetManager extends BaseManager {
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
                                     LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                                    sendMsg2Server(message, "解锁失败:" + getIDJIErrorMsg(idjiError));
 
                                 }
                             });
@@ -285,7 +285,7 @@ public class PayloadWidgetManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
                     LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(message, "锁定失败:" + getIDJIErrorMsg(idjiError));
                 }
             });
 
@@ -294,7 +294,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //一件抛投
-    public void throwAll(MqttAndroidClient client, MQMessage message) {
+    public void throwAll(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -330,13 +330,13 @@ public class PayloadWidgetManager extends BaseManager {
                                             payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                                 @Override
                                                 public void onSuccess() {
-                                                    sendMsg2Server(client, message);
+                                                    sendMsg2Server(message);
                                                 }
 
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
                                                     LogUtil.log(TAG,"全抛失败:" +new Gson().toJson(idjiError));
-                                                    sendMsg2Server(client, message, "全抛失败:" + getIDJIErrorMsg(idjiError));
+                                                    sendMsg2Server(message, "全抛失败:" + getIDJIErrorMsg(idjiError));
                                                 }
                                             });
                                         }
@@ -346,7 +346,7 @@ public class PayloadWidgetManager extends BaseManager {
                                 @Override
                                 public void onFailure(@NonNull IDJIError idjiError) {
                                     LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
-                                    sendMsg2Server(client, message, "解锁失败:" + getIDJIErrorMsg(idjiError));
+                                    sendMsg2Server(message, "解锁失败:" + getIDJIErrorMsg(idjiError));
                                 }
                             });
                         }
@@ -356,40 +356,40 @@ public class PayloadWidgetManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
                     LogUtil.log(TAG,"锁定失败:" +new Gson().toJson(idjiError));
-                    sendMsg2Server(client, message, "锁定失败:" + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server(message, "锁定失败:" + getIDJIErrorMsg(idjiError));
                 }
             });
 
         }
     }
 
-    public void sendMsgToPayload(MqttAndroidClient mqttClient, MQMessage message) {
+    public void sendMsgToPayload(MQMessage message) {
         Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
         if (payloadManager != null) {
             IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
             if (iPayloadManager != null) {
                 if (TextUtils.isEmpty(message.getPayloadData())) {
-                    sendMsg2Server(mqttClient, message, "发送数据到psdk失败:参数有误");
+                    sendMsg2Server( message, "发送数据到psdk失败:参数有误");
                     return;
                 }
                 iPayloadManager.sendDataToPayload(Utils.getByte(message.getPayloadData()), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
                         LogUtil.log(TAG, "发送数据到psdk:" + Utils.getByte(message.getPayloadData()));
-                        sendMsg2Server(mqttClient, message);
+                        sendMsg2Server( message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
                         LogUtil.log(TAG,"发送数据到psdk失败:" +new Gson().toJson(idjiError));
-                        sendMsg2Server(mqttClient, message, "发送数据到psdk失败:" + getIDJIErrorMsg(idjiError));
+                        sendMsg2Server( message, "发送数据到psdk失败:" + getIDJIErrorMsg(idjiError));
                     }
                 });
             } else {
-                sendMsg2Server(mqttClient, message, "发送数据到psdk失败:设备未连接");
+                sendMsg2Server( message, "发送数据到psdk失败:设备未连接");
             }
         } else {
-            sendMsg2Server(mqttClient, message, "发送数据到psdk失败:未检测到设备");
+            sendMsg2Server( message, "发送数据到psdk失败:未检测到设备");
         }
     }
 

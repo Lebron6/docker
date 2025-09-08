@@ -8,6 +8,7 @@ import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -34,17 +35,17 @@ public class DroneStorageManager extends BaseManager {
         return DroneStorageHolder.INSTANCE;
     }
 
-    public void sendDroneStorageMsg2Server(MqttAndroidClient client,int result) {
+    public void sendDroneStorageMsg2Server(int result) {
 //        if (isSendDroneStorageSuccess||sendDroneStorageSuccessTimes >= maxRetries) {
         if (sendDroneStorageSuccessTimes >= maxRetries) {
             LogUtil.log(TAG, "达到最大重试次数或已发送入库"+isSendDroneStorageSuccess+sendDroneStorageSuccessTimes);
             return;
         }
         try {
-            if (client.isConnected()) {
-                sendDroneStorageMessage(client,result);
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                sendDroneStorageMessage(result);
             } else {
-                handleNotConnected(client,result);
+                handleNotConnected(MqttManager.getInstance().mqttAndroidClient,result);
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "入库发送异常：" + e.toString());
@@ -52,7 +53,7 @@ public class DroneStorageManager extends BaseManager {
         }
     }
 
-    private void sendDroneStorageMessage(MqttAndroidClient client,int result){
+    private void sendDroneStorageMessage(int result){
         MessageReply message = new MessageReply();
         message.setMsg_type(60010);
         message.setResult(result);
@@ -61,11 +62,11 @@ public class DroneStorageManager extends BaseManager {
         mqttMessage.setQos(0);
 
         try {
-            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "入库已发送：60010---" + sendDroneStorageSuccessTimes + "clientId:" + client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知机库入库");
+                    LogUtil.log(TAG, "入库已发送：60010---" + sendDroneStorageSuccessTimes + "clientId:" + MqttManager.getInstance().mqttAndroidClient.getClientId());
+                    sendMissionExecuteEvents( "AMS通知机库入库");
 
                     mainHandler.postDelayed(new Runnable() {
                         @Override
@@ -75,7 +76,7 @@ public class DroneStorageManager extends BaseManager {
                                 LogUtil.log(TAG, "已经收到服务端响应入库");
                             } else {
                                 LogUtil.log(TAG, "未收到服务端响应入库,重新发送");
-                                retrySend(client,result);
+                                retrySend(result);
                             }
                         }
                     }, 2000);
@@ -84,7 +85,7 @@ public class DroneStorageManager extends BaseManager {
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     LogUtil.log(TAG, "入库发送回调失败：" + exception.toString());
-                    retrySend(client,result);
+                    retrySend(result);
                 }
             });
         } catch (Exception e) {
@@ -94,10 +95,10 @@ public class DroneStorageManager extends BaseManager {
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private void retrySend(MqttAndroidClient client,int result) {
+    private void retrySend(int result) {
         sendDroneStorageSuccessTimes++;
         if (sendDroneStorageSuccessTimes < maxRetries) {
-            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
+            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(result), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，入库发送失败：" + sendDroneStorageSuccessTimes);
         }
@@ -106,7 +107,7 @@ public class DroneStorageManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client,int result) {
         if (!isSendDroneStorageSuccess && sendDroneStorageSuccessTimes < maxRetries) {
             sendDroneStorageSuccessTimes++;
-            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client,result), 2000);
+            mainHandler.postDelayed(() -> DroneStorageManager.getInstance().sendDroneStorageMsg2Server(result), 2000);
             LogUtil.log(TAG, "入库发送失败：mqtt未连接" + "--" + sendDroneStorageSuccessTimes);
         } else {
             LogUtil.log(TAG, "入库发送失败：" + sendDroneStorageSuccessTimes);
