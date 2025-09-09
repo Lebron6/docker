@@ -77,6 +77,7 @@ import dji.v5.utils.common.LogUtils
 import dji.v5.ux.accessory.RTKStartServiceHelper.startRtkService
 import dji.v5.ux.cameracore.widget.autoexposurelock.AutoExposureLockWidget
 import dji.v5.ux.cameracore.widget.cameracontrols.CameraControlsWidget
+import dji.v5.ux.cameracore.widget.cameracontrols.lenscontrol.LensControlWidget
 import dji.v5.ux.cameracore.widget.focusexposureswitch.FocusExposureSwitchWidget
 import dji.v5.ux.cameracore.widget.focusmode.FocusModeWidget
 import dji.v5.ux.cameracore.widget.fpvinteraction.FPVInteractionWidget
@@ -100,6 +101,8 @@ import dji.v5.ux.core.widget.hsi.HorizontalSituationIndicatorWidget
 import dji.v5.ux.core.widget.hsi.PrimaryFlightDisplayWidget
 import dji.v5.ux.core.widget.remainingflighttime.RemainingFlightTimeWidget
 import dji.v5.ux.core.widget.setting.SettingWidget
+import dji.v5.ux.flight.returnhome.ReturnHomeWidget
+import dji.v5.ux.flight.takeoff.TakeOffWidget
 import dji.v5.ux.gimbal.GimbalFineTuneWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget
 import dji.v5.ux.training.simulatorcontrol.SimulatorControlWidget.UIState.VisibilityUpdated
@@ -132,13 +135,13 @@ open class MainActivity : BaseActivity() {
     private var secondaryFPVWidget: FPVWidget? = null
     private var systemStatusListPanelWidget: SystemStatusListPanelWidget? = null
     private var simulatorControlWidget: SimulatorControlWidget? = null
-    //    private var lensControlWidget: LensControlWidget? = null
+        private var lensControlWidget: LensControlWidget? = null
     private var autoExposureLockWidget: AutoExposureLockWidget? = null
     private var focusModeWidget: FocusModeWidget? = null
     private var focusExposureSwitchWidget: FocusExposureSwitchWidget? = null
     private var cameraControlsWidget: CameraControlsWidget? = null
-    //    private var takeOffWidget: TakeOffWidget? = null
-//    private var returnHomeWidget: ReturnHomeWidget? = null
+        private var takeOffWidget: TakeOffWidget? = null
+    private var returnHomeWidget: ReturnHomeWidget? = null
     private var horizontalSituationIndicatorWidget: HorizontalSituationIndicatorWidget? = null
     private var pfvFlightDisplayWidget: PrimaryFlightDisplayWidget? = null
     private var ndviCameraPanel: CameraNDVIPanelWidget? = null
@@ -280,15 +283,15 @@ open class MainActivity : BaseActivity() {
             findViewById<RemainingFlightTimeWidget>(R.id.widget_remaining_flight_time)
         settingWidget = topBarPanel?.settingWidget
         primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
-//        takeOffWidget = findViewById<TakeOffWidget>(R.id.widget_take_off)
-//        returnHomeWidget = findViewById<ReturnHomeWidget>(R.id.widget_return_to_home)
+        takeOffWidget = findViewById<TakeOffWidget>(R.id.widget_take_off)
+        returnHomeWidget = findViewById<ReturnHomeWidget>(R.id.widget_return_to_home)
         primaryFpvWidget = findViewById<FPVWidget>(R.id.widget_primary_fpv)
         fpvInteractionWidget = findViewById<FPVInteractionWidget>(R.id.widget_fpv_interaction)
         secondaryFPVWidget = findViewById<FPVWidget>(R.id.widget_secondary_fpv)
         systemStatusListPanelWidget =
             findViewById<SystemStatusListPanelWidget>(R.id.widget_panel_system_status_list)
         simulatorControlWidget = findViewById<SimulatorControlWidget>(R.id.widget_simulator_control)
-//        lensControlWidget = findViewById<LensControlWidget>(R.id.widget_lens_control)
+        lensControlWidget = findViewById<LensControlWidget>(R.id.widget_lens_control)
         ndviCameraPanel = findViewById<CameraNDVIPanelWidget>(R.id.panel_ndvi_camera)
         visualCameraPanel = findViewById<CameraVisiblePanelWidget>(R.id.panel_visual_camera)
         autoExposureLockWidget =
@@ -762,9 +765,9 @@ open class MainActivity : BaseActivity() {
             focusExposureSwitchWidget?.visibility = View.GONE
             cameraControlsWidget?.visibility = View.GONE
             focalZoomWidget?.visibility = View.GONE
-//            returnHomeWidget?.visibility = View.GONE
-//            takeOffWidget?.visibility = View.GONE
-//            lensControlWidget?.visibility = View.GONE
+            returnHomeWidget?.visibility = View.GONE
+            takeOffWidget?.visibility = View.GONE
+            lensControlWidget?.visibility = View.GONE
             simulatorControlWidget?.visibility = View.GONE
             pfvFlightDisplayWidget?.visibility = View.GONE
             systemStatusListPanelWidget?.visibility = View.GONE

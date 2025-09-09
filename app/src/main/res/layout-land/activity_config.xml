@@ -583,7 +583,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:text="关闭全向避障" />
+                        android:text="是否关闭全向避障" />
 
                     <CheckBox
                         android:id="@+id/cb_close_obstacle"
@@ -592,6 +592,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true" />
                 </RelativeLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

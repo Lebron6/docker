@@ -79,7 +79,10 @@ public class StreamManager extends BaseManager {
     }
 
     public void startLive(MqttAndroidClient client, MQMessage message) {
-
+if (PreferenceUtils.getInstance().getIsCleanMode()) {
+    sendMsg2Server(client, message, "纯净模式默认不推流");
+    return;
+}
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
@@ -165,6 +168,10 @@ public class StreamManager extends BaseManager {
     }
 
     public void setLiveStreamQuality(MqttAndroidClient client, MQMessage message) {
+        if (PreferenceUtils.getInstance().getIsCleanMode()) {
+            sendMsg2Server(client, message, "纯净模式默认不推流");
+            return;
+        }
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
@@ -202,7 +209,10 @@ public class StreamManager extends BaseManager {
 
     //知眸测试
     public void startLiveWithCustom() {
-
+        if (PreferenceUtils.getInstance().getIsCleanMode()) {
+            LogUtil.log(TAG, "纯净模式默认不推流");
+            return;
+        }
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
@@ -258,7 +268,10 @@ public class StreamManager extends BaseManager {
 
     //知眸测试
     public void startLiveWithRTSP() {
-
+        if (PreferenceUtils.getInstance().getIsCleanMode()) {
+            LogUtil.log(TAG, "纯净模式默认不推流");
+            return;
+        }
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
@@ -317,6 +330,10 @@ public class StreamManager extends BaseManager {
 
 
     public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+        if (PreferenceUtils.getInstance().getIsCleanMode()) {
+            sendMsg2Server(mqttAndroidClient, message, "纯净模式默认不推流");
+            return;
+        }
         ILiveStreamManager iLiveStreamManager = LiveStreamManager.getInstance();
         iLiveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
             @Override
