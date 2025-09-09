@@ -338,15 +338,15 @@ open class ConnectionActivity : BaseActivity() {
                 ComponentIndexType.LEFT_OR_MAIN
             )
         )
-        if (isFlightControllerConnect == null || !isFlightControllerConnect||cameraType==CameraType.NOT_SUPPORTED) {
+        if (isFlightControllerConnect == null || !isFlightControllerConnect || cameraType == CameraType.NOT_SUPPORTED) {
             handler.postDelayed({
                 toMain()
             }, 1000)
         } else {
             checkTimes++
             LogUtil.log(TAG, "飞机是否连接$checkTimes${cameraType?.name}")
-        if (!MainActivity.isAppStarted) {
-            startActivity(Intent(this, MainActivity::class.java))
+            if (!MainActivity.isAppStarted) {
+                startActivity(Intent(this, MainActivity::class.java))
         }
         }
     }
