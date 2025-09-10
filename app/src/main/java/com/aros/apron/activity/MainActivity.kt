@@ -448,6 +448,7 @@ open class MainActivity : BaseActivity() {
 //        mapWidget?.onCreate(savedInstanceState)
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
+        MqttManager.getInstance().needConnect()
 
         initDJIManager()
         initCameraStream()

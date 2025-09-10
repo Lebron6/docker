@@ -1,6 +1,8 @@
 package com.aros.apron.manager;
 
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -16,8 +18,11 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.manager.KeyManager;
 
 
@@ -47,7 +52,7 @@ public class SystemManager extends BaseManager {
     }
 
     public void checkAircraftPowerStatus( MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             sendMsg2Server( message);
         } else {
@@ -63,6 +68,19 @@ public class SystemManager extends BaseManager {
 
     //检查航线下发时参数是否缺少
     public boolean checkMissionParameter(MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        CameraType cameraType = KeyManager.getInstance().getValue( createKey(
+                CameraKey.KeyCameraType,
+                ComponentIndexType.PORT_1
+        ));
+        if (isConnect == null || !isConnect || cameraType==null||cameraType == CameraType.NOT_SUPPORTED) {
+            sendMissionExecuteEvents( "设备连接异常");
+            LogUtil.log(TAG, "设备连接异常,直接入库："+new Gson().toJson(message));
+            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
+            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+            Movement.getInstance().setTaskFail(true);
+            return false;
+        }
         if (message != null && !TextUtils.isEmpty(message.getAlternate_lat())
                 && !TextUtils.isEmpty(message.getAlternate_lng()) &&
                 !TextUtils.isEmpty(message.getSafe_land_height()) &&
