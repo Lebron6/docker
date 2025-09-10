@@ -309,20 +309,20 @@ public class CameraManager extends BaseManager {
                         message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server( message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG,"设置对焦值失败:"+new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "设置对焦值失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "设置对焦值失败:" + getIDJIErrorMsg(error));
                             }
                         });
             } else {
-                sendMsg2Server(mqttAndroidClient, message, "参数有误");
+                sendMsg2Server( message, "参数有误");
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
     //切换相机拍照录像模式
@@ -339,81 +339,81 @@ public class CameraManager extends BaseManager {
                             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_NORMAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    sendMsg2Server(mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG, "相机模式切换拍照失败:" + new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换拍照失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "相机模式切换拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                         } else if (cameraMode == 1) {
                             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    sendMsg2Server(mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG, "相机模式切换录像失败:" + new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换录像失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "相机模式切换录像失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                         } else if (cameraMode == 8) {
                             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_INTERVAL, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    sendMsg2Server(mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG, "相机模式切换定时拍照失败:" + new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换定时拍照失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "相机模式切换定时拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                         } else if (cameraMode == 12) {
                             KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraFlatMode), CameraFlatMode.PHOTO_PANO, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    sendMsg2Server(mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG, "相机模式切换全景拍照失败:" + new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "相机模式切换全景拍照失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "相机模式切换全景拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                         } else {
                             LogUtil.log(TAG, "相机模式切换失败:暂不支持" + cameraMode);
-                            sendMsg2Server(mqttAndroidClient, message, "相机模式切换失败:暂不支持");
+                            sendMsg2Server( message, "相机模式切换失败:暂不支持");
                         }
 
                     }else{
                         KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraMode), CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server( message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG,"相机模式切换失败:"+new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "相机模式切换失败:" + getIDJIErrorMsg(error));                            }
+                                sendMsg2Server( message, "相机模式切换失败:" + getIDJIErrorMsg(error));                            }
                         });
 
                     }
                 }else{
-                    sendMsg2Server(mqttAndroidClient, message, "切换失败:相机未连接");
+                    sendMsg2Server( message, "切换失败:相机未连接");
 
                 }
 
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -434,13 +434,13 @@ public class CameraManager extends BaseManager {
                             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                                 @Override
                                 public void onSuccess(EmptyMsg emptyMsg) {
-                                    sendMsg2Server(mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
 
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG, "定时拍照失败:" + new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "定时拍照失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "定时拍照失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                         }
@@ -450,12 +450,12 @@ public class CameraManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "设置定时拍照参数失败:" + new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "设置定时拍照参数失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "设置定时拍照参数失败:" + getIDJIErrorMsg(error));
 
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -468,17 +468,17 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"拍照失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "拍照失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "拍照失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -491,17 +491,17 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStopShootPhoto), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"停止拍照失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "停止拍照失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "停止拍照失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -513,17 +513,17 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyStartRecord), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"开始录像失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "开始录像失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "开始录像失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -538,7 +538,7 @@ public class CameraManager extends BaseManager {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     if(mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
                     LogUtil.log(TAG,"停止录像成功");
                 }
@@ -546,13 +546,13 @@ public class CameraManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     if(mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message, "停止录像失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "停止录像失败:" + getIDJIErrorMsg(error));
                     }
                     LogUtil.log(TAG,"停止录像失败:"+new Gson().toJson(error));
                 }
             });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -568,18 +568,18 @@ public class CameraManager extends BaseManager {
                         ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG,"设置变焦倍率失败:"+new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "设置变焦倍率失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "设置变焦倍率失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -594,18 +594,18 @@ public class CameraManager extends BaseManager {
                         ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), Double.valueOf(type), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG,"设置红外变焦倍率失败:"+new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "设置红外变焦倍率失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "设置红外变焦倍率失败:" + getIDJIErrorMsg(error));
                     }
                 });
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -620,13 +620,13 @@ public class CameraManager extends BaseManager {
                 KeyManager.getInstance().setValue(DJIKey.create(CameraKey.KeyCameraVideoStreamSource), CameraVideoStreamSourceType.find(type), new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
                         LogUtil.log(TAG,"切换相机视频流失败:"+new Gson().toJson(error));
-                        sendMsg2Server(mqttAndroidClient, message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
                     }
                 });
                 if (type == 3) {
@@ -642,13 +642,13 @@ public class CameraManager extends BaseManager {
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG,"红外镜头的显示模式设置失败:"+new Gson().toJson(error));
-                                    sendMsg2Server(mqttAndroidClient, message, "红外镜头的显示模式设置失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "红外镜头的显示模式设置失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                 }
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
 
     }
@@ -670,11 +670,11 @@ public class CameraManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"红外镜头的显示模式设置失败:"+new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "红外镜头的显示模式设置失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "红外镜头的显示模式设置失败:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -690,17 +690,17 @@ public class CameraManager extends BaseManager {
                     new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"分屏的显示位置设置失败:"+new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "分屏的显示位置设置失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "分屏的显示位置设置失败:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+            sendMsg2Server( message, "相机未连接");
         }
     }
 
@@ -716,20 +716,20 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                     CameraFocusMode.find(message.getCameraFocusMode()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"设置对焦模式失败:"+new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "设置对焦模式失败:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "设置对焦模式失败:参数有误");
+            sendMsg2Server( message, "设置对焦模式失败:参数有误");
         }
     } else {
-        sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        sendMsg2Server( message, "相机未连接");
     }
 }
 
@@ -742,7 +742,7 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     if (mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message);
+                        sendMsg2Server( message);
                     }
                     LogUtil.log(TAG,"sd卡已格式化");
                 }
@@ -750,14 +750,14 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     if (mqttAndroidClient!=null&&message!=null){
-                        sendMsg2Server(mqttAndroidClient, message, "SD卡格式化失败:" + getIDJIErrorMsg(error));
+                        sendMsg2Server( message, "SD卡格式化失败:" + getIDJIErrorMsg(error));
                     }
                     LogUtil.log(TAG,"sd卡格式化失败:"+new Gson().toJson(error));
                 }
             });
         } else {
             if (mqttAndroidClient!=null&&message!=null){
-                sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+                sendMsg2Server( message, "相机未连接");
             }
             LogUtil.log(TAG,"相机未连接");
 
@@ -777,13 +777,13 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                 @Override
                 public void onSuccess() {
                     LogUtil.log(TAG, "曝光模式切换成功");
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"切换曝光模式失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "切换曝光模式失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "切换曝光模式失败:" + getIDJIErrorMsg(error));
                 }
             });
 
@@ -803,13 +803,13 @@ public void setCameraFocusMode(MqttAndroidClient mqttAndroidClient, MQMessage me
                     CameraExposureCompensation.find(message.getCameraExposureCompensation()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"设置曝光补偿数值失败:"+new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "设置曝光补偿数值失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "设置曝光补偿数值失败:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
@@ -824,17 +824,17 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
         KeyManager.getInstance().performAction(DJIKey.create(CameraKey.KeyResetCameraSetting), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
             @Override
             public void onSuccess(EmptyMsg emptyMsg) {
-                sendMsg2Server(mqttAndroidClient, message);
+                sendMsg2Server( message);
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
                 LogUtil.log(TAG,"重置相机参数失败:"+new Gson().toJson(error));
-                sendMsg2Server(mqttAndroidClient, message, "重置相机参数失败:" + getIDJIErrorMsg(error));
+                sendMsg2Server( message, "重置相机参数失败:" + getIDJIErrorMsg(error));
             }
         });
     } else {
-        sendMsg2Server(mqttAndroidClient, message, "相机未连接");
+        sendMsg2Server( message, "相机未连接");
     }
 }
 
@@ -854,7 +854,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"设置使能指点失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "设置使能指点失败:" + getIDJIErrorMsg(error));                            }
+                    sendMsg2Server( message, "设置使能指点失败:" + getIDJIErrorMsg(error));                            }
             });
 
             //默认视频源
@@ -870,7 +870,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     CameraLensType.CAMERA_LENS_ZOOM),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -887,13 +887,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                                                 ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                                             @Override
                                                             public void onSuccess() {
-                                                                sendMsg2Server(mqttAndroidClient, message);
+                                                                sendMsg2Server( message);
                                                             }
 
                                                             @Override
                                                             public void onFailure(@NonNull IDJIError error) {
                                                                 LogUtil.log(TAG,"指点变焦失败:"+new Gson().toJson(error));
-                                                                sendMsg2Server(mqttAndroidClient, message, "指点变焦失败:" + getIDJIErrorMsg(error));
+                                                                sendMsg2Server( message, "指点变焦失败:" + getIDJIErrorMsg(error));
                                                             }
                                                         });
                                                     }
@@ -903,7 +903,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                             @Override
                                             public void onFailure(@NonNull IDJIError error) {
                                                 LogUtil.log(TAG,"切换相机视频流失败:"+new Gson().toJson(error));
-//                                                sendMsg2Server(mqttAndroidClient, message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
+//                                                sendMsg2Server( message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
                                             }
                                         });
                                         break;
@@ -912,13 +912,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                                 ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
-                                                sendMsg2Server(mqttAndroidClient, message);
+                                                sendMsg2Server( message);
                                             }
 
                                             @Override
                                             public void onFailure(@NonNull IDJIError error) {
                                                 LogUtil.log(TAG,"指点变焦失败:"+new Gson().toJson(error));
-                                                sendMsg2Server(mqttAndroidClient, message, "指点变焦失败:" + getIDJIErrorMsg(error));
+                                                sendMsg2Server( message, "指点变焦失败:" + getIDJIErrorMsg(error));
                                             }
                                         });
                                         break;
@@ -927,13 +927,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                                                 ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL),message.getZoom(), new CommonCallbacks.CompletionCallback() {
                                             @Override
                                             public void onSuccess() {
-                                                sendMsg2Server(mqttAndroidClient, message);
+                                                sendMsg2Server( message);
                                             }
 
                                             @Override
                                             public void onFailure(@NonNull IDJIError error) {
                                                 LogUtil.log(TAG,"设置红外变焦倍率失败:"+new Gson().toJson(error));
-                                                sendMsg2Server(mqttAndroidClient, message, "设置红外变焦倍率失败:" + getIDJIErrorMsg(error));
+                                                sendMsg2Server( message, "设置红外变焦倍率失败:" + getIDJIErrorMsg(error));
                                             }
                                         });
                                         break;
@@ -947,7 +947,7 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"指点对焦失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "指点对焦失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "指点对焦失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
@@ -1057,13 +1057,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     ThermalTemperatureMeasureMode.find(message.getThermalTemperatureMeasureMode()), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendMsg2Server(mqttAndroidClient, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"设置测温模式:"+new Gson().toJson(error));
-                            sendMsg2Server(mqttAndroidClient, message, "设置测温模式:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "设置测温模式:" + getIDJIErrorMsg(error));
                         }
                     });
         } else {
@@ -1083,13 +1083,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doublePoint2D, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"设置点测温失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "设置点测温失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "设置点测温失败:" + getIDJIErrorMsg(error));
 
                 }
             });
@@ -1113,13 +1113,13 @@ public void resetCameraSetting(MqttAndroidClient mqttAndroidClient, MQMessage me
                     ComponentIndexType.LEFT_OR_MAIN, CameraLensType.CAMERA_LENS_THERMAL), doubleRect, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(mqttAndroidClient, message);
+                    sendMsg2Server( message);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"设置区域测温失败:"+new Gson().toJson(error));
-                    sendMsg2Server(mqttAndroidClient, message, "设置区域测温失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "设置区域测温失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {

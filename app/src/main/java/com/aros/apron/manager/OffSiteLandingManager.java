@@ -86,7 +86,7 @@ public class OffSiteLandingManager extends BaseManager {
 
     public void startTaskProcess(MQMessage message) {
         if (TextUtils.isEmpty(message.getOffSitePointLat())||TextUtils.isEmpty(message.getOffSitePointLon())){
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落点经纬度有误");
+            sendMissionExecuteEvents( "异地降落点经纬度有误");
             LogUtil.log(TAG, "异地降落点经纬度有误,不触发异地降落");
             return;
         }
@@ -105,16 +105,16 @@ public class OffSiteLandingManager extends BaseManager {
                     checkDroneState(message);
                 } else {
                     if (message != null) {
-                        sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "挡位不正确,不触发异地降落");
+                        sendMsg2Server( message, "挡位不正确,不触发异地降落");
                     }
-                    sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "挡位不正确,不触发异地降落");
+                    sendMissionExecuteEvents( "挡位不正确,不触发异地降落");
                     LogUtil.log(TAG, "检测到挡位不正确,不触发异地降落");
                 }
             } else {
                 if (message != null) {
-                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "飞机未起飞,不触发异地降落");
+                    sendMsg2Server( message, "飞机未起飞,不触发异地降落");
                 }
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "飞机未起飞,不触发异地降落");
+                sendMissionExecuteEvents( "飞机未起飞,不触发异地降落");
             }
         }
     }
@@ -129,14 +129,14 @@ public class OffSiteLandingManager extends BaseManager {
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消返航成功");
                             toOffsitePoint(message);
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消返航:触发异地降落");
+                            sendMissionExecuteEvents( "取消返航:触发异地降落");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
                             toOffsitePoint(message);
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消返航失败:不触发异地降落");
+                            sendMissionExecuteEvents( "取消返航失败:不触发异地降落");
 
                         }
                     });
@@ -148,14 +148,14 @@ public class OffSiteLandingManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "终止任务成功");
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "终止任务成功:去异地降落");
+                            sendMissionExecuteEvents( "终止任务成功:去异地降落");
                             toOffsitePoint(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "终止任务失败:去异地降落");
+                            sendMissionExecuteEvents( "终止任务失败:去异地降落");
                             toOffsitePoint(message);
                         }
                     });
@@ -165,14 +165,14 @@ public class OffSiteLandingManager extends BaseManager {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消降落成功");
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消降落成功:去异地降落");
+                            sendMissionExecuteEvents( "取消降落成功:去异地降落");
                             toOffsitePoint(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "取消降落失败:去异地降落");
+                            sendMissionExecuteEvents( "取消降落失败:去异地降落");
                             toOffsitePoint(message);
                         }
                     });
@@ -202,10 +202,10 @@ public class OffSiteLandingManager extends BaseManager {
     public void toOffsitePoint(MQMessage message) {
         if (Movement.getInstance().getFlyingHeight() < 10) {
             LogUtil.log(TAG, "高度低于10米,拉高");
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "拉高去异地降落点...");
+            sendMissionExecuteEvents( "拉高去异地降落点...");
             raisesDrone(message);
         } else {
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始创建异地降落任务");
+            sendMissionExecuteEvents( "开始创建异地降落任务");
             LogUtil.log(TAG, "高度高于10米,创建异地降落任务");
             creatMissionAndUpload(message);
         }
@@ -324,7 +324,7 @@ public class OffSiteLandingManager extends BaseManager {
         flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
 
-        sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始生成异地降落航线");
+        sendMissionExecuteEvents( "开始生成异地降落航线");
 
         // 生成xml文件
         File file1 = new File(
@@ -332,13 +332,13 @@ public class OffSiteLandingManager extends BaseManager {
         if (!file1.exists()) {
             if (file1.mkdirs()) {
                 LogUtil.log(TAG, "生成异地降落航线成功");
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "生成异地降落路线文件成功");
+                sendMissionExecuteEvents( "生成异地降落路线文件成功");
 
             } else {
                 LogUtil.log(TAG, "生成异地降落航线失败");
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "生成异地降落航线失败");
+                sendMissionExecuteEvents( "生成异地降落航线失败");
                 if (message != null) {
-                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "生成异地降落航线失败");
+                    sendMsg2Server( message, "生成异地降落航线失败");
                 }
             }
         }
@@ -357,9 +357,9 @@ public class OffSiteLandingManager extends BaseManager {
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "offsite.kmz");
         } catch (IOException e) {
             LogUtil.log(TAG, "异地降落航线压缩异常：" + e.toString());
-            sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落任务生成异常");
+            sendMissionExecuteEvents( "异地降落任务生成异常");
             if (message != null) {
-                sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "异地降落任务生成异常");
+                sendMsg2Server( message, "异地降落任务生成异常");
             }
             throw new RuntimeException(e);
         }
@@ -369,14 +369,14 @@ public class OffSiteLandingManager extends BaseManager {
             @Override
             public void onProgressUpdate(Double aDouble) {
                 LogUtil.log(TAG, "异地降落航线上传进度:" + aDouble + "%");
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落任务上传中:" + aDouble + "%");
+                sendMissionExecuteEvents( "异地降落任务上传中:" + aDouble + "%");
 
             }
 
             @Override
             public void onSuccess() {
                 LogUtil.log(TAG, "异地降落航线上传成功");
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落航线上传成功");
+                sendMissionExecuteEvents( "异地降落航线上传成功");
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -386,22 +386,22 @@ public class OffSiteLandingManager extends BaseManager {
                             public void onSuccess() {
 
                                 LogUtil.log(TAG, "开始异地降落航线");
-                                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "开始异地降落航线");
+                                sendMissionExecuteEvents( "开始异地降落航线");
                                 //设置为未开始识别二维码状态
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);
 
                                 if (message != null) {
-                                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message);
+                                    sendMsg2Server( message);
                                 }
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError idjiError) {
                                 LogUtil.log(TAG, "飞往异地降落点失败:" + new Gson().toJson(idjiError));
-                                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "飞往异地降落点失败");
+                                sendMissionExecuteEvents( "飞往异地降落点失败");
                                 if (message != null) {
-                                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "飞往异地降落点失败");
+                                    sendMsg2Server( message, "飞往异地降落点失败");
                                 }
                             }
                         });
@@ -412,9 +412,9 @@ public class OffSiteLandingManager extends BaseManager {
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
                 LogUtil.log(TAG, "异地降落航线上传失败:" + new Gson().toJson(idjiError));
-                sendMissionExecuteEvents(MqttManager.getInstance().mqttAndroidClient, "异地降落航线上传失败");
+                sendMissionExecuteEvents( "异地降落航线上传失败");
                 if (message != null) {
-                    sendMsg2Server(MqttManager.getInstance().mqttAndroidClient, message, "异地降落航线上传失败:"  + getIDJIErrorMsg(idjiError));
+                    sendMsg2Server( message, "异地降落航线上传失败:"  + getIDJIErrorMsg(idjiError));
                 }
             }
         });

@@ -43,9 +43,9 @@ public class SystemManager extends BaseManager {
     public void checkRemoteControlPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {
 //        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.KeyConnection));
 //        if (isConnect != null && isConnect) {
-            sendMsg2Server(mqttAndroidClient, message);
+            sendMsg2Server( message);
 //        } else {
-//            sendMsg2Server(mqttAndroidClient, message, "遥控器未连接");
+//            sendMsg2Server( message, "遥控器未连接");
 //        }
 
     }
@@ -53,15 +53,15 @@ public class SystemManager extends BaseManager {
     public void checkAircraftPowerStatus(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-            sendMsg2Server(mqttAndroidClient, message);
+            sendMsg2Server( message);
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //飞机已经执行过航线，落地后没有关遥控器，或重启AMS
     public void replyAlreadyFlown(MqttAndroidClient mqttAndroidClient, MQMessage message) {
-            sendMsg2Server(mqttAndroidClient, message, "请等待或手动重启遥控器或AMS软件");
+            sendMsg2Server( message, "请等待或手动重启遥控器或AMS软件");
             LogUtil.log(TAG,"请等待或手动重启遥控器或AMS软件");
     }
 
@@ -73,7 +73,7 @@ public class SystemManager extends BaseManager {
                 ComponentIndexType.LEFT_OR_MAIN
         ));
         if (isConnect == null || !isConnect || cameraType==null||cameraType == CameraType.NOT_SUPPORTED) {
-            sendMissionExecuteEvents(mqttAndroidClient, "设备连接异常");
+            sendMissionExecuteEvents( "设备连接异常");
             LogUtil.log(TAG, "设备连接异常,直接入库："+new Gson().toJson(message));
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
@@ -108,7 +108,7 @@ public class SystemManager extends BaseManager {
             }
             return true;
         } else {
-            sendMissionExecuteEvents(mqttAndroidClient, "航线参数有误");
+            sendMissionExecuteEvents( "航线参数有误");
             LogUtil.log(TAG, "航线参数有误,直接入库："+new Gson().toJson(message));
             DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
@@ -121,9 +121,9 @@ public class SystemManager extends BaseManager {
     //收到60012表示服务端在确认飞机此时时候处于可关机的状态
     public void aircraftStoredReply(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         if (ApronExecutionStatus.getInstance().isAircraftWaitShutDown()) {
-            sendMsg2Server(mqttAndroidClient, message);
+            sendMsg2Server( message);
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "不可关机");
+            sendMsg2Server( message, "不可关机");
         }
     }
 

@@ -65,7 +65,7 @@ public class DroneStorageManager extends BaseManager {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     LogUtil.log(TAG, "入库已发送：60010---" + sendDroneStorageSuccessTimes + "clientId:" + client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知机库入库");
+                    sendMissionExecuteEvents( "AMS通知机库入库");
 
                     mainHandler.postDelayed(new Runnable() {
                         @Override

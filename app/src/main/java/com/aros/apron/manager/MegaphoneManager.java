@@ -60,13 +60,13 @@ public class MegaphoneManager extends BaseManager {
             iMegaphoneManager.setVolume(message.getMegaphoneVolume(), new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(client, message, "设置喊话器音量成功");
+                    sendMsg2Server( message, "设置喊话器音量成功");
                     LogUtil.log(TAG, "喊话器音量设置成功");
                 }
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"设置喊话器音量失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "设置喊话器音量失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "设置喊话器音量失败:" + getIDJIErrorMsg(error));
                 }
             });
             iMegaphoneManager.setPlayMode(message.getMegaphonePlayMode() == 1 ? PlayMode.SINGLE : PlayMode.LOOP, new CommonCallbacks.CompletionCallback() {
@@ -77,20 +77,20 @@ public class MegaphoneManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"设置喊话器播放模式失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "设置喊话器播放模式失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "设置喊话器播放模式失败:" + getIDJIErrorMsg(error));
                 }
             });
             iMegaphoneManager.setWorkMode(WorkMode.TTS, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(client, message);
+                    sendMsg2Server( message);
                     LogUtil.log(TAG, "喊话器工作模式设置成功");
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"喊话器工作模式设置失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "喊话器工作模式设置失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "喊话器工作模式设置失败:" + getIDJIErrorMsg(error));
 
                 }
             });
@@ -119,14 +119,14 @@ public class MegaphoneManager extends BaseManager {
                                 @Override
                                 public void onFailure(@NonNull IDJIError error) {
                                     LogUtil.log(TAG,"喊话器内容上传失败:" +new Gson().toJson(error));
-                                    sendMsg2Server(client, message, "喊话器内容上传失败:" + getIDJIErrorMsg(error));
+                                    sendMsg2Server( message, "喊话器内容上传失败:" + getIDJIErrorMsg(error));
                                 }
                             });
                 }
             }, 200);
 
         } else {
-            sendMsg2Server(client, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
             LogUtil.log(TAG, "飞控未连接");
 
         }
@@ -148,11 +148,11 @@ public class MegaphoneManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"喊话器播放失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "喊话器播放失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "喊话器播放失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server(client, message, "飞控未连接");
+            sendMsg2Server( message, "飞控未连接");
         }
     }
 
@@ -164,14 +164,14 @@ public class MegaphoneManager extends BaseManager {
             iMegaphoneManager.stopPlay(new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    sendMsg2Server(client, message);
+                    sendMsg2Server( message);
                     LogUtil.log(TAG, "喊话器停止播放成功");
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG,"喊话器停止播放失败:" +new Gson().toJson(error));
-                    sendMsg2Server(client, message, "喊话器停止播放失败:" + getIDJIErrorMsg(error));
+                    sendMsg2Server( message, "喊话器停止播放失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {

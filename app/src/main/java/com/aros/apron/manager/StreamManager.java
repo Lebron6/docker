@@ -53,7 +53,7 @@ public class StreamManager extends BaseManager {
     }
 
     public void sendReply2Server(MqttAndroidClient client, MQMessage message) {
-        sendMsg2Server(client, message);
+        sendMsg2Server( message);
     }
 
     public void initStreamManager() {
@@ -80,7 +80,7 @@ public class StreamManager extends BaseManager {
 
     public void startLive(MqttAndroidClient client, MQMessage message) {
 if (PreferenceUtils.getInstance().getIsCleanMode()) {
-    sendMsg2Server(client, message, "纯净模式默认不推流");
+    sendMsg2Server( message, "纯净模式默认不推流");
     return;
 }
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
@@ -90,7 +90,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
             if (TextUtils.isEmpty(message.getRtmp_push_url())) {
                 LogUtil.log(TAG, "推流地址配置有误");
-                sendMsg2Server(client, message, "推流地址配置有误");
+                sendMsg2Server( message, "推流地址配置有误");
             }
             LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
             LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
@@ -113,7 +113,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                             @Override
                             public void onSuccess() {
                                 LogUtil.log(TAG, "推流成功");
-                                sendMsg2Server(client, message);
+                                sendMsg2Server( message);
                                 SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
 
                             }
@@ -121,7 +121,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG, "推流失败:" + error.description() + "---");
-                                sendMsg2Server(client, message, "推流失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "推流失败:" + getIDJIErrorMsg(error));
 
                             }
                         });
@@ -141,7 +141,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                                     @Override
                                     public void onSuccess() {
                                         LogUtil.log(TAG, "改变地址推流成功");
-                                        sendMsg2Server(client, message);
+                                        sendMsg2Server( message);
                                         SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
 
                                     }
@@ -149,7 +149,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                                     @Override
                                     public void onFailure(@NonNull IDJIError error) {
                                         LogUtil.log(TAG, "改变地址推流失败:" + error.description() + "---");
-                                        sendMsg2Server(client, message, "改变地址推流失败:" + getIDJIErrorMsg(error));
+                                        sendMsg2Server( message, "改变地址推流失败:" + getIDJIErrorMsg(error));
 
                                     }
                                 });
@@ -160,7 +160,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
                         LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description() + "---");
-                        sendMsg2Server(client, message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
+                        sendMsg2Server( message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
                     }
                 });
             }
@@ -169,20 +169,20 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
 
     public void setLiveStreamQuality(MqttAndroidClient client, MQMessage message) {
         if (PreferenceUtils.getInstance().getIsCleanMode()) {
-            sendMsg2Server(client, message, "纯净模式默认不推流");
+            sendMsg2Server( message, "纯净模式默认不推流");
             return;
         }
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
-            sendMsg2Server(client, message, "飞行器未连接");
+            sendMsg2Server( message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
             if (liveStreamManager.isStreaming()) {
                 liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getLiveStreamQuality()));
-                sendMsg2Server(client, message);
+                sendMsg2Server( message);
             } else {
-                sendMsg2Server(client, message, "推流未开启");
+                sendMsg2Server( message, "推流未开启");
             }
         }
     }
@@ -191,7 +191,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
     public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
-            sendMsg2Server(mqttAndroidClient, message, "飞行器未连接");
+            sendMsg2Server( message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
             Movement.getInstance().setCurrentView(message.getCurrentView());
@@ -331,19 +331,19 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
 
     public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
         if (PreferenceUtils.getInstance().getIsCleanMode()) {
-            sendMsg2Server(mqttAndroidClient, message, "纯净模式默认不推流");
+            sendMsg2Server( message, "纯净模式默认不推流");
             return;
         }
         ILiveStreamManager iLiveStreamManager = LiveStreamManager.getInstance();
         iLiveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                sendMsg2Server(mqttAndroidClient, message);
+                sendMsg2Server( message);
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server(mqttAndroidClient, message, "停止直播失败:" + getIDJIErrorMsg(error));
+                sendMsg2Server( message, "停止直播失败:" + getIDJIErrorMsg(error));
             }
         });
     }

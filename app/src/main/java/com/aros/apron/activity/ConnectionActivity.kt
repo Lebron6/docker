@@ -281,7 +281,6 @@ open class ConnectionActivity : BaseActivity() {
                         "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
                     AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
                         "nest/${AMSConfig.getInstance().serialNumber}/events"
-                    MqttManager.getInstance().needConnect()
                     toMain()
                 }
             } else {
@@ -330,24 +329,24 @@ open class ConnectionActivity : BaseActivity() {
             .start()
     }
     private fun toMain(){
-        val isFlightControllerConnect =
-            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
-        val cameraType = KeyManager.getInstance().getValue(
-            KeyTools.createKey(
-                CameraKey.KeyCameraType,
-                ComponentIndexType.LEFT_OR_MAIN
-            )
-        )
-        if (isFlightControllerConnect == null || !isFlightControllerConnect || cameraType == CameraType.NOT_SUPPORTED) {
-            handler.postDelayed({
-                toMain()
-            }, 1000)
-        } else {
-            checkTimes++
-            LogUtil.log(TAG, "飞机是否连接$checkTimes${cameraType?.name}")
+//        val isFlightControllerConnect =
+//            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
+//        val cameraType = KeyManager.getInstance().getValue(
+//            KeyTools.createKey(
+//                CameraKey.KeyCameraType,
+//                ComponentIndexType.LEFT_OR_MAIN
+//            )
+//        )
+//        if (isFlightControllerConnect == null || !isFlightControllerConnect || cameraType == CameraType.NOT_SUPPORTED) {
+//            handler.postDelayed({
+//                toMain()
+//            }, 1000)
+//        } else {
+//            checkTimes++
+//            LogUtil.log(TAG, "飞机是否连接$checkTimes${cameraType?.name}")
             if (!MainActivity.isAppStarted) {
                 startActivity(Intent(this, MainActivity::class.java))
-        }
+//        }
         }
     }
 
@@ -363,6 +362,7 @@ open class ConnectionActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         LogUtil.log(TAG,"进入首页连接")
+
     }
 
     override fun useEventBus(): Boolean {

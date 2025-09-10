@@ -49,6 +49,7 @@ import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
+import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
@@ -268,6 +269,8 @@ open class MainActivity : BaseActivity() {
 //        mapWidget?.onCreate(savedInstanceState)
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
+        //连接mqtt
+        MqttManager.getInstance().needConnect()
 
         initDJIManager()
         initCameraStream()

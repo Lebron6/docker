@@ -66,7 +66,7 @@
 //                    @Override
 //                    public void onSuccess(IMqttToken asyncActionToken) {
 //                        LogUtil.log(TAG, "关机发送成功：60011---"+sendDroneShutDownSuccessTimes+"clientId:"+client.getClientId());
-//                        sendMissionExecuteEvents(client, "AMS通知机库执行无人机关机");
+//                        sendMissionExecuteEvents( "AMS通知机库执行无人机关机");
 //                        mainHandler.postDelayed(new Runnable() {
 //                            @Override
 //                            public void run() {

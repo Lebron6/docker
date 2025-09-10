@@ -70,7 +70,7 @@ public class SendStreamStartManager extends BaseManager {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     LogUtil.log(TAG, "开始推流发送成功：60030---"+sendStreamStartSuccessTimes+"clientId:"+client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知服务器开始推流");
+                    sendMissionExecuteEvents( "AMS通知服务器开始推流");
                     isSendStreamStartSuccess = true;
                 }
                 @Override

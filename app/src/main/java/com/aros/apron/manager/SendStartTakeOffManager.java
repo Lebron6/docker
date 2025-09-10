@@ -70,7 +70,7 @@ public class SendStartTakeOffManager extends BaseManager {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     LogUtil.log(TAG, "开始起飞发送成功：60031---"+sendStartTakeOffSuccessTimes+"clientId:"+client.getClientId());
-                    sendMissionExecuteEvents(client, "AMS通知服务器开始起飞");
+                    sendMissionExecuteEvents( "AMS通知服务器开始起飞");
                     isSendStartTakeOffSuccess = true;
                 }
                 @Override

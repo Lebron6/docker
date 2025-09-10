@@ -72,7 +72,7 @@ public class AMSLogManager extends BaseManager {
         if (logDir != null) {
             files = logDir.listFiles();
             if (files == null || files.length == 0) {
-                sendMsg2Server(client, message, "日志文件夹暂无日志文件");
+                sendMsg2Server( message, "日志文件夹暂无日志文件");
                 setUploadingAMSLog(false);
 
             } else {
@@ -80,10 +80,10 @@ public class AMSLogManager extends BaseManager {
                     pullOriginalFile(message);
                 }
             }
-            sendMsg2Server(client,message);
+            sendMsg2Server(message);
 
         } else {
-            sendMsg2Server(client, message, "日志文件夹为空");
+            sendMsg2Server( message, "日志文件夹为空");
             setUploadingAMSLog(false);
 
         }
@@ -169,7 +169,7 @@ public class AMSLogManager extends BaseManager {
                             fileUploadResult.setMsg("文件:"+file.getName()+"已上传");
                         }
                         fileUploadResult.setProgress(String.valueOf(calculatePercentage(downLoadMediaFileIndex+1,files.length)));
-                        sendFileUploadCallback(60202, mqttClient, fileUploadResult);
+                        sendFileUploadCallback(60202, fileUploadResult);
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)
@@ -202,12 +202,12 @@ public class AMSLogManager extends BaseManager {
                     @Override
                     public void onComplete() {
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex +file.getName()+ " uploaded successfully.");
-                        sendMissionExecuteEvents(mqttClient, "第" + downLoadMediaFileIndex + "个AMS日志已上传");
+                        sendMissionExecuteEvents("第" + downLoadMediaFileIndex + "个AMS日志已上传");
 
                         downLoadMediaFileIndex++;
                         if (downLoadMediaFileIndex == files.length) {
                             // 所有文件已上传完成，清空SD卡，缓存，退出媒体模式，发送无人机关机
-                            sendMissionExecuteEvents(mqttClient, "所有AMS日志已上传完毕");
+                            sendMissionExecuteEvents("所有AMS日志已上传完毕");
                             downLoadMediaFileIndex = 0;
                             setUploadingAMSLog(false);
 

@@ -71,19 +71,19 @@ public class GimbalManager extends BaseManager {
                 KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
-                                sendMsg2Server(mqttAndroidClient, message);
+                                sendMsg2Server( message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
                                 LogUtil.log(TAG,"云台控制失败:"+new Gson().toJson(error));
-                                sendMsg2Server(mqttAndroidClient, message, "云台控制失败:" + getIDJIErrorMsg(error));
+                                sendMsg2Server( message, "云台控制失败:" + getIDJIErrorMsg(error));
                             }
                         }
                 );
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+            sendMsg2Server( message, "云台未连接");
         }
 
 
@@ -117,7 +117,7 @@ public class GimbalManager extends BaseManager {
 //                );
 //            }
 //        } else {
-//            sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//            sendMsg2Server( message, "云台未连接");
 //        }
 //    }
 
@@ -153,18 +153,18 @@ public class GimbalManager extends BaseManager {
                     GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            sendMsg2Server(client, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"云台重置失败:"+new Gson().toJson(error));
-                            sendMsg2Server(client, message, "云台控制失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "云台控制失败:" + getIDJIErrorMsg(error));
                         }
                     }
             );
         } else {
-            sendMsg2Server(client, message, "云台重置失败:设备未连接");
+            sendMsg2Server( message, "云台重置失败:设备未连接");
         }
     }
 
@@ -177,18 +177,18 @@ public class GimbalManager extends BaseManager {
                     GimbalResetType.ONLY_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            sendMsg2Server(client, message);
+                            sendMsg2Server( message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG,"云台偏航回中失败:"+new Gson().toJson(error));
-                            sendMsg2Server(client, message, "云台偏航回中失败:" + getIDJIErrorMsg(error));
+                            sendMsg2Server( message, "云台偏航回中失败:" + getIDJIErrorMsg(error));
                         }
                     }
             );
         } else {
-            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+            sendMsg2Server( message, "云台偏航回中失败:设备未连接");
         }
     }
 
@@ -206,18 +206,18 @@ public class GimbalManager extends BaseManager {
                 KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
                             public void onSuccess(EmptyMsg emptyMsg) {
-                                sendMsg2Server(client,message);
+                                sendMsg2Server(message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                sendMsg2Server(client,message,"偏航向下失败:"+getIDJIErrorMsg(error));
+                                sendMsg2Server(message,"偏航向下失败:"+getIDJIErrorMsg(error));
                             }
                         }
                 );
 
         } else {
-            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+            sendMsg2Server( message, "云台偏航回中失败:设备未连接");
         }
     }
 
@@ -234,18 +234,18 @@ public class GimbalManager extends BaseManager {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, 0), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            sendMsg2Server(client,message);
+                            sendMsg2Server(message);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendMsg2Server(client,message,"云台向下失败:"+getIDJIErrorMsg(error));
+                            sendMsg2Server(message,"云台向下失败:"+getIDJIErrorMsg(error));
                         }
                     }
             );
 
         } else {
-            sendMsg2Server(client, message, "云台偏航回中失败:设备未连接");
+            sendMsg2Server( message, "云台偏航回中失败:设备未连接");
         }
     }
 
@@ -268,7 +268,7 @@ public class GimbalManager extends BaseManager {
                 LogUtil.log(TAG, "云台偏航控制速度设置失败:yawKey is null!");
             }
         } else {
-            sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+            sendMsg2Server( message, "云台未连接");
         }
     }
 
@@ -279,13 +279,13 @@ public class GimbalManager extends BaseManager {
         KeyManager.getInstance().setValue(key, value, new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                sendMsg2Server(mqttAndroidClient, message);
+                sendMsg2Server( message);
             }
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
                 LogUtil.log(TAG,errorMessage+new Gson().toJson(error));
-                sendMsg2Server(mqttAndroidClient, message, errorMessage + getIDJIErrorMsg(error));
+                sendMsg2Server( message, errorMessage + getIDJIErrorMsg(error));
             }
         });
     }
@@ -302,16 +302,16 @@ public class GimbalManager extends BaseManager {
 //                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRestoreFactorySettings, Integer.parseInt(data.getComponentIndex())), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
 //                    @Override
 //                    public void onSuccess(EmptyMsg emptyMsg) {
-//                        sendMsg2Server(mqttAndroidClient, message);
+//                        sendMsg2Server( message);
 //                    }
 //
 //                    @Override
 //                    public void onFailure(@NonNull IDJIError error) {
-//                        sendMsg2Server(mqttAndroidClient, message, "恢复出厂设置失败：" + error.description());
+//                        sendMsg2Server( message, "恢复出厂设置失败：" + error.description());
 //                    }
 //                });
 //            } else {
-//                sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//                sendMsg2Server( message, "云台未连接");
 //            }
 //        }
 //
@@ -328,16 +328,16 @@ public class GimbalManager extends BaseManager {
 //                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalCalibrate, Integer.parseInt(data.getComponentIndex())), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
 //                    @Override
 //                    public void onSuccess(EmptyMsg emptyMsg) {
-//                        sendMsg2Server(mqttAndroidClient, message);
+//                        sendMsg2Server( message);
 //                    }
 //
 //                    @Override
 //                    public void onFailure(@NonNull IDJIError error) {
-//                        sendMsg2Server(mqttAndroidClient, message, "启动校准失败：" + error.description());
+//                        sendMsg2Server( message, "启动校准失败：" + error.description());
 //                    }
 //                });
 //            } else {
-//                sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//                sendMsg2Server( message, "云台未连接");
 //            }
 //        }
 //
@@ -355,16 +355,16 @@ public class GimbalManager extends BaseManager {
 //                KeyManager.getInstance().setValue(KeyTools.createKey(type.equals("0") ? GimbalKey.KeyPitchSmoothingFactor : GimbalKey.KeyYawSmoothingFactor, Integer.parseInt(data.getComponentIndex())), Integer.parseInt(value), new CommonCallbacks.CompletionCallback() {
 //                    @Override
 //                    public void onSuccess() {
-//                        sendMsg2Server(mqttAndroidClient, message);
+//                        sendMsg2Server( message);
 //                    }
 //
 //                    @Override
 //                    public void onFailure(@NonNull IDJIError error) {
-//                        sendMsg2Server(mqttAndroidClient, message, "云台缓启/停设置失败：" + error.description());
+//                        sendMsg2Server( message, "云台缓启/停设置失败：" + error.description());
 //                    }
 //                });
 //            } else {
-//                sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//                sendMsg2Server( message, "云台未连接");
 //            }
 //        }
 //
@@ -385,19 +385,19 @@ public class GimbalManager extends BaseManager {
 //                            Integer.parseInt(data.getComponentIndex())), type.equals("1") ? true : false, new CommonCallbacks.CompletionCallback() {
 //                        @Override
 //                        public void onSuccess() {
-//                            sendMsg2Server(mqttAndroidClient, message);
+//                            sendMsg2Server( message);
 //                        }
 //
 //                        @Override
 //                        public void onFailure(@NonNull IDJIError error) {
-//                            sendMsg2Server(mqttAndroidClient, message, "设置云台俯仰扩展失败:" + error.description());
+//                            sendMsg2Server( message, "设置云台俯仰扩展失败:" + error.description());
 //                        }
 //                    });
 //                } else {
-//                    sendMsg2Server(mqttAndroidClient, message, "设置云台俯仰扩展参数有误");
+//                    sendMsg2Server( message, "设置云台俯仰扩展参数有误");
 //                }
 //            } else {
-//                sendMsg2Server(mqttAndroidClient, message, "云台未连接");
+//                sendMsg2Server( message, "云台未连接");
 //            }
 //        }
 //
