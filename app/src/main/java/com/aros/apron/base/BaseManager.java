@@ -26,7 +26,7 @@ public abstract class BaseManager {
                 messageReply.setResult(-1);
                 messageReply.setMsg(msg);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -45,7 +45,7 @@ public abstract class BaseManager {
                 messageReply.setMsg_type(entity.getMsg_type());
                 messageReply.setResult(1);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -92,7 +92,7 @@ public abstract class BaseManager {
                 message.setResult(1);
                 message.setMsg(event);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
@@ -137,7 +137,7 @@ public abstract class BaseManager {
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance(). getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
 
             } else {
@@ -160,7 +160,7 @@ public abstract class BaseManager {
                 message.setFlag(mqMessage.getFlag());
                 message.setAircraftTotalFlightDistance(data+"");
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
@@ -208,7 +208,7 @@ public abstract class BaseManager {
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
