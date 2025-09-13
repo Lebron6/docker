@@ -42,7 +42,7 @@ public class MegaphoneManager extends BaseManager {
     }
 
     //设置喊话器音量/播放模式
-    public void startMegaphonePlay(MqttAndroidClient client, MQMessage message) {
+    public void startMegaphonePlay(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             IMegaphoneManager iMegaphoneManager = dji.v5.manager.aircraft.megaphone.MegaphoneManager.getInstance();
@@ -111,7 +111,7 @@ public class MegaphoneManager extends BaseManager {
                                     new Handler().postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
-                                            startPlay(client, message);
+                                            startPlay(message);
                                         }
                                     }, 200);
                                 }
@@ -135,7 +135,7 @@ public class MegaphoneManager extends BaseManager {
 
 
     //播放
-    public void startPlay(MqttAndroidClient client, MQMessage message) {
+    public void startPlay(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             IMegaphoneManager iMegaphoneManager = dji.v5.manager.aircraft.megaphone.MegaphoneManager.getInstance();
@@ -157,7 +157,7 @@ public class MegaphoneManager extends BaseManager {
     }
 
     //停止播放
-    public void stopPlay(MqttAndroidClient client, MQMessage message) {
+    public void stopPlay(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             IMegaphoneManager iMegaphoneManager = dji.v5.manager.aircraft.megaphone.MegaphoneManager.getInstance();

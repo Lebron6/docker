@@ -429,6 +429,7 @@ open class MainActivity : BaseActivity() {
                     }
 
                 }, 5000)
+                //如果选择不默认推流，就从缓存里取上次的推流地址，开机就推流
             }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
                 Handler().postDelayed(Runnable {
                         StreamManager.getInstance()
@@ -568,7 +569,7 @@ open class MainActivity : BaseActivity() {
                                 if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:备降点直接降落")
                                     //测试图传丢失
-                                    FlightManager.getInstance().startAutoLanding(null, null)
+                                    FlightManager.getInstance().startAutoLanding( null)
                                 }
                             }, 4000)
                             if (startArucoType == 2) {

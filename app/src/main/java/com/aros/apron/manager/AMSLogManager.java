@@ -38,8 +38,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class AMSLogManager extends BaseManager {
 
 
-    private MqttAndroidClient mqttClient;
-
     private AMSLogManager() {
     }
 
@@ -64,9 +62,8 @@ public class AMSLogManager extends BaseManager {
 
     private File[] files = new File[]{};
 
-    public void enableLogList(MqttAndroidClient client, MQMessage message) {
+    public void enableLogList(MQMessage message) {
         downLoadMediaFileIndex=0;
-        this.mqttClient=client;
         setUploadingAMSLog(true);
         File logDir = new File(getLogDir());
         if (logDir != null) {

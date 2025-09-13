@@ -168,7 +168,7 @@ public class PayloadWidgetManager extends BaseManager {
         }
     }
     //锁定
-    public void lock(MqttAndroidClient client, MQMessage message) {
+    public void lock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -194,7 +194,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //解锁
-    public void unlock(MqttAndroidClient client, MQMessage message) {
+    public void unlock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -221,7 +221,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //抛投
-    public void throwOne(MqttAndroidClient client, MQMessage message) {
+    public void throwOne(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -294,7 +294,7 @@ public class PayloadWidgetManager extends BaseManager {
     }
 
     //一件抛投
-    public void throwAll(MqttAndroidClient client, MQMessage message) {
+    public void throwAll(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -363,7 +363,7 @@ public class PayloadWidgetManager extends BaseManager {
         }
     }
 
-    public void sendMsgToPayload(MqttAndroidClient mqttClient, MQMessage message) {
+    public void sendMsgToPayload(MQMessage message) {
         Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
         if (payloadManager != null) {
             IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);

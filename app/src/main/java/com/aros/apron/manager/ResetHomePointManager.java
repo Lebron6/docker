@@ -44,7 +44,7 @@ public class ResetHomePointManager extends BaseManager {
     }
 
 
-    public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
+    public void startTaskProcess(MQMessage message) {
         if (TextUtils.isEmpty(message.getOffSitePointLat()) || TextUtils.isEmpty(message.getOffSitePointLon())) {
             sendMissionExecuteEvents( "重置返航点经纬度有误");
             LogUtil.log(TAG, "重置返航点经纬度有误");
@@ -59,7 +59,7 @@ public class ResetHomePointManager extends BaseManager {
             if ((areMotorOn != null && areMotorOn) && (isFlying != null && isFlying)) {
                 RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
                 if (remoteControllerFlightMode != null && remoteControllerFlightMode == RemoteControllerFlightMode.P) {
-                    checkDroneState(client, message);
+                    checkDroneState(message);
                 } else {
                     if (message != null) {
                         sendMsg2Server( message, "挡位不正确,不刷新返航点");
@@ -76,7 +76,7 @@ public class ResetHomePointManager extends BaseManager {
         }
     }
 private int droneStatus;
-    private void checkDroneState(MqttAndroidClient client, MQMessage message) {
+    private void checkDroneState(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -86,7 +86,7 @@ private int droneStatus;
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消返航,刷新返航点成功");
-                            resetHomePoint(client, message);
+                            resetHomePoint(message);
                             sendMissionExecuteEvents( "取消返航:刷新返航点");
                         }
 
@@ -104,7 +104,7 @@ private int droneStatus;
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "取消降落,刷新返航点成功");
                             sendMissionExecuteEvents( "取消降落成功:刷新返航点");
-                            resetHomePoint(client, message);
+                            resetHomePoint(message);
                         }
 
                         @Override
@@ -116,14 +116,14 @@ private int droneStatus;
                     break;
                 default:
                     droneStatus = 0;
-                    resetHomePoint(client, message);
+                    resetHomePoint(message);
                     break;
             }
         }
     }
 
 
-    public void resetHomePoint(MqttAndroidClient client, MQMessage message) {
+    public void resetHomePoint(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -139,7 +139,7 @@ private int droneStatus;
                             sendMissionExecuteEvents( "刷新返航点成功");
                             LogUtil.log(TAG, "刷新返航点成功");
                             if (droneStatus==1||droneStatus==2){
-                                startGoHome(client,message);
+                                startGoHome(message);
                             }
                         }
 
@@ -159,7 +159,7 @@ private int droneStatus;
     }
 
     //返航
-    public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startGoHome(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             new Handler().postDelayed(new Runnable() {

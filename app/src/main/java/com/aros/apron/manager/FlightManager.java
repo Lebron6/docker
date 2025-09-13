@@ -779,7 +779,7 @@ public class FlightManager extends BaseManager {
             isGimbalDownwards = true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
             if (Movement.getInstance().getIsRecording()==1){
-                CameraManager.getInstance().stopRecordVideo(null,null);
+                CameraManager.getInstance().stopRecordVideo(null);
             }
 
         }
@@ -937,7 +937,7 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MqttManager.getInstance().mqttAndroidClient, 1);
+                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server( 1);
                 }
                 // 上传媒体文件
                 SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
@@ -958,7 +958,7 @@ public class FlightManager extends BaseManager {
     }
 
     //起飞
-    public void startTakeoff(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startTakeoff(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartTakeoff), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
@@ -978,7 +978,7 @@ public class FlightManager extends BaseManager {
     }
 
     //返航
-    public void startGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startGoHome(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
         if (Movement.getInstance().isPlaneWing() && Movement.getInstance().getDistance() < 20
@@ -993,7 +993,7 @@ public class FlightManager extends BaseManager {
                 KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                     @Override
                     public void onSuccess(EmptyMsg emptyMsg) {
-                        if (mqttAndroidClient != null && message != null) {
+                        if (message != null) {
                             sendMsg2Server( message);
                         }
                         LogUtil.log(TAG, "返航调用成功");
@@ -1002,14 +1002,14 @@ public class FlightManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (mqttAndroidClient != null && message != null) {
+                        if ( message != null) {
                             sendMsg2Server( message, "返航执行失败:" + getIDJIErrorMsg(error));
                         }
                         LogUtil.log(TAG, "返航执行失败：" + new Gson().toJson(error));
                     }
                 });
             } else {
-                if (mqttAndroidClient != null && message != null) {
+                if ( message != null) {
                     sendMsg2Server( message, "返航执行失败：飞控未连接");
                 }
                 LogUtil.log(TAG, "返航执行失败：飞控未连接");
@@ -1020,7 +1020,7 @@ public class FlightManager extends BaseManager {
     }
 
     //取消返航
-    public void stopGoHome(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopGoHome(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
@@ -1042,13 +1042,13 @@ public class FlightManager extends BaseManager {
 
 
     //降落
-    public void startAutoLanding(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void startAutoLanding(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    if (mqttAndroidClient!=null&&message!=null){
+                    if (message!=null){
                         sendMsg2Server( message);
                     }
                 }
@@ -1056,7 +1056,7 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "降落失败:" + new Gson().toJson(error));
-                    if (mqttAndroidClient!=null&&message!=null){
+                    if (message!=null){
                         sendMsg2Server( message, "降落失败:" + getIDJIErrorMsg(error));
                     }
                 }
@@ -1067,7 +1067,7 @@ public class FlightManager extends BaseManager {
     }
 
     //取消降落
-    public void stopAutoLanding(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopAutoLanding(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
@@ -1088,7 +1088,7 @@ public class FlightManager extends BaseManager {
     }
 
     //飞机失联后的自动操作
-    public void setFailsafeAction(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setFailsafeAction(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
@@ -1112,7 +1112,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置返航高度
-    public void setGoHomeHeight(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setGoHomeHeight(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
@@ -1135,7 +1135,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置限高
-    public void setHeightLimit(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setHeightLimit(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
@@ -1158,7 +1158,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置限远
-    public void setDistanceLimit(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setDistanceLimit(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyDistanceLimit), message.getDistanceLimit(), new CommonCallbacks.CompletionCallback() {
@@ -1180,7 +1180,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置是否启用限远
-    public void setDistanceLimitEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setDistanceLimitEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (message != null) {
@@ -1203,7 +1203,7 @@ public class FlightManager extends BaseManager {
     }
 
     //获取总里程
-    public void getAircraftTotalFlightDistance(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void getAircraftTotalFlightDistance(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Double value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
@@ -1220,7 +1220,7 @@ public class FlightManager extends BaseManager {
     /**
      * 紧急悬停
      */
-    public void emergencyHover(MqttAndroidClient mqttClient, MQMessage message) {
+    public void emergencyHover(MQMessage message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
         if (flightMode != null) {
             switch (flightMode) {
@@ -1308,7 +1308,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置低电量阈值【15-50】
-    public void setLowBatteryWarningThreshold(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setLowBatteryWarningThreshold(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -1333,7 +1333,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置严重低电量阈值(该值默认为10%，Matrice 30 Series不可设置。)
-    public void setSeriousLowBatteryWarningThreshold(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setSeriousLowBatteryWarningThreshold(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -1358,7 +1358,7 @@ public class FlightManager extends BaseManager {
     }
 
     //设置智能低电量返航
-    public void setLowBatteryRTHEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setLowBatteryRTHEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {

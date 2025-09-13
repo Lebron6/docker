@@ -8,6 +8,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
@@ -36,17 +37,17 @@ public class SendStreamStartManager extends BaseManager {
     }
 
 
-    public void sendStreamStartMsg2Server(MqttAndroidClient client) {
+    public void sendStreamStartMsg2Server() {
 //        if (isSendStreamStartSuccess||sendStreamStartSuccessTimes >= maxRetries) {
         if (sendStreamStartSuccessTimes >= maxRetries) {
             LogUtil.log(TAG, "达到最大重试次数或已发送开始推流"+isSendStreamStartSuccess+sendStreamStartSuccessTimes);
             return;
         }
         try {
-            if (client.isConnected()) {
-                sendStreamStartMessage(client);
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                sendStreamStartMessage(MqttManager.getInstance().mqttAndroidClient);
             } else {
-                handleNotConnected(client);
+                handleNotConnected(MqttManager.getInstance().mqttAndroidClient);
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "开始推流发送异常：" + e.toString());
@@ -91,7 +92,7 @@ public class SendStreamStartManager extends BaseManager {
     private void retrySend(MqttAndroidClient client) {
         sendStreamStartSuccessTimes++;
         if (sendStreamStartSuccessTimes < maxRetries) {
-            mainHandler.postDelayed(() -> sendStreamStartMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendStreamStartMsg2Server(), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，开始推流发送失败：" + sendStreamStartSuccessTimes);
         }
@@ -100,7 +101,7 @@ public class SendStreamStartManager extends BaseManager {
     private void handleNotConnected(MqttAndroidClient client) {
         if (!isSendStreamStartSuccess && sendStreamStartSuccessTimes < maxRetries) {
             sendStreamStartSuccessTimes++;
-            mainHandler.postDelayed(() -> sendStreamStartMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendStreamStartMsg2Server(), 2000);
             LogUtil.log(TAG, "开始推流发送失败：mqtt未连接" + "--" + sendStreamStartSuccessTimes);
         } else {
             LogUtil.log(TAG, "开始推流发送失败：" + sendStreamStartSuccessTimes);

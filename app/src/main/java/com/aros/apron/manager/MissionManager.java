@@ -255,7 +255,7 @@ public class MissionManager extends BaseManager {
                                             LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
                                             Movement.getInstance().setTaskFail(true);
                                             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                            DroneStorageManager.getInstance().sendDroneStorageMsg2Server(MqttManager.getInstance().mqttAndroidClient, -1);
+                                            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
                                             sendMissionExecuteEvents( "任务非正常结束");
                                         }
                                     }
@@ -353,7 +353,7 @@ public class MissionManager extends BaseManager {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        resumeMission(null, null);
+                                        resumeMission(null);
                                     }
                                 }, 1000);
                             } else {
@@ -388,14 +388,14 @@ public class MissionManager extends BaseManager {
 
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    public void startTaskProcess(MqttAndroidClient client, MQMessage message) {
+    public void startTaskProcess(MQMessage message) {
         this.message = message;
         if (!TextUtils.isEmpty(Movement.getInstance().getWarningMessage())&&
                 Movement.getInstance().getWarningMessage().equals("camera进程异常")){
             if (!message.isNewRoute() && !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
             sendMissionExecuteEvents( "挂载相机进程异常,获取图传失败");
             LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
@@ -407,7 +407,7 @@ public class MissionManager extends BaseManager {
             if (!message.isNewRoute() && !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
             sendMissionExecuteEvents( "任务执行失败,电量过低");
             LogUtil.log(TAG, "任务执行失败,电量过低");
@@ -420,7 +420,7 @@ public class MissionManager extends BaseManager {
                             !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
             sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
             LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
@@ -429,11 +429,11 @@ public class MissionManager extends BaseManager {
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if ((missionStateCode == 2 || missionStateCode == 0) && Movement.getInstance().isRtkSign() &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
-                downLoadKMZFile(client, message);
+                downLoadKMZFile(message);
                 sendMissionExecuteEvents( "执行任务下载 ");
             } else {
                 sendMissionExecuteEvents( "飞行器自检中 ");
-                verifyAircraftStatus(client, message);
+                verifyAircraftStatus(message);
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
@@ -448,26 +448,26 @@ public class MissionManager extends BaseManager {
                     mainHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            downLoadKMZFile(client, message);
+                            downLoadKMZFile(message);
                         }
                     }, 1000);
                 } else {
-                    downLoadKMZFile(client, message);
+                    downLoadKMZFile(message);
                 }
             } else {
                 sendMissionExecuteEvents( "飞行器自检中 ");
-                verifyAircraftStatus(client, message);
+                verifyAircraftStatus(message);
             }
         }
     }
 
     //等待航线任务状态更新或RTK健康状态刷新
-    private void verifyAircraftStatus(MqttAndroidClient client, MQMessage message) {
-        if (checkMissionStateTimes < 100) {
+    private void verifyAircraftStatus(MQMessage message) {
+        if (checkMissionStateTimes < 150) {
             mainHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    startTaskProcess(client, message);
+                    startTaskProcess(message);
                     checkMissionStateTimes++;
                     LogUtil.log(TAG, "航线状态第" + checkMissionStateTimes + "次检索失败:" +
                             WaypointMissionExecuteState.find(missionStateCode).name() +
@@ -480,7 +480,7 @@ public class MissionManager extends BaseManager {
             if (!message.isNewRoute()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
 
                 LogUtil.log(TAG, "飞行器自检异常:发送关机通知");
                 if (PreferenceUtils.getInstance().getHaveRTK()) {
@@ -506,7 +506,7 @@ public class MissionManager extends BaseManager {
         }
     }
 
-    public void downLoadKMZFile(MqttAndroidClient client, MQMessage message) {
+    public void downLoadKMZFile(MQMessage message) {
         if (!TextUtils.isEmpty(message.getKmz_url())) {
             Movement.getInstance().setFlightPathName(message.getFlight_name());
             Request request = new Request.Builder().url(message.getKmz_url()).build();
@@ -518,7 +518,7 @@ public class MissionManager extends BaseManager {
                     if (!message.isNewRoute()) {
                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                         Movement.getInstance().setTaskFail(true);
-                        DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                        DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
                         sendMissionExecuteEvents( "任务下载失败:"+ e.toString());
                     } else {
                         sendMissionExecuteEvents( "指点任务下载失败:"+ e.toString());
@@ -550,7 +550,7 @@ public class MissionManager extends BaseManager {
                             mainHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    pushKMZFileToAircraft(client, message);
+                                    pushKMZFileToAircraft(message);
                                 }
                             });
                             checkMissionStateTimes = 0;
@@ -560,7 +560,7 @@ public class MissionManager extends BaseManager {
                             if (!message.isNewRoute()) {
                                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                 Movement.getInstance().setTaskFail(true);
-                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
                             }
                         } finally {
                             try {
@@ -613,7 +613,7 @@ public class MissionManager extends BaseManager {
     public boolean isPushKMZSuccess;
 
 
-    public void pushKMZFileToAircraft(MqttAndroidClient client, MQMessage message) {
+    public void pushKMZFileToAircraft(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -688,7 +688,7 @@ public class MissionManager extends BaseManager {
                     mainHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            startMission(client, message);
+                            startMission( message);
                             pushKMZFileTimes = 0;
                         }
                     }, 2000);
@@ -706,7 +706,7 @@ public class MissionManager extends BaseManager {
                                     public void run() {
                                         LogUtil.log(TAG, "上传航线第" + pushKMZFileTimes + "次失败,重新上传" + ":" + new Gson().toJson(error));
                                         pushKMZFileTimes++;
-                                        pushKMZFileToAircraft(client, message);
+                                        pushKMZFileToAircraft(message);
                                     }
                                 }, 3000);
                             } else {
@@ -716,7 +716,7 @@ public class MissionManager extends BaseManager {
                             if (!message.isNewRoute()) {
                                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                 Movement.getInstance().setTaskFail(true);
-                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
                                 sendMissionExecuteEvents( "任务上传失败,执行关机");
                                 LogUtil.log(TAG, "航线第" + pushKMZFileTimes + "次上传失败,直接关机");
                             } else {
@@ -740,7 +740,7 @@ public class MissionManager extends BaseManager {
     private int startMissionFailTimes = 0;
     private boolean isMissionStart = false;
 
-    public void startMission(MqttAndroidClient client, MQMessage message) {
+    public void startMission(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -771,7 +771,7 @@ public class MissionManager extends BaseManager {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        startMission(client, message);
+                                        startMission(message);
                                         LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:" + Movement.getInstance().getGPSSignalLevel() + "---" + new Gson().toJson(error));
                                         startMissionFailTimes++;
                                     }
@@ -782,7 +782,7 @@ public class MissionManager extends BaseManager {
                                                 !Movement.getInstance().isPlaneWing()) {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                     Movement.getInstance().setTaskFail(true);
-                                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(client, -1);
+                                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
                                     sendMissionExecuteEvents( "任务开始失败,执行关机:" + Movement.getInstance().getGPSSignalLevel());
                                     LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
                                 } else {
@@ -804,7 +804,7 @@ public class MissionManager extends BaseManager {
 
     private boolean isManualPause;
 
-    public void pauseMission(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void pauseMission(MQMessage message) {
         //暂停前将index保存
         PreferenceUtils.getInstance().setPauseIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
@@ -815,7 +815,7 @@ public class MissionManager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server( message);
-                    sendPausePosition2Server(mqttAndroidClient);
+                    sendPausePosition2Server();
 
                     LogUtil.log(TAG, "航线暂停成功");
                     Movement.getInstance().setFlightPathStatus(1);
@@ -833,7 +833,7 @@ public class MissionManager extends BaseManager {
         }
     }
 
-    public void resumeMission(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void resumeMission(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -841,7 +841,7 @@ public class MissionManager extends BaseManager {
             missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    if (mqttAndroidClient != null && message != null) {
+                    if (message != null) {
                         sendMsg2Server( message);
                     }
                     LogUtil.log(TAG, "航线继续成功");
@@ -850,7 +850,7 @@ public class MissionManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    if (mqttAndroidClient != null && message != null) {
+                    if (message != null) {
                         sendMsg2Server( message, "航线继续失败:" + getIDJIErrorMsg(error));
                     }
                     LogUtil.log(TAG, "航线继续失败:" + new Gson().toJson(error));
@@ -861,7 +861,7 @@ public class MissionManager extends BaseManager {
         }
     }
 
-    public void stopMission(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopMission(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -897,9 +897,9 @@ public class MissionManager extends BaseManager {
     }
 
     //收到暂停航线命令后，发送经纬度给后端
-    public void sendPausePosition2Server(MqttAndroidClient client) {
+    public void sendPausePosition2Server() {
         try {
-            if (client.isConnected()) {
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 MqttMessage mqttMessage = null;
                 MessageReply message = new MessageReply();
                 message.setMsg_type(60200);
@@ -910,7 +910,7 @@ public class MissionManager extends BaseManager {
                 message.setTask_id(PreferenceUtils.getInstance().getTaskId());
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
-                client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
                 LogUtil.log(TAG, "暂停航线发送经纬度成功");
             } else {
                 LogUtil.log(TAG, "暂停航线发送经纬度失败：mqtt 未连接");

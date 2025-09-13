@@ -72,7 +72,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             sendMissionExecuteEvents( "航线中断:拉高后返航");
         } else {
             LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight());
-            FlightManager.getInstance().startGoHome(null, null);
+            FlightManager.getInstance().startGoHome( null);
             sendMissionExecuteEvents( "航线中断:直接返航");
 
         }
@@ -128,14 +128,14 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                         public void onSuccess() {
                             LogUtil.log(TAG, "到达100米,取消虚拟摇杆控制并返航");
                             sendMissionExecuteEvents( "航线中断:到达指定高度,开始返航");
-                            FlightManager.getInstance().startGoHome(null, null);
+                            FlightManager.getInstance().startGoHome(null);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
                             sendMissionExecuteEvents( "航线中断:释放控制权失败,开始返航");
                             LogUtil.log(TAG, "到达80米,取消虚拟摇杆控制返航失败:" + new Gson().toJson(idjiError));
-                            FlightManager.getInstance().startGoHome(null, null);
+                            FlightManager.getInstance().startGoHome(null);
                         }
                     });
                     handler.removeCallbacks(this);

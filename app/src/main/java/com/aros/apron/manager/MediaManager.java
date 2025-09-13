@@ -462,7 +462,7 @@ public class MediaManager extends BaseManager {
     }
 
     // 写入 exif 信息
-    public void setMediaFileXMPCustomInfo(final MqttAndroidClient client, final MQMessage message) {
+    public void setMediaFileXMPCustomInfo(final MQMessage message) {
         MediaDataCenter.getInstance().getMediaManager().setMediaFileXMPCustomInfo(
                 message.getXmpInfo(),
                 new CommonCallbacks.CompletionCallback() {

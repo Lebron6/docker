@@ -52,7 +52,7 @@ public class StreamManager extends BaseManager {
         return StreamHolder.INSTANCE;
     }
 
-    public void sendReply2Server(MqttAndroidClient client, MQMessage message) {
+    public void sendReply2Server(MQMessage message) {
         sendMsg2Server( message);
     }
 
@@ -78,7 +78,7 @@ public class StreamManager extends BaseManager {
         }
     }
 
-    public void startLive(MqttAndroidClient client, MQMessage message) {
+    public void startLive(MQMessage message) {
 if (PreferenceUtils.getInstance().getIsCleanMode()) {
     sendMsg2Server( message, "纯净模式默认不推流");
     return;
@@ -114,7 +114,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                             public void onSuccess() {
                                 LogUtil.log(TAG, "推流成功");
                                 sendMsg2Server( message);
-                                SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+                                SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
 
                             }
 
@@ -142,7 +142,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                                     public void onSuccess() {
                                         LogUtil.log(TAG, "改变地址推流成功");
                                         sendMsg2Server( message);
-                                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(client);
+                                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
 
                                     }
 
@@ -167,7 +167,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
         }
     }
 
-    public void setLiveStreamQuality(MqttAndroidClient client, MQMessage message) {
+    public void setLiveStreamQuality(MQMessage message) {
         if (PreferenceUtils.getInstance().getIsCleanMode()) {
             sendMsg2Server( message, "纯净模式默认不推流");
             return;
@@ -188,7 +188,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
     }
 
 
-    public void switchCurrentView(MqttAndroidClient mqttAndroidClient, MQMessage message){
+    public void switchCurrentView(MQMessage message){
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             sendMsg2Server( message, "飞行器未连接");
@@ -241,7 +241,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                     public void onSuccess() {
                         LogUtil.log(TAG, "自定义推流启动成功");
                         isLiveStreamAlreadyStart=true;
-                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server(MqttManager.getInstance().mqttAndroidClient);
+                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
                     }
 
                     @Override
@@ -303,7 +303,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
                         public void onSuccess() {
                             LogUtil.log(TAG, "自定义推流启动成功");
                             isLiveStreamAlreadyStart=true;
-                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server(MqttManager.getInstance().mqttAndroidClient);
+                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
 
                         }
 
@@ -329,7 +329,7 @@ if (PreferenceUtils.getInstance().getIsCleanMode()) {
     }
 
 
-    public void stopLive(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void stopLive(MQMessage message) {
         if (PreferenceUtils.getInstance().getIsCleanMode()) {
             sendMsg2Server( message, "纯净模式默认不推流");
             return;

@@ -55,7 +55,7 @@ public class GimbalManager extends BaseManager {
 
 
     //用相对角度模式旋转云台
-    public void gimbalRotateByRelativeAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void gimbalRotateByRelativeAngle(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -90,7 +90,7 @@ public class GimbalManager extends BaseManager {
     }
 
 //    //用绝对角度模式旋转云台
-//    public void gimbalRotateByAbsoluteAngle(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//    public void gimbalRotateByAbsoluteAngle(MQMessage message) {
 //        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
 //                KeyConnection, 0));
 //        if (isConnect != null && isConnect) {
@@ -145,7 +145,7 @@ public class GimbalManager extends BaseManager {
     }
 
     //云台回中
-    public void gimbalResetWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
+    public void gimbalResetWithPitchAndYaw(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -169,7 +169,7 @@ public class GimbalManager extends BaseManager {
     }
 
     //云台偏航回中
-    public void gimbalResetWithYaw(MqttAndroidClient client, MQMessage message) {
+    public void gimbalResetWithYaw(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -193,7 +193,7 @@ public class GimbalManager extends BaseManager {
     }
 
     //偏航向下
-    public void gimbalDownWithPitch(MqttAndroidClient client, MQMessage message) {
+    public void gimbalDownWithPitch(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -222,7 +222,7 @@ public class GimbalManager extends BaseManager {
     }
 
     //云台朝下
-    public void gimbalDownWithPitchAndYaw(MqttAndroidClient client, MQMessage message) {
+    public void gimbalDownWithPitchAndYaw(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
@@ -250,7 +250,7 @@ public class GimbalManager extends BaseManager {
     }
 
     //设置云台控制的最大速度[1,100]
-    public void setGimbalControlMaxSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
+    public void setGimbalControlMaxSpeed( MQMessage
             message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, 0));
@@ -258,12 +258,12 @@ public class GimbalManager extends BaseManager {
             DJIKey<Integer> pitchKey = KeyTools.createKey(GimbalKey.KeyPitchControlMaxSpeed, 0);
             DJIKey<Integer> yawKey = KeyTools.createKey(GimbalKey.KeyYawControlMaxSpeed, 0);
             if (pitchKey != null) {
-                setGimbalControlSpeed(mqttAndroidClient, message, pitchKey, "云台俯仰控制速度设置失败:");
+                setGimbalControlSpeed(message, pitchKey, "云台俯仰控制速度设置失败:");
             } else {
                 LogUtil.log(TAG, "云台俯仰控制速度设置失败:pitchKey is null!");
             }
             if (yawKey != null) {
-                setGimbalControlSpeed(mqttAndroidClient, message, yawKey, "云台偏航控制速度设置失败:");
+                setGimbalControlSpeed(message, yawKey, "云台偏航控制速度设置失败:");
             } else {
                 LogUtil.log(TAG, "云台偏航控制速度设置失败:yawKey is null!");
             }
@@ -273,7 +273,7 @@ public class GimbalManager extends BaseManager {
     }
 
 
-    private void setGimbalControlSpeed(MqttAndroidClient mqttAndroidClient, MQMessage
+    private void setGimbalControlSpeed( MQMessage
             message, DJIKey<Integer> key, String errorMessage) {
         int value = message.getGimbalControlSpeed();
         KeyManager.getInstance().setValue(key, value, new CommonCallbacks.CompletionCallback() {
@@ -344,7 +344,7 @@ public class GimbalManager extends BaseManager {
 //    }
 //
 //    //设置云台缓启/停，范围：[0,30]，数值越大，控制云台俯仰轴启动/停止转动的缓冲距离越长。
-//    public void setSmoothingFactor(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+//    public void setSmoothingFactor(MQMessage message) {
 //        MQMessage.Data data = message.getData();
 //        if (data != null) {
 //            Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.

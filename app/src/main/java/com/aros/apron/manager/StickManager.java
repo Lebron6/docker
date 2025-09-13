@@ -78,7 +78,7 @@ public class StickManager extends BaseManager {
     }
 
     //设置虚拟摇杆控制权
-    public void setVirtualStickModeEnabled(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setVirtualStickModeEnabled(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
@@ -158,7 +158,7 @@ public class StickManager extends BaseManager {
     }
 
     //设置虚拟摇杆控制权
-    public void setVirtualStickModeDisable(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void setVirtualStickModeDisable(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
@@ -206,7 +206,7 @@ public class StickManager extends BaseManager {
     VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
-    public void sendVirtualStickAdvancedParam(MqttAndroidClient mqttAndroidClient, MQMessage message) {
+    public void sendVirtualStickAdvancedParam(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect ) {
             if (!getGimbalAndCameraEnabled()){
