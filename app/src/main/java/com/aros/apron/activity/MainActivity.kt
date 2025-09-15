@@ -13,10 +13,13 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.aros.apron.BuildConfig
 import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
@@ -45,12 +48,15 @@ import com.aros.apron.manager.RemoteManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
+import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
+import com.aros.apron.tools.BaseViewModel
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.TestViewModel
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
@@ -113,6 +119,8 @@ import dji.v5.ux.visualcamera.zoom.FocalZoomWidget
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.Consumer
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -313,6 +321,8 @@ open class MainActivity : BaseActivity() {
         btn_test.setOnClickListener {
 
 
+            test()
+
 //            var message=MQMessage().apply {
 //                msg_type=60666
 //                upload_url="http://223.108.157.174:9000"
@@ -378,8 +388,19 @@ open class MainActivity : BaseActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
         //实现RTK监测网络，并自动重连机制
         DJINetworkManager.getInstance().addNetworkStatusListener(networkStatusListener)
-
+// 使用 ViewModelProvider 获取实例
+        testViewModel = ViewModelProvider(this)[TestViewModel::class.java]
     }
+
+    private lateinit var testViewModel: TestViewModel
+    private fun test(){
+        lifecycleScope.launch {
+            val error =testViewModel.enableVirtualStick()
+            if(error == null){
+                testViewModel.setVirtualStickAdvancedModeEnabled(true)
+                delay( timeMillis= 1000)
+            testViewModel.performSwingSequence()
+            }}}
 
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
