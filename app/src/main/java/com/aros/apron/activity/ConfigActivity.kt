@@ -120,7 +120,7 @@ class ConfigActivity : BaseActivity() {
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
 
         configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().cameraLocationType ==1//中间
-        configBinding.rbCameraLeft.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//左边
+        configBinding.rbCameraRight.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//右边
         configBinding.btnConfig.setOnClickListener { config() }
 
 
@@ -227,7 +227,7 @@ class ConfigActivity : BaseActivity() {
             }
         }
 
-        if (!configBinding.rbCameraLeft.isChecked && !configBinding.rbCameraCenter.isChecked) {
+        if (!configBinding.rbCameraRight.isChecked && !configBinding.rbCameraCenter.isChecked) {
             ToastUtil.showToast("未配置主相机位置")
             return
         }

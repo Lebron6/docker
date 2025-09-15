@@ -699,10 +699,10 @@
                         android:orientation="horizontal">
 
                         <RadioButton
-                            android:id="@+id/rb_camera_left"
+                            android:id="@+id/rb_camera_right"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="左侧" />
+                            android:text="右侧" />
 
                         <RadioButton
                             android:id="@+id/rb_camera_center"
