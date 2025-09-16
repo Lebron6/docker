@@ -593,7 +593,6 @@ open class MainActivity : BaseActivity() {
             GimbalManager.getInstance().initGimbalInfo()
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
             RemoteManager.getInstance().initRemoteInfo()
-            ApronArucoDetect.getInstance().init()
             PayloadWidgetManager.getInstance().initPayloadInfo()
 
             if (PreferenceUtils.getInstance().lteEnable){
@@ -696,6 +695,8 @@ open class MainActivity : BaseActivity() {
         override fun onManagerConnected(status: Int) {
             if (status == SUCCESS) {
                 LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
+                ApronArucoDetect.getInstance().init()
+
             } else {
                 super.onManagerConnected(status)
             }
