@@ -21,6 +21,7 @@ import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.entity.MQMessage
+import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
@@ -306,7 +307,7 @@ open class MainActivity : BaseActivity() {
         } else if (cameraList.contains(ComponentIndexType.PORT_2)) {
             return ComponentIndexType.PORT_2
         } else if (cameraList.contains(ComponentIndexType.PORT_3)) {
-            return ComponentIndexType.PORT_4
+            return ComponentIndexType.PORT_3
         } else if (cameraList.contains(ComponentIndexType.PORT_4)) {
             return ComponentIndexType.PORT_4
         } else if (cameraList.contains(ComponentIndexType.VISION_ASSIST)) {
@@ -668,6 +669,7 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.PORT_1,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
+            Movement.getInstance().isVtx=true
             //检测到图传
             streamReceive=true
 //            if (shouldExecute) {

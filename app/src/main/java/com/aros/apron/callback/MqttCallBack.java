@@ -99,6 +99,18 @@ public class MqttCallBack implements MqttCallbackExtended {
                         if (isReceiverMission == false) {
                             isReceiverMission = true;
                             // 1.收到60003直接回复
+                            //此处没获取到图传，重启AMS，需要增加重启次数限制
+                            if (!Movement.getInstance().isVtx()){
+                                if (PreferenceUtils.getInstance().getRestartAMSTimes()<5){
+                                    PreferenceUtils.getInstance().setRestartAMSTimes(PreferenceUtils.getInstance().getRestartAMSTimes()+1);
+                                    LogUtil.log(TAG,"未检测到图传,重启AMS第+"+PreferenceUtils.getInstance().getRestartAMSTimes()+"次");
+                                    RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
+                                    return;
+                                }
+                            }else{
+                                PreferenceUtils.getInstance().setRestartAMSTimes(0);
+                                LogUtil.log(TAG,"图传正常");
+                            }
                             StreamManager.getInstance().sendReply2Server( message);
                             //2.检查航线参数
                             if (!SystemManager.getInstance().checkMissionParameter(message)){

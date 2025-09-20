@@ -68,6 +68,7 @@ public class PreferenceUtils extends BasePreference {
     private String IS_NEW_ROUTE = "is_new_route";
     private String MISSION_TYPE = "mission_type";
     private String PAUSE_WAYPOINT_INDEX = "pause_index";//暂停航线前记录index，暂停成功后将下标推送给服务器
+    private String RESTART_AMS_TIMES = "restart_ams_times";//每次收到航线可能图传不会过来，需要重启app，记录重启次数，最大重启5次
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
 //    public void setStreamAndMinIOConfig(MQMessage message) {
@@ -478,6 +479,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setMissionType(int missionType) {
         setInt(MISSION_TYPE, missionType);
+    }
+
+    public int getRestartAMSTimes() {
+        return getInt(RESTART_AMS_TIMES);
+    }
+
+    public void setRestartAMSTimes(int restartAMSTimes) {
+        setInt(RESTART_AMS_TIMES, restartAMSTimes);
     }
 
     private PreferenceUtils(Context context) {

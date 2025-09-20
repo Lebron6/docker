@@ -513,12 +513,17 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                         sendMissionExecuteEvents( "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                     } else {
+                        LogUtil.log(TAG,  "飞行器自检异常:" + "航线状态:"+WaypointMissionExecuteState.find(missionStateCode).name()+"  "+Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
+                        sendMissionExecuteEvents( "飞行器自检异常:" + "航线状态:"+WaypointMissionExecuteState.find(missionStateCode).name()+"  "+Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
+                    }
+                } else {
+                    if (!(missionStateCode == 2 || missionStateCode == 0)) {
+                        LogUtil.log(TAG, "飞行器航线状态未知:" + WaypointMissionExecuteState.find(missionStateCode).name());
+                        sendMissionExecuteEvents( "飞行器航线状态未知:" + WaypointMissionExecuteState.find(missionStateCode).name());
+                    }else{
                         LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
                         sendMissionExecuteEvents( "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
                     }
-                } else {
-                    LogUtil.log(TAG, "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
-                    sendMissionExecuteEvents( "飞行器自检异常:" + Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
                 }
 
             } else {
