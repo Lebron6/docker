@@ -128,6 +128,15 @@ public class Movement {
     private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
     private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
     private boolean propellerRotation;//飞机是否正在低速慢转桨
+    private boolean vtx;//检查图传是否正常
+
+    public boolean isVtx() {
+        return vtx;
+    }
+
+    public void setVtx(boolean vtx) {
+        this.vtx = vtx;
+    }
 
     public boolean isPropellerRotation() {
         return propellerRotation;
