@@ -289,7 +289,7 @@ public class MissionManager extends BaseManager {
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
-
+                LogUtil.log(TAG,"进入第"+excutingWaylineInfo.getCurrentWaypointIndex()+"个航点");
                 //判断航线状态为EXECUTING，且当前index发生变化，且不在指点任务时，发送到达航点
                 if (!PreferenceUtils.getInstance().getIsNewRoute()) {
                     if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
