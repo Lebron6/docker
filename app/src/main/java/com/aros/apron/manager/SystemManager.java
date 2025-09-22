@@ -72,10 +72,10 @@ public class SystemManager extends BaseManager {
                 CameraKey.KeyCameraType,
                 ComponentIndexType.LEFT_OR_MAIN
         ));
-        if (isConnect == null || !isConnect || cameraType==null||cameraType == CameraType.NOT_SUPPORTED) {
+        if (isConnect == null || !isConnect || cameraType==null||cameraType == CameraType.NOT_SUPPORTED||!Movement.getInstance().isVtx()) {
             sendMissionExecuteEvents( "设备连接异常");
             LogUtil.log(TAG, "设备连接异常,直接入库："+new Gson().toJson(message));
-            DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
+            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
             Movement.getInstance().setTaskFail(true);
             return false;

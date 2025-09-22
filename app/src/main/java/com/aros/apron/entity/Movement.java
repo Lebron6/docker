@@ -126,6 +126,15 @@ public class Movement {
     private String remoteBatteryPercent;//遥控器剩余电量百分比
     private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
     private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
+    private boolean vtx;//检查图传是否正常
+
+    public boolean isVtx() {
+        return vtx;
+    }
+
+    public void setVtx(boolean vtx) {
+        this.vtx = vtx;
+    }
 
     public List<PayloadInfo> getPayloadInfos() {
         return payloadInfos;

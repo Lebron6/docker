@@ -300,7 +300,7 @@ public class FlightManager extends BaseManager {
                                                     .getLocation().getLatitude().toString(),
                                             String.valueOf(newValue.getLongitude()),
                                             String.valueOf(newValue.getLatitude()));
-                                    if (pointDistance>3) {
+                                    if (pointDistance>5) {
                                         waypointIndexAlreadySend = indexInWaypoints;
                                         if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
                                             sendCustomReachOrLeave2Server( "1",

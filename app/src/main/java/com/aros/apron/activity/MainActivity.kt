@@ -4,16 +4,13 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
@@ -25,7 +22,6 @@ import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.databinding.ActivityMainBinding
-import com.aros.apron.entity.CurrentWayline
 import com.aros.apron.entity.MQMessage
 import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
@@ -48,10 +44,8 @@ import com.aros.apron.manager.RemoteManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WayLineExecutingInterruptManager
-import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
-import com.aros.apron.tools.BaseViewModel
 import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.MqttManager
@@ -68,15 +62,12 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
-import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithProgress
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
-import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager
 import dji.v5.manager.datacenter.MediaDataCenter
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
-import dji.v5.manager.interfaces.IWaypointMissionManager
 import dji.v5.network.DJINetworkManager
 import dji.v5.network.IDJINetworkStatusListener
 import dji.v5.utils.common.JsonUtil
@@ -121,7 +112,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.functions.Consumer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.eclipse.paho.client.mqttv3.MqttException
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.opencv.android.BaseLoaderCallback
@@ -503,6 +493,8 @@ open class MainActivity : BaseActivity() {
             ComponentIndexType.LEFT_OR_MAIN,
             ICameraStreamManager.FrameFormat.YUV420_888
         ) { frameData, _, _, width, height, _ ->
+            Movement.getInstance().isVtx=true
+
 //            if (shouldExecute) {
                 if (startArucoType == 1) {
 

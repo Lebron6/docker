@@ -1,5 +1,8 @@
 package com.aros.apron.base;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
@@ -12,6 +15,9 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public abstract class BaseManager {
 
@@ -197,19 +203,70 @@ public abstract class BaseManager {
         }
     }
 
-    //自定义到达/离开航点的事件
-    public void sendCustomReachOrLeave2Server(String data,String index) {
+    private static final long MIN_INTERVAL = 1000; // 1秒最小间隔
+    private long lastExecutionTime = 0;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Queue<Runnable> taskQueue = new LinkedList<>();
+    private boolean isProcessing = false;
+
+    public void sendCustomReachOrLeave2Server(String data, String index) {
+        // 将每次调用封装为任务，加入队列
+        Runnable task = () -> executeTask(data, index);
+        synchronized (taskQueue) {
+            taskQueue.offer(task);
+            // 如果没有正在处理，尝试启动处理
+            if (!isProcessing) {
+                processQueue();
+            }
+        }
+    }
+
+    private void processQueue() {
+        synchronized (taskQueue) {
+            if (isProcessing) return;
+            Runnable task = taskQueue.poll();
+            if (task == null) return;
+
+            long currentTime = System.currentTimeMillis();
+            long timeSinceLast = currentTime - lastExecutionTime;
+            long delay = timeSinceLast < MIN_INTERVAL ? MIN_INTERVAL - timeSinceLast : 0;
+
+            isProcessing = true;
+
+            if (delay <= 0) {
+                // 可以立即执行
+                task.run();
+                lastExecutionTime = System.currentTimeMillis();
+                isProcessing = false;
+                // 继续处理下一个
+                processQueue();
+            } else {
+                // 需要延迟执行
+                handler.postDelayed(() -> {
+                    task.run();
+                    lastExecutionTime = System.currentTimeMillis();
+                    synchronized (taskQueue) {
+                        isProcessing = false;
+                        processQueue(); // 继续处理下一个任务
+                    }
+                }, delay);
+            }
+        }
+    }
+
+    // 实际执行逻辑
+    private void executeTask(String data, String index) {
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-                MqttMessage mqttMessage = null;
                 MessageReply message = new MessageReply();
                 message.setMsg_type(60203);
                 message.setResult(1);
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
-                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
-                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
+                MqttManager.getInstance().mqttAndroidClient.publish(
+                        AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
             }
