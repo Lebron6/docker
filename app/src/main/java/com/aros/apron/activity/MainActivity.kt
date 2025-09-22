@@ -831,8 +831,4 @@ open class MainActivity : BaseActivity() {
         }
     }
 
-
-
-
-
 }
