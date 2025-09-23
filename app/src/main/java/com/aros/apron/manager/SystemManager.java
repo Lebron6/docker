@@ -2,11 +2,9 @@ package com.aros.apron.manager;
 
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-
 import com.aros.apron.activity.MainActivity;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
@@ -15,16 +13,12 @@ import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
-
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.manager.KeyManager;
-
 
 public class SystemManager extends BaseManager {
 
