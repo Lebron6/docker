@@ -536,7 +536,7 @@ open class MainActivity : BaseActivity() {
                 mqttAndroidClient.unregisterResources()
                 mqttAndroidClient.disconnect() //断开连接
             }
-        } catch (e: MqttException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         MediaDataCenter.getInstance().cameraStreamManager.removeAvailableCameraUpdatedListener(
