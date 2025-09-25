@@ -64,6 +64,8 @@ import dji.v5.manager.diagnostic.DJIDeviceHealthInfo;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfoChangeListener;
 import dji.v5.manager.diagnostic.DJIDeviceStatus;
 import dji.v5.manager.diagnostic.DJIDeviceStatusChangeListener;
+import dji.v5.manager.intelligent.smarttrack.ISmartTrackMissionManager;
+import dji.v5.manager.intelligent.smarttrack.SmartTrackMissionManager;
 import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
@@ -168,6 +170,14 @@ public class FlightManager extends BaseManager {
                         isFlying = newValue;
                         Movement.getInstance().setPlaneWing(newValue);
                         pushFlightAttitude();
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyIsFlying), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
+                    if (newValue != null) {
                     }
                 }
             });
@@ -1390,4 +1400,6 @@ public class FlightManager extends BaseManager {
         // 在 waypoints 中查找该元素的索引
         return CurrentWayline.getInstance().getWaypoints().indexOf(waylineExecuteWaypoint);
     }
+
+
 }
