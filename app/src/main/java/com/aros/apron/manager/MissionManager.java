@@ -476,6 +476,11 @@ public class MissionManager extends BaseManager {
                             "-RTK解算:" + Movement.getInstance().isRtkSign() + "-飞行器状态" +
                             Movement.getInstance().getPlaneMessage() +
                             "-GPS信号等级:" + Movement.getInstance().getGPSSignalLevel());
+                    sendMissionExecuteEvents( "航线状态第" + checkMissionStateTimes + "次检索失败:" +
+                            WaypointMissionExecuteState.find(missionStateCode).name() +
+                            "-RTK:" + Movement.getInstance().isRtkSign() + "-飞行器状态:" +
+                            Movement.getInstance().getPlaneMessage() +
+                            "-GPS信号等级:" + Movement.getInstance().getGPSSignalLevel());
                 }
             }, 2000);
         } else {
