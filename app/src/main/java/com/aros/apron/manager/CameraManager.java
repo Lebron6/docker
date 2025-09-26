@@ -212,33 +212,23 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
-            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraZoomRatiosRange,ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatiosRange, ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), this, new CommonCallbacks.KeyListener<ZoomRatiosRange>() {
                 @Override
-                public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
-                    if (zoomRatiosRange != null) {
+                public void onValueChange(@Nullable ZoomRatiosRange zoomRatiosRange, @Nullable ZoomRatiosRange t1) {
+                    if (t1!=null){
                         Movement.getInstance().setContinuous(zoomRatiosRange.isContinuous());
                         Movement.getInstance().setGears(zoomRatiosRange.getGears());
                     }
                 }
-
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-
-                }
             });
 
-            KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyThermalZoomRatiosRange,ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<ZoomRatiosRange>() {
+            KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatiosRange, ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<ZoomRatiosRange>() {
                 @Override
-                public void onSuccess(ZoomRatiosRange zoomRatiosRange) {
-                    if (zoomRatiosRange != null) {
+                public void onValueChange(@Nullable ZoomRatiosRange zoomRatiosRange, @Nullable ZoomRatiosRange t1) {
+                    if (t1!=null){
                         Movement.getInstance().setThermalContinuous(zoomRatiosRange.isContinuous());
                         Movement.getInstance().setThermalGears(zoomRatiosRange.getGears());
                     }
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError idjiError) {
-
                 }
             });
 
@@ -749,7 +739,7 @@ public void setCameraFocusMode(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection,ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyFormatStorage), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyFormatStorage,ComponentIndexType.PORT_1), CameraStorageLocation.SDCARD, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     if (message!=null){

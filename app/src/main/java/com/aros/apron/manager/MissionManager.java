@@ -409,7 +409,7 @@ public class MissionManager extends BaseManager {
             if (!message.isNewRoute() && !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
             mainHandler.postDelayed(new Runnable() {
                 @Override
@@ -418,6 +418,7 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
                 }
             },1000);
+
             return;
         }
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
@@ -435,6 +436,7 @@ public class MissionManager extends BaseManager {
                     LogUtil.log(TAG, "任务执行失败,电量过低");
                 }
             },1000);
+
             return;
         }
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
@@ -444,10 +446,15 @@ public class MissionManager extends BaseManager {
                             !Movement.getInstance().isPlaneWing()) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 Movement.getInstance().setTaskFail(true);
-                DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
+                DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
-            sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
-            LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
+                    LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
+                }
+            },1000);
             return;
         }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
