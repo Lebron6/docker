@@ -5,6 +5,7 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -216,10 +217,7 @@ public class MediaManager extends BaseManager {
 
         String filePath = getSDCardPath() + mediaFileDir + "/" + mediaFile.getFileName();
         File file = new File(filePath);
-        long offset = 0L;
-        if (file.exists()) {
-            offset = file.length();
-        }
+
 
         try {
             FileOutputStream outputStream = new FileOutputStream(file, true);
@@ -250,8 +248,16 @@ public class MediaManager extends BaseManager {
 
                 @Override
                 public void onFinish() {
-                    LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " downloaded successfully.");
-                    minIOUpLoad(file, mediaFile);
+                    LogUtil.log(TAG, "File:" + downLoadMediaFileIndex+"fileName:"+mediaFile.getFileName() + " downloaded successfully.");
+
+                    if (file.length()>1000000000){
+                        mainHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                minIOUpLoad(file, mediaFile);
+                            }
+                        },2000);
+                    }
                     try {
                         outputStream.close();
                         bos.close();
@@ -286,9 +292,12 @@ public class MediaManager extends BaseManager {
             return PreferenceUtils.getInstance().getSecretKey(); // minio的密钥
         }
     }, Region.getRegion(Regions.US_EAST_1), new ClientConfiguration());
+    final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @RequiresApi(Build.VERSION_CODES.O)
     public void minIOUpLoad(final File file, final MediaFile mediaFile) {
+
+        LogUtil.log(TAG, "文件路径=" + file.getAbsolutePath() + ", 文件大小=" + file.length());
         Observable.create(new ObservableOnSubscribe<String>() {
                     @Override
                     public void subscribe(ObservableEmitter<String> emitter) throws Exception {
@@ -303,7 +312,7 @@ public class MediaManager extends BaseManager {
                         s3.putObject(
                                 new PutObjectRequest(
                                         PreferenceUtils.getInstance().getBucketName(),
-                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" +
+                                         PreferenceUtils.getInstance().getObjectKey() + "/" +
                                                 PreferenceUtils.getInstance().getTaskId() + "/" + mediaFile.getFileName(),
                                         file
                                 ).withProgressListener(new ProgressListener() {
@@ -328,6 +337,7 @@ public class MediaManager extends BaseManager {
                                             case ProgressEvent.RESET_EVENT_CODE:
                                                 LogUtil.log(TAG, "Upload reset for file " + downLoadMediaFileIndex);
                                                 break;
+
                                         }
                                     }
                                 })

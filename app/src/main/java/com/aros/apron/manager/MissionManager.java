@@ -283,6 +283,9 @@ public class MissionManager extends BaseManager {
     WaylineExecutingInfoListener waylineExecutingInfoListener = new WaylineExecutingInfoListener() {
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
+            if (excutingWaylineInfo!=null){
+                LogUtil.log(TAG,"监听航线变化"+new Gson().toJson(excutingWaylineInfo)+"当前航点:"+excutingWaylineInfo.getCurrentWaypointIndex());
+            }
             if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
                 LogUtil.log(TAG,"进入第"+excutingWaylineInfo.getCurrentWaypointIndex()+"个航点");
@@ -399,8 +402,14 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
-            sendMissionExecuteEvents( "挂载相机进程异常,获取图传失败");
-            LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMissionExecuteEvents( "挂载相机进程异常,获取图传失败");
+                    LogUtil.log(TAG, "任务执行失败,挂载相机进程异常,获取图传失败");
+                }
+            },1000);
+
             return;
         }
         Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
@@ -411,8 +420,14 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
-            sendMissionExecuteEvents( "任务执行失败,电量过低");
-            LogUtil.log(TAG, "任务执行失败,电量过低");
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMissionExecuteEvents( "任务执行失败,电量过低");
+                    LogUtil.log(TAG, "任务执行失败,电量过低");
+                }
+            },1000);
+
             return;
         }
         RemoteControllerFlightMode remoteControllerFlightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
@@ -424,8 +439,13 @@ public class MissionManager extends BaseManager {
                 Movement.getInstance().setTaskFail(true);
                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
             }
-            sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
-            LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
+                    LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
+                }
+            },1000);
             return;
         }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
