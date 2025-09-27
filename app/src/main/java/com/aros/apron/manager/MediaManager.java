@@ -12,10 +12,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ProgressEvent;
 import com.amazonaws.services.s3.model.ProgressListener;
@@ -52,6 +54,7 @@ import dji.v5.manager.datacenter.media.MediaFileDownloadListener;
 import dji.v5.manager.datacenter.media.MediaFileListState;
 import dji.v5.manager.datacenter.media.MediaFileListStateListener;
 import dji.v5.manager.datacenter.media.PullMediaFileListParam;
+import dji.v5.ux.core.util.CommonUtils;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
@@ -296,7 +299,6 @@ public class MediaManager extends BaseManager {
 
     @RequiresApi(Build.VERSION_CODES.O)
     public void minIOUpLoad(final File file, final MediaFile mediaFile) {
-
         LogUtil.log(TAG, "文件路径=" + file.getAbsolutePath() + ", 文件大小=" + file.length());
         Observable.create(new ObservableOnSubscribe<String>() {
                     @Override
@@ -416,6 +418,7 @@ public class MediaManager extends BaseManager {
                         }
                     }
                 });
+
     }
 
     public void removeAllFiles() {
