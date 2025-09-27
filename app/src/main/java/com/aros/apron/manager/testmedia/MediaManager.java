@@ -1,4 +1,4 @@
-package com.aros.apron.manager;
+package com.aros.apron.manager.testmedia;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
@@ -8,16 +8,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ProgressEvent;
 import com.amazonaws.services.s3.model.ProgressListener;
@@ -27,11 +27,9 @@ import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -54,7 +52,6 @@ import dji.v5.manager.datacenter.media.MediaFileDownloadListener;
 import dji.v5.manager.datacenter.media.MediaFileListState;
 import dji.v5.manager.datacenter.media.MediaFileListStateListener;
 import dji.v5.manager.datacenter.media.PullMediaFileListParam;
-import dji.v5.ux.core.util.CommonUtils;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
@@ -78,7 +75,7 @@ public class MediaManager extends BaseManager {
     }
 
     public static MediaManager getInstance() {
-        return MediaManager.MediaManagerHolder.INSTANCE;
+        return MediaManagerHolder.INSTANCE;
     }
 
     public  void init() {
@@ -224,7 +221,6 @@ public class MediaManager extends BaseManager {
 
         try {
             FileOutputStream outputStream = new FileOutputStream(file, true);
-            long beginTime = System.currentTimeMillis();
             BufferedOutputStream bos = new BufferedOutputStream(outputStream);
 
             mediaFile.pullOriginalMediaFileFromCamera(0L, new MediaFileDownloadListener() {
@@ -252,16 +248,14 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onFinish() {
                     LogUtil.log(TAG, "File:" + downLoadMediaFileIndex+"fileName:"+mediaFile.getFileName() + " downloaded successfully.");
-
-                    if (file.length()>1000000000){
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                minIOUpLoad(file, mediaFile);
-                            }
-                        },2000);
-                    }else{
-                        minIOUpLoad(file, mediaFile);
+                    downLoadMediaFileIndex++;
+                    if (downLoadMediaFileIndex == mediaFiles.size()) {
+                        // 所有文件已拉到Android客户端
+                        sendMissionExecuteEvents( "媒体文件已拉取完毕");
+                        removeAllFiles();
+                        downLoadMediaFileIndex = 0;
+                    } else {
+                        pullOriginalMediaFileFromCamera();
                     }
                     try {
                         outputStream.close();
@@ -275,9 +269,16 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
-                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                     sendMissionExecuteEvents( "第" + downLoadMediaFileIndex + "个文件下载失败");
-                    downLoadMediaFileIndex = 0;
+                    downLoadMediaFileIndex++;
+                    if (downLoadMediaFileIndex == mediaFiles.size()) {
+                        // 所有文件已拉到Android客户端
+                        sendMissionExecuteEvents( "媒体文件已拉取错误");
+                        removeAllFiles();
+                        downLoadMediaFileIndex = 0;
+                    } else {
+                        pullOriginalMediaFileFromCamera();
+                    }
                 }
             });
 
