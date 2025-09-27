@@ -313,7 +313,7 @@ public class CameraManager extends BaseManager {
                 sendMsg2Server( message, "参数有误");
             }
         } else {
-            sendMsg2Server( message, "相机未连接");
+            sendMsg2Server( message, "当前状态相机禁止操作");
         }
     }
     //切换相机拍照录像模式
@@ -399,13 +399,13 @@ public class CameraManager extends BaseManager {
 
                     }
                 }else{
-                    sendMsg2Server( message, "切换失败:相机未连接");
+                    sendMsg2Server( message, "切换失败:当前状态相机禁止操作");
 
                 }
 
             }
         } else {
-            sendMsg2Server( message, "相机未连接");
+            sendMsg2Server( message, "当前状态相机禁止操作");
         }
     }
 
@@ -448,7 +448,7 @@ public class CameraManager extends BaseManager {
                 }
             });
         } else {
-            sendMsg2Server( message, "相机未连接");
+            sendMsg2Server( message, "当前状态相机禁止操作");
         }
     }
 
@@ -473,7 +473,7 @@ public class CameraManager extends BaseManager {
                 }
             });
         } else {
-            sendMsg2Server( message, "相机未连接");
+            sendMsg2Server( message, "当前状态相机禁止操作");
         }
     }
 
@@ -497,7 +497,7 @@ public class CameraManager extends BaseManager {
                 }
             });
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -520,7 +520,7 @@ public class CameraManager extends BaseManager {
                 }
             });
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -550,7 +550,7 @@ public class CameraManager extends BaseManager {
                 }
             });
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -577,7 +577,7 @@ public class CameraManager extends BaseManager {
                 });
             }
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -604,7 +604,7 @@ public class CameraManager extends BaseManager {
                 });
             }
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -649,7 +649,7 @@ public class CameraManager extends BaseManager {
                 }
             }
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
 
     }
@@ -675,7 +675,7 @@ public class CameraManager extends BaseManager {
                         }
                     });
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -701,7 +701,7 @@ public class CameraManager extends BaseManager {
                         }
                     });
         } else {
-            sendMsg2Server(message, "相机未连接");
+            sendMsg2Server(message, "当前状态相机禁止操作");
         }
     }
 
@@ -730,7 +730,7 @@ public void setCameraFocusMode(MQMessage message) {
             sendMsg2Server(message, "设置对焦模式失败:参数有误");
         }
     } else {
-        sendMsg2Server(message, "相机未连接");
+        sendMsg2Server(message, "当前状态相机禁止操作");
     }
 }
 
@@ -758,9 +758,9 @@ public void setCameraFocusMode(MQMessage message) {
             });
         } else {
             if (message!=null){
-                sendMsg2Server(message, "相机未连接");
+                sendMsg2Server(message, "当前状态相机禁止操作");
             }
-            LogUtil.log(TAG,"相机未连接");
+            LogUtil.log(TAG,"当前状态相机禁止操作");
 
         }
 
@@ -789,7 +789,7 @@ public void setCameraFocusMode(MQMessage message) {
             });
 
         } else {
-            LogUtil.log(TAG, "切换曝光失败：相机未连接");
+            LogUtil.log(TAG, "切换曝光失败：当前状态相机禁止操作");
         }
 
     }
@@ -814,7 +814,7 @@ public void setCameraFocusMode(MQMessage message) {
                         }
                     });
         } else {
-            LogUtil.log(TAG, "设置曝光补偿数值失败:相机未连接");
+            LogUtil.log(TAG, "设置曝光补偿数值失败:当前状态相机禁止操作");
         }
     }
 //重置相机参数
@@ -836,7 +836,7 @@ public void resetCameraSetting(MQMessage message) {
             }
         });
     } else {
-        sendMsg2Server(message, "相机未连接");
+        sendMsg2Server(message, "当前状态相机禁止操作");
     }
 }
 
@@ -955,7 +955,7 @@ public void resetCameraSetting(MQMessage message) {
                 }
             });
         } else {
-            LogUtil.log(TAG, "指点对焦失败：相机未连接");
+            LogUtil.log(TAG, "指点对焦失败：当前状态相机禁止操作");
         }
     }
 
@@ -986,7 +986,7 @@ public void resetCameraSetting(MQMessage message) {
             });
 
         } else {
-            LogUtil.log(TAG, "降落切换广角失败：相机未连接");
+            LogUtil.log(TAG, "降落切换广角失败：当前状态相机禁止操作");
         }
     }
 
@@ -1013,7 +1013,7 @@ public void resetCameraSetting(MQMessage message) {
                 }
             });
         } else {
-            LogUtil.log(TAG, "设置自定义文件后缀失败：相机未连接");
+            LogUtil.log(TAG, "设置自定义文件后缀失败：当前状态相机禁止操作");
         }
     }
 
@@ -1048,7 +1048,7 @@ public void resetCameraSetting(MQMessage message) {
                 }
             });
         } else {
-            LogUtil.log(TAG, "降落后降落完成切换曝光失败：相机未连接");
+            LogUtil.log(TAG, "降落后降落完成切换曝光失败：当前状态相机禁止操作");
         }
     }
 
@@ -1072,7 +1072,7 @@ public void resetCameraSetting(MQMessage message) {
                         }
                     });
         } else {
-            LogUtil.log(TAG, "设置测温模式失败：相机未连接");
+            LogUtil.log(TAG, "设置测温模式失败：当前状态相机禁止操作");
         }
     }
 
@@ -1100,7 +1100,7 @@ public void resetCameraSetting(MQMessage message) {
             });
 
         } else {
-            LogUtil.log(TAG, "测温点设置失败：相机未连接");
+            LogUtil.log(TAG, "测温点设置失败：当前状态相机禁止操作");
         }
     }
 
@@ -1128,7 +1128,7 @@ public void resetCameraSetting(MQMessage message) {
                 }
             });
         } else {
-            LogUtil.log(TAG, "测温区域设置失败：相机未连接");
+            LogUtil.log(TAG, "测温区域设置失败：当前状态相机禁止操作");
         }
     }
 

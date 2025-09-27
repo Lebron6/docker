@@ -48,7 +48,6 @@ import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
-import com.aros.apron.tools.Utils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
@@ -60,7 +59,6 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
-import dji.v5.common.callback.CommonCallbacks.CompletionCallbackWithParam
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
@@ -452,6 +450,7 @@ open class MainActivity : BaseActivity() {
         MqttManager.getInstance().needConnect()
 
         initDJIManager()
+        initCameraManager()
         initCameraStream()
         initView()
     }
@@ -637,7 +636,23 @@ open class MainActivity : BaseActivity() {
             }
         }
     }
+    private val cameraHandler: Handler = Handler(Looper.getMainLooper())
+    private var initCameraTimes=0
+    private fun initCameraManager() {
+        val isConnect = KeyManager.getInstance()
+            .getValue(KeyTools.createKey(CameraKey.KeyConnection, ComponentIndexType.PORT_1))
 
+        if (isConnect == null || !isConnect) {
+            cameraHandler.postDelayed({
+                initDJIManager()
+            }, 1000)
+        } else {
+            initCameraTimes++
+            LogUtil.log(TAG, "初始化相机$initCameraTimes")
+
+            CameraManager.getInstance().initCameraInfo()
+        }
+    }
 
 //    var shouldExecute = true
 
