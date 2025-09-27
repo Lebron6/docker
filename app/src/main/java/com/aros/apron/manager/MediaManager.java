@@ -252,17 +252,7 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onFinish() {
                     LogUtil.log(TAG, "File:" + downLoadMediaFileIndex+"fileName:"+mediaFile.getFileName() + " downloaded successfully.");
-
-                    if (file.length()>1000000000){
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                minIOUpLoad(file, mediaFile);
-                            }
-                        },2000);
-                    }else{
-                        minIOUpLoad(file, mediaFile);
-                    }
+                    minIOUpLoad(file, mediaFile);
                     try {
                         outputStream.close();
                         bos.close();
@@ -297,7 +287,7 @@ public class MediaManager extends BaseManager {
             return PreferenceUtils.getInstance().getSecretKey(); // minio的密钥
         }
     }, Region.getRegion(Regions.US_EAST_1), new ClientConfiguration());
-    final Handler mainHandler = new Handler(Looper.getMainLooper());
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     public void minIOUpLoad(final File file, final MediaFile mediaFile) {
