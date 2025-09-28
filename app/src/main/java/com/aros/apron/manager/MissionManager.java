@@ -25,12 +25,9 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.dji.wpmzsdk.common.data.KMZInfo;
-import com.dji.wpmzsdk.common.data.Template;
-import com.dji.wpmzsdk.common.data.TemplateParseInfo;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.File;
@@ -43,9 +40,7 @@ import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.wpmz.value.mission.Wayline;
-import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
-import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
 import dji.sdk.wpmz.value.mission.WaylineWaylinesParseInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -234,7 +229,7 @@ public class MissionManager extends BaseManager {
                                             String.valueOf(Movement.getInstance().getCurrentLatitude()));
                                     if (pointDistance<2&&!alreadySendLeaveLastPoint) {
                                         alreadySendLeaveLastPoint =true;
-                                        sendCustomReachOrLeave2Server("1",
+                                        WaypointEventSender.getInstance().sendCustomReachOrLeave2Server("1",
                                                 String.valueOf(CurrentWayline.getInstance().getWaypoints().size()-1));
                                         LogUtil.log(TAG, "离开最后第" + (CurrentWayline.getInstance().getWaypoints().size()-1)
                                                 + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -283,10 +278,7 @@ public class MissionManager extends BaseManager {
     WaylineExecutingInfoListener waylineExecutingInfoListener = new WaylineExecutingInfoListener() {
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
-            if (excutingWaylineInfo!=null){
-                LogUtil.log(TAG,"监听航线变化"+new Gson().toJson(excutingWaylineInfo)+"当前航点:"+excutingWaylineInfo.getCurrentWaypointIndex());
-            }
-            if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
+            if (excutingWaylineInfo != null ) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
                 LogUtil.log(TAG,"进入第"+excutingWaylineInfo.getCurrentWaypointIndex()+"个航点");
 
@@ -299,14 +291,14 @@ public class MissionManager extends BaseManager {
                             if (!waypointIndex0AlreadySend) {
                                 waypointIndex0AlreadySend = true;
                                 //到达航点(航点下标=0)
-                                sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                                WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                                 LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                             }
 
                         } else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()) {
                             LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                             //到达航点(航点下标>0)
-                            sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                            WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                         }
                     }
 
@@ -326,7 +318,7 @@ public class MissionManager extends BaseManager {
                                     int indexInWaypoints = findIndexInWaypoints(excutingWaylineInfo.getCurrentWaypointIndex());
                                     if (indexInWaypoints!=-1){
                                         LogUtil.log(TAG, "续飞进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点，位于主航线第"+indexInWaypoints+"个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                        sendCustomReachOrLeave2Server( "0", String.valueOf(indexInWaypoints));
+                                        WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(indexInWaypoints));
                                     }else {
                                         LogUtil.log(TAG, "未查到到主航线中包含该续飞航点");
                                     }

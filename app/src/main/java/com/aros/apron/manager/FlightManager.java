@@ -27,7 +27,6 @@ import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -64,8 +63,6 @@ import dji.v5.manager.diagnostic.DJIDeviceHealthInfo;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfoChangeListener;
 import dji.v5.manager.diagnostic.DJIDeviceStatus;
 import dji.v5.manager.diagnostic.DJIDeviceStatusChangeListener;
-import dji.v5.manager.intelligent.smarttrack.ISmartTrackMissionManager;
-import dji.v5.manager.intelligent.smarttrack.SmartTrackMissionManager;
 import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
@@ -280,7 +277,7 @@ public class FlightManager extends BaseManager {
 //                                            //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
 //                                            waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
 //                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-//                                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+//                                                WaypointEventSender.getInstance().sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
 //                                                        String.valueOf(waypointIndexAlreadySend));
 //                                                LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
 //                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -290,7 +287,7 @@ public class FlightManager extends BaseManager {
 //                                            }
 //                                        } else {
                                     waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                    sendCustomReachOrLeave2Server("1",
+                                    WaypointEventSender.getInstance().sendCustomReachOrLeave2Server("1",
                                             String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
                                     LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
                                             + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -313,7 +310,7 @@ public class FlightManager extends BaseManager {
                                     if (pointDistance>5) {
                                         waypointIndexAlreadySend = indexInWaypoints;
                                         if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                            sendCustomReachOrLeave2Server( "1",
+                                            WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "1",
                                                     String.valueOf(waypointIndexAlreadySend));
                                             LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
                                                     + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
