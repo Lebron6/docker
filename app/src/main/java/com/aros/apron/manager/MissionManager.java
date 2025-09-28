@@ -817,6 +817,7 @@ public class MissionManager extends BaseManager {
                                     @Override
                                     public void run() {
                                         startMission(message);
+                                        sendMissionExecuteEvents( "航线第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
                                         LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败:" + Movement.getInstance().getGPSSignalLevel() + "---" + new Gson().toJson(error));
                                         startMissionFailTimes++;
                                     }
@@ -828,8 +829,14 @@ public class MissionManager extends BaseManager {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                     Movement.getInstance().setTaskFail(true);
                                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
-                                    sendMissionExecuteEvents( "任务开始失败,执行关机:" + Movement.getInstance().getGPSSignalLevel());
-                                    LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
+                                    mainHandler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            sendMissionExecuteEvents( "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
+                                            LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
+                                        }
+                                    },1000);
+
                                 } else {
                                     sendMissionExecuteEvents( "指点任务开始失败");
                                     LogUtil.log(TAG, "指点第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error));
