@@ -2,6 +2,7 @@ package com.aros.apron.manager;
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -728,8 +729,14 @@ public class FlightManager extends BaseManager {
                     // 发送无人机入库消息到服务器********************待修改************************
                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(mqttAndroidClient, 1);
                 }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        DroneShutdownManager.getInstance().sendDroneShutDownMsg2Server(mqttAndroidClient);
+                    }
+                },1000);
                 // 上传媒体文件
-                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
+//                SystemManager.getInstance().upLoadMedia(mqttAndroidClient);
             }
             // 避免在下次起飞时触发视觉识别
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
