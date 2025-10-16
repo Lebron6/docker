@@ -835,7 +835,6 @@ public class MissionManager extends BaseManager {
                 public void onSuccess() {
                     sendMsg2Server( message);
                     sendPausePosition2Server();
-
                     LogUtil.log(TAG, "航线暂停成功");
                     Movement.getInstance().setFlightPathStatus(1);
                     isManualPause = true;

@@ -62,10 +62,12 @@ import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
 import dji.v5.common.callback.CommonCallbacks
+import dji.v5.common.callback.CommonCallbacks.CompletionCallback
 import dji.v5.common.error.IDJIError
 import dji.v5.common.utils.GeoidManager
 import dji.v5.manager.KeyManager
 import dji.v5.manager.datacenter.MediaDataCenter
+import dji.v5.manager.datacenter.media.PullMediaFileListParam
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager.AvailableCameraUpdatedListener
 import dji.v5.network.DJINetworkManager
@@ -630,6 +632,7 @@ open class MainActivity : BaseActivity() {
             MqttCallBack.FLAG_RESET_CLEAN_MODE ->
                 setViewVisibilityWithCleanMode()
         }
+
     }
 
 
