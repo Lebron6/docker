@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
@@ -151,6 +152,7 @@ public class AMSLogManager extends BaseManager {
                     @Override
                     public void onSubscribe(Disposable d) {
                         // Handle on subscribe (optional)
+
                     }
 
                     @Override

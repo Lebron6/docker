@@ -306,7 +306,6 @@ open class MainActivity : BaseActivity() {
 //        gimbalAdjustDone = findViewById<TextView>(R.id.fpv_gimbal_ok_btn)
       var  btn_test = findViewById<TextView>(R.id.btn_test)
         btn_test.setOnClickListener {
-
             //此处可能会SDK内部出错
             //            WaylineCheckErrorMsg waylineCheckErrorMsg = WPMZManager.getInstance().checkValidation(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
 //            List<WaylineCheckError> value = waylineCheckErrorMsg.getValue();

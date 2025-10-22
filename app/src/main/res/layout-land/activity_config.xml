@@ -749,6 +749,7 @@
 
 
                         <RadioButton
+                            android:checked="true"
                             android:id="@+id/rb_no"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -1028,7 +1029,7 @@
                         android:layout_height="match_parent"
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/txt_alternate_times"
-
+                        android:text="5"
                         android:gravity="center"
                         android:inputType="number"
                         android:textSize="10sp"
