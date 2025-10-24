@@ -53,7 +53,7 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtsp.isChecked = PreferenceUtils.getInstance().customStreamType==1
         configBinding.rbRtmp.isChecked = PreferenceUtils.getInstance().customStreamType==2
-        configBinding.rbNo.isChecked = PreferenceUtils.getInstance().customStreamType==3
+        configBinding.rbNo.isChecked = PreferenceUtils.getInstance().customStreamType!=3||PreferenceUtils.getInstance().customStreamType!=2
         configBinding.layoutStreamRtsp.visibility =
             if (PreferenceUtils.getInstance().customStreamType==1) VISIBLE else {
                 GONE
@@ -107,8 +107,10 @@ class ConfigActivity : BaseActivity() {
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
         configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
         configBinding.etForcedBattery.setText(PreferenceUtils.getInstance().forcedBattery)
-        configBinding.etSetAlternateTimes.setText(PreferenceUtils.getInstance().alternatePointTimes)
-
+        val times = PreferenceUtils.getInstance().alternatePointTimes
+        configBinding.etSetAlternateTimes.setText(
+            if (times.isNullOrBlank()) "5" else times
+        )
         configBinding.cbNeedUploadVideo.isChecked = PreferenceUtils.getInstance().needUpLoadVideo
 
         when (PreferenceUtils.getInstance().missionInterruptAction) {

@@ -68,6 +68,7 @@ public class PreferenceUtils extends BasePreference {
     private String IS_NEW_ROUTE = "is_new_route";
     private String MISSION_TYPE = "mission_type";
     private String PAUSE_WAYPOINT_INDEX = "pause_index";//暂停航线前记录index，暂停成功后将下标推送给服务器
+    private String TAKEOFF_REPEAT = "canTakeOffRepeatedly";//可以再次起飞
 
     //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
 //    public void setStreamAndMinIOConfig(MQMessage message) {
@@ -478,6 +479,14 @@ public class PreferenceUtils extends BasePreference {
 
     public void setMissionType(int missionType) {
         setInt(MISSION_TYPE, missionType);
+    }
+
+    public boolean getTakeOffRepeat() {
+        return getBoolean(TAKEOFF_REPEAT);
+    }
+
+    public void setTakeOffRepeat(boolean takeOffRepeat) {
+        setBoolean(TAKEOFF_REPEAT, takeOffRepeat);
     }
 
     private PreferenceUtils(Context context) {
