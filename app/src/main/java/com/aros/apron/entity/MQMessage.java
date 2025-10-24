@@ -73,7 +73,7 @@ public class MQMessage {
     private int lowBatteryWarningThreshold;//设置电池低电量警告的阈值。该数值为百分比，范围：[15,50]。当电池电量低于该阀值时，飞行器将进行低电量报警
     private int seriousLowBatteryWarningThreshold;//电池严重低电量警告的阈值。该值默认为10%，Matrice 30 Series不可设置。当电池电量低于该阀值时，飞行器将进行返航操作。
     private int lowBatteryRTHEnabled;//智能低电量返航功能。
-    boolean canTakeOffRepeatedly;//可以重复起飞标识(大通车落地后可以再次起飞)
+    private boolean canTakeOffRepeatedly;//可以重复起飞标识(大通车落地后可以再次起飞)
 
     public boolean isCanTakeOffRepeatedly() {
         return canTakeOffRepeatedly;

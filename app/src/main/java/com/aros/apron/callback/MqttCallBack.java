@@ -102,6 +102,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
                     PreferenceUtils.getInstance().setMissionType(message.getMissionType());
+                    PreferenceUtils.getInstance().setTakeOffRepeat(message.isCanTakeOffRepeatedly());
 
                     if (!message.isNewRoute()) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
