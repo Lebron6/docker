@@ -126,7 +126,13 @@ public class PayloadWidgetManager extends BaseManager {
                                 PayloadInfo payloadInfo = new PayloadInfo();
                                 payloadInfo.setPayloadIndexType(PayloadIndexType.RIGHT.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
-                                payloadInfo.setProductName(info.getPayloadProductName());
+                                if (info.getPayloadProductName() != null) {
+                                    if (info.getPayloadProductName().equals("HP3200")) {
+                                        payloadInfo.setProductName("SVR3");
+                                    } else {
+                                        payloadInfo.setProductName(info.getPayloadProductName());
+                                    }
+                                }
                                 payloadInfo.setSerialNumber(info.getSerialNumber());
                                 payloadInfos.add(payloadInfo);
                                 Movement.getInstance().setPayloadInfos(payloadInfos);
