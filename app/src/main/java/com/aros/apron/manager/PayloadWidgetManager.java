@@ -5,6 +5,7 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -36,8 +37,10 @@ import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
 import dji.v5.manager.aircraft.payload.data.PayloadBasicInfo;
+import dji.v5.manager.aircraft.payload.data.PayloadWidgetInfo;
 import dji.v5.manager.aircraft.payload.listener.PayloadBasicInfoListener;
 import dji.v5.manager.aircraft.payload.listener.PayloadDataListener;
+import dji.v5.manager.aircraft.payload.listener.PayloadWidgetInfoListener;
 import dji.v5.manager.interfaces.IPayloadManager;
 
 
@@ -55,19 +58,27 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
+    private  String byte2HexString(byte[] bytes) {
+        String hex = "";
+        if (bytes != null) {
+            for (Byte b : bytes) {
+                hex += String.format("%02X", b.intValue() & 0xFF);
+            }
+        }
+        return hex;
+    }
     public void initPayloadInfo() {
+        test();
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
             if (payloadManager != null) {
                 IPayloadManager iPayloadManager = payloadManager.get(PayloadIndexType.EXTERNAL);
-                if (iPayloadManager != null) {
                     iPayloadManager.addPayloadDataListener(new PayloadDataListener() {
                         @Override
                         public void onDataFromPayloadUpdate(byte[] data) {
                             sendMsgFromPSDK2Server(MqttManager.getInstance().mqttAndroidClient, data);
-//                            Log.e(TAG, "打印DataFromPayload" + "--1111---");
                         }
                     });
                     iPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
@@ -86,14 +97,9 @@ public class PayloadWidgetManager extends BaseManager {
                         }
                     });
 
-                } else {
-                    LogUtil.log(TAG, "监听EXTERNAL PSDK数据失败:设备未连接");
-                }
-
                 /*******************************************************************************************************/
 
                 IPayloadManager leftOrMainPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
-                if (leftOrMainPayloadManager != null) {
                     leftOrMainPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
@@ -110,14 +116,9 @@ public class PayloadWidgetManager extends BaseManager {
                         }
                     });
 
-                } else {
-                    LogUtil.log(TAG, "监听LEFT_OR_MAIN PSDK数据失败:设备未连接");
-                }
-
                 /*******************************************************************************************************/
 
                 IPayloadManager rightPayloadManager = payloadManager.get(PayloadIndexType.RIGHT);
-                if (rightPayloadManager != null) {
                     rightPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
@@ -140,13 +141,9 @@ public class PayloadWidgetManager extends BaseManager {
                         }
                     });
 
-                } else {
-                    LogUtil.log(TAG, "监听RIGHT PSDK数据失败:设备未连接");
-                }
                 /*******************************************************************************************************/
 
                 IPayloadManager upPayloadManager = payloadManager.get(PayloadIndexType.UP);
-                if (upPayloadManager != null) {
                     upPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
@@ -162,10 +159,6 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
-
-                } else {
-                    LogUtil.log(TAG, "监听UP PSDK数据失败:设备未连接");
-                }
             } else {
                 LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
             }
@@ -173,6 +166,24 @@ public class PayloadWidgetManager extends BaseManager {
             LogUtil.log(TAG, "设备未连接");
         }
     }
+
+    //获取控件列表
+    public void test() {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+
+            payloadManager.get(PayloadIndexType.RIGHT).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                @Override
+                public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+                    Log.e(TAG,"右侧负载控件信息:"+new Gson().toJson(info));
+                }
+            });
+        }
+
+    }
+
+
     //锁定
     public void lock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -219,11 +230,9 @@ public class PayloadWidgetManager extends BaseManager {
                 public void onFailure(@NonNull IDJIError idjiError) {
                     LogUtil.log(TAG,"解锁失败:" +new Gson().toJson(idjiError));
                     sendMsg2Server( message, "解锁失败:" + getIDJIErrorMsg(idjiError));
-
                 }
             });
         }
-
     }
 
     //抛投

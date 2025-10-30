@@ -661,16 +661,17 @@ public class FlightManager extends BaseManager {
         @Override
         public void run() {
             try {
-                XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
-                        + Movement.getInstance().getCurrentLatitude()
-                        + " altitude:" + Movement.getInstance().getFlyingHeight()
-                        + " uAltitude:" + Movement.getInstance().getUltrasonicHeight()
-                        + " heath:" + Movement.getInstance().getWarningMessage()
-                        + " status:" + Movement.getInstance().getPlaneMessage()
-                        + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
-                        + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
-                        + " isStreaming:" + Movement.getInstance().getLiveStatus()
-                        + " rtkHealthy:" + Movement.getInstance().isRtkSign());
+                LogUtil.log(TAG,gson.toJson(Movement.getInstance()));
+//                XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
+//                        + Movement.getInstance().getCurrentLatitude()
+//                        + " altitude:" + Movement.getInstance().getFlyingHeight()
+//                        + " uAltitude:" + Movement.getInstance().getUltrasonicHeight()
+//                        + " heath:" + Movement.getInstance().getWarningMessage()
+//                        + " status:" + Movement.getInstance().getPlaneMessage()
+//                        + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
+//                        + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
+//                        + " isStreaming:" + Movement.getInstance().getLiveStatus()
+//                        + " rtkHealthy:" + Movement.getInstance().isRtkSign());
                 Movement.getInstance().setEgm96Altitude(
                         GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
                                         Movement.getInstance().getFlyingHeight()),

@@ -1,5 +1,7 @@
 package com.aros.apron.entity;
 
+import java.util.Objects;
+
 public class PayloadInfo {
     /**
      * 当前负载索引类型
@@ -62,5 +64,18 @@ public class PayloadInfo {
 
     public void setFirmwareVersion(String firmwareVersion) {
         this.firmwareVersion = firmwareVersion;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PayloadInfo)) return false;
+        PayloadInfo that = (PayloadInfo) o;
+        return Objects.equals(getPayloadIndexType(), that.getPayloadIndexType()) && Objects.equals(getProductName(), that.getProductName()) && Objects.equals(getSerialNumber(), that.getSerialNumber()) && Objects.equals(getFirmwareVersion(), that.getFirmwareVersion());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPayloadIndexType(), getProductName(), getSerialNumber(), getFirmwareVersion());
     }
 }
