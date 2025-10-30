@@ -239,7 +239,7 @@ public class ApronArucoDetect {
         }
         if (mFindArucoList.isEmpty()&&!detectedSmallMarkers){
             for (int i = 0; i < idArray.length; i++) {
-                if (idArray[i]==1|| idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 9
+                if (idArray[i]==1|| idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 9|| idArray[i] == 5
                         || idArray[i] == 19){
                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.2f));
                 }
