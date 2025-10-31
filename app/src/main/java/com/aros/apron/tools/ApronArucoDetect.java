@@ -165,7 +165,7 @@ public class ApronArucoDetect {
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 700 && endTime - startTime <= 8000) {
-                            if (Movement.getInstance().getFlyingHeight() <= 7) {
+                            if (Movement.getInstance().getFlyingHeight() <= 3) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);
@@ -180,7 +180,7 @@ public class ApronArucoDetect {
 //                                    virtualStickAdvancedParam=0.145;
                                     LogUtil.log(TAG, "复降第:" + dropTimes + "次");
                                 }
-                            } else if (Movement.getInstance().getFlyingHeight() > 7) {
+                            } else if (Movement.getInstance().getFlyingHeight() > 4) {
                                 //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.4);
@@ -202,6 +202,7 @@ public class ApronArucoDetect {
                     corner.release();
                     isStartAruco = false;
                 } catch (Exception e) {
+                    LogUtil.log(TAG,"异常？:"+e.toString());
                     isStartAruco = false;
                     mFindArucoList.clear();
                     mArucoCornerList.clear();
@@ -235,13 +236,26 @@ public class ApronArucoDetect {
                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.03f));
                     return;
                 }
-            }
-        }
-        if (mFindArucoList.isEmpty()&&!detectedSmallMarkers){
-            for (int i = 0; i < idArray.length; i++) {
-                if (idArray[i]==1|| idArray[i] == 2 || idArray[i] == 3 || idArray[i] == 4 || idArray[i] == 9|| idArray[i] == 5
-                        || idArray[i] == 19){
-                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i),0.2f));
+                if (idArray[i] == 1 && !detectedSmallMarkers) {
+                    detectedBigMarkerId = 1;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.17f));
+                    return;
+                }
+
+                if (idArray[i] == 2 && detectedBigMarkerId != 1 && !detectedSmallMarkers) {
+                    detectedBigMarkerId = 2;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.17f));
+                    return;
+                }
+                if (idArray[i] == 3 && detectedBigMarkerId != 1 && detectedBigMarkerId != 2 && !detectedSmallMarkers) {
+                    detectedBigMarkerId = 3;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.17f));
+                    return;
+                }
+                if (idArray[i] == 4 && detectedBigMarkerId != 1 && detectedBigMarkerId != 2 && detectedBigMarkerId != 3 && !detectedSmallMarkers) {
+                    detectedBigMarkerId = 4;
+                    mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), 0.17f));
+                    return;
                 }
             }
         }
@@ -267,8 +281,7 @@ public class ApronArucoDetect {
         double sumX = 0, sumY = 0;
         int markerCount = arucoMarkers.size();
         // 遍历所有 marker 计算中心点
-        for (int i = 0; i < markerCount; i++) {
-            Mat markerCorners = arucoMarkers.get(i).getConner();
+            Mat markerCorners = arucoMarkers.get(0).getConner();
             double centerX = 0, centerY = 0;
 
             for (int j = 0; j < 4; j++) {
@@ -279,13 +292,11 @@ public class ApronArucoDetect {
             centerX /= 4.0;
             centerY /= 4.0;
 
-            sumX += centerX;
-            sumY += centerY;
-        }
-
+            sumX = centerX;
+            sumY = centerY;
         // 计算所有 marker 的平均中心点
-        double avgCenterX = sumX / markerCount;
-        double avgCenterY = sumY / markerCount;
+        double avgCenterX = sumX ;
+        double avgCenterY = sumY ;
 
         // 计算整体偏移量
         double offsetX = avgCenterX - imgCenter.x;

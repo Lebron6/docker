@@ -787,7 +787,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 6.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = -2;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
