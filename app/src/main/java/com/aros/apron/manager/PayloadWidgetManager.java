@@ -24,6 +24,7 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class PayloadWidgetManager extends BaseManager {
         return hex;
     }
     public void initPayloadInfo() {
-        test();
+//        test();
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
@@ -84,8 +85,8 @@ public class PayloadWidgetManager extends BaseManager {
                     iPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
-                            if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.EXTERNAL.name())) {
+                            if (info != null && info.isConnected()) {
+                                removePayloadByIndexType(payloadInfos,PayloadIndexType.EXTERNAL.name());
                                 PayloadInfo payloadInfo = new PayloadInfo();
                                 payloadInfo.setPayloadIndexType(PayloadIndexType.EXTERNAL.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
@@ -103,8 +104,10 @@ public class PayloadWidgetManager extends BaseManager {
                     leftOrMainPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
-                            if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.LEFT_OR_MAIN.name())) {
+                            LogUtil.log(TAG,"左负载:"+new Gson().toJson(info));
+                            if (info != null ) {
+                                removePayloadByIndexType(payloadInfos,PayloadIndexType.LEFT_OR_MAIN.name());
+
                                 PayloadInfo payloadInfo = new PayloadInfo();
                                 payloadInfo.setPayloadIndexType(PayloadIndexType.LEFT_OR_MAIN.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
@@ -122,8 +125,9 @@ public class PayloadWidgetManager extends BaseManager {
                     rightPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
-                            if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.RIGHT.name())) {
+                            if (info != null && info.isConnected()) {
+                                removePayloadByIndexType(payloadInfos,PayloadIndexType.RIGHT.name());
+
                                 PayloadInfo payloadInfo = new PayloadInfo();
                                 payloadInfo.setPayloadIndexType(PayloadIndexType.RIGHT.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
@@ -147,8 +151,8 @@ public class PayloadWidgetManager extends BaseManager {
                     upPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
-                            if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.UP.name())) {
+                            if (info != null && info.isConnected()) {
+                                removePayloadByIndexType(payloadInfos,PayloadIndexType.UP.name());
                                 PayloadInfo payloadInfo = new PayloadInfo();
                                 payloadInfo.setPayloadIndexType(PayloadIndexType.UP.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
@@ -457,14 +461,18 @@ public class PayloadWidgetManager extends BaseManager {
 
 
     /**
-     * 检查列表中是否已经存在指定payloadIndexType的PayloadInfo对象。
+     * 如果列表中存在指定 payloadIndexType 的 PayloadInfo 对象，则将其移除。
+     *
+     * @param list 要操作的 PayloadInfo 列表
+     * @param payloadIndexType 要移除的 payloadIndexType
+     * @return 是否成功移除（true 表示已移除，false 表示未找到）
      */
-    private boolean isPayloadIndexTypeExists(List<PayloadInfo> list, String payloadIndexType) {
-        for (PayloadInfo payloadInfo : list) {
+    private void removePayloadByIndexType(List<PayloadInfo> list, String payloadIndexType) {
+        for (Iterator<PayloadInfo> iterator = list.iterator(); iterator.hasNext(); ) {
+            PayloadInfo payloadInfo = iterator.next();
             if (payloadInfo.getPayloadIndexType().equals(payloadIndexType)) {
-                return true;
+                iterator.remove();
             }
         }
-        return false;
     }
 }

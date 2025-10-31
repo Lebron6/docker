@@ -26,6 +26,7 @@ import dji.sdk.keyvalue.value.camera.CameraFlatMode;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
 import dji.sdk.keyvalue.value.camera.CameraMode;
 import dji.sdk.keyvalue.value.camera.CameraStorageLocation;
+import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.CustomExpandNameSettings;
 import dji.sdk.keyvalue.value.camera.PhotoIntervalShootSettings;
@@ -112,6 +113,26 @@ public class CameraManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setPhotoInterval(t1.getInterval());
                         Movement.getInstance().setPhotoIntervalCount(t1.getCount());
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeyCameraType, 0), this, new CommonCallbacks.KeyListener<CameraType>() {
+                @Override
+                public void onValueChange(@Nullable CameraType cameraType, @Nullable CameraType t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setCameraType(t1.name());
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
+                    KeySerialNumber, 0), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setCameraSerialNumber(t1);
                     }
                 }
             });

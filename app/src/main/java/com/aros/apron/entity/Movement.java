@@ -127,6 +127,24 @@ public class Movement {
     private String remoteSecondBatteryPercent;//遥控器外接电池剩余电量百分比
     private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
     private boolean vtx;//检查图传是否正常
+    private String cameraType;//相机类型
+    private String cameraSerialNumber;//相机SN
+
+    public String getCameraSerialNumber() {
+        return cameraSerialNumber;
+    }
+
+    public void setCameraSerialNumber(String cameraSerialNumber) {
+        this.cameraSerialNumber = cameraSerialNumber;
+    }
+
+    public String getCameraType() {
+        return cameraType;
+    }
+
+    public void setCameraType(String cameraType) {
+        this.cameraType = cameraType;
+    }
 
     public boolean isVtx() {
         return vtx;
