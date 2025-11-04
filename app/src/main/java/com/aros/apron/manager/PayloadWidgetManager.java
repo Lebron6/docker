@@ -69,8 +69,6 @@ public class PayloadWidgetManager extends BaseManager {
         return hex;
     }
     public void initPayloadInfo() {
-//        test();
-
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
@@ -163,6 +161,18 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
+
+
+                PayloadCenter.getInstance().getPayloadManager().get(PayloadIndexType.RIGHT).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                    @Override
+                    public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+                        Log.e(TAG,"右侧负载控件信息:"+new Gson().toJson(info));
+                        if (info!=null&&info.getFloatingWindowWidget()!=null&&info.getFloatingWindowWidget().getHintMessage()!=null){
+                            sendCH4MsgFromPSDK2Server(MqttManager.getInstance().mqttAndroidClient,info.getFloatingWindowWidget().getHintMessage());
+                        }
+                    }
+                });
+
             } else {
                 LogUtil.log(TAG, "监听psdk数据失败:未检测到设备");
             }
@@ -171,24 +181,8 @@ public class PayloadWidgetManager extends BaseManager {
         }
     }
 
-    //获取控件列表
-    public void test() {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
 
-            payloadManager.get(PayloadIndexType.RIGHT).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
-                @Override
-                public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                    Log.e(TAG,"右侧负载控件信息:"+new Gson().toJson(info));
-                }
-            });
-        }
-
-    }
-
-
-    //锁定
+    //锁定/关闭激光
     public void lock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
@@ -214,7 +208,7 @@ public class PayloadWidgetManager extends BaseManager {
 
     }
 
-    //解锁
+    //解锁/打开激光
     public void unlock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
@@ -455,6 +449,28 @@ public class PayloadWidgetManager extends BaseManager {
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "psdkData发送异常：mqtt 未连接");
+            e.printStackTrace();
+        }
+    }
+
+    //推送MSDK收到的PSDK数据
+    public void sendCH4MsgFromPSDK2Server(MqttAndroidClient client,String data) {
+        try {
+            if (client.isConnected()) {
+                MqttMessage mqttMessage = null;
+                MessageReply message = new MessageReply();
+                message.setMsg_type(60153);
+                message.setResult(1);
+                message.setCh4(data);
+                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
+                mqttMessage.setQos(2);
+                client.publish(AMSConfig.getInstance().getMqttMsdkPushEvent2ServerTopic(), mqttMessage);
+
+            } else {
+                LogUtil.log(TAG, "psdkData发送ch4失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            LogUtil.log(TAG, "psdkData发送ch4异常：mqtt 未连接");
             e.printStackTrace();
         }
     }

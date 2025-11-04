@@ -14,6 +14,15 @@ public class MessageReply {
     private String lat;
     private String lon;
     private String flyingHeight;//飞行高度
+    private String ch4;//飞行高度
+
+    public String getCh4() {
+        return ch4;
+    }
+
+    public void setCh4(String ch4) {
+        this.ch4 = ch4;
+    }
 
     public String getFlyingHeight() {
         return flyingHeight;
