@@ -259,23 +259,23 @@ public class FlightManager extends BaseManager {
                                         waypointIndexAlreadySend){
                             if (!PreferenceUtils.getInstance().getIsNewRoute()){
                                 //当前位置与当前航点下标的距离
-                                    double pointDistance = LocationUtils.getDistance(
-                                            CurrentWayline.getInstance().getWaypoints()
-                                                    .get(Movement.getInstance().getCurrentWaypointIndex())
-                                                    .getLocation().getLongitude().toString(),
-                                            CurrentWayline.getInstance().getWaypoints()
-                                                    .get(Movement.getInstance().getCurrentWaypointIndex())
-                                                    .getLocation().getLatitude().toString(),
-                                            String.valueOf(newValue.getLongitude()),
-                                            String.valueOf(newValue.getLatitude()));
-                                    if (pointDistance>1) {
+                                double pointDistance = LocationUtils.getDistance(
+                                        CurrentWayline.getInstance().getWaypoints()
+                                                .get(Movement.getInstance().getCurrentWaypointIndex())
+                                                .getLocation().getLongitude().toString(),
+                                        CurrentWayline.getInstance().getWaypoints()
+                                                .get(Movement.getInstance().getCurrentWaypointIndex())
+                                                .getLocation().getLatitude().toString(),
+                                        String.valueOf(newValue.getLongitude()),
+                                        String.valueOf(newValue.getLatitude()));
+                                if (pointDistance>3) {
 //                                        //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的index基础上+1得到最后一个航点的真实下标
 //                                        if (Movement.getInstance().getCurrentWaypointIndex() == 0 && waypointIndexAlreadySend > 0
 //                                        ) {
 //                                            //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
 //                                            waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
 //                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-//                                                sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
+//                                                WaypointEventSender.getInstance().sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
 //                                                        String.valueOf(waypointIndexAlreadySend));
 //                                                LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
 //                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
@@ -284,11 +284,11 @@ public class FlightManager extends BaseManager {
 //                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
 //                                            }
 //                                        } else {
-                                            waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                            sendCustomReachOrLeave2Server("1",
-                                                    String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
-                                            LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
-                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                    waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
+                                    WaypointEventSender.getInstance().sendCustomReachOrLeave2Server("1",
+                                            String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
+                                    LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
+                                            + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
 //                                        }
                                 }
                                 //返回主航线
@@ -305,17 +305,17 @@ public class FlightManager extends BaseManager {
                                                     .getLocation().getLatitude().toString(),
                                             String.valueOf(newValue.getLongitude()),
                                             String.valueOf(newValue.getLatitude()));
-                                    if (pointDistance>1) {
-                                            waypointIndexAlreadySend = indexInWaypoints;
-                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                                sendCustomReachOrLeave2Server("1",
-                                                        String.valueOf(waypointIndexAlreadySend));
-                                                LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
-                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                            }else{
-                                                LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
-                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                            }
+                                    if (pointDistance>5) {
+                                        waypointIndexAlreadySend = indexInWaypoints;
+                                        if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
+                                            WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "1",
+                                                    String.valueOf(waypointIndexAlreadySend));
+                                            LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
+                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                        }else{
+                                            LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
+                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
+                                        }
 
                                     }
                                 }
@@ -327,7 +327,6 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftVelocity), this, new CommonCallbacks.KeyListener<Velocity3D>() {
                 @Override
                 public void onValueChange(@Nullable Velocity3D oldValue, @Nullable Velocity3D newValue) {

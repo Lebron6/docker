@@ -287,11 +287,10 @@ public class MissionManager extends BaseManager {
     WaylineExecutingInfoListener waylineExecutingInfoListener = new WaylineExecutingInfoListener() {
         @Override
         public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
-            if (excutingWaylineInfo!=null){
-                LogUtil.log(TAG,"监听航线变化"+new Gson().toJson(excutingWaylineInfo));
-            }
-            if (excutingWaylineInfo != null && !TextUtils.isEmpty(excutingWaylineInfo.getMissionFileName())) {
+            if (excutingWaylineInfo != null ) {
                 Movement.getInstance().setMissionName(excutingWaylineInfo.getMissionFileName());
+                LogUtil.log(TAG,"进入第"+excutingWaylineInfo.getCurrentWaypointIndex()+"个航点");
+
                 //判断航线状态为EXECUTING，且当前index发生变化，且不在指点任务时，发送到达航点
                 if (!PreferenceUtils.getInstance().getIsNewRoute()) {
                     if (Movement.getInstance().getWaypointMissionExecuteState() != null &&
@@ -301,14 +300,14 @@ public class MissionManager extends BaseManager {
                             if (!waypointIndex0AlreadySend) {
                                 waypointIndex0AlreadySend = true;
                                 //到达航点(航点下标=0)
-                                sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                                WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                                 LogUtil.log(TAG, "x进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                             }
 
                         } else if (Movement.getInstance().getCurrentWaypointIndex() != excutingWaylineInfo.getCurrentWaypointIndex()) {
                             LogUtil.log(TAG, "y进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                             //到达航点(航点下标>0)
-                            sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
+                            WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(excutingWaylineInfo.getCurrentWaypointIndex()));
                         }
                     }
 
@@ -328,7 +327,7 @@ public class MissionManager extends BaseManager {
                                     int indexInWaypoints = findIndexInWaypoints(excutingWaylineInfo.getCurrentWaypointIndex());
                                     if (indexInWaypoints!=-1){
                                         LogUtil.log(TAG, "续飞进入第" + excutingWaylineInfo.getCurrentWaypointIndex() + "个航点，位于主航线第"+indexInWaypoints+"个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                        sendCustomReachOrLeave2Server( "0", String.valueOf(indexInWaypoints));
+                                        WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "0", String.valueOf(indexInWaypoints));
                                     }else {
                                         LogUtil.log(TAG, "未查到到主航线中包含该续飞航点");
                                     }
@@ -346,42 +345,36 @@ public class MissionManager extends BaseManager {
 
             }
         }
-
         @Override
         public void onWaylineExecutingInterruptReasonUpdate(IDJIError error) {
             if (error != null) {
                 LogUtil.log(TAG, "航线中断: ---" + new Gson().toJson(error));
-                    if (isManualPause || error.errorCode().equals("USER_BREAK")
-                            || error.errorCode().equals("INTERRUPT_REASON_AVOID_USER_REQ_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
-                        isManualPause = false;
-                    } else {
-                        if (PreferenceUtils.getInstance().getMissionInterruptAction() == 2) {
-                            if (error.errorCode().equals("INTERRUPT_REASON_AVOID") ||
-                                    error.errorCode().equals("INTERRUPT_REASON_AVOID_HEIGHT_LIMIT")) {
-                                mainHandler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        resumeMission(null);
-                                    }
-                                }, 1000);
-                            } else {
-                                WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
-                            }
-                        } else if (PreferenceUtils.getInstance().getMissionInterruptAction() == 3) {
+                if (isManualPause || error.errorCode().equals("USER_BREAK")
+                        || error.errorCode().equals("INTERRUPT_REASON_AVOID_USER_REQ_BREAK")) {//如果是手动暂停航线,则不会触发返航或拉高
+                    isManualPause = false;
+                } else {
+                    if (PreferenceUtils.getInstance().getMissionInterruptAction() == 2) {
+                        if (error.errorCode().equals("INTERRUPT_REASON_AVOID") ||
+                                error.errorCode().equals("INTERRUPT_REASON_AVOID_HEIGHT_LIMIT")) {
+                            mainHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    resumeMission(null);
+                                }
+                            }, 1000);
+                        } else {
                             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                         }
-                        mainHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                sendMissionExecuteEvents( "任务意外发生中断:" + error.errorCode());
-                            }
-                        },1000);
+                    } else if (PreferenceUtils.getInstance().getMissionInterruptAction() == 3) {
+                        WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
                     }
+                    sendMissionExecuteEvents( "任务意外发生中断:" + error.errorCode());
+
+                }
 
             }
         }
     };
-
     /**
      * 查找 routeWaypoints 中指定索引的元素在 waypoints 中的索引
      * @param indexInRouteWaypoints routeWaypoints 中的元素索引
@@ -397,7 +390,6 @@ public class MissionManager extends BaseManager {
         // 在 waypoints 中查找该元素的索引
         return CurrentWayline.getInstance().getWaypoints().indexOf(waypoint);
     }
-
     private int checkMissionStateTimes = 0;
 
     final Handler mainHandler = new Handler(Looper.getMainLooper());
