@@ -242,7 +242,8 @@ public class FlightManager extends BaseManager {
                                 String.valueOf(newValue.getLatitude()));
                         Movement.getInstance().setDistance((int) distance);
 
-                        Movement.getInstance().setEgm96Altitude(GpsUtils.egm96Altitude(newValue.getAltitude(),
+                        Movement.getInstance().setEgm96Altitude(GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
+                                        Movement.getInstance().getFlyingHeight()),
                                 newValue.getLatitude(), newValue.getLongitude()));
 
                         if (newValue.getAltitude() != null) {
