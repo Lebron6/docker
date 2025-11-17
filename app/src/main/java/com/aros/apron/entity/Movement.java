@@ -129,6 +129,15 @@ public class Movement {
     private boolean vtx;//检查图传是否正常
     private String cameraType;//相机类型
     private String cameraSerialNumber;//相机SN
+    private int missionType;//任务类型 一键起飞航线，定频推送只会推送3
+
+    public int getMissionType() {
+        return missionType;
+    }
+
+    public void setMissionType(int missionType) {
+        this.missionType = missionType;
+    }
 
     public String getCameraSerialNumber() {
         return cameraSerialNumber;
