@@ -165,7 +165,7 @@ public class ApronArucoDetect {
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 700 && endTime - startTime <= 8000) {
-                            if (Movement.getInstance().getFlyingHeight() <= 3) {
+                            if (Movement.getInstance().getFlyingHeight() <= 5) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);

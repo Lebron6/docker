@@ -749,7 +749,7 @@ public class FlightManager extends BaseManager {
                 && !isGimbalDownwards) {
             DroneHelper.getInstance().setGimbalPitchDegree();
             //将镜头设置为自动对焦
-            DroneHelper.getInstance().setCameraFocusMode();
+//            DroneHelper.getInstance().setCameraFocusMode();
             isGimbalDownwards = true;
             PerceptionManager.getInstance().setPerceptionEnable(false);
             if (Movement.getInstance().getIsRecording()==1){
@@ -788,7 +788,7 @@ public class FlightManager extends BaseManager {
     }
 
 
-    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 6.0;
+    private static final double FLYING_HEIGHT_THRESHOLD_MAX = 10.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE = 15.0;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN = -2;
     private static final double FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE = 2.0;
