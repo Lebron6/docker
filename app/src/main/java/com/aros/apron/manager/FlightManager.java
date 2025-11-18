@@ -24,11 +24,9 @@ import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -682,6 +680,37 @@ public class FlightManager extends BaseManager {
                 if (isFlying) {
                     Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
                 }
+                //手控显示条件
+                if (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())&&
+                        (Movement.getInstance().getMissionType() == 3
+                        && Movement.getInstance().isPlaneWing()
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                        && Movement.getInstance().getFlyingHeight() > 10
+                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
+                        || (Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
+                        || (Movement.getInstance().getIsVirtualStickEnable() == 0 && Movement.getInstance().isWaylineCanResume())) {
+                    Movement.getInstance().setVirtualStickStatus(true);
+                }
+                //取消手控显示条件
+                if (Movement.getInstance().getIsVirtualStickEnable() == 1
+                        && Movement.getInstance().getVirtualStickEnableReason() != 2
+                        && Movement.getInstance().getVirtualStickEnableReason() != 1) {
+                    Movement.getInstance().setCancelVirtualStickStatus(true);
+                }
+                //暂停按钮显示条件
+                if (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("RETURN_TO_START_POINT")
+                        && (Movement.getInstance().getMissionType() == 0
+                        || Movement.getInstance().getMissionType() == 2)) {
+                    Movement.getInstance().setPauseMissionStautus(true);
+                }
+                //继续按钮显示条件
+                if (Movement.getInstance().isWaylineCanResume() ||
+                        (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                                &&Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))) {
+                    Movement.getInstance().setResumeMissionStatus(true);
+                }
                 //推送飞行状态
                 MqttMessage flightMessage = null;
                 try {
@@ -690,7 +719,7 @@ public class FlightManager extends BaseManager {
                     LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
                 }
                 flightMessage.setQos(0);
-                publish( AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
+                publish(AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
 
                 // 再次调用postDelayed来保证每一秒都会执行run方法
                 handler.postDelayed(this, TIME);
