@@ -688,7 +688,8 @@ public class FlightManager extends BaseManager {
                         && Movement.getInstance().getFlyingHeight() > 10
                         && Movement.getInstance().getIsVirtualStickEnable() == 0)
                         || (Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
-                        || (Movement.getInstance().getIsVirtualStickEnable() == 0 && Movement.getInstance().isWaylineCanResume())) {
+                        || (Movement.getInstance().getIsVirtualStickEnable() == 0
+                        && Movement.getInstance().isWaylineCanResume())) {
                     Movement.getInstance().setVirtualStickStatus(true);
                 }
                 //取消手控显示条件
