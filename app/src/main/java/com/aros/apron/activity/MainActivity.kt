@@ -40,6 +40,7 @@ import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.PayloadWidgetManager
+import com.aros.apron.manager.PerceptionManager
 import com.aros.apron.manager.RTKManager
 import com.aros.apron.manager.RemoteManager
 import com.aros.apron.manager.StickManager
@@ -475,6 +476,8 @@ open class MainActivity : BaseActivity() {
         } else {
             initTimes++
             LogUtil.log(TAG, "初始化$initTimes")
+            // 4.关闭避障
+//            PerceptionManager.getInstance().setPerceptionEnable(false)
             RTKManager.getInstance().initRTKInfo()
             StreamManager.getInstance().initStreamManager(mqttAndroidClient)
             FlightManager.getInstance().initFlightInfo(mqttAndroidClient)

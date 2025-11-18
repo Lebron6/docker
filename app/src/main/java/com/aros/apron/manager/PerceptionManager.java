@@ -1,5 +1,6 @@
 package com.aros.apron.manager;//package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
 import android.os.Handler;
@@ -13,7 +14,10 @@ import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
+import dji.sdk.keyvalue.key.FlightAssistantKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -46,6 +50,21 @@ public class PerceptionManager extends BaseManager {
         }
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
+
+//            KeyManager.getInstance().setValue(KeyTools.createKey(FlightAssistantKey.KeyLandingProtectionEnabled),
+//                    false, new CommonCallbacks.CompletionCallback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            LogUtil.log(TAG, "关闭降落保护");
+//                        }
+//
+//                        @Override
+//                        public void onFailure(@NonNull IDJIError error) {
+//                            LogUtil.log(TAG, "关闭降落保护失败:"+getIDJIErrorMsg(error));
+//
+//                        }
+//                    });
+
             IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
             perceptionManager.setObstacleAvoidanceType(perceptionEnable ? ObstacleAvoidanceType.BRAKE : ObstacleAvoidanceType.CLOSE, new CommonCallbacks.CompletionCallback() {
                 @Override

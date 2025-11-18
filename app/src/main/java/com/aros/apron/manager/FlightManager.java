@@ -30,6 +30,7 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
+import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -563,6 +564,30 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setLowBatteryRTHEnabled(t1 ? 1 : 0);
                         pushFlightAttitude();
 
+                    }
+                }
+            });
+
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyIsLandingConfirmationNeeded), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                    if (t1 != null) {
+                        LogUtil.log(TAG,"强制降落触发状态:"+t1);
+                        if (t1){
+                            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyConfirmLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    LogUtil.log(TAG,"强制降落已触发");
+
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    LogUtil.log(TAG,"强制降落触发失败:"+getIDJIErrorMsg(error));
+
+                                }
+                            });
+                        }
                     }
                 }
             });
