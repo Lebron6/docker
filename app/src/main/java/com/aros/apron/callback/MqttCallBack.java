@@ -1,10 +1,16 @@
 package com.aros.apron.callback;
 
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+import static dji.sdk.keyvalue.value.flightcontroller.FlightMode.VIRTUAL_STICK;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
@@ -38,6 +44,13 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
+
+import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.common.error.IDJIError;
+import dji.v5.manager.KeyManager;
+import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -92,6 +105,21 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60003:
                 //默认规定不在返航时才可以上传航线
                 //收到航线时将状态设置为不可关机状态
+                FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
+                if (flightMode != null&&flightMode==VIRTUAL_STICK) {
+                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆失败:"+getIDJIErrorMsg(error));
+
+                        }
+                    });
+                }
                 if (Movement.getInstance().isTaskFail()){
                     LogUtil.log(TAG, "该架次已经执行失败");
                 }else{

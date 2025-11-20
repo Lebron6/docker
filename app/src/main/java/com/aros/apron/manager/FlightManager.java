@@ -691,12 +691,18 @@ public class FlightManager extends BaseManager {
                         || (Movement.getInstance().getIsVirtualStickEnable() == 0
                         && Movement.getInstance().isWaylineCanResume())) {
                     Movement.getInstance().setVirtualStickStatus(true);
+                }else{
+                    Movement.getInstance().setVirtualStickStatus(false);
                 }
                 //取消手控显示条件
-                if (Movement.getInstance().getIsVirtualStickEnable() == 1
+                if (Movement.getInstance().getGoHomeState()!=1&&
+                        Movement.getInstance().getGoHomeState()!=2&&
+                        Movement.getInstance().getIsVirtualStickEnable() == 1
                         && Movement.getInstance().getVirtualStickEnableReason() != 2
                         && Movement.getInstance().getVirtualStickEnableReason() != 1) {
                     Movement.getInstance().setCancelVirtualStickStatus(true);
+                }else{
+                    Movement.getInstance().setCancelVirtualStickStatus(false);
                 }
                 //暂停按钮显示条件
                 if (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
@@ -705,12 +711,16 @@ public class FlightManager extends BaseManager {
                         && (Movement.getInstance().getMissionType() == 0
                         || Movement.getInstance().getMissionType() == 2)) {
                     Movement.getInstance().setPauseMissionStautus(true);
+                }else{
+                    Movement.getInstance().setPauseMissionStautus(false);
                 }
                 //继续按钮显示条件
-                if (Movement.getInstance().isWaylineCanResume() ||
+                if (Movement.getInstance().getMissionType()!=3&&Movement.getInstance().isWaylineCanResume() ||
                         (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
                                 &&Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))) {
                     Movement.getInstance().setResumeMissionStatus(true);
+                }else{
+                    Movement.getInstance().setResumeMissionStatus(false);
                 }
                 //推送飞行状态
                 MqttMessage flightMessage = null;
