@@ -704,7 +704,7 @@ public class FlightManager extends BaseManager {
     private void updataButtonStatus(){
         //手控显示条件
         if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
-                Movement.getInstance().getMissionType() == 3
+                (Movement.getInstance().getMissionType() == 3||PreferenceUtils.getInstance().getMissionType()==1)
                 && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
                 && Movement.getInstance().getFlyingHeight() > 10
                 && Movement.getInstance().getGoHomeState()!=1
