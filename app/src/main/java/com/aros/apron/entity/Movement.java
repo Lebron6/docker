@@ -129,6 +129,51 @@ public class Movement {
     private List<PayloadInfo> payloadInfos;//当前飞机负载设备信息
     private boolean propellerRotation;//飞机是否正在低速慢转桨
     private boolean vtx;//检查图传是否正常
+    private int missionType;//任务类型 一键起飞航线，定频推送只会推送3
+    private boolean virtualStickStatus;//前端判断是否显示/隐藏手控按钮
+    private boolean cancelVirtualStickStatus;//前端判断是否显示/隐藏取消手控按钮
+    private boolean pauseMissionStautus;//前端判断是否显示/隐藏暂停航线
+    private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
+
+    public int getMissionType() {
+        return missionType;
+    }
+
+    public void setMissionType(int missionType) {
+        this.missionType = missionType;
+    }
+
+    public boolean isVirtualStickStatus() {
+        return virtualStickStatus;
+    }
+
+    public void setVirtualStickStatus(boolean virtualStickStatus) {
+        this.virtualStickStatus = virtualStickStatus;
+    }
+
+    public boolean isCancelVirtualStickStatus() {
+        return cancelVirtualStickStatus;
+    }
+
+    public void setCancelVirtualStickStatus(boolean cancelVirtualStickStatus) {
+        this.cancelVirtualStickStatus = cancelVirtualStickStatus;
+    }
+
+    public boolean isPauseMissionStautus() {
+        return pauseMissionStautus;
+    }
+
+    public void setPauseMissionStautus(boolean pauseMissionStautus) {
+        this.pauseMissionStautus = pauseMissionStautus;
+    }
+
+    public boolean isResumeMissionStatus() {
+        return resumeMissionStatus;
+    }
+
+    public void setResumeMissionStatus(boolean resumeMissionStatus) {
+        this.resumeMissionStatus = resumeMissionStatus;
+    }
 
     public boolean isVtx() {
         return vtx;

@@ -30,7 +30,7 @@ public class MQMessage {
     private String task_id;//任务ID(开始推流、起飞、降落都推送一次)
     private double zoom;//指点变焦
     private boolean newRoute;//是否是空中下发航线
-    private int missionType;// 0从机库起飞 1指点飞行 2续飞(回到主航线)
+    private int missionType;// 0从机库起飞 1指点飞行 2续飞(回到主航线) 3一键起飞
 
     private int x=0;//前后
     private int y=0;//左右

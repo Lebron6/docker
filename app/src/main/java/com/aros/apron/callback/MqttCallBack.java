@@ -96,6 +96,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                     PreferenceUtils.getInstance().setMissionType(message.getMissionType());
                     if (!message.isNewRoute()) {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
+                        //如果是一键起飞航线，返回给前端就一直是一键起飞航线
+                        Movement.getInstance().setMissionType(message.getMissionType());
                         if (isReceiverMission == false) {
                             isReceiverMission = true;
                             // 1.收到60003直接回复

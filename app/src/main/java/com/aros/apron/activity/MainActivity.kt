@@ -806,6 +806,7 @@ open class MainActivity : BaseActivity() {
                     object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             startArucoType = 0
+                            LogUtil.log(TAG, "自动降落调用成功")
                         }
 
                         override fun onFailure(error: IDJIError) {

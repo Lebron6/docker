@@ -231,7 +231,8 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-
+//更新前端按钮状态
+                        updataButtonStatus();
                         double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(),
                                 Movement.getInstance().getHomepointLat(),
                                 String.valueOf(newValue.getLongitude()),
@@ -698,6 +699,54 @@ public class FlightManager extends BaseManager {
         }
     };
 
+    private void updataButtonStatus(){
+        //手控显示条件
+        if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
+                Movement.getInstance().getMissionType() == 3
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                && Movement.getInstance().getFlyingHeight() > 10
+                && Movement.getInstance().getGoHomeState()!=1
+                && Movement.getInstance().getGoHomeState()!=2
+                && Movement.getInstance().getIsVirtualStickEnable() == 0)
+                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
+        )
+        ) {
+            Movement.getInstance().setVirtualStickStatus(true);
+        } else {
+            Movement.getInstance().setVirtualStickStatus(false);
+        }
+        //取消手控显示条件
+        if (Movement.getInstance().getGoHomeState()!=1&&
+                Movement.getInstance().getGoHomeState()!=2&&
+                Movement.getInstance().getIsVirtualStickEnable() == 1
+                && Movement.getInstance().getVirtualStickEnableReason() != 2
+                && Movement.getInstance().getVirtualStickEnableReason() != 1) {
+            Movement.getInstance().setCancelVirtualStickStatus(true);
+        }else{
+            Movement.getInstance().setCancelVirtualStickStatus(false);
+        }
+        //暂停按钮显示条件
+        if (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                && (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
+                || Movement.getInstance().getWaypointMissionExecuteState().equals("RETURN_TO_START_POINT"))
+                && (PreferenceUtils.getInstance().getMissionType() == 0
+                || PreferenceUtils.getInstance().getMissionType() == 2)) {
+            Movement.getInstance().setPauseMissionStautus(true);
+        } else {
+            Movement.getInstance().setPauseMissionStautus(false);
+        }
+        //继续按钮显示条件
+        if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
+                Movement.getInstance().getMissionType() != 3 && Movement.getInstance().isWaylineCanResume()
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")) ||
+                (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))) {
+            Movement.getInstance().setResumeMissionStatus(true);
+        } else {
+            Movement.getInstance().setResumeMissionStatus(false);
+        }
+    }
     //(决定飞机触发电量低的返航)
     public boolean isTriggerRoomBattrryLanding;
     private void batteryLowLanding() {
