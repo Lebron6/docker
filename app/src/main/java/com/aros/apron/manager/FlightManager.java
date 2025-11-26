@@ -731,7 +731,8 @@ public class FlightManager extends BaseManager {
                 && (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
                 || Movement.getInstance().getWaypointMissionExecuteState().equals("RETURN_TO_START_POINT"))
                 && (PreferenceUtils.getInstance().getMissionType() == 0
-                || PreferenceUtils.getInstance().getMissionType() == 2)) {
+                //续飞航线要到主航线才能暂停
+                || (PreferenceUtils.getInstance().getMissionType() == 2&&Movement.getInstance().getCurrentWaypointIndex()>0))) {
             Movement.getInstance().setPauseMissionStautus(true);
         } else {
             Movement.getInstance().setPauseMissionStautus(false);
