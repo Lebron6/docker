@@ -35,11 +35,13 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import dji.sdk.keyvalue.key.AirLinkKey;
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
+import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.common.Attitude;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
@@ -682,7 +684,12 @@ public class FlightManager extends BaseManager {
                 if (isFlying) {
                     Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
                 }
-
+                //视频源
+                CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                        KeyCameraVideoStreamSource,0));
+                if (value!=null){
+                    Movement.getInstance().setCameraVideoStreamSource(value.value());
+                }
                 //推送飞行状态
                 MqttMessage flightMessage = null;
                 try {
@@ -733,7 +740,8 @@ public class FlightManager extends BaseManager {
                 && (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
                 || Movement.getInstance().getWaypointMissionExecuteState().equals("RETURN_TO_START_POINT"))
                 && (PreferenceUtils.getInstance().getMissionType() == 0
-                || PreferenceUtils.getInstance().getMissionType() == 2)) {
+                //续飞航线要到主航线才能暂停
+                || (PreferenceUtils.getInstance().getMissionType() == 2&&Movement.getInstance().getCurrentWaypointIndex()>0))) {
             Movement.getInstance().setPauseMissionStautus(true);
         } else {
             Movement.getInstance().setPauseMissionStautus(false);

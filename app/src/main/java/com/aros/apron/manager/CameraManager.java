@@ -208,7 +208,7 @@ public class CameraManager extends BaseManager {
 
             //默认视频源
             CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                    KeyCameraVideoStreamSource));
+                    KeyCameraVideoStreamSource,0));
             if (value!=null){
                 Movement.getInstance().setCameraVideoStreamSource(value.value());
             }
@@ -218,6 +218,7 @@ public class CameraManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable CameraVideoStreamSourceType cameraVideoStreamSourceType, @Nullable CameraVideoStreamSourceType t1) {
                     if (t1 != null) {
+                        LogUtil.log(TAG,"视频源变化:"+t1.name());
                         Movement.getInstance().setCameraVideoStreamSource(t1.value());
                     }
                 }
