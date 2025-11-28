@@ -95,6 +95,42 @@
                             android:text="DJI" />
                     </RadioGroup>
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="3"
+                        android:text="卫星系统" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_SatelliteSystem"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="8"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb_gps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="GPS" />
+
+                        <RadioButton
+                            android:id="@+id/rb_beidou"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:text="北斗" />
+                    </RadioGroup>
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/layout_rtk_custom"

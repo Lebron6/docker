@@ -39,6 +39,7 @@ class ConfigActivity : BaseActivity() {
         configBinding.cbCleanMode.isChecked = PreferenceUtils.getInstance().isCleanMode
         configBinding.cbLEDsSettings.isChecked = PreferenceUtils.getInstance().navigationLEDsOn
         configBinding.rbRtkCustom.isChecked = PreferenceUtils.getInstance().rtkType == 1
+
         configBinding.rbRtkDji.isChecked = PreferenceUtils.getInstance().rtkType == 2
         configBinding.layoutRtkCustom.visibility =
             if (PreferenceUtils.getInstance().rtkType == 1) VISIBLE else {
@@ -118,7 +119,8 @@ class ConfigActivity : BaseActivity() {
         }
         configBinding.rbRtkFirst.isChecked = PreferenceUtils.getInstance().landType == 1
         configBinding.rbVisionFirst.isChecked = PreferenceUtils.getInstance().landType == 2
-
+        configBinding.rbGps.isChecked = PreferenceUtils.getInstance().satelliteSystem == 1
+        configBinding.rbBeidou.isChecked = PreferenceUtils.getInstance().satelliteSystem == 2
         configBinding.rbCameraCenter.isChecked = PreferenceUtils.getInstance().cameraLocationType ==1//中间
         configBinding.rbCameraRight.isChecked = PreferenceUtils.getInstance().cameraLocationType ==2//右边
         configBinding.btnConfig.setOnClickListener { config() }
@@ -357,6 +359,11 @@ class ConfigActivity : BaseActivity() {
             PreferenceUtils.getInstance().landType = 2
         } else {
             PreferenceUtils.getInstance().landType = 1
+        }
+        if (configBinding.rbGps.isChecked) {
+            PreferenceUtils.getInstance().satelliteSystem = 1
+        } else {
+            PreferenceUtils.getInstance().satelliteSystem = 2
         }
         if (configBinding.rbCameraCenter.isChecked) {
             PreferenceUtils.getInstance().cameraLocationType = 1

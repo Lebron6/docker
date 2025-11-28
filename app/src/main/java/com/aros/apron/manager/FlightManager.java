@@ -27,7 +27,6 @@ import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -58,7 +57,6 @@ import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationStatus;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
-import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.common.utils.GpsUtils;
@@ -973,11 +971,43 @@ public class FlightManager extends BaseManager {
         isGimbalDownwards = false;
     }
 
+    //FlightManager | 降落高度4.1米---2分米
+    //2025-11-28 11:16:44 | I | ApronArucoDetect | 过滤:falsetrue
+    //2025-11-28 11:16:44 | I | MainActivity | 自动降落调用成功
+    //2025-11-28 11:16:44 | I | StickManager | 控制权变更原因:MSDK_REQUEST
+    //2025-11-28 11:16:44 | I | StickManager | 控制权变更原因:MSDK_REQUEST
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+    //2025-11-28 11:16:44 | I | DroneHelper | 控制权已取消
+    //2025-11-28 11:16:44 | I | FlightManager | GoHomeStatus:LANDING
+    //2025-11-28 11:16:44 | I | FlightManager | GoHomeStatus:LANDING
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
+
+    /**
+     * 打印这里的条件，判断是否满足降落停浆
+     *
+     * @return
+     */
     private boolean shouldStopVisionAndLanding() {
+        if (Movement.getInstance().getFlyingHeight() < 5) {
+            XcFileLog.getInstace().w(TAG, "降落停浆条件:" + "isTriggerLanding:" + isTriggerLanding + "  isFlying:" + isFlying +
+                    "  isMotorsOn:" + isMotorsOn + "  getNeedTriggerAlterArucoLand():" +
+                    PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()
+                    + "  ApronAruco:" + ApronArucoDetect.getInstance().isCanLanding() +
+                    "  AlternateAruco:" + AlternateArucoDetect.getInstance().isCanLanding()
+            +"  isStartFastStick:"+ApronArucoDetect.getInstance().isStartFastStick()
+                    +"  CheckThrowingErrorsTimes:"+ApronArucoDetect.getInstance().getCheckThrowingErrorsTimes());
+        }
+        //记录isFlying || isMotorsOn可能桨叶在转但是飞机不在飞的情况，可能导致不触发landing
         if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
-            return !isTriggerLanding && isFlying && isMotorsOn && AlternateArucoDetect.getInstance().isCanLanding();
+            return !isTriggerLanding && (isFlying || isMotorsOn) && AlternateArucoDetect.getInstance().isCanLanding();
         } else {
-            return !isTriggerLanding && isFlying && isMotorsOn && ApronArucoDetect.getInstance().isCanLanding();
+            return !isTriggerLanding && (isFlying || isMotorsOn) && (
+                    ApronArucoDetect.getInstance().isCanLanding()|| (ApronArucoDetect.getInstance().isStartFastStick()
+                    && ApronArucoDetect.getInstance().getCheckThrowingErrorsTimes() > 100));
         }
     }
 

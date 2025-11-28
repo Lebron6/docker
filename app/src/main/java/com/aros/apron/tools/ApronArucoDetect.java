@@ -65,6 +65,17 @@ public class ApronArucoDetect {
     public PIDControl pidControlX = null;
     public PIDControl pidControlY = null;
 
+    //为了解决降落后不停浆问题，增加记录，开启速降时startFastStick之后的过滤次数
+    public int checkThrowingErrorsTimes;
+
+    public int getCheckThrowingErrorsTimes() {
+        return checkThrowingErrorsTimes;
+    }
+
+    public void setCheckThrowingErrorsTimes(int checkThrowingErrorsTimes) {
+        this.checkThrowingErrorsTimes = checkThrowingErrorsTimes;
+    }
+
     public boolean isTriggerSuccess() {
         return isTriggerSuccess;
     }
@@ -107,6 +118,9 @@ public class ApronArucoDetect {
         Movement.getInstance().setVirtualStickEnableReason(2);
         if (isStartAruco || startFastStick) {
             LogUtil.log(TAG, "过滤:" + isStartAruco + startFastStick);
+            if (!isStartAruco&&startFastStick){
+                checkThrowingErrorsTimes++;
+            }
             return;
         }
         isStartAruco = true;
@@ -925,9 +939,17 @@ public class ApronArucoDetect {
             }
         }
     }
-    private boolean startFastStick;
+    public boolean startFastStick;
 
-    private boolean canLanding;
+    public boolean isStartFastStick() {
+        return startFastStick;
+    }
+
+    public void setStartFastStick(boolean startFastStick) {
+        this.startFastStick = startFastStick;
+    }
+
+    public boolean canLanding;
 
     public boolean isCanLanding() {
         return canLanding;
@@ -958,16 +980,19 @@ public class ApronArucoDetect {
     };
 
     private void performOperation() {
+        LogUtil.log(TAG,"快速下拉中..."+handlerCallbackCount);
         DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -4);
         handlerCallbackCount++; // 增加计数器
     }
 
     private void performNextStep() {
-        handler.removeCallbacks(runnable); // 防止重复执行
-        handlerCallbackCount = 0;
         canLanding = true;
+        handlerCallbackCount = 0;
         dropTimes = 0;//手动测试避免多次累加后直接飞往备降点
         markerId5MaxFindHeight = 0.7;
+        LogUtil.log(TAG,"下拉完成：触发下一步自动降落");
+        handler.removeCallbacks(runnable); // 防止重复执行
+
     }
 
 }

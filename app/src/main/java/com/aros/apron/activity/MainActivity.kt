@@ -35,6 +35,7 @@ import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionManager
+import com.aros.apron.manager.NavigationSatelliteSystemManager
 import com.aros.apron.manager.OffSiteLandingManager
 import com.aros.apron.manager.PayloadWidgetManager
 import com.aros.apron.manager.RTKManager
@@ -594,6 +595,8 @@ open class MainActivity : BaseActivity() {
             OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
             RemoteManager.getInstance().initRemoteInfo()
             PayloadWidgetManager.getInstance().initPayloadInfo()
+            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
+            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
 
             if (PreferenceUtils.getInstance().lteEnable){
                 MLTEManager.getInstance().initLTEManager()

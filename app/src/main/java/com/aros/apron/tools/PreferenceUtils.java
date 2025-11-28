@@ -32,6 +32,7 @@ public class PreferenceUtils extends BasePreference {
 
     //AMS配置清单
     private String HAVA_RTK = "have_rtk";
+    private String SATELLITE_SYSTEM = "satellite_system";
     private String CUSTOM_STREAM_TYPE = "custom_stream_type";//1RTSP 2RTMP 3No
     private String CUSTOM_STREAM_URL = "custom_stream_url";
     private String CUSTOM_STREAM_RTSP_USERNAME = "custom_stream_rtsp_username";
@@ -169,6 +170,8 @@ public class PreferenceUtils extends BasePreference {
     public void setHaveRtk(boolean haveRtk) {
         setBoolean(HAVA_RTK, haveRtk);
     }
+
+
 
     public int getRtkType() {
         return getInt(RTK_TYPE);
@@ -346,6 +349,16 @@ public class PreferenceUtils extends BasePreference {
     public void setLandType(int landType) {
         setInt(LANDING_TYPE, landType);
     }
+
+    public int getSatelliteSystem() {
+        return getInt(SATELLITE_SYSTEM);
+    }
+
+    public void setSatelliteSystem(int satelliteSystem) {
+        setInt(SATELLITE_SYSTEM, satelliteSystem);
+    }
+
+
     public int getCameraLocationType() {
         return getInt(CAMERA_LOCATION);
     }

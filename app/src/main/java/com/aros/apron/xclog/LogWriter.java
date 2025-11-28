@@ -65,7 +65,9 @@ public class LogWriter {
                     }
                     if (level.equals("F")){
                         mFileName="state_"+new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
-                    }else{
+                    } else if (level.equals("W")) {
+                        mFileName="test_"+new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
+                    } else{
                         mFileName=new SimpleDateFormat("yyyyMMdd").format(new Date())+".txt";
                     }
                     File logFile = new File(mDir+"/"+mFileName);

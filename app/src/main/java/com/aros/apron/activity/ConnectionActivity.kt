@@ -141,6 +141,10 @@ open class ConnectionActivity : BaseActivity() {
             PreferenceUtils.getInstance().secretKey =
                 "Aros2023"
         }
+        if (PreferenceUtils.getInstance().satelliteSystem!=2){
+            PreferenceUtils.getInstance().satelliteSystem =
+                1
+        }
 
     }
 

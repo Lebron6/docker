@@ -120,6 +120,7 @@ public class Movement {
     private double photoInterval;//当前定时拍照默认时间间隔
     private boolean isShootingPhotoPanorama;//当前是否正在全景拍照
     private int photoPanoramaProgress;//全景拍照进度百分比
+    private int navigationSatelliteSystem;//当前卫星地位系统 0GPS 1北斗
 
     private String productName;//产品类型 例:M350_RTK
     private String serialNumber;//飞控序列号
@@ -134,6 +135,14 @@ public class Movement {
     private boolean cancelVirtualStickStatus;//前端判断是否显示/隐藏取消手控按钮
     private boolean pauseMissionStautus;//前端判断是否显示/隐藏暂停航线
     private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
+
+    public int getNavigationSatelliteSystem() {
+        return navigationSatelliteSystem;
+    }
+
+    public void setNavigationSatelliteSystem(int navigationSatelliteSystem) {
+        this.navigationSatelliteSystem = navigationSatelliteSystem;
+    }
 
     public int getMissionType() {
         return missionType;
