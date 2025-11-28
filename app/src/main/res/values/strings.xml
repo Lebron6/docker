@@ -9,6 +9,7 @@
     <string name="unregistered">Unregistered</string>
     <string name="registered">Registered</string>
     <string name="default_layout">Default Layout</string>
+    <string name="serial_number">serialNumber: %1$s</string>
 
 
 </resources>

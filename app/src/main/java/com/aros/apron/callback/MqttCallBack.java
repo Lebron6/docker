@@ -98,43 +98,29 @@ public class MqttCallBack implements MqttCallbackExtended {
                         LogUtil.log(TAG, "收到命令：航线" + jsonString);
                         //如果是一键起飞航线，返回给前端就一直是一键起飞航线
                         Movement.getInstance().setMissionType(message.getMissionType());
-                        if (isReceiverMission == false) {
-                            isReceiverMission = true;
-                            // 1.收到60003直接回复
-                            //此处没获取到图传，重启AMS，需要增加重启次数限制
-                            if (!Movement.getInstance().isVtx()){
-                                if (PreferenceUtils.getInstance().getRestartAMSTimes()<5){
-                                    PreferenceUtils.getInstance().setRestartAMSTimes(PreferenceUtils.getInstance().getRestartAMSTimes()+1);
-                                    LogUtil.log(TAG,"未检测到图传,重启AMS第+"+PreferenceUtils.getInstance().getRestartAMSTimes()+"次");
-                                    RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
+                        // 0.起飞前检查图传
+                        checkVtxWithDelay(() -> {
+                            if (isReceiverMission == false) {
+                                isReceiverMission = true;
+                                // 1.收到60003直接回复
+                                StreamManager.getInstance().sendReply2Server( message);
+                                //2.检查航线参数
+                                if (!SystemManager.getInstance().checkMissionParameter(message)){
                                     return;
                                 }
-                            }else{
-                                PreferenceUtils.getInstance().setRestartAMSTimes(0);
-                                LogUtil.log(TAG,"图传正常");
-                            }
-                            StreamManager.getInstance().sendReply2Server( message);
-                            //2.检查航线参数
-                            if (!SystemManager.getInstance().checkMissionParameter(message)){
-                                return;
-                            }
-                            if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
-                                // 3.开启推流
-                                StreamManager.getInstance().startLive(message);
-                            }
-                            // 4.关闭避障
-                            PerceptionManager.getInstance().setPerceptionEnable(false);
-                            // 5.清空sd卡
-                            CameraManager.getInstance().formatStorage(null);
-                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    MissionManager.getInstance().startTaskProcess(message);
+                                if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
+                                    // 3.开启推流
+                                    StreamManager.getInstance().startLive(message);
                                 }
-                            }, 300);
-                            //可能遥控器上次流程结束未关机，就再次起飞
-                        }else {
-                            SystemManager.getInstance().replyAlreadyFlown(message);
+                                // 4.关闭避障
+                                PerceptionManager.getInstance().setPerceptionEnable(false);
+                                // 5.清空sd卡
+                                CameraManager.getInstance().formatStorage(null);
+
+                                MissionManager.getInstance().startTaskProcess(message);
+                                //可能遥控器上次流程结束未关机，就再次起飞
+                            }else {
+                                SystemManager.getInstance().replyAlreadyFlown(message);
 //                            if (isReceiverMissionAgain==false){
 //                                isReceiverMissionAgain=true;
 //                                new Handler().postDelayed(new Runnable() {
@@ -152,7 +138,10 @@ public class MqttCallBack implements MqttCallbackExtended {
 //                                    LogUtil.log(TAG,"重复收到航线,正在确认飞机状态后飞行:"+"isWaiting30Min="+isWaiting30Min+"isPlaneWing="+Movement.getInstance().isPlaneWing());
 //                                }
 //                            }
-                        }
+                            }
+
+                        });
+
                     } else {
                         LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
                         // 1.收到60003直接回复
@@ -566,4 +555,38 @@ public class MqttCallBack implements MqttCallbackExtended {
             LogUtil.log(TAG, "MQtt ConnectException:" + e.toString());
         }
     }
+
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable checkVtxRunnable;
+
+    private void checkVtxWithDelay(Runnable onVtxReady) {
+
+        if (Movement.getInstance().isVtx()) {
+            // 图传正常，直接继续后面的流程
+            PreferenceUtils.getInstance().setRestartAMSTimes(0);
+            LogUtil.log(TAG, "图传正常，继续执行任务流程");
+            onVtxReady.run();
+            return;
+        }
+
+        LogUtil.log(TAG, "未检测到图传，5 秒后再次确认...");
+
+        handler.postDelayed(() -> {
+            if (!Movement.getInstance().isVtx()) {
+                // 图传仍未恢复 → 执行重启逻辑
+                int times = PreferenceUtils.getInstance().getRestartAMSTimes();
+                if (times < 5) {
+                    PreferenceUtils.getInstance().setRestartAMSTimes(times + 1);
+                    LogUtil.log(TAG, "图传仍未恢复，重启 AMS 第 " + (times + 1) + " 次");
+                    RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
+                }
+            } else {
+                // 图传恢复 → 执行后续逻辑
+                PreferenceUtils.getInstance().setRestartAMSTimes(0);
+                LogUtil.log(TAG, "图传在延迟期间恢复，继续执行任务流程");
+                onVtxReady.run();
+            }
+        }, 5000);
+    }
+
 }

@@ -35,12 +35,15 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import dji.sdk.keyvalue.key.AirLinkKey;
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
+import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.common.Attitude;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
@@ -680,6 +683,12 @@ public class FlightManager extends BaseManager {
                 Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
                 if (isFlying) {
                     Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
+                }
+                //视频源
+                CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                        KeyCameraVideoStreamSource, ComponentIndexType.PORT_1));
+                if (value!=null){
+                    Movement.getInstance().setCameraVideoStreamSource(value.value());
                 }
                 //推送飞行状态
                 MqttMessage flightMessage = null;
