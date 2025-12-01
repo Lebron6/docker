@@ -190,12 +190,21 @@ open class SystemStatusWidget @JvmOverloads constructor(
     }
 
     private fun updateMessage(messageData: SystemStatusWidgetModel.WarningStatusMessageData) {
-        systemStatusTextView.text =
-            if (isMaxHeightMessage(messageData.message)) {
-                messageData.message + " - " + formatMaxHeight(messageData.maxHeight, messageData.unitType)
-            } else {
-                messageData.message
+        if (isMaxHeightMessage(messageData.message)){
+            systemStatusTextView.text =messageData.message + " - " + formatMaxHeight(messageData.maxHeight, messageData.unitType)
+        }else{
+            if (messageData.message.equals("飞行中(GPS)")){
+                systemStatusTextView.text ="飞行中"
+            }else{
+                systemStatusTextView.text =messageData.message
             }
+
+//            if (messageData.message.equals("限高区")){
+//                systemStatusTextView.text ="飞行中"
+//            }else{
+//                systemStatusTextView.text =messageData.message
+//            }
+        }
     }
 
     private fun isMaxHeightMessage(text: String?): Boolean {

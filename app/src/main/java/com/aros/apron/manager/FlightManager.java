@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.callback.MqttCallBack;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.CurrentWayline;
@@ -27,6 +28,7 @@ import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
@@ -1044,6 +1046,7 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+            MqttCallBack.isReceiverMission=false;
             LogUtil.log(TAG, "droneStorage:" + PreferenceUtils.getInstance().getTaskId());
             new Handler().postDelayed(new Runnable() {
                 @Override

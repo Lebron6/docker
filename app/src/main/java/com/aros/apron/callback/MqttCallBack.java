@@ -59,7 +59,7 @@ public class MqttCallBack implements MqttCallbackExtended {
     }
 
 
-    private boolean isReceiverMission = false;
+    public static boolean isReceiverMission = false;
     private boolean isReceiverMissionAgain = false;
     private boolean isWaiting30Min = false;
 

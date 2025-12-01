@@ -165,26 +165,13 @@ public class ApronArucoDetect {
                                 return;
                             }
                         }
-                        if (idArray.length == 1 && idArray[0] == 6) {
-                            Core.extractChannel(mArucoCornerList.get(0), corner, 0);
-                            Point[] points = corner.toArray();
-                            // 计算宽度（两个相邻角点之间的距离）
-                            double width = calculateDistance(points[0], points[1]);
-                            if (!startFastStick&&width >= 960 && ultrasonicHeight <= 2) {
-                                String logMessage = "参考6号Marker尺寸降落:" + idArray[0] + " arucoW" + width +
-                                        " Flying Height:" + flyingHeight + "--" +
-                                        " Ultrasonic Height:" + ultrasonicHeight;
-                                startFastStick = true;
-                                handler.post(runnable);
-                                LogUtil.log(TAG, logMessage);
-                                return;
-                            }
-                        }
+
                         if (idArray[0] == 11 || idArray[0] == 12 || idArray[0] == 13 ||
                                 idArray[0] == 14 || idArray[0] == 15 || idArray[0] == 16 || idArray[0] == 17
-                                || idArray[0] == 18 || idArray[0] == 19) {
+                                || idArray[0] == 18 || idArray[0] == 19|| idArray[0] == 20|| idArray[0] == 21|| idArray[0] == 22
+                                || idArray[0] == 23|| idArray[0] == 24|| idArray[0] == 25) {
                             if (!startFastStick) {
-                                if ((idArray.length >= 5 && ultrasonicHeight <= 2 && flyingHeight < 3)) {
+                                if ((idArray.length >= 3 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
                                     String logMessage = "参考Marker数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
@@ -200,7 +187,7 @@ public class ApronArucoDetect {
                                     // 计算高度（另外两个相邻角点之间的距离）
 //                                double height = calculateDistance(points[1], points[2]);
                                     //存在识别到小Marker，但参考5号的尺寸降落的可能性
-                                    if (width >= 260 && idArray.length >= 5 && ultrasonicHeight <= 2) {
+                                    if (width >= 260 && idArray.length >= 5 && ultrasonicHeight <= 3) {
                                         String logMessage = "参考Marker尺寸降落:" + idArray[0] + " arucoW" + width +
                                                 " Flying Height:" + flyingHeight + "--" +
                                                 " Ultrasonic Height:" + ultrasonicHeight;
@@ -881,8 +868,8 @@ public class ApronArucoDetect {
         );
         if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5)){
             if (ultrasonicHeight<=25){
-                outX=outX>0?0.135:-0.135;
-                outY=outY>0?0.135:-0.135;
+                outX=outX>0?0.125:-0.125;
+                outY=outY>0?0.125:-0.125;
                 LogUtil.log(TAG,"过滤帧："+" 杆量x=" + outX+" 杆量y=" + y);
             }else{
                 LogUtil.log(TAG,"过滤帧>："+" 杆量x=" + outX+" 杆量y=" + y);

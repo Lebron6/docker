@@ -24,33 +24,24 @@ import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.tools.Utils;
 import com.dji.wpmzsdk.common.data.KMZInfo;
-import com.dji.wpmzsdk.common.data.Template;
-import com.dji.wpmzsdk.common.data.TemplateParseInfo;
 import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.wpmz.value.mission.Wayline;
-import dji.sdk.wpmz.value.mission.WaylineActionGroup;
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
-import dji.sdk.wpmz.value.mission.WaylineTemplateWaypointInfo;
 import dji.sdk.wpmz.value.mission.WaylineWaylinesParseInfo;
-import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -443,27 +434,38 @@ public class MissionManager extends BaseManager {
             mainHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    sendMissionExecuteEvents( "任务执行失败,请将遥控器切换为P/N挡");
+                    sendMissionExecuteEvents("任务执行失败,请将遥控器切换为P/N挡");
                     LogUtil.log(TAG, "任务执行失败,请将遥控器切换为P/N挡");
                 }
-            },1000);
+            }, 1000);
+            return;
+        }
+
+        if (Movement.getInstance().getGoHomeState() != 0) {
+            mainHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMissionExecuteEvents("返航或降落中,无法执行任务");
+                    LogUtil.log(TAG, "返航或降落中,无法执行任务");
+                }
+            }, 1000);
             return;
         }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if (
-                    (missionStateCode == 2 || missionStateCode == 0)&&
+                    (missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7) &&
 
-                    Movement.getInstance().isRtkSign() &&
-                    (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
+                            Movement.getInstance().isRtkSign() &&
+                            (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(message);
-                sendMissionExecuteEvents( "执行任务下载 ");
+                sendMissionExecuteEvents("执行任务下载 ");
             } else {
-                sendMissionExecuteEvents( "飞行器自检中 ");
+                sendMissionExecuteEvents("飞行器自检中 ");
                 verifyAircraftStatus(message);
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
-            if ((missionStateCode == 2 || missionStateCode == 0) &&
+            if ((missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7) &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())
                             && !Movement.getInstance().getPlaneMessage().equals("无法起飞")
                             && (Movement.getInstance().getGPSSignalLevel().equals("LEVEL_4")
@@ -518,13 +520,13 @@ public class MissionManager extends BaseManager {
                 if (PreferenceUtils.getInstance().getHaveRTK()) {
                     if (!Movement.getInstance().isRtkSign()) {
                         LogUtil.log(TAG, "飞行器RTK收敛异常");
-                        sendMissionExecuteEvents( "飞行器RTK收敛异常");
-                    } else if (!(missionStateCode ==2 || missionStateCode == 0)) {
-                    LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
-                        sendMissionExecuteEvents( "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
+                        sendMissionExecuteEvents("飞行器RTK收敛异常");
+                    } else if (!(missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7)) {
+                        LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
+                        sendMissionExecuteEvents("飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                     } else {
-                        LogUtil.log(TAG,  "飞行器自检异常:" + "航线状态:"+WaypointMissionExecuteState.find(missionStateCode).name()+"  "+Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
-                        sendMissionExecuteEvents( "飞行器自检异常:" + "航线状态:"+WaypointMissionExecuteState.find(missionStateCode).name()+"  "+Movement.getInstance().getPlaneMessage()+","+Movement.getInstance().getWarningMessage());
+                        LogUtil.log(TAG, "飞行器自检异常:" + "航线状态:" + WaypointMissionExecuteState.find(missionStateCode).name() + "  " + Movement.getInstance().getPlaneMessage() + "," + Movement.getInstance().getWarningMessage());
+                        sendMissionExecuteEvents("飞行器自检异常:" + "航线状态:" + WaypointMissionExecuteState.find(missionStateCode).name() + "  " + Movement.getInstance().getPlaneMessage() + "," + Movement.getInstance().getWarningMessage());
                     }
                 } else {
                     if (!(missionStateCode == 2)) {

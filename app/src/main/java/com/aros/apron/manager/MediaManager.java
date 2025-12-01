@@ -103,8 +103,13 @@ public class MediaManager extends BaseManager {
            @Override
            public void onSuccess() {
                LogUtil.log(TAG, "进入媒体模式成功");
-               pullMediaFileListFromCamera();
-               isEnablePlayback=true;
+               new Handler().postDelayed(new Runnable() {
+                   @Override
+                   public void run() {
+                       pullMediaFileListFromCamera();
+                       isEnablePlayback=true;
+                   }
+               },1000);
            }
 
            @Override

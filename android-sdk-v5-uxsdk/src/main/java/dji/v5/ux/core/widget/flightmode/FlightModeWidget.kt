@@ -190,7 +190,11 @@ open class FlightModeWidget @JvmOverloads constructor(
     //region Reactions to model
     private fun updateUI(flightModeState: FlightModeState) {
         if (flightModeState is FlightModeState.FlightModeUpdated) {
-            flightModeTextView.text = flightModeState.flightModeString
+            if (flightModeState.flightModeString.equals("P-GPS")){
+                flightModeTextView.text = ""
+            }else{
+                flightModeTextView.text = flightModeState.flightModeString
+            }
             iconImageView.setColorFilter(connectedStateIconColor, PorterDuff.Mode.SRC_IN)
             flightModeTextView.setTextColor(connectedStateTextColor)
             widgetStateDataProcessor.onNext(FlightModeUpdated(flightModeState.flightModeString))
