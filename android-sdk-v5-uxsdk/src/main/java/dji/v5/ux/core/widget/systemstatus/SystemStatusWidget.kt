@@ -193,17 +193,12 @@ open class SystemStatusWidget @JvmOverloads constructor(
         if (isMaxHeightMessage(messageData.message)){
             systemStatusTextView.text =messageData.message + " - " + formatMaxHeight(messageData.maxHeight, messageData.unitType)
         }else{
-            if (messageData.message.equals("飞行中(GPS)")){
-                systemStatusTextView.text ="飞行中"
+            var str:String = if (messageData.message.contains("(GPS)")) {
+                messageData.message.replace("(GPS)", "").trim()
             }else{
-                systemStatusTextView.text =messageData.message
+                messageData.message
             }
-
-//            if (messageData.message.equals("限高区")){
-//                systemStatusTextView.text ="飞行中"
-//            }else{
-//                systemStatusTextView.text =messageData.message
-//            }
+                systemStatusTextView.text =str
         }
     }
 
