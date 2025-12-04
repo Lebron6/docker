@@ -171,7 +171,7 @@ public class ApronArucoDetect {
                                 || idArray[0] == 18 || idArray[0] == 19|| idArray[0] == 20|| idArray[0] == 21|| idArray[0] == 22
                                 || idArray[0] == 23|| idArray[0] == 24|| idArray[0] == 25) {
                             if (!startFastStick) {
-                                if ((idArray.length >= 3 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
+                                if ((idArray.length >= 7 && ultrasonicHeight <= 3 && flyingHeight < 3)) {
                                     String logMessage = "参考Marker数目降落:" + idArray.length +
                                             " Flying Height:" + flyingHeight + "--" +
                                             " Ultrasonic Height:" + ultrasonicHeight;
