@@ -193,12 +193,15 @@ open class SystemStatusWidget @JvmOverloads constructor(
         if (isMaxHeightMessage(messageData.message)){
             systemStatusTextView.text =messageData.message + " - " + formatMaxHeight(messageData.maxHeight, messageData.unitType)
         }else{
-            var str:String = if (messageData.message.contains("(GPS)")) {
+            val str:String = if (messageData.message.contains("(GPS)")){
                 messageData.message.replace("(GPS)", "").trim()
+            }else if(messageData.message.contains("（GPS）")){
+                messageData.message.replace("（GPS）", "").trim()
             }else{
                 messageData.message
             }
-                systemStatusTextView.text =str
+            systemStatusTextView.text =str
+
         }
     }
 

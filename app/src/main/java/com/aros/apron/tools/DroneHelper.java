@@ -139,6 +139,9 @@ public class DroneHelper {
         }
     }
 
+    private int setGimbalPitchDegreeFailTimes = 0;
+    private boolean isGimbalPitchDegree = false;
+
     public void setGimbalPitchDegree() {
         //通知拓挂载云台朝下
 //        PayloadWidgetManager.getInstance().sendMsgToLeftPayload("#TPPG2wPTZ0A76");
@@ -154,18 +157,35 @@ public class DroneHelper {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             LogUtil.log(TAG, "云台朝下");
+                            isGimbalPitchDegree=true;
+                            setGimbalPitchDegreeFailTimes=0;
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "fail:" + error.toString());
+                            retryGimbalPitchDegree();
+
                         }
                     }
             );
         } else {
             LogUtil.log(TAG, "云台未连接");
+            retryGimbalPitchDegree();
         }
-
+    }
+    private void retryGimbalPitchDegree(){
+        if (!isGimbalPitchDegree){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (setGimbalPitchDegreeFailTimes < 10) {
+                        setGimbalPitchDegreeFailTimes++;
+                        setGimbalPitchDegree();
+                    }
+                }
+            }, 1500);
+        }
     }
 
     public void moveVxVyYawrateHeight(double mPitch, double mRoll, double mYaw, double mThrottle) {

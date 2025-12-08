@@ -22,6 +22,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -229,7 +230,7 @@ public class ApronArucoDetect {
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 700 && endTime - startTime <= 8000) {
-                            if (Movement.getInstance().getFlyingHeight() <= 7) {
+                            if (Movement.getInstance().getFlyingHeight() <= 8) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);
@@ -244,7 +245,7 @@ public class ApronArucoDetect {
 //                                    virtualStickAdvancedParam=0.145;
                                     LogUtil.log(TAG, "复降第:" + dropTimes + "次");
                                 }
-                            } else if (Movement.getInstance().getFlyingHeight() > 7) {
+                            } else if (Movement.getInstance().getFlyingHeight() > 8) {
                                 //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.4);
@@ -527,6 +528,10 @@ public class ApronArucoDetect {
             }
 
         } else {
+            //测试是否因为数组过长，导致的飞机椭球返回很高，但实际距离很近识别到多个码，帧数据处理不过来
+            if (idArray.length > 5) {
+                idArray = Arrays.copyOf(idArray, 5);
+            }
             for (int i = 0; i < idArray.length; i++) {
                     mFindArucoList.add(new ArucoMarker(idArray[i], mArucoCornerList.get(i), ArucoMarkerDimensions.getSizeById(idArray[i])));
             }
