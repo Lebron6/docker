@@ -454,7 +454,6 @@ public class MissionManager extends BaseManager {
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if (
                     (missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7) &&
-
                             Movement.getInstance().isRtkSign() &&
                             (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(message);
