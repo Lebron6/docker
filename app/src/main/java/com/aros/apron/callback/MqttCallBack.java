@@ -529,6 +529,10 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：云台向下" + jsonString);
                 GimbalManager.getInstance().gimbalDownWithPitchAndYaw(message);
                 break;
+                //接收车载RTK差分数据
+            case 60155:
+                LogUtil.log(TAG, "收到命令：车载RTK" + jsonString);
+                break;
             //msdk日志上传
             case 60666:
                 LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
