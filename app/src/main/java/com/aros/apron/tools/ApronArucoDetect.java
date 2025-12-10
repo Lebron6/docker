@@ -1,6 +1,5 @@
 
 package com.aros.apron.tools;
-
 import android.os.Handler;
 import android.os.Looper;
 
@@ -95,8 +94,8 @@ public class ApronArucoDetect {
     }
 
     public void init() {
-        pidControlX = new PIDControl(0.8f, 0.01f, 0.12f, 0.2f, 10f, 0.02f);
-        pidControlY = new PIDControl(0.8f, 0.01f, 0.12f, 0.2f, 10f, 0.02f);
+        pidControlX = new PIDControl(0.8f, 0.002f, 0.09f, 0.05f, 2.0f, 0.05f);
+        pidControlY = new PIDControl(0.8f, 0.002f, 0.09f, 0.05f, 2.0f, 0.05f);
         pidControlX.reset();
         pidControlY.reset();
     }
