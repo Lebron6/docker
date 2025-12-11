@@ -105,6 +105,7 @@ public class MqttCallBack implements MqttCallbackExtended {
             case 60003:
                 //默认规定不在返航时才可以上传航线
                 //收到航线时将状态设置为不可关机状态
+                Movement.getInstance().setVirtualStickQuitMission(false);
                 if (Movement.getInstance().getIsVirtualStickEnable()==1) {
                     VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                         @Override
