@@ -1,10 +1,14 @@
 package com.aros.apron.callback;
 
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
@@ -39,6 +43,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
+
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.common.error.IDJIError;
+import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -87,6 +95,20 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
             case 60003:
+                if (Movement.getInstance().getIsVirtualStickEnable()==1) {
+                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆");
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆失败:"+getIDJIErrorMsg(error));
+
+                        }
+                    });
+                }
                 //默认规定不在返航时才可以上传航线
                 //收到航线时将状态设置为不可关机状态
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
