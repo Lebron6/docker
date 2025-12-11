@@ -135,6 +135,15 @@ public class Movement {
     private boolean cancelVirtualStickStatus;//前端判断是否显示/隐藏取消手控按钮
     private boolean pauseMissionStautus;//前端判断是否显示/隐藏暂停航线
     private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
+    private boolean isVirtualStickQuitMission;//用户手动后退出航线
+
+    public boolean isVirtualStickQuitMission() {
+        return isVirtualStickQuitMission;
+    }
+
+    public void setVirtualStickQuitMission(boolean virtualStickQuitMission) {
+        isVirtualStickQuitMission = virtualStickQuitMission;
+    }
 
     public int getNavigationSatelliteSystem() {
         return navigationSatelliteSystem;

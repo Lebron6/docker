@@ -103,6 +103,7 @@ public class StickManager extends BaseManager {
                                                 LogUtil.log(TAG, "终止任务,控制权设置成功");
                                                 Movement.getInstance().setWaylineCanResume(true);
                                                 Movement.getInstance().setVirtualStickEnableReason(3);
+                                                Movement.getInstance().setVirtualStickQuitMission(true);
                                             }
 
                                             @Override

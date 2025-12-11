@@ -170,6 +170,8 @@ public class MissionManager extends BaseManager {
                                     Movement.getInstance().setWaylineCanResume(false);
                                 }
                                 sendMissionExecuteEvents( "任务状态:上传中");
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 break;
                             case PREPARING:
                                 Movement.getInstance().setAirlineFlight(false);
@@ -180,6 +182,8 @@ public class MissionManager extends BaseManager {
                                     Movement.getInstance().setWaylineCanResume(false);
                                 }
                                 sendMissionExecuteEvents( "任务状态:执行准备中");
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 break;
                             case ENTER_WAYLINE:
                                 enterWayLineTime = System.currentTimeMillis();
@@ -190,7 +194,10 @@ public class MissionManager extends BaseManager {
                                 }else {
                                     Movement.getInstance().setWaylineCanResume(false);
                                 }
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 sendMissionExecuteEvents( "任务状态:进入航线飞行,飞往指定航线的第一个航点");
+
                                 break;
                             case EXECUTING:
                                 Movement.getInstance().setAirlineFlight(true);
@@ -201,15 +208,21 @@ public class MissionManager extends BaseManager {
                                 }else {
                                     Movement.getInstance().setWaylineCanResume(false);
                                 }
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 break;
                             case INTERRUPTED:
                                 Movement.getInstance().setAirlineFlight(true);
                                 Movement.getInstance().setWaylineCanResume(false);
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 sendMissionExecuteEvents( "任务状态:航线任务执行中断");
                                 break;
                             case RECOVERING:
                                 Movement.getInstance().setAirlineFlight(true);
                                 Movement.getInstance().setWaylineCanResume(false);
+                                Movement.getInstance().setVirtualStickQuitMission(false);
+
                                 sendMissionExecuteEvents( "任务状态:航线任务恢复中");
                                 break;
                             case FINISHED:

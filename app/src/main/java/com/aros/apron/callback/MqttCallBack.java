@@ -91,6 +91,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                 //收到航线时将状态设置为不可关机状态
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
                 Movement.getInstance().setTaskFail(false);
+                Movement.getInstance().setVirtualStickQuitMission(false);
+
                 if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
                     PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
                     PreferenceUtils.getInstance().setMissionType(message.getMissionType());

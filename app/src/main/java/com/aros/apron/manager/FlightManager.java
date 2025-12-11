@@ -482,6 +482,8 @@ public class FlightManager extends BaseManager {
                         if (newValue.value() == 2) {
                             PreferenceUtils.getInstance().setIsNewRoute(false);
                             triggerLandOrGoHome = true;
+                            Movement.getInstance().setVirtualStickQuitMission(false);
+
                         }
                         pushFlightAttitude();
                     }
@@ -751,9 +753,12 @@ public class FlightManager extends BaseManager {
         //继续按钮显示条件
         if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
                 Movement.getInstance().getMissionType() != 3 && Movement.getInstance().isWaylineCanResume()
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")) ||
-                (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))) {
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY"))
+                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
+                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                && Movement.getInstance().isVirtualStickQuitMission())) {
             Movement.getInstance().setResumeMissionStatus(true);
         } else {
             Movement.getInstance().setResumeMissionStatus(false);
