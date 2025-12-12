@@ -92,7 +92,7 @@ public abstract class BaseManager {
                 message.setResult(1);
                 message.setMsg(event);
                 mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage);
             } else {
                 LogUtil.log(TAG, event+"-流程发送失败：mqtt 未连接");
