@@ -711,19 +711,20 @@ public class FlightManager extends BaseManager {
 
     private void updataButtonStatus(){
         //手控显示条件
-        if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
-                (Movement.getInstance().getMissionType() == 3 || PreferenceUtils.getInstance().getMissionType() == 1)
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
-                && Movement.getInstance().getFlyingHeight() > 10
-                && Movement.getInstance().getGoHomeState() != 1
-                && Movement.getInstance().getGoHomeState() != 2
-                && Movement.getInstance().getIsVirtualStickEnable() == 0)
-                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
-                && Movement.getInstance().getIsVirtualStickEnable() == 0)
-                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY") &&
-                isFlying && Movement.getInstance().getIsVirtualStickEnable() == 0)
+        if (Movement.getInstance().getGoHomeState() != 1
+                && Movement.getInstance().getGoHomeState() != 2 &&
+                ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
+                        (Movement.getInstance().getMissionType() == 3
+                                || PreferenceUtils.getInstance().getMissionType() == 1)
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                        && Movement.getInstance().getFlyingHeight() > 10
+                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
+                        || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
+                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
+                        || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY") &&
+                        isFlying && Movement.getInstance().getIsVirtualStickEnable() == 0))
         ) {
             Movement.getInstance().setVirtualStickStatus(true);
         } else {
@@ -756,15 +757,16 @@ public class FlightManager extends BaseManager {
 //                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
         )
                 || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
                 || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
                 && Movement.getInstance().isVirtualStickQuitMission())) {
             Movement.getInstance().setResumeMissionStatus(true);
         } else {
             Movement.getInstance().setResumeMissionStatus(false);
         }
     }
+
     //(决定飞机触发电量低的返航)
     public boolean isTriggerRoomBattrryLanding;
     private void batteryLowLanding() {
