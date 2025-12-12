@@ -710,19 +710,20 @@ public class FlightManager extends BaseManager {
 
     private void updataButtonStatus(){
         //手控显示条件
-        if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
-                (Movement.getInstance().getMissionType() == 3 || PreferenceUtils.getInstance().getMissionType() == 1)
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
-                && Movement.getInstance().getFlyingHeight() > 10
-                && Movement.getInstance().getGoHomeState() != 1
-                && Movement.getInstance().getGoHomeState() != 2
-                && Movement.getInstance().getIsVirtualStickEnable() == 0)
+        if (Movement.getInstance().getGoHomeState() != 1
+                && Movement.getInstance().getGoHomeState() != 2 &&
+                ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
+                        (Movement.getInstance().getMissionType() == 3
+                                || PreferenceUtils.getInstance().getMissionType() == 1)
+                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
+                        && Movement.getInstance().getFlyingHeight() > 10
+                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
                 || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
                 && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
                 && Movement.getInstance().getIsVirtualStickEnable() == 0)
                 || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
                 && Movement.getInstance().getWaypointMissionExecuteState().equals("READY") &&
-                isFlying && Movement.getInstance().getIsVirtualStickEnable() == 0)
+                isFlying && Movement.getInstance().getIsVirtualStickEnable() == 0))
         ) {
             Movement.getInstance().setVirtualStickStatus(true);
         } else {
