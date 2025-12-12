@@ -2,14 +2,11 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.callback.MqttCallBack;
 import com.aros.apron.constant.AMSConfig;
@@ -27,13 +24,10 @@ import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
-
 import java.text.DecimalFormat;
 import java.util.List;
-
 import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
