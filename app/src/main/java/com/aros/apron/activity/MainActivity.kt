@@ -574,44 +574,44 @@ open class MainActivity : BaseActivity() {
                         }
                     })
 
-            FLAG_START_DETECT_ARUCO_ALTERNATE ->
-                KeyManager.getInstance().performAction<EmptyMsg>(
-                    KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStopAutoLanding),
-                    object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
-                        override fun onSuccess(emptyMsg: EmptyMsg?) {
-                            LogUtil.log(TAG, "取消降落,识别备降点二维码")
-                            Handler().postDelayed(Runnable {
-                                if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
-                                    LogUtil.log(TAG, "图传异常:备降点直接降落")
-                                    //测试图传丢失
-                                    FlightManager.getInstance().startAutoLanding( null)
-                                }
-                            }, 4000)
-                            if (startArucoType == 2) {
-                                return
-                            }
-                            startArucoType = 2
-                            DroneHelper.getInstance().setGimbalPitchDegree()
-                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
-                            DroneHelper.getInstance().isVirtualStickEnable = false
-                            DroneHelper.getInstance().setVerticalModeToVelocity()
-                        }
-
-                        override fun onFailure(error: IDJIError) {
-                            if (startArucoType == 2) {
-                                return
-                            }
-                            startArucoType = 2
-                            LogUtil.log(
-                                TAG,
-                                "取消降落,识别备降点二维码失败:" + Gson().toJson(error)
-                            )
-                            DroneHelper.getInstance().setGimbalPitchDegree()
-                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
-                            DroneHelper.getInstance().isVirtualStickEnable=false
-                            DroneHelper.getInstance().setVerticalModeToVelocity()
-                        }
-                    })
+//            FLAG_START_DETECT_ARUCO_ALTERNATE ->
+//                KeyManager.getInstance().performAction<EmptyMsg>(
+//                    KeyTools.createKey<EmptyMsg, EmptyMsg>(FlightControllerKey.KeyStopAutoLanding),
+//                    object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg?> {
+//                        override fun onSuccess(emptyMsg: EmptyMsg?) {
+//                            LogUtil.log(TAG, "取消降落,识别备降点二维码")
+//                            Handler().postDelayed(Runnable {
+//                                if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
+//                                    LogUtil.log(TAG, "图传异常:备降点直接降落")
+//                                    //测试图传丢失
+//                                    FlightManager.getInstance().startAutoLanding( null)
+//                                }
+//                            }, 4000)
+//                            if (startArucoType == 2) {
+//                                return
+//                            }
+//                            startArucoType = 2
+//                            DroneHelper.getInstance().setGimbalPitchDegree()
+//                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+//                            DroneHelper.getInstance().isVirtualStickEnable = false
+//                            DroneHelper.getInstance().setVerticalModeToVelocity()
+//                        }
+//
+//                        override fun onFailure(error: IDJIError) {
+//                            if (startArucoType == 2) {
+//                                return
+//                            }
+//                            startArucoType = 2
+//                            LogUtil.log(
+//                                TAG,
+//                                "取消降落,识别备降点二维码失败:" + Gson().toJson(error)
+//                            )
+//                            DroneHelper.getInstance().setGimbalPitchDegree()
+//                            //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
+//                            DroneHelper.getInstance().isVirtualStickEnable=false
+//                            DroneHelper.getInstance().setVerticalModeToVelocity()
+//                        }
+//                    })
 
             FLAG_DOWN_LAND ->
                 KeyManager.getInstance().performAction<EmptyMsg>(
