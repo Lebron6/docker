@@ -323,7 +323,6 @@ public class FlightManager extends BaseManager {
                                             LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
                                                     + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
                                         }
-
                                     }
                                 }
                             }
