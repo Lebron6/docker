@@ -111,6 +111,12 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
+                    leftOrMainPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                        @Override
+                        public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+                            LogUtil.log(TAG,"打印A控件信息:"+new Gson().toJson(info));
+                        }
+                    });
 
                 } else {
                     LogUtil.log(TAG, "监听LEFT_OR_MAIN PSDK数据失败:设备未连接");
@@ -138,7 +144,7 @@ public class PayloadWidgetManager extends BaseManager {
                     rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                         @Override
                         public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                            LogUtil.log(TAG,"打印控件信息:"+new Gson().toJson(info));
+                            LogUtil.log(TAG,"打印B控件信息:"+new Gson().toJson(info));
                         }
                     });
 
