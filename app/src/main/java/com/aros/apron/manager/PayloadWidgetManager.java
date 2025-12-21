@@ -36,8 +36,10 @@ import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.payload.PayloadCenter;
 import dji.v5.manager.aircraft.payload.PayloadIndexType;
 import dji.v5.manager.aircraft.payload.data.PayloadBasicInfo;
+import dji.v5.manager.aircraft.payload.data.PayloadWidgetInfo;
 import dji.v5.manager.aircraft.payload.listener.PayloadBasicInfoListener;
 import dji.v5.manager.aircraft.payload.listener.PayloadDataListener;
+import dji.v5.manager.aircraft.payload.listener.PayloadWidgetInfoListener;
 import dji.v5.manager.interfaces.IPayloadManager;
 
 
@@ -92,15 +94,15 @@ public class PayloadWidgetManager extends BaseManager {
 
                 /*******************************************************************************************************/
 
-                IPayloadManager leftOrMainPayloadManager = payloadManager.get(PayloadIndexType.LEFT_OR_MAIN);
+                IPayloadManager leftOrMainPayloadManager = payloadManager.get(PayloadIndexType.PORT_1);
                 if (leftOrMainPayloadManager != null) {
                     leftOrMainPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
                             if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.LEFT_OR_MAIN.name())) {
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.PORT_1.name())) {
                                 PayloadInfo payloadInfo = new PayloadInfo();
-                                payloadInfo.setPayloadIndexType(PayloadIndexType.LEFT_OR_MAIN.name());
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.PORT_1.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
                                 payloadInfo.setProductName(info.getPayloadProductName());
                                 payloadInfo.setSerialNumber(info.getSerialNumber());
@@ -116,21 +118,27 @@ public class PayloadWidgetManager extends BaseManager {
 
                 /*******************************************************************************************************/
 
-                IPayloadManager rightPayloadManager = payloadManager.get(PayloadIndexType.RIGHT);
+                IPayloadManager rightPayloadManager = payloadManager.get(PayloadIndexType.PORT_2);
                 if (rightPayloadManager != null) {
                     rightPayloadManager.addPayloadBasicInfoListener(new PayloadBasicInfoListener() {
                         @Override
                         public void onPayloadBasicInfoUpdate(PayloadBasicInfo info) {
                             if (info != null && info.isConnected() &&
-                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.RIGHT.name())) {
+                                    !isPayloadIndexTypeExists(payloadInfos, PayloadIndexType.PORT_2.name())) {
                                 PayloadInfo payloadInfo = new PayloadInfo();
-                                payloadInfo.setPayloadIndexType(PayloadIndexType.RIGHT.name());
+                                payloadInfo.setPayloadIndexType(PayloadIndexType.PORT_2.name());
                                 payloadInfo.setFirmwareVersion(info.getFirmwareVersion());
                                 payloadInfo.setProductName(info.getPayloadProductName());
                                 payloadInfo.setSerialNumber(info.getSerialNumber());
                                 payloadInfos.add(payloadInfo);
                                 Movement.getInstance().setPayloadInfos(payloadInfos);
                             }
+                        }
+                    });
+                    rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                        @Override
+                        public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+                            LogUtil.log(TAG,"打印控件信息:"+new Gson().toJson(info));
                         }
                     });
 
