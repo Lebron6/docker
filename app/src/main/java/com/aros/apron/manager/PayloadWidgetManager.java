@@ -18,6 +18,7 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -57,6 +58,13 @@ public class PayloadWidgetManager extends BaseManager {
     public static PayloadWidgetManager getInstance() {
         return PayloadWidgetHolder.INSTANCE;
     }
+
+
+    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
+    Gson gson = new GsonBuilder()
+            .serializeSpecialFloatingPointValues() // 这是关键
+            .create();
+
     public void initPayloadInfo() {
 
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -108,13 +116,19 @@ public class PayloadWidgetManager extends BaseManager {
                                 payloadInfo.setSerialNumber(info.getSerialNumber());
                                 payloadInfos.add(payloadInfo);
                                 Movement.getInstance().setPayloadInfos(payloadInfos);
+                                LogUtil.log(TAG,"打印A控件onPayloadBasicInfoUpdate:"+gson.toJson(info));
+
                             }
+
                         }
                     });
                     leftOrMainPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                         @Override
                         public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                            LogUtil.log(TAG,"打印A控件信息:"+new Gson().toJson(info));
+                            if (info!=null){
+                                LogUtil.log(TAG,"打印A控件addPayloadWidgetInfoListener:"+gson.toJson(info));
+
+                            }
                         }
                     });
 
@@ -138,15 +152,21 @@ public class PayloadWidgetManager extends BaseManager {
                                 payloadInfo.setSerialNumber(info.getSerialNumber());
                                 payloadInfos.add(payloadInfo);
                                 Movement.getInstance().setPayloadInfos(payloadInfos);
+                                LogUtil.log(TAG,"打印B控件onPayloadBasicInfoUpdate:"+gson.toJson(info));
+
                             }
                         }
                     });
                     rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                         @Override
                         public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                            LogUtil.log(TAG,"打印B控件信息:"+new Gson().toJson(info));
+                            if (info!=null){
+                                LogUtil.log(TAG,"打印B控件addPayloadWidgetInfoListener:"+gson.toJson(info));
+
+                            }
                         }
                     });
+
 
                 } else {
                     LogUtil.log(TAG, "监听RIGHT PSDK数据失败:设备未连接");
