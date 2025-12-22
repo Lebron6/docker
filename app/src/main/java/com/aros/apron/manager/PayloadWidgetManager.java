@@ -5,6 +5,7 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -29,6 +30,7 @@ import java.util.Map;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.payload.CustomizeRcButtonConfig;
 import dji.sdk.keyvalue.value.payload.WidgetType;
 import dji.sdk.keyvalue.value.payload.WidgetValue;
 import dji.v5.common.callback.CommonCallbacks;
@@ -122,13 +124,12 @@ public class PayloadWidgetManager extends BaseManager {
 
                         }
                     });
-                    leftOrMainPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                    //可以把负载设备控件打印
+                    PayloadCenter.getInstance().getPayloadManager().get(PayloadIndexType.PORT_1).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                         @Override
                         public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                            if (info!=null){
-                                LogUtil.log(TAG,"打印A控件addPayloadWidgetInfoListener:"+gson.toJson(info));
+                            LogUtil.log(TAG,"左侧负载控件信息:"+gson.toJson(info));
 
-                            }
                         }
                     });
                 } else {
@@ -156,13 +157,12 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
-                    rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+
+                    //可以把负载设备控件打印
+                    PayloadCenter.getInstance().getPayloadManager().get(PayloadIndexType.PORT_2).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                         @Override
                         public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                            if (info!=null){
-                                LogUtil.log(TAG,"打印B控件addPayloadWidgetInfoListener:"+gson.toJson(info));
-
-                            }
+                            LogUtil.log(TAG,"右侧负载控件信息:"+gson.toJson(info));
                         }
                     });
 
@@ -200,6 +200,33 @@ public class PayloadWidgetManager extends BaseManager {
             LogUtil.log(TAG, "设备未连接");
         }
     }
+
+    //设置三方负载控件
+    public void setWidget(MQMessage message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            Map<PayloadIndexType, IPayloadManager> payloadManager = PayloadCenter.getInstance().getPayloadManager();
+            Map<PayloadIndexType, IPayloadManager> payloadManagerMap = payloadManager;
+            WidgetValue widgetValue = new WidgetValue();
+            widgetValue.setValue(message.getWidgetValue());
+            widgetValue.setIndex(message.getWidgetIndex());
+            widgetValue.setType(WidgetType.find(message.getWidgetType()));
+            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG,"设置widget成功");
+                    sendMsg2Server(message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG,"设置widget失败:"+getIDJIErrorMsg(error));
+                }
+            });
+        }
+
+    }
+
     //锁定
     public void lock(MQMessage message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
@@ -210,7 +237,7 @@ public class PayloadWidgetManager extends BaseManager {
             widgetValue.setValue(0);
             widgetValue.setIndex(0);
             widgetValue.setType(WidgetType.SWITCH);
-            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(message);
@@ -236,7 +263,7 @@ public class PayloadWidgetManager extends BaseManager {
             widgetValue.setValue(1);
             widgetValue.setIndex(0);
             widgetValue.setType(WidgetType.SWITCH);
-            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(message);
@@ -263,7 +290,7 @@ public class PayloadWidgetManager extends BaseManager {
             widgetValue.setValue(0);
             widgetValue.setIndex(0);
             widgetValue.setType(WidgetType.SWITCH);
-            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     new Handler().postDelayed(new Runnable() {
@@ -275,7 +302,7 @@ public class PayloadWidgetManager extends BaseManager {
                             widgetValue.setValue(1);
                             widgetValue.setIndex(0);
                             widgetValue.setType(WidgetType.SWITCH);
-                            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+                            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     new Handler().postDelayed(new Runnable() {
@@ -287,7 +314,7 @@ public class PayloadWidgetManager extends BaseManager {
                                             widgetValue.setValue(1);
                                             widgetValue.setIndex(1);
                                             widgetValue.setType(WidgetType.BUTTON);
-                                            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+                                            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                                 @Override
                                                 public void onSuccess() {
                                                     sendMsg2Server(message);
@@ -336,7 +363,7 @@ public class PayloadWidgetManager extends BaseManager {
             widgetValue.setValue(0);
             widgetValue.setIndex(0);
             widgetValue.setType(WidgetType.SWITCH);
-            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
                     new Handler().postDelayed(new Runnable() {
@@ -348,7 +375,7 @@ public class PayloadWidgetManager extends BaseManager {
                             widgetValue.setValue(1);
                             widgetValue.setIndex(0);
                             widgetValue.setType(WidgetType.SWITCH);
-                            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+                            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                 @Override
                                 public void onSuccess() {
                                     new Handler().postDelayed(new Runnable() {
@@ -360,7 +387,7 @@ public class PayloadWidgetManager extends BaseManager {
                                             widgetValue.setValue(1);
                                             widgetValue.setIndex(2);
                                             widgetValue.setType(WidgetType.BUTTON);
-                                            payloadManagerMap.get(PayloadIndexType.RIGHT).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
+                                            payloadManagerMap.get(PayloadIndexType.PORT_2).setWidgetValue(widgetValue, new CommonCallbacks.CompletionCallback() {
                                                 @Override
                                                 public void onSuccess() {
                                                     sendMsg2Server(message);

@@ -531,6 +531,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
                 AMSLogManager.getInstance().enableLogList(message);
                 break;
+            //设置PSDK控件值
+            case 60667:
+                LogUtil.log(TAG, "收到命令：设置psdk控件" + jsonString);
+                PayloadWidgetManager.getInstance().setWidget(message);
+                break;
             //监听机库收到AMS命令后的回执
             case 60999:
                 if (!TextUtils.isEmpty(message.getStatus())) {
