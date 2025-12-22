@@ -131,7 +131,6 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
-
                 } else {
                     LogUtil.log(TAG, "监听LEFT_OR_MAIN PSDK数据失败:设备未连接");
                 }
