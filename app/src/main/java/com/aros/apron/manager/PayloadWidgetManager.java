@@ -150,16 +150,7 @@ public class PayloadWidgetManager extends BaseManager {
                         }
                     });
 
-                    //可以把负载设备控件打印
-                rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
-                    @Override
-                    public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
-                        if (info!=null){
-                            LogUtil.log(TAG,"打印B控件addPayloadWidgetInfoListener:"+gson.toJson(info));
 
-                        }
-                    }
-                });
 
                 /*******************************************************************************************************/
 
@@ -180,7 +171,7 @@ public class PayloadWidgetManager extends BaseManager {
                         }
                     });
 
-
+                //可以把负载设备控件打印
                 PayloadCenter.getInstance().getPayloadManager().get(PayloadIndexType.RIGHT).addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
                     @Override
                     public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
