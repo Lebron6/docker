@@ -19,6 +19,7 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -68,6 +69,12 @@ public class PayloadWidgetManager extends BaseManager {
         }
         return hex;
     }
+
+    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
+    Gson gson = new GsonBuilder()
+            .serializeSpecialFloatingPointValues() // 这是关键
+            .create();
+
     public void initPayloadInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
@@ -142,6 +149,17 @@ public class PayloadWidgetManager extends BaseManager {
                             }
                         }
                     });
+
+                    //可以把负载设备控件打印
+                rightPayloadManager.addPayloadWidgetInfoListener(new PayloadWidgetInfoListener() {
+                    @Override
+                    public void onPayloadWidgetInfoUpdate(PayloadWidgetInfo info) {
+                        if (info!=null){
+                            LogUtil.log(TAG,"打印B控件addPayloadWidgetInfoListener:"+gson.toJson(info));
+
+                        }
+                    }
+                });
 
                 /*******************************************************************************************************/
 
