@@ -413,6 +413,8 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
+                            //每次起飞前 将最后降落的触发条件制成false
+                            isTriggerLanding=false;
                             if (!sendStartTakeOffMsg) {
                                 SendStartTakeOffManager.getInstance().sendStartTakeOff2Server();
                                 sendStartTakeOffMsg = true;

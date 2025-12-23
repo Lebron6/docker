@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.text.TextUtils
 import android.view.View
 import android.view.Window
@@ -34,6 +35,7 @@ import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MLTEManager
 import com.aros.apron.manager.MediaManager
+import com.aros.apron.manager.MegaphoneManager
 import com.aros.apron.manager.MissionManager
 import com.aros.apron.manager.NavigationSatelliteSystemManager
 import com.aros.apron.manager.OffSiteLandingManager
@@ -483,10 +485,20 @@ open class MainActivity : BaseActivity() {
         btn_test1 = findViewById( R.id.btn_test1)
         btn_test?.setOnClickListener {
 //            MissionManager.getInstance().test()
-            FlightManager.getInstance().startPropellerRotation(null)
+            val message = MQMessage().apply {
+                megaphonePlayMode = 1
+                msg_type = 60110
+                megaphoneVolume=100
+                megaphoneWord="阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1"
+            }
+            MegaphoneManager.getInstance().startMegaphonePlay(message)
+
+
         }
         btn_test1?.setOnClickListener {
-            FlightManager.getInstance().stopPropellerRotation(null)
+//            FlightManager.getInstance().stopPropellerRotation(null)
+            MegaphoneManager.getInstance().stopPlay(null)
+
         }
 
         initClickListener()
