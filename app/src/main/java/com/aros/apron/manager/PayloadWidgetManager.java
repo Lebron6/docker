@@ -165,8 +165,6 @@ public class PayloadWidgetManager extends BaseManager {
                             LogUtil.log(TAG,"右侧负载控件信息:"+gson.toJson(info));
                         }
                     });
-
-
                 } else {
                     LogUtil.log(TAG, "监听RIGHT PSDK数据失败:设备未连接");
                 }
