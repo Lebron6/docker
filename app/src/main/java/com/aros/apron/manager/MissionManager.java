@@ -242,7 +242,7 @@ public class MissionManager extends BaseManager {
                                             String.valueOf(Movement.getInstance().getCurrentLatitude()));
                                     if (pointDistance<2&&!alreadySendLeaveLastPoint) {
                                         alreadySendLeaveLastPoint =true;
-                                        sendCustomReachOrLeave2Server( "1",
+                                        WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "1",
                                                 String.valueOf(CurrentWayline.getInstance().getWaypoints().size()-1));
                                         LogUtil.log(TAG, "离开最后第" + (CurrentWayline.getInstance().getWaypoints().size()-1)
                                                 + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());

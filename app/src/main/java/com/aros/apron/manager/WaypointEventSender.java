@@ -2,6 +2,7 @@ package com.aros.apron.manager;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.MessageReply;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
@@ -59,10 +60,10 @@ public class WaypointEventSender {
                 message.setResult(1);
                 message.setWaypointActionState(data);
                 message.setWaypointIndex(index);
-
+                message.setTask_id(Movement.getInstance().getTaskId());
                 MqttMessage mqttMessage =
                         new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-                mqttMessage.setQos(1); // QoS=1 更合适
+                mqttMessage.setQos(1);
 
                 MqttManager.getInstance().mqttAndroidClient.publish(
                         AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(),
