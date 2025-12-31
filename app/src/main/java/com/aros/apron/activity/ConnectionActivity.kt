@@ -289,7 +289,6 @@ open class ConnectionActivity : BaseActivity() {
                 }
             } else {
                 LogUtil.log(TAG, "SDK Register Failure: ${resultPair.second}")
-
                 ToastUtil.showToast("Register Failure: ${resultPair.second}")
                 statusText = StringUtils.getResStr(this, R.string.unregistered)
             }

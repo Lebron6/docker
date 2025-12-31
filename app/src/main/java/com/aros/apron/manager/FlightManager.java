@@ -1028,7 +1028,8 @@ public class FlightManager extends BaseManager {
     private void droneStorage() {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         // 检查无人机是否满足降落和入库的条件
-        if (triggerLandOrGoHome && !isMotorsOn && !isFlying && Movement.getInstance().getFlyingHeight() <= 0.0) {
+        if (triggerLandOrGoHome && !isMotorsOn &&
+                !isFlying && Movement.getInstance().getFlyingHeight() <= 0.0) {
             // 重置降落或返航的触发标志
             triggerLandOrGoHome = false;
             // 禁用触发和检测标志
