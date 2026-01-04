@@ -261,12 +261,23 @@ public class MissionManager extends BaseManager {
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing() && !message.isNewRoute()) {
-                                            LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
-                                            Movement.getInstance().setTaskFail(true);
-                                            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
-                                            sendMissionExecuteEvents( "任务非正常结束");
+                                        if (finishWayLineTime - enterWayLineTime <= 20000  && !message.isNewRoute()) {
+                                            if (!Movement.getInstance().isPlaneWing()){
+                                                LogUtil.log(TAG, "20s内任务非正常结束,直接入库");
+                                                Movement.getInstance().setTaskFail(true);
+                                                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                                                DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
+                                                sendMissionExecuteEvents( "任务非正常结束");
+                                            }else{
+                                                if (Movement.getInstance().getFlyingHeight()<15){
+                                                    LogUtil.log(TAG, "10s内任务异常结束,拉高返航:"+Movement.getInstance().getFlyingHeight());
+                                                    WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
+                                                    sendMissionExecuteEvents("10s内任务异常结束,拉高返航");
+                                                }else{
+                                                    sendMissionExecuteEvents("10s内任务异常结束,等待手动返航");
+                                                    LogUtil.log(TAG, "10s内任务异常结束,等待手动返航:"+Movement.getInstance().getFlyingHeight());
+                                                }
+                                            }
                                         }
                                     }
                                 }, 5000);
