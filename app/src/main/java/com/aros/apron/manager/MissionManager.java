@@ -477,7 +477,7 @@ public class MissionManager extends BaseManager {
         }
         if (PreferenceUtils.getInstance().getHaveRTK()) {
             if (
-                    (missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7) &&
+                    (missionStateCode == 2  || missionStateCode == 7) &&
                             Movement.getInstance().isRtkSign() &&
                             (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage()) && !Movement.getInstance().getPlaneMessage().equals("无法起飞"))) {
                 downLoadKMZFile(message);
@@ -488,7 +488,7 @@ public class MissionManager extends BaseManager {
             }
         } else {
             //没有RTK的情况下延迟下载航线，等待GPS信号收敛
-            if ((missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7) &&
+            if ((missionStateCode == 2  || missionStateCode == 7) &&
                     (!TextUtils.isEmpty(Movement.getInstance().getPlaneMessage())
                             && !Movement.getInstance().getPlaneMessage().equals("无法起飞")
                             && (Movement.getInstance().getGPSSignalLevel().equals("LEVEL_4")
@@ -544,7 +544,7 @@ public class MissionManager extends BaseManager {
                     if (!Movement.getInstance().isRtkSign()) {
                         LogUtil.log(TAG, "飞行器RTK收敛异常");
                         sendMissionExecuteEvents("飞行器RTK收敛异常");
-                    } else if (!(missionStateCode == 2 || missionStateCode == 0 || missionStateCode == 7)) {
+                    } else if (!(missionStateCode == 2  || missionStateCode == 7)) {
                         LogUtil.log(TAG, "飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                         sendMissionExecuteEvents("飞行器航线状态异常:" + WaypointMissionExecuteState.find(missionStateCode).name());
                     } else {
