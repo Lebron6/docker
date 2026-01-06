@@ -51,7 +51,6 @@ import dji.v5.manager.aircraft.waypoint3.WaypointMissionExecuteStateListener;
 import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import dji.v5.manager.aircraft.waypoint3.model.WaylineExecutingInfo;
 import dji.v5.manager.aircraft.waypoint3.model.WaypointMissionExecuteState;
-
 import dji.v5.manager.interfaces.IWaypointMissionManager;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -827,7 +826,7 @@ public class MissionManager extends BaseManager {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                     Movement.getInstance().setTaskFail(true);
                                     DroneStorageManager.getInstance().sendDroneStorageMsg2Server(-1);
-                                    sendMissionExecuteEvents( "任务开始失败,执行关机:" + Movement.getInstance().getGPSSignalLevel());
+                                    sendMissionExecuteEvents("任务开始失败,执行关机:" + getIDJIErrorMsg(error));
                                     LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getGPSSignalLevel());
                                 } else {
                                     sendMissionExecuteEvents( "指点任务开始失败");
