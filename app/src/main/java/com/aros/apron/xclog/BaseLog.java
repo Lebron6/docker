@@ -1,6 +1,5 @@
 package com.aros.apron.xclog;
 
-import com.aros.apron.manager.AMSLogManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,9 +25,9 @@ public abstract class BaseLog extends LogWriter{
     }
 
     public void i(String tag, String msg){
-        if (!AMSLogManager.getInstance().isUploadingAMSLog()){
+//        if (!AMSLogManager.getInstance().isUploadingAMSLog()){
             log("I", tag, msg);
-        }
+//        }
     }
 
     public void w(String tag, String msg){
@@ -44,9 +43,9 @@ public abstract class BaseLog extends LogWriter{
     }
 
     public void f(String tag, String msg){
-        if (!AMSLogManager.getInstance().isUploadingAMSLog()){
+//        if (!AMSLogManager.getInstance().isUploadingAMSLog()){
             log("F", tag, msg);
-        }
+//        }
     }
 
     /**

@@ -75,9 +75,5 @@ public class AMSConfig {
      */
     public static String DOWN_UAV_EVENT = "nest/uav_event_reply";
 
-    /**
-     * 客户端推送OSD给服务端
-     */
-    public static String UP_OSD = "nest/osd";
 
 }
