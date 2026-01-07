@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import com.aros.apron.activity.MainActivity;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
-import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
@@ -39,105 +39,25 @@ public class SystemManager extends BaseManager {
     }
 
 
-    public void checkRemoteControlPowerStatus(MQMessage message) {
-//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.KeyConnection));
-//        if (isConnect != null && isConnect) {
-            sendMsg2Server( message);
-//        } else {
-//            sendMsg2Server( message, "遥控器未连接");
-//        }
-
+    public void checkRemoteControlPowerStatus(MessageDown message) {
+            sendMsg2Server(message);
     }
 
-    public void checkAircraftPowerStatus( MQMessage message) {
+    public void checkAircraftPowerStatus(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             sendMsg2Server( message);
         } else {
-            sendMsg2Server( message, "飞控未连接");
+            sendFailMsg2Server( message, "无人机未连接");
         }
     }
 
-    //飞机已经执行过航线，落地后没有关遥控器，或重启AMS
-    public void replyAlreadyFlown( MQMessage message) {
-            sendMsg2Server( message, "请等待或手动重启遥控器或AMS软件");
-            LogUtil.log(TAG,"请等待或手动重启遥控器或AMS软件");
-    }
-
-    //检查航线下发时参数是否缺少
-    public boolean checkMissionParameter(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        CameraType cameraType = KeyManager.getInstance().getValue( createKey(
-                CameraKey.KeyCameraType,
-                ComponentIndexType.PORT_1
-        ));
-        if (isConnect == null || !isConnect || cameraType==null||cameraType == CameraType.NOT_SUPPORTED||!Movement.getInstance().isVtx()) {
-            sendMissionExecuteEvents( "设备连接异常");
-            LogUtil.log(TAG, "设备连接异常,直接入库："+new Gson().toJson(message));
-            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
-            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-            Movement.getInstance().setTaskFail(true);
-            return false;
-        }
-        if (message != null && !TextUtils.isEmpty(message.getAlternate_lat())
-                && !TextUtils.isEmpty(message.getAlternate_lng()) &&
-                !TextUtils.isEmpty(message.getSafe_land_height()) &&
-                !TextUtils.isEmpty(message.getTask_id())&&
-                !TextUtils.isEmpty(message.getRtmp_push_url())
-                ) {
-            PreferenceUtils.getInstance().setAlternatePointLat(message.getAlternate_lat());
-            PreferenceUtils.getInstance().setAlternatePointLon(message.getAlternate_lng());
-            PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getSafe_land_height());
-            PreferenceUtils.getInstance().setTaskId(message.getTask_id());
-            Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
-
-            Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
-
-            if (!TextUtils.isEmpty(message.getMin_takeoff_electricity())&&Integer.valueOf(message.getMin_takeoff_electricity()) >= 35) {
-                PreferenceUtils.getInstance().setMinumumBattery(message.getMin_takeoff_electricity());
-            } else {
-                LogUtil.log(TAG, "启用AMS默认起飞电量阈值");
-            }
-
-            if (!TextUtils.isEmpty(message.getForce_return_electricity())&&Integer.valueOf(message.getMin_takeoff_electricity()) - Integer.valueOf(message.getForce_return_electricity()) >= 10) {
-                PreferenceUtils.getInstance().setForcedBattery(message.getForce_return_electricity());
-            } else {
-                LogUtil.log(TAG, "启用AMS默认强制返航电量阈值");
-            }
-            return true;
-        } else {
-            sendMissionExecuteEvents( "航线参数有误");
-            LogUtil.log(TAG, "航线参数有误,直接入库："+new Gson().toJson(message));
-            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
-            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-            Movement.getInstance().setTaskFail(true);
-            sendMsg2Server( message,"航线参数有误");
-            return false;
-        }
-    }
-
-    //检查航线下发时是否有图传
-    public boolean checkStream(MQMessage message) {
-        if (MainActivity.Companion.getStreamReceive()){
-    return true;
-        }else{
-            sendMissionExecuteEvents( "未获取到图传");
-            LogUtil.log(TAG, "未获取到图传,直接入库："+new Gson().toJson(message));
-            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
-            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-            Movement.getInstance().setTaskFail(true);
-            return false;
-        }
-
-    }
-
-    //收到60012表示飞机已归中,立即回复60012
-    //收到60012表示服务端在确认飞机此时时候处于可关机的状态
-    public void aircraftStoredReply(MQMessage message) {
+    //文件是否上传结束
+    public void aircraftStoredReply(MessageDown message) {
         if (ApronExecutionStatus.getInstance().isAircraftWaitShutDown()) {
             sendMsg2Server( message);
         } else {
-            sendMsg2Server( message, "不可关机");
+            sendFailMsg2Server( message, "不可关机");
         }
     }
 
@@ -155,12 +75,8 @@ public class SystemManager extends BaseManager {
             },1000);
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
-            DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
             Movement.getInstance().setTaskFail(true);
-
         }
-
     }
-
 }

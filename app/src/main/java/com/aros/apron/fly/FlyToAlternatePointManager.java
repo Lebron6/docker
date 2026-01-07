@@ -281,7 +281,7 @@
 //    public void updateAircraftSate() {
 //        aircraftLng = Double.parseDouble(Movement.getInstance().getCurrentLongitude());
 //        aircraftLat = Double.parseDouble(Movement.getInstance().getCurrentLatitude());
-//        aircraftAlt = Movement.getInstance().getFlyingHeight();
+//        aircraftAlt = Movement.getInstance().getElevation();
 //        aircraftPich = Double.parseDouble(Movement.getInstance().getPitch());
 //        aircraftRoll = Double.parseDouble(Movement.getInstance().getRoll());
 //        aircraftYaw = Double.parseDouble(Movement.getInstance().getYaw());

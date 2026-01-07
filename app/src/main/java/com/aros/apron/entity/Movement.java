@@ -17,35 +17,21 @@ public class Movement {
     }
 
     private int msg_type = 60013;
-    private String homepointLat;//返航点经纬度
-    private String homepointLong;
 
-    private int distance;//距离航点
-    private double egm96Altitude;//海拔高度
-    private double takeoffLocationAltitude;//起飞高度
-    private double RTKTakeoffAltitude;//RTK起飞高度
-    private String horizontalSpeed;//水平速度
-    private String verticalSpeed;//垂直速度
     private int windSpeed;//风速
     private int ultrasonicHeight;//超声波测高，只在飞行高度5m时奏效,单位/分米
-    private boolean rtkSign;//rtk标志
-    private int satelliteNumber;//卫星数量
-    private String GPSSignalLevel;//GPS信号等级
-    private boolean levelObstacleAvoidance;//水平避障
     private int remoteControlSignal;//遥控器信号
     private int pictureBiographySignal;//图传信号
-    private int electricityInfoA;//A电量信息
-    private int voltageInfoA;//A电压信息
     private double batteryTemperatureA;//A电池温度
     private int electricityInfoB;//B电量信息
-    private int voltageInfoB;//B电压信息
     private double batteryTemperatureB;//B电池温度
     private int currentView = 0;//当前视角 1FPV 0云台
     private String planeMessage;//飞机提示信息
     private String warningMessage;//飞机警告信息
     private int angleYaw;//飞机飞行机头角度
     private String flightPathName;//航线名称
-    private String planeMode ;//飞机模式
+    private String planeMode;//飞机模式字符串
+    private int missionStateCode;//航线任务状态
 
     private int cameraMode;//相机模式(拍照/录像) 0拍照 1录像
     private int isShootingPhoto;//是否正在拍照 1正在拍照 0未在拍照
@@ -66,22 +52,12 @@ public class Movement {
     private int flightPathStatus;//航线状态航线状态 （0 航线飞行中 1 航线暂停中 2航线已终止）
     private String waylineExecutingInterruptReason;//航线暂停原因
     private int goHomeState;//返航执行状态  0未触发返航 1返航中 2返航下降中 3返航完成
-    private long timestamp;//时间戳
-    private int remainFlightTime;//剩余飞行时间
     private int returnHomePower;//返航电量所需百分比
     private int landingPower;//降落电量所需百分比
     private int lowBatteryRTHState;//智能低电量返航状态 0未触发智能低电量返航 1触发智能低电量返航，飞行器正在倒计时 2执行智能低电量返航 3智能低电量返航被取消
     private String missionName;//当前正在执行的航线名
     private int currentWaypointIndex=-1;//当前航点下标
-    private String currentLongitude="0.0";//当前经度
-    private String currentLatitude="0.0";//当前纬度
-    private double flyingHeight=0.0;//飞行高度
-    private String roll;//机身姿态
-    private String pitch;
-    private String yaw="0";
-    private String gimbalRoll;//云台角度
-    private String gimbalPitch;
-    private String gimbalYaw;
+
     private boolean planeWing;//飞机是否在飞
     private boolean isMotorsOn;//电机是否起转
     private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
@@ -102,7 +78,6 @@ public class Movement {
     private String minTemperaturePointX;//最小温度的位置
     private String minTemperaturePointY;
     private String LTELinkType;//图传类型  1cusync 图传 3LTE 增强图传
-    private String sn;//设备SN，用于区别是哪台飞机
     private int goHomeHeight;//返航高度
     private int failsafeAction;//失控动作
     private int heightLimit;//限高
@@ -136,6 +111,1077 @@ public class Movement {
     private boolean pauseMissionStautus;//前端判断是否显示/隐藏暂停航线
     private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
     private boolean isVirtualStickQuitMission;//用户手动后退出航线
+
+
+    //适配上云格式参数，拿到后再进行组装
+    private double measure_target_altitude;
+    private int measure_target_distance;
+    private int measure_target_error_state;
+    private double measure_target_latitude;
+    private double measure_target_longitude;
+    private String payload_index;
+    private int thermal_current_palette_style;
+    private int thermal_gain_mode;
+    private double thermal_global_temperature_max;
+    private double thermal_global_temperature_min;
+    private int thermal_isotherm_lower_limit;
+    private int thermal_isotherm_state;
+    private int thermal_isotherm_upper_limit;
+
+    private int gimbal_pitch;
+    private int gimbal_roll;
+    private double gimbal_yaw;
+
+    private int capacity_percent;
+    private int battery_a_capacity_percent;
+    private String battery_a_battery_firmware_version;
+    private int battery_a_high_voltage_storage_days;
+    private int battery_a_index;
+    private int battery_a_loop_times;
+    private String battery_a_battery_sn;
+    private int battery_a_sub_type;
+    private double battery_a_temperature;
+    private int battery_a_type;
+    private int battery_a_voltage;
+
+    private int battery_b_capacity_percent;
+    private String battery_b_battery_firmware_version;
+    private int battery_b_high_voltage_storage_days;
+    private int battery_b_index;
+    private int battery_b_loop_times;
+    private String battery_b_battery_sn;
+    private int battery_b_sub_type;
+    private double battery_b_temperature;
+    private int battery_b_type;
+    private int battery_b_voltage;
+
+
+    private int landing_power;
+    private int remain_flight_time;
+    private int return_home_power;
+
+    private double attitude_head;
+    private double attitude_pitch;
+    private double attitude_roll;
+    private String country;
+    private double elevation;
+    private double rtk_takeoff_altitude;
+    private double homepoint_latitude;
+    private double homepoint_longitude;
+    private String firmware_version;
+    private int gear;
+    private double height;
+    private int height_limit;
+    private double home_distance;
+    private double horizontal_speed;
+    private int is_near_area_limit;
+    private int is_near_height_limit;
+    private double latitude;
+    private double longitude;
+    private int mode_code;
+    private int night_lights_state;
+    private int rc_lost_action;
+    private boolean rid_state;
+    private int rth_altitude;
+    private double total_flight_distance;
+    private int total_flight_sorties;
+    private double total_flight_time;
+    private String track_id;
+    private double vertical_speed;
+    private int wind_direction;
+    private int wind_speed;
+
+    private int camera_mode;
+    private int ir_metering_mode;
+    private int temperature;
+    private double x;
+    private double y;
+    private int ir_zoom_factor;
+    private double bottom;
+    private double left;
+    private double right;
+    private double top;
+    private int photo_state;
+    private List<String> photo_storage_settings;
+    private int record_time;
+    private int recording_state;
+    private int remain_photo_num;
+    private int remain_record_duration;
+    private boolean screen_split_enable;
+    private int wide_exposure_mode;
+    private int wide_exposure_value;
+    private int wide_iso;
+    private int wide_shutter_speed;
+    private int zoom_calibrate_farthest_focus_value;
+    private int zoom_calibrate_nearest_focus_value;
+    private int zoom_exposure_mode;
+    private int zoom_exposure_value;
+    private double zoom_factor;
+    private int zoom_focus_mode;
+    private int zoom_focus_state;
+    private int zoom_focus_value;
+    private int zoom_iso;
+    private int zoom_max_focus_value;
+    private int zoom_min_focus_value;
+    private int zoom_shutter_speed;
+
+    private int distance_limit;
+    private int is_near_distance_limit;
+    private int state;
+
+    private int downside;
+    private int horizon;
+    private int upside;
+
+    private int gps_number;
+    private int is_fixed;
+    private int quality;
+    private int rtk_number;
+
+    private int total;
+    private int used;
+
+    public int getMissionStateCode() {
+        return missionStateCode;
+    }
+
+    public void setMissionStateCode(int missionStateCode) {
+        this.missionStateCode = missionStateCode;
+    }
+
+    public String getPlaneMode() {
+        return planeMode;
+    }
+
+    public void setPlaneMode(String planeMode) {
+        this.planeMode = planeMode;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getUsed() {
+        return used;
+    }
+
+    public void setUsed(int used) {
+        this.used = used;
+    }
+
+    public int getGps_number() {
+        return gps_number;
+    }
+
+    public void setGps_number(int gps_number) {
+        this.gps_number = gps_number;
+    }
+
+    public int getIs_fixed() {
+        return is_fixed;
+    }
+
+    public void setIs_fixed(int is_fixed) {
+        this.is_fixed = is_fixed;
+    }
+
+    public int getQuality() {
+        return quality;
+    }
+
+    public void setQuality(int quality) {
+        this.quality = quality;
+    }
+
+    public int getRtk_number() {
+        return rtk_number;
+    }
+
+    public void setRtk_number(int rtk_number) {
+        this.rtk_number = rtk_number;
+    }
+
+    public int getDownside() {
+        return downside;
+    }
+
+    public void setDownside(int downside) {
+        this.downside = downside;
+    }
+
+    public int getHorizon() {
+        return horizon;
+    }
+
+    public void setHorizon(int horizon) {
+        this.horizon = horizon;
+    }
+
+    public int getUpside() {
+        return upside;
+    }
+
+    public void setUpside(int upside) {
+        this.upside = upside;
+    }
+
+    public int getDistance_limit() {
+        return distance_limit;
+    }
+
+    public void setDistance_limit(int distance_limit) {
+        this.distance_limit = distance_limit;
+    }
+
+    public int getIs_near_distance_limit() {
+        return is_near_distance_limit;
+    }
+
+    public void setIs_near_distance_limit(int is_near_distance_limit) {
+        this.is_near_distance_limit = is_near_distance_limit;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(int temperature) {
+        this.temperature = temperature;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public double getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(double bottom) {
+        this.bottom = bottom;
+    }
+
+    public double getLeft() {
+        return left;
+    }
+
+    public void setLeft(double left) {
+        this.left = left;
+    }
+
+    public double getRight() {
+        return right;
+    }
+
+    public void setRight(double right) {
+        this.right = right;
+    }
+
+    public double getTop() {
+        return top;
+    }
+
+    public void setTop(double top) {
+        this.top = top;
+    }
+
+    public int getCamera_mode() {
+        return camera_mode;
+    }
+
+    public void setCamera_mode(int camera_mode) {
+        this.camera_mode = camera_mode;
+    }
+
+    public int getIr_metering_mode() {
+        return ir_metering_mode;
+    }
+
+    public void setIr_metering_mode(int ir_metering_mode) {
+        this.ir_metering_mode = ir_metering_mode;
+    }
+
+
+    public int getIr_zoom_factor() {
+        return ir_zoom_factor;
+    }
+
+    public void setIr_zoom_factor(int ir_zoom_factor) {
+        this.ir_zoom_factor = ir_zoom_factor;
+    }
+
+
+    public int getPhoto_state() {
+        return photo_state;
+    }
+
+    public void setPhoto_state(int photo_state) {
+        this.photo_state = photo_state;
+    }
+
+    public List<String> getPhoto_storage_settings() {
+        return photo_storage_settings;
+    }
+
+    public void setPhoto_storage_settings(List<String> photo_storage_settings) {
+        this.photo_storage_settings = photo_storage_settings;
+    }
+
+    public int getRecord_time() {
+        return record_time;
+    }
+
+    public void setRecord_time(int record_time) {
+        this.record_time = record_time;
+    }
+
+    public int getRecording_state() {
+        return recording_state;
+    }
+
+    public void setRecording_state(int recording_state) {
+        this.recording_state = recording_state;
+    }
+
+    public int getRemain_photo_num() {
+        return remain_photo_num;
+    }
+
+    public void setRemain_photo_num(int remain_photo_num) {
+        this.remain_photo_num = remain_photo_num;
+    }
+
+    public int getRemain_record_duration() {
+        return remain_record_duration;
+    }
+
+    public void setRemain_record_duration(int remain_record_duration) {
+        this.remain_record_duration = remain_record_duration;
+    }
+
+    public boolean isScreen_split_enable() {
+        return screen_split_enable;
+    }
+
+    public void setScreen_split_enable(boolean screen_split_enable) {
+        this.screen_split_enable = screen_split_enable;
+    }
+
+    public int getWide_exposure_mode() {
+        return wide_exposure_mode;
+    }
+
+    public void setWide_exposure_mode(int wide_exposure_mode) {
+        this.wide_exposure_mode = wide_exposure_mode;
+    }
+
+    public int getWide_exposure_value() {
+        return wide_exposure_value;
+    }
+
+    public void setWide_exposure_value(int wide_exposure_value) {
+        this.wide_exposure_value = wide_exposure_value;
+    }
+
+    public int getWide_iso() {
+        return wide_iso;
+    }
+
+    public void setWide_iso(int wide_iso) {
+        this.wide_iso = wide_iso;
+    }
+
+    public int getWide_shutter_speed() {
+        return wide_shutter_speed;
+    }
+
+    public void setWide_shutter_speed(int wide_shutter_speed) {
+        this.wide_shutter_speed = wide_shutter_speed;
+    }
+
+    public int getZoom_calibrate_farthest_focus_value() {
+        return zoom_calibrate_farthest_focus_value;
+    }
+
+    public void setZoom_calibrate_farthest_focus_value(int zoom_calibrate_farthest_focus_value) {
+        this.zoom_calibrate_farthest_focus_value = zoom_calibrate_farthest_focus_value;
+    }
+
+    public int getZoom_calibrate_nearest_focus_value() {
+        return zoom_calibrate_nearest_focus_value;
+    }
+
+    public void setZoom_calibrate_nearest_focus_value(int zoom_calibrate_nearest_focus_value) {
+        this.zoom_calibrate_nearest_focus_value = zoom_calibrate_nearest_focus_value;
+    }
+
+    public int getZoom_exposure_mode() {
+        return zoom_exposure_mode;
+    }
+
+    public void setZoom_exposure_mode(int zoom_exposure_mode) {
+        this.zoom_exposure_mode = zoom_exposure_mode;
+    }
+
+    public int getZoom_exposure_value() {
+        return zoom_exposure_value;
+    }
+
+    public void setZoom_exposure_value(int zoom_exposure_value) {
+        this.zoom_exposure_value = zoom_exposure_value;
+    }
+
+    public double getZoom_factor() {
+        return zoom_factor;
+    }
+
+    public void setZoom_factor(double zoom_factor) {
+        this.zoom_factor = zoom_factor;
+    }
+
+    public int getZoom_focus_mode() {
+        return zoom_focus_mode;
+    }
+
+    public void setZoom_focus_mode(int zoom_focus_mode) {
+        this.zoom_focus_mode = zoom_focus_mode;
+    }
+
+    public int getZoom_focus_state() {
+        return zoom_focus_state;
+    }
+
+    public void setZoom_focus_state(int zoom_focus_state) {
+        this.zoom_focus_state = zoom_focus_state;
+    }
+
+    public int getZoom_focus_value() {
+        return zoom_focus_value;
+    }
+
+    public void setZoom_focus_value(int zoom_focus_value) {
+        this.zoom_focus_value = zoom_focus_value;
+    }
+
+    public int getZoom_iso() {
+        return zoom_iso;
+    }
+
+    public void setZoom_iso(int zoom_iso) {
+        this.zoom_iso = zoom_iso;
+    }
+
+    public int getZoom_max_focus_value() {
+        return zoom_max_focus_value;
+    }
+
+    public void setZoom_max_focus_value(int zoom_max_focus_value) {
+        this.zoom_max_focus_value = zoom_max_focus_value;
+    }
+
+    public int getZoom_min_focus_value() {
+        return zoom_min_focus_value;
+    }
+
+    public void setZoom_min_focus_value(int zoom_min_focus_value) {
+        this.zoom_min_focus_value = zoom_min_focus_value;
+    }
+
+    public int getZoom_shutter_speed() {
+        return zoom_shutter_speed;
+    }
+
+    public void setZoom_shutter_speed(int zoom_shutter_speed) {
+        this.zoom_shutter_speed = zoom_shutter_speed;
+    }
+
+    public int getCapacity_percent() {
+        return capacity_percent;
+    }
+
+    public void setCapacity_percent(int capacity_percent) {
+        this.capacity_percent = capacity_percent;
+    }
+
+    public int getBattery_a_capacity_percent() {
+        return battery_a_capacity_percent;
+    }
+
+    public void setBattery_a_capacity_percent(int battery_a_capacity_percent) {
+        this.battery_a_capacity_percent = battery_a_capacity_percent;
+    }
+
+    public String getBattery_a_battery_firmware_version() {
+        return battery_a_battery_firmware_version;
+    }
+
+    public void setBattery_a_battery_firmware_version(String battery_a_battery_firmware_version) {
+        this.battery_a_battery_firmware_version = battery_a_battery_firmware_version;
+    }
+
+    public int getBattery_a_high_voltage_storage_days() {
+        return battery_a_high_voltage_storage_days;
+    }
+
+    public void setBattery_a_high_voltage_storage_days(int battery_a_high_voltage_storage_days) {
+        this.battery_a_high_voltage_storage_days = battery_a_high_voltage_storage_days;
+    }
+
+    public int getBattery_b_capacity_percent() {
+        return battery_b_capacity_percent;
+    }
+
+    public void setBattery_b_capacity_percent(int battery_b_capacity_percent) {
+        this.battery_b_capacity_percent = battery_b_capacity_percent;
+    }
+
+    public String getBattery_b_battery_firmware_version() {
+        return battery_b_battery_firmware_version;
+    }
+
+    public void setBattery_b_battery_firmware_version(String battery_b_battery_firmware_version) {
+        this.battery_b_battery_firmware_version = battery_b_battery_firmware_version;
+    }
+
+    public int getBattery_b_high_voltage_storage_days() {
+        return battery_b_high_voltage_storage_days;
+    }
+
+    public void setBattery_b_high_voltage_storage_days(int battery_b_high_voltage_storage_days) {
+        this.battery_b_high_voltage_storage_days = battery_b_high_voltage_storage_days;
+    }
+
+    public int getBattery_a_index() {
+        return battery_a_index;
+    }
+
+    public void setBattery_a_index(int battery_a_index) {
+        this.battery_a_index = battery_a_index;
+    }
+
+    public int getBattery_a_loop_times() {
+        return battery_a_loop_times;
+    }
+
+    public void setBattery_a_loop_times(int battery_a_loop_times) {
+        this.battery_a_loop_times = battery_a_loop_times;
+    }
+
+    public String getBattery_a_battery_sn() {
+        return battery_a_battery_sn;
+    }
+
+    public void setBattery_a_battery_sn(String battery_a_battery_sn) {
+        this.battery_a_battery_sn = battery_a_battery_sn;
+    }
+
+    public int getBattery_a_sub_type() {
+        return battery_a_sub_type;
+    }
+
+    public void setBattery_a_sub_type(int battery_a_sub_type) {
+        this.battery_a_sub_type = battery_a_sub_type;
+    }
+
+    public double getBattery_a_temperature() {
+        return battery_a_temperature;
+    }
+
+    public void setBattery_a_temperature(double battery_a_temperature) {
+        this.battery_a_temperature = battery_a_temperature;
+    }
+
+    public int getBattery_a_type() {
+        return battery_a_type;
+    }
+
+    public void setBattery_a_type(int battery_a_type) {
+        this.battery_a_type = battery_a_type;
+    }
+
+    public int getBattery_a_voltage() {
+        return battery_a_voltage;
+    }
+
+    public void setBattery_a_voltage(int battery_a_voltage) {
+        this.battery_a_voltage = battery_a_voltage;
+    }
+
+    public int getBattery_b_index() {
+        return battery_b_index;
+    }
+
+    public void setBattery_b_index(int battery_b_index) {
+        this.battery_b_index = battery_b_index;
+    }
+
+    public int getBattery_b_loop_times() {
+        return battery_b_loop_times;
+    }
+
+    public void setBattery_b_loop_times(int battery_b_loop_times) {
+        this.battery_b_loop_times = battery_b_loop_times;
+    }
+
+    public String getBattery_b_battery_sn() {
+        return battery_b_battery_sn;
+    }
+
+    public void setBattery_b_battery_sn(String battery_b_battery_sn) {
+        this.battery_b_battery_sn = battery_b_battery_sn;
+    }
+
+    public int getBattery_b_sub_type() {
+        return battery_b_sub_type;
+    }
+
+    public void setBattery_b_sub_type(int battery_b_sub_type) {
+        this.battery_b_sub_type = battery_b_sub_type;
+    }
+
+    public double getBattery_b_temperature() {
+        return battery_b_temperature;
+    }
+
+    public void setBattery_b_temperature(double battery_b_temperature) {
+        this.battery_b_temperature = battery_b_temperature;
+    }
+
+    public int getBattery_b_type() {
+        return battery_b_type;
+    }
+
+    public void setBattery_b_type(int battery_b_type) {
+        this.battery_b_type = battery_b_type;
+    }
+
+    public int getBattery_b_voltage() {
+        return battery_b_voltage;
+    }
+
+    public void setBattery_b_voltage(int battery_b_voltage) {
+        this.battery_b_voltage = battery_b_voltage;
+    }
+
+    public int getLanding_power() {
+        return landing_power;
+    }
+
+    public void setLanding_power(int landing_power) {
+        this.landing_power = landing_power;
+    }
+
+    public int getRemain_flight_time() {
+        return remain_flight_time;
+    }
+
+    public void setRemain_flight_time(int remain_flight_time) {
+        this.remain_flight_time = remain_flight_time;
+    }
+
+    public int getReturn_home_power() {
+        return return_home_power;
+    }
+
+    public void setReturn_home_power(int return_home_power) {
+        this.return_home_power = return_home_power;
+    }
+
+    public double getAttitude_head() {
+        return attitude_head;
+    }
+
+    public void setAttitude_head(double attitude_head) {
+        this.attitude_head = attitude_head;
+    }
+
+    public double getAttitude_pitch() {
+        return attitude_pitch;
+    }
+
+    public void setAttitude_pitch(double attitude_pitch) {
+        this.attitude_pitch = attitude_pitch;
+    }
+
+    public double getAttitude_roll() {
+        return attitude_roll;
+    }
+
+    public void setAttitude_roll(double attitude_roll) {
+        this.attitude_roll = attitude_roll;
+    }
+
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+
+    public double getElevation() {
+        return elevation;
+    }
+
+    public void setElevation(double elevation) {
+        this.elevation = elevation;
+    }
+
+    public double getRtk_takeoff_altitude() {
+        return rtk_takeoff_altitude;
+    }
+
+    public void setRtk_takeoff_altitude(double rtk_takeoff_altitude) {
+        this.rtk_takeoff_altitude = rtk_takeoff_altitude;
+    }
+
+    public double getHomepoint_latitude() {
+        return homepoint_latitude;
+    }
+
+    public void setHomepoint_latitude(double homepoint_latitude) {
+        this.homepoint_latitude = homepoint_latitude;
+    }
+
+    public double getHomepoint_longitude() {
+        return homepoint_longitude;
+    }
+
+    public void setHomepoint_longitude(double homepoint_longitude) {
+        this.homepoint_longitude = homepoint_longitude;
+    }
+
+    public int getGear() {
+        return gear;
+    }
+
+    public void setGear(int gear) {
+        this.gear = gear;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public int getHeight_limit() {
+        return height_limit;
+    }
+
+    public void setHeight_limit(int height_limit) {
+        this.height_limit = height_limit;
+    }
+
+    public double getHome_distance() {
+        return home_distance;
+    }
+
+    public void setHome_distance(double home_distance) {
+        this.home_distance = home_distance;
+    }
+
+    public double getHorizontal_speed() {
+        return horizontal_speed;
+    }
+
+    public void setHorizontal_speed(double horizontal_speed) {
+        this.horizontal_speed = horizontal_speed;
+    }
+
+    public int getIs_near_area_limit() {
+        return is_near_area_limit;
+    }
+
+    public void setIs_near_area_limit(int is_near_area_limit) {
+        this.is_near_area_limit = is_near_area_limit;
+    }
+
+    public int getIs_near_height_limit() {
+        return is_near_height_limit;
+    }
+
+    public void setIs_near_height_limit(int is_near_height_limit) {
+        this.is_near_height_limit = is_near_height_limit;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getMode_code() {
+        return mode_code;
+    }
+
+    public void setMode_code(int mode_code) {
+        this.mode_code = mode_code;
+    }
+
+    public int getNight_lights_state() {
+        return night_lights_state;
+    }
+
+    public void setNight_lights_state(int night_lights_state) {
+        this.night_lights_state = night_lights_state;
+    }
+
+    public int getRc_lost_action() {
+        return rc_lost_action;
+    }
+
+    public void setRc_lost_action(int rc_lost_action) {
+        this.rc_lost_action = rc_lost_action;
+    }
+
+    public boolean isRid_state() {
+        return rid_state;
+    }
+
+    public void setRid_state(boolean rid_state) {
+        this.rid_state = rid_state;
+    }
+
+    public int getRth_altitude() {
+        return rth_altitude;
+    }
+
+    public void setRth_altitude(int rth_altitude) {
+        this.rth_altitude = rth_altitude;
+    }
+
+    public double getTotal_flight_distance() {
+        return total_flight_distance;
+    }
+
+    public void setTotal_flight_distance(double total_flight_distance) {
+        this.total_flight_distance = total_flight_distance;
+    }
+
+    public int getTotal_flight_sorties() {
+        return total_flight_sorties;
+    }
+
+    public void setTotal_flight_sorties(int total_flight_sorties) {
+        this.total_flight_sorties = total_flight_sorties;
+    }
+
+    public double getTotal_flight_time() {
+        return total_flight_time;
+    }
+
+    public void setTotal_flight_time(double total_flight_time) {
+        this.total_flight_time = total_flight_time;
+    }
+
+    public String getTrack_id() {
+        return track_id;
+    }
+
+    public void setTrack_id(String track_id) {
+        this.track_id = track_id;
+    }
+
+    public double getVertical_speed() {
+        return vertical_speed;
+    }
+
+    public void setVertical_speed(double vertical_speed) {
+        this.vertical_speed = vertical_speed;
+    }
+
+    public int getWind_direction() {
+        return wind_direction;
+    }
+
+    public void setWind_direction(int wind_direction) {
+        this.wind_direction = wind_direction;
+    }
+
+    public int getWind_speed() {
+        return wind_speed;
+    }
+
+    public void setWind_speed(int wind_speed) {
+        this.wind_speed = wind_speed;
+    }
+
+    public double getMeasure_target_altitude() {
+        return measure_target_altitude;
+    }
+
+    public void setMeasure_target_altitude(double measure_target_altitude) {
+        this.measure_target_altitude = measure_target_altitude;
+    }
+
+    public int getMeasure_target_distance() {
+        return measure_target_distance;
+    }
+
+    public void setMeasure_target_distance(int measure_target_distance) {
+        this.measure_target_distance = measure_target_distance;
+    }
+
+    public int getMeasure_target_error_state() {
+        return measure_target_error_state;
+    }
+
+    public void setMeasure_target_error_state(int measure_target_error_state) {
+        this.measure_target_error_state = measure_target_error_state;
+    }
+
+    public double getMeasure_target_latitude() {
+        return measure_target_latitude;
+    }
+
+    public void setMeasure_target_latitude(double measure_target_latitude) {
+        this.measure_target_latitude = measure_target_latitude;
+    }
+
+    public double getMeasure_target_longitude() {
+        return measure_target_longitude;
+    }
+
+    public void setMeasure_target_longitude(double measure_target_longitude) {
+        this.measure_target_longitude = measure_target_longitude;
+    }
+
+    public String getPayload_index() {
+        return payload_index;
+    }
+
+    public void setPayload_index(String payload_index) {
+        this.payload_index = payload_index;
+    }
+
+    public int getThermal_current_palette_style() {
+        return thermal_current_palette_style;
+    }
+
+    public void setThermal_current_palette_style(int thermal_current_palette_style) {
+        this.thermal_current_palette_style = thermal_current_palette_style;
+    }
+
+    public int getThermal_gain_mode() {
+        return thermal_gain_mode;
+    }
+
+    public void setThermal_gain_mode(int thermal_gain_mode) {
+        this.thermal_gain_mode = thermal_gain_mode;
+    }
+
+    public double getThermal_global_temperature_max() {
+        return thermal_global_temperature_max;
+    }
+
+    public void setThermal_global_temperature_max(double thermal_global_temperature_max) {
+        this.thermal_global_temperature_max = thermal_global_temperature_max;
+    }
+
+    public double getThermal_global_temperature_min() {
+        return thermal_global_temperature_min;
+    }
+
+    public void setThermal_global_temperature_min(double thermal_global_temperature_min) {
+        this.thermal_global_temperature_min = thermal_global_temperature_min;
+    }
+
+    public int getThermal_isotherm_lower_limit() {
+        return thermal_isotherm_lower_limit;
+    }
+
+    public void setThermal_isotherm_lower_limit(int thermal_isotherm_lower_limit) {
+        this.thermal_isotherm_lower_limit = thermal_isotherm_lower_limit;
+    }
+
+    public int getThermal_isotherm_state() {
+        return thermal_isotherm_state;
+    }
+
+    public void setThermal_isotherm_state(int thermal_isotherm_state) {
+        this.thermal_isotherm_state = thermal_isotherm_state;
+    }
+
+    public int getThermal_isotherm_upper_limit() {
+        return thermal_isotherm_upper_limit;
+    }
+
+    public void setThermal_isotherm_upper_limit(int thermal_isotherm_upper_limit) {
+        this.thermal_isotherm_upper_limit = thermal_isotherm_upper_limit;
+    }
+
+    public int getGimbal_pitch() {
+        return gimbal_pitch;
+    }
+
+    public void setGimbal_pitch(int gimbal_pitch) {
+        this.gimbal_pitch = gimbal_pitch;
+    }
+
+    public int getGimbal_roll() {
+        return gimbal_roll;
+    }
+
+    public void setGimbal_roll(int gimbal_roll) {
+        this.gimbal_roll = gimbal_roll;
+    }
+
+    public double getGimbal_yaw() {
+        return gimbal_yaw;
+    }
+
+    public void setGimbal_yaw(double gimbal_yaw) {
+        this.gimbal_yaw = gimbal_yaw;
+    }
+
+
+
+    public String getFirmware_version() {
+        return firmware_version;
+    }
+
+    public void setFirmware_version(String firmware_version) {
+        this.firmware_version = firmware_version;
+    }
 
     public boolean isVirtualStickQuitMission() {
         return isVirtualStickQuitMission;
@@ -409,13 +1455,6 @@ public class Movement {
         this.goHomeHeight = goHomeHeight;
     }
 
-    public String getSn() {
-        return sn;
-    }
-
-    public void setSn(String sn) {
-        this.sn = sn;
-    }
 
     public String getLTELinkType() {
         return LTELinkType;
@@ -505,29 +1544,6 @@ public class Movement {
         this.thermalTemperatureMeasureMode = thermalTemperatureMeasureMode;
     }
 
-    public double getRTKTakeoffAltitude() {
-        return RTKTakeoffAltitude;
-    }
-
-    public void setRTKTakeoffAltitude(double RTKTakeoffAltitude) {
-        this.RTKTakeoffAltitude = RTKTakeoffAltitude;
-    }
-
-    public double getTakeoffLocationAltitude() {
-        return takeoffLocationAltitude;
-    }
-
-    public void setTakeoffLocationAltitude(double takeoffLocationAltitude) {
-        this.takeoffLocationAltitude = takeoffLocationAltitude;
-    }
-
-    public double getEgm96Altitude() {
-        return egm96Altitude;
-    }
-
-    public void setEgm96Altitude(double egm96Altitude) {
-        this.egm96Altitude = egm96Altitude;
-    }
 
     public String getAlternatePointLat() {
         return alternatePointLat;
@@ -570,14 +1586,6 @@ public class Movement {
         this.missionName = missionName;
     }
 
-    public String getGPSSignalLevel() {
-        return GPSSignalLevel;
-    }
-
-    public void setGPSSignalLevel(String GPSSignalLevel) {
-        this.GPSSignalLevel = GPSSignalLevel;
-    }
-
     public double getBatteryTemperatureA() {
         return batteryTemperatureA;
     }
@@ -618,77 +1626,7 @@ public class Movement {
         this.aircraftTotalFlightDuration = aircraftTotalFlightDuration;
     }
 
-    public String getCurrentLongitude() {
-        return currentLongitude;
-    }
 
-    public void setCurrentLongitude(String currentLongitude) {
-        this.currentLongitude = currentLongitude;
-    }
-
-    public String getCurrentLatitude() {
-        return currentLatitude;
-    }
-
-    public void setCurrentLatitude(String currentLatitude) {
-        this.currentLatitude = currentLatitude;
-    }
-
-    public double getFlyingHeight() {
-        return flyingHeight;
-    }
-
-    public void setFlyingHeight(double flyingHeight) {
-        this.flyingHeight = flyingHeight;
-    }
-
-    public String getRoll() {
-        return roll;
-    }
-
-    public void setRoll(String roll) {
-        this.roll = roll;
-    }
-
-    public String getPitch() {
-        return pitch;
-    }
-
-    public void setPitch(String pitch) {
-        this.pitch = pitch;
-    }
-
-    public String getYaw() {
-        return yaw;
-    }
-
-    public void setYaw(String yaw) {
-        this.yaw = yaw;
-    }
-
-    public String getGimbalRoll() {
-        return gimbalRoll;
-    }
-
-    public void setGimbalRoll(String gimbalRoll) {
-        this.gimbalRoll = gimbalRoll;
-    }
-
-    public String getGimbalPitch() {
-        return gimbalPitch;
-    }
-
-    public void setGimbalPitch(String gimbalPitch) {
-        this.gimbalPitch = gimbalPitch;
-    }
-
-    public String getGimbalYaw() {
-        return gimbalYaw;
-    }
-
-    public void setGimbalYaw(String gimbalYaw) {
-        this.gimbalYaw = gimbalYaw;
-    }
 
     public boolean isPlaneWing() {
         return planeWing;
@@ -698,13 +1636,6 @@ public class Movement {
         this.planeWing = planeWing;
     }
 
-    public int getRemainFlightTime() {
-        return remainFlightTime;
-    }
-
-    public void setRemainFlightTime(int remainFlightTime) {
-        this.remainFlightTime = remainFlightTime;
-    }
 
     public int getReturnHomePower() {
         return returnHomePower;
@@ -738,13 +1669,6 @@ public class Movement {
         this.airlineFlight = airlineFlight;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     public int getGoHomeState() {
         return goHomeState;
@@ -871,22 +1795,6 @@ public class Movement {
     }
 
 
-    public String getHomepointLat() {
-        return homepointLat;
-    }
-
-    public void setHomepointLat(String homepointLat) {
-        this.homepointLat = homepointLat;
-    }
-
-    public String getHomepointLong() {
-        return homepointLong;
-    }
-
-    public void setHomepointLong(String homepointLong) {
-        this.homepointLong = homepointLong;
-    }
-
     public int getMsg_type() {
         return msg_type;
     }
@@ -911,14 +1819,6 @@ public class Movement {
         this.cameraVideoStreamSource = cameraVideoStreamSource;
     }
 
-
-    public String getPlaneMode() {
-        return planeMode;
-    }
-
-    public void setPlaneMode(String planeMode) {
-        this.planeMode = planeMode;
-    }
 
 
     public String getFlightPathName() {
@@ -971,29 +1871,6 @@ public class Movement {
 
     private int liveStatus;//推流状态 0失败  1成功
 
-    public int getDistance() {
-        return distance;
-    }
-
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-
-    public String getHorizontalSpeed() {
-        return horizontalSpeed;
-    }
-
-    public void setHorizontalSpeed(String horizontalSpeed) {
-        this.horizontalSpeed = horizontalSpeed;
-    }
-
-    public String getVerticalSpeed() {
-        return verticalSpeed;
-    }
-
-    public void setVerticalSpeed(String verticalSpeed) {
-        this.verticalSpeed = verticalSpeed;
-    }
 
     public int getWindSpeed() {
         return windSpeed;
@@ -1002,23 +1879,6 @@ public class Movement {
     public void setWindSpeed(int windSpeed) {
         this.windSpeed = windSpeed;
     }
-
-    public boolean isRtkSign() {
-        return rtkSign;
-    }
-
-    public void setRtkSign(boolean rtkSign) {
-        this.rtkSign = rtkSign;
-    }
-
-    public int getSatelliteNumber() {
-        return satelliteNumber;
-    }
-
-    public void setSatelliteNumber(int satelliteNumber) {
-        this.satelliteNumber = satelliteNumber;
-    }
-
 
     public int getRemoteControlSignal() {
         return remoteControlSignal;
@@ -1036,36 +1896,12 @@ public class Movement {
         this.pictureBiographySignal = pictureBiographySignal;
     }
 
-    public int getElectricityInfoA() {
-        return electricityInfoA;
-    }
-
-    public void setElectricityInfoA(int electricityInfoA) {
-        this.electricityInfoA = electricityInfoA;
-    }
-
-    public int getVoltageInfoA() {
-        return voltageInfoA;
-    }
-
-    public void setVoltageInfoA(int voltageInfoA) {
-        this.voltageInfoA = voltageInfoA;
-    }
-
     public int getElectricityInfoB() {
         return electricityInfoB;
     }
 
     public void setElectricityInfoB(int electricityInfoB) {
         this.electricityInfoB = electricityInfoB;
-    }
-
-    public int getVoltageInfoB() {
-        return voltageInfoB;
-    }
-
-    public void setVoltageInfoB(int voltageInfoB) {
-        this.voltageInfoB = voltageInfoB;
     }
 
     public int getCurrentView() {
@@ -1085,13 +1921,5 @@ public class Movement {
         this.planeMessage = planeMessage;
     }
 
-
-    public boolean isLevelObstacleAvoidance() {
-        return levelObstacleAvoidance;
-    }
-
-    public void setLevelObstacleAvoidance(boolean levelObstacleAvoidance) {
-        this.levelObstacleAvoidance = levelObstacleAvoidance;
-    }
 
 }

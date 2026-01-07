@@ -274,21 +274,12 @@ open class ConnectionActivity : BaseActivity() {
                         PreferenceUtils.getInstance().mqttServerUri
                     AMSConfig.getInstance().userName = PreferenceUtils.getInstance().mqttUserName
                     AMSConfig.getInstance().password = PreferenceUtils.getInstance().mqttPassword
-                    AMSConfig.getInstance().serialNumber = PreferenceUtils.getInstance().mqttSn
                     AMSConfig.getInstance().alternateLandingTimes = PreferenceUtils.getInstance().alternatePointTimes
-
-                    AMSConfig.getInstance().mqttServer2MsdkTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/uav_services"
-                    AMSConfig.getInstance().mqttMsdkReplyMessage2ServerTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/uav_services_reply"
-                    AMSConfig.getInstance().mqttMsdkPushMessage2ServerTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/uav_status_message"
-                    AMSConfig.getInstance().mqttMsdkPushEvent2ServerTopic =
-                        "nest/${AMSConfig.getInstance().serialNumber}/events"
                     toMain()
                 }
             } else {
                 LogUtil.log(TAG, "SDK Register Failure: ${resultPair.second}")
+
                 ToastUtil.showToast("Register Failure: ${resultPair.second}")
                 statusText = StringUtils.getResStr(this, R.string.unregistered)
             }

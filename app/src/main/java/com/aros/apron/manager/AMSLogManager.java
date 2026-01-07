@@ -3,7 +3,6 @@ package com.aros.apron.manager;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -11,21 +10,12 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.ProgressEvent;
-import com.amazonaws.services.s3.model.ProgressListener;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.FileUploadResult;
-import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.PreferenceUtils;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;

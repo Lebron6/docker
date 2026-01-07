@@ -8,14 +8,11 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
@@ -52,9 +49,6 @@ public class StreamManager extends BaseManager {
         return StreamHolder.INSTANCE;
     }
 
-    public void sendReply2Server(MQMessage message) {
-        sendMsg2Server(message);
-    }
 
     public void initStreamManager() {
         ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
@@ -78,29 +72,24 @@ public class StreamManager extends BaseManager {
         }
     }
 
-    public void startLive(MQMessage message) {
+    public void startLive(MessageDown message) {
 
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
+            sendFailMsg2Server(message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            if (TextUtils.isEmpty(message.getRtmp_push_url())) {
+            if (TextUtils.isEmpty(message.getData().getUrl())) {
                 LogUtil.log(TAG, "推流地址配置有误");
-                sendMsg2Server(message, "推流地址配置有误");
+                sendFailMsg2Server(message, "推流地址配置有误");
             }
             LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
             LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
-                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getRtmp_push_url()).build()).build();
+                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getData().getUrl()).build()).build();
             liveStreamManager.setLiveStreamSettings(streamSettings);
-//            if (message.getStreamIndex() == 0) {
             liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-//            } else {
-//                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-//            }
-            if (message.getMsg_type()==60003){
-                liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
-            }
+             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
             liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
             if (!liveStreamManager.isStreaming()) {
                 new Handler().postDelayed(new Runnable() {
@@ -111,14 +100,12 @@ public class StreamManager extends BaseManager {
                             public void onSuccess() {
                                 LogUtil.log(TAG, "推流成功");
                                 sendMsg2Server(message);
-                                SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
-
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "推流失败:" + error.description() + "---");
-                                sendMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
+                                LogUtil.log(TAG, "推流失败:" + error.description());
+                                sendFailMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
 
                             }
                         });
@@ -126,8 +113,8 @@ public class StreamManager extends BaseManager {
                 }, 1000);
                 //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
             } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
-                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getRtmp_push_url())) {
-                PreferenceUtils.getInstance().setCustomStreamUrl(message.getRtmp_push_url());
+                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getData().getUrl())) {
+                PreferenceUtils.getInstance().setCustomStreamUrl(message.getData().getUrl());
                 liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onSuccess() {
@@ -139,14 +126,12 @@ public class StreamManager extends BaseManager {
                                     public void onSuccess() {
                                         LogUtil.log(TAG, "改变地址推流成功");
                                         sendMsg2Server(message);
-                                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
-
                                     }
 
                                     @Override
                                     public void onFailure(@NonNull IDJIError error) {
-                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description() + "---");
-                                        sendMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
+                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description());
+                                        sendFailMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
 
                                     }
                                 });
@@ -156,46 +141,34 @@ public class StreamManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
-                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description() + "---");
-                        sendMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
+                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description());
+                        sendFailMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
                     }
                 });
             }
         }
     }
 
-    public void setLiveStreamQuality(MQMessage message) {
+    public void setLiveStreamQuality(MessageDown message) {
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
-            sendMsg2Server(message, "飞行器未连接");
+            sendFailMsg2Server(message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
             if (liveStreamManager.isStreaming()) {
-                liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getLiveStreamQuality()));
+                if (message.getData().getVideo_quality()==0||message.getData().getVideo_quality()==4){
+                    liveStreamManager.setLiveStreamQuality(StreamQuality.ORIGINAL);
+                }else {
+                    liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getData().getVideo_quality()));
+                }
                 sendMsg2Server(message);
             } else {
-                sendMsg2Server(message, "推流未开启");
+                sendFailMsg2Server(message, "推流未开启");
             }
         }
     }
 
-
-    public void switchCurrentView(MQMessage message){
-        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-        if (isAircraftConnected == null || !isAircraftConnected) {
-            sendMsg2Server( message, "飞行器未连接");
-        } else {
-            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            Movement.getInstance().setCurrentView(message.getCurrentView());
-            if (message.getCurrentView()==1){
-                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-            }else{
-                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-            }
-
-        }
-    }
 
     private int startLiveFailTimes;
     private boolean isLiveStreamAlreadyStart;
@@ -206,7 +179,6 @@ public class StreamManager extends BaseManager {
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
-
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
             LogUtil.log(TAG, "自定义推流地址:" + PreferenceUtils.getInstance().getCustomStreamUrl());
@@ -231,7 +203,6 @@ public class StreamManager extends BaseManager {
                     public void onSuccess() {
                         LogUtil.log(TAG, "自定义推流启动成功");
                         isLiveStreamAlreadyStart=true;
-                        SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
                     }
 
                     @Override
@@ -290,8 +261,6 @@ public class StreamManager extends BaseManager {
                         public void onSuccess() {
                             LogUtil.log(TAG, "自定义推流启动成功");
                             isLiveStreamAlreadyStart=true;
-                            SendStreamStartManager.getInstance().sendStreamStartMsg2Server();
-
                         }
 
                         @Override
@@ -314,22 +283,5 @@ public class StreamManager extends BaseManager {
 
         }
     }
-
-
-    public void stopLive(MQMessage message) {
-        ILiveStreamManager iLiveStreamManager = LiveStreamManager.getInstance();
-        iLiveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onSuccess() {
-                sendMsg2Server( message);
-            }
-
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                sendMsg2Server( message, "停止直播失败:" + getIDJIErrorMsg(error));
-            }
-        });
-    }
-
 
 }

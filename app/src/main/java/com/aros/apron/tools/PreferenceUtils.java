@@ -1,10 +1,8 @@
 package com.aros.apron.tools;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.aros.apron.app.ApronApp;
-import com.aros.apron.entity.MQMessage;
 
 
 public class PreferenceUtils extends BasePreference {
@@ -112,6 +110,9 @@ public class PreferenceUtils extends BasePreference {
 
     public String getTaskId() {
         return getString(TASK_ID);
+    }
+    public void setFlightId(String flightId) {
+        setString(FLIGHT_ID,flightId);
     }
 
     public String getFlightId() {

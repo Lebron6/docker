@@ -5,11 +5,9 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.aros.apron.entity.Movement;
-import com.aros.apron.manager.PayloadWidgetManager;
 import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.CameraKey;
-import dji.sdk.keyvalue.key.DJIKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;

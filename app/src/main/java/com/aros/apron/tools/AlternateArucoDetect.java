@@ -96,12 +96,12 @@ public class AlternateArucoDetect {
 //                        }
 //                        endTime = System.currentTimeMillis();
 //                        if (endTime - startTime > 1000 && endTime - startTime <= 10000) {
-//                            if (Movement.getInstance().getFlyingHeight() > 2) {
+//                            if (Movement.getInstance().getElevation() > 2) {
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.6f);
 //                            }
 //                        }
                         //识别不到二维码的时间,如果大于6s,直接降落
-                        if (Movement.getInstance().getFlyingHeight()<=2) {
+                        if (Movement.getInstance().getElevation()<=2) {
                             canLanding=true;
 //                            FlightManager.getInstance().stopArucoDetectAndLanding(3);
                         }
@@ -163,7 +163,7 @@ public class AlternateArucoDetect {
                 arucoMarkers.get(0).getId() == 20||
                         arucoMarkers.get(0).getId() == 21||
                         arucoMarkers.get(0).getId() == 22||
-                        arucoMarkers.get(0).getId() == 23&&Movement.getInstance().getFlyingHeight()>10
+                        arucoMarkers.get(0).getId() == 23&&Movement.getInstance().getElevation()>10
         ) {
             //相机内参
             Mat cameraMatrix = Mat.zeros(3, 3, CvType.CV_64F);
@@ -250,7 +250,7 @@ public class AlternateArucoDetect {
                 outY,
                 resultYaw, outZ);
 
-        if (Movement.getInstance().getFlyingHeight()<=2||Movement.getInstance().getUltrasonicHeight()<25) {
+        if (Movement.getInstance().getElevation()<=2||Movement.getInstance().getUltrasonicHeight()<25) {
             canLanding = true;
         } else {
             canLanding = false;
@@ -269,7 +269,7 @@ public class AlternateArucoDetect {
 
     //根据偏移量和高度决定X/Y轴移动速度
     private double updateOutXYSpeed(Double d) {
-        double ultrasonicHeight = Movement.getInstance().getFlyingHeight();
+        double ultrasonicHeight = Movement.getInstance().getElevation();
         if (d > 500) {
             if (ultrasonicHeight > 6) {
                 return 0.375;
@@ -384,7 +384,7 @@ public class AlternateArucoDetect {
     }
     //根据不同高度决定下降多快
     private double updateOutDownSpeed() {
-        double flyingHeight = Movement.getInstance().getFlyingHeight();
+        double flyingHeight = Movement.getInstance().getElevation();
         if (flyingHeight > 5) {
             return -0.575;
         } else if (flyingHeight <= 5 && flyingHeight > 3.5) {

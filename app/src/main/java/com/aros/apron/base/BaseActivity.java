@@ -1,9 +1,27 @@
 package com.aros.apron.base;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.aros.apron.callback.MqttActionCallBack;
+import com.aros.apron.callback.MqttCallBack;
+import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.tools.AppManager;
+import com.aros.apron.tools.LogUtil;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.Random;
+
 
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -11,6 +29,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * activity堆栈管理
      */
     protected AppManager appManager = AppManager.getAppManager();
+
 
 
     protected String TAG;

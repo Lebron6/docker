@@ -5,8 +5,11 @@ import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.constant.Constant;
+import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -15,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class DockCloseManager extends BaseManager {
 
@@ -34,17 +38,16 @@ public class DockCloseManager extends BaseManager {
     }
 
 
-    public void sendDockCloseMsg2Server(MqttAndroidClient client) {
-//        if (isSendDockCloseSuccess||sendDockCloseSuccessTimes >= maxRetries) {
+    public void sendDockCloseMsg2Server() {
         if (sendDockCloseSuccessTimes >= maxRetries) {
             LogUtil.log(TAG, "达到最大重试次数或已发送关舱"+isSendDockCloseSuccess+sendDockCloseSuccessTimes);
             return;
         }
         try {
-            if (client.isConnected()) {
-                sendDockCloseMessage(client);
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                sendDockCloseMessage();
             } else {
-                handleNotConnected(client);
+                handleNotConnected();
             }
         } catch (Exception e) {
             LogUtil.log(TAG, "关舱异常：" + e.toString());
@@ -52,25 +55,28 @@ public class DockCloseManager extends BaseManager {
         }
     }
 
-    private void sendDockCloseMessage(MqttAndroidClient client){
-        MessageReply message = new MessageReply();
-        message.setMsg_type(60107);
-        message.setResult(1);
-
-        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(0);
+    private void sendDockCloseMessage(){
+        MessageEvent messageEvent = new MessageEvent();
+        messageEvent.setBid(UUID.randomUUID().toString());
+        messageEvent.setTid(UUID.randomUUID().toString());
+        messageEvent.setTimestamp(System.currentTimeMillis());
+        messageEvent.setMethod(Constant.CLOSE_DOOR);
+        MessageEvent.Data data=new MessageEvent.Data();
+        data.setResult(1);
+        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes(StandardCharsets.UTF_8));
+        mqttMessage.setQos(1);
         try {
-            client.publish(AMSConfig.getInstance().getMqttMsdkReplyMessage2ServerTopic(), mqttMessage, null, new IMqttActionListener() {
+            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    LogUtil.log(TAG, "关舱发送成功：60107---"+sendDockCloseSuccessTimes+"clientId:"+client.getClientId());
-                    sendMissionExecuteEvents("AMS通知机库关舱");
+	                    LogUtil.log(TAG, "关舱发送成功："+sendDockCloseSuccessTimes+"clientId:"+MqttManager.getInstance().mqttAndroidClient.getClientId());
+                    sendEvent2Server("AMS通知机库关舱");
                     isSendDockCloseSuccess = true;
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     LogUtil.log(TAG, "关舱发送回调失败：" + exception.toString());
-                    retrySend(client);
+                    retrySend();
                 }
             });
         } catch (Exception e) {
@@ -82,20 +88,20 @@ public class DockCloseManager extends BaseManager {
     }
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private void retrySend(MqttAndroidClient client) {
+    private void retrySend() {
         sendDockCloseSuccessTimes++;
         if (sendDockCloseSuccessTimes < maxRetries) {
-            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(), 2000);
         } else {
             LogUtil.log(TAG, "达到最大重试次数，关舱发送失败：" + sendDockCloseSuccessTimes);
         }
     }
 
-    private void handleNotConnected(MqttAndroidClient client) {
+    private void handleNotConnected() {
         if (!isSendDockCloseSuccess && sendDockCloseSuccessTimes < maxRetries) {
             sendDockCloseSuccessTimes++;
-            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(client), 2000);
-            LogUtil.log(TAG, "关舱发送失败：mqtt未连接" + "--" + sendDockCloseSuccessTimes);
+            mainHandler.postDelayed(() -> sendDockCloseMsg2Server(), 2000);
+	            LogUtil.log(TAG, "关舱发送失败：mqtt未连接"  + sendDockCloseSuccessTimes);
         } else {
             LogUtil.log(TAG, "关舱发送失败：" + sendDockCloseSuccessTimes);
         }

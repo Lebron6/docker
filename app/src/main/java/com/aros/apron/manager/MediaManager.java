@@ -1,11 +1,8 @@
 package com.aros.apron.manager;
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -23,13 +20,10 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.FileUploadResult;
-import com.aros.apron.entity.MQMessage;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -115,7 +109,6 @@ public class MediaManager extends BaseManager {
            @Override
            public void onFailure(@NonNull IDJIError idjiError) {
                LogUtil.log(TAG, "第"+enterPlayBackFailTimes+"次进入媒体模式失败:"+new Gson().toJson(idjiError));
-
                if (!isEnablePlayback){
                    new Handler().postDelayed(new Runnable() {
                        @Override
@@ -125,7 +118,7 @@ public class MediaManager extends BaseManager {
                                enablePlayback();
                            }else{
                                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                               sendMissionExecuteEvents( "媒体模式进入失败:关机");
+                               sendEvent2Server( "媒体模式进入失败:关机");
                            }
                        }
                    }, 1500);
@@ -153,18 +146,14 @@ public class MediaManager extends BaseManager {
                                             pullOriginalMediaFileFromCamera();
                                         }
                                     } else {
-                                        LogUtil.log(TAG, "拉取媒体文件为空");
                                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                        sendMissionExecuteEvents("拉取媒体文件为空");
+                                        sendEvent2Server("拉取媒体文件为空,可关机");
                                         disablePlayback();
-                                        LogUtil.log(TAG, "发送关闭无人机");
                                     }
                                 } else {
                                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                    sendMissionExecuteEvents("拉取媒体文件失败:"+mState);
-                                    LogUtil.log(TAG, "拉取媒体文件失败,当前状态:"+mState);
+                                    sendEvent2Server("拉取媒体文件失败,可关机:"+mState);
                                     disablePlayback();
-                                    LogUtil.log(TAG, "发送关闭无人机");
                                 }
                             }
                         },1000);
@@ -184,7 +173,7 @@ public class MediaManager extends BaseManager {
                                     }else{
                                         LogUtil.log(TAG, "拉取媒体文件失败:" + new Gson().toJson(idjiError));
                                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                                        sendMissionExecuteEvents("拉取媒体文件失败");
+                                        sendEvent2Server("拉取媒体文件失败");
                                         disablePlayback();
                                         LogUtil.log(TAG, "发送关闭无人机");
                                     }
@@ -275,7 +264,7 @@ public class MediaManager extends BaseManager {
                 public void onFailure(IDJIError error) {
                     LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                    sendMissionExecuteEvents( "第" + downLoadMediaFileIndex + "个文件下载失败");
+                    sendEvent2Server( "第" + downLoadMediaFileIndex + "个文件下载失败");
                     downLoadMediaFileIndex = 0;
                 }
             });
@@ -378,7 +367,7 @@ public class MediaManager extends BaseManager {
                         fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
                         fileUploadResult.setOffIndex(downLoadMediaFileIndex);
 
-                        sendFileUploadCallback(60102, fileUploadResult);
+//                        sendFileUploadCallback(60102, fileUploadResult);
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)
@@ -404,12 +393,12 @@ public class MediaManager extends BaseManager {
                         // 每上传一张就清除缓存
                         FileUtil.deleteFile(file);
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " uploaded successfully.");
-                        sendMissionExecuteEvents( "第" + downLoadMediaFileIndex + "个文件已上传");
+                        sendEvent2Server( "第" + downLoadMediaFileIndex + "个文件已上传");
 
                         downLoadMediaFileIndex++;
                         if (downLoadMediaFileIndex == mediaFiles.size()) {
                             // 所有文件已上传完成，清空SD卡，缓存，退出媒体模式，发送无人机关机
-                            sendMissionExecuteEvents( "媒体文件已上传完毕");
+                            sendEvent2Server( "媒体文件已上传完毕");
                             removeAllFiles();
                             downLoadMediaFileIndex = 0;
                         } else {
@@ -424,18 +413,15 @@ public class MediaManager extends BaseManager {
             @Override
             public void onSuccess() {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                LogUtil.log(TAG, "清除文件成功 ");
-                sendMissionExecuteEvents("媒体文件已清除");
+                sendEvent2Server("媒体文件已清除");
                 disablePlayback();
-                LogUtil.log(TAG, "发送关闭无人机");
             }
 
             @Override
             public void onFailure(@NonNull IDJIError idjiError) {
                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 LogUtil.log(TAG, "清除文件失败: "+new Gson().toJson(idjiError));
-                sendMissionExecuteEvents( "媒体文件清除失败");
-                LogUtil.log(TAG, "发送关闭无人机");
+                sendEvent2Server( "媒体文件清除失败");
             }
         });
     }
@@ -472,24 +458,5 @@ public class MediaManager extends BaseManager {
         return TextUtils.equals(Environment.MEDIA_MOUNTED, Environment.getExternalStorageState());
     }
 
-    // 写入 exif 信息
-    public void setMediaFileXMPCustomInfo( final MQMessage message) {
-        MediaDataCenter.getInstance().getMediaManager().setMediaFileXMPCustomInfo(
-                message.getXmpInfo(),
-                new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(message);
-                        sendMissionExecuteEvents( "设置文件XMP:" + message.getXmpInfo());
-                    }
 
-                    @Override
-                    public void onFailure(IDJIError error) {
-                        sendMsg2Server(message, "写入exif失败: " + getIDJIErrorMsg(error));
-                        LogUtil.log(TAG, "写入exif失败:"+new Gson().toJson(error));
-
-                    }
-                }
-        );
-    }
 }

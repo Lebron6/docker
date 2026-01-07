@@ -46,8 +46,6 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         return WayLineExecutingInterruptHolder.INSTANCE;
     }
 
-    public void initWayLineExecutingInterruptInfo() {
-    }
 
     public void onExecutingInterruptToDo() {
         IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
@@ -66,14 +64,14 @@ public class WayLineExecutingInterruptManager extends BaseManager {
             }
         });
 
-        if (Movement.getInstance().getFlyingHeight() < 90) {
-            LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getFlyingHeight());
+        if (Movement.getInstance().getElevation() < 90) {
+            LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getElevation());
             raiseTheReturnFlight();
-            sendMissionExecuteEvents( "航线中断:拉高后返航");
+            sendEvent2Server( "航线中断:拉高后返航");
         } else {
-            LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getFlyingHeight());
+            LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getElevation());
             FlightManager.getInstance().startGoHome(null);
-            sendMissionExecuteEvents( "航线中断:直接返航");
+            sendEvent2Server( "航线中断:直接返航");
 
         }
 
@@ -95,17 +93,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
                     LogUtil.log(TAG, "失控拉高,控制权获取失败:" + error.description());
-                    sendMissionExecuteEvents( "航线中断:执行拉高失败");
-
+                    sendEvent2Server( "航线中断:执行拉高失败");
                 }
             });
-
         } else {
             LogUtil.log(TAG, "失控拉高,飞控未连接");
-            sendMissionExecuteEvents( "航线中断:飞控未连接");
-
+            sendEvent2Server( "航线中断:飞控未连接");
         }
-
     }
 
     Handler handler = new Handler();
@@ -114,7 +108,7 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (Movement.getInstance().getFlyingHeight() < 100) {
+                if (Movement.getInstance().getElevation() < 100) {
                     Movement.getInstance().setVirtualStickEnableReason(1);
                     if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
                         handler.removeCallbacks(this);

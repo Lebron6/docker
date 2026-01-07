@@ -150,7 +150,7 @@ public class ApronArucoDetect {
                         arucoNotFoundTag = false;
                         int[] idArray = ids.toArray();
                         int ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
-                        double flyingHeight = Movement.getInstance().getFlyingHeight();
+                        double flyingHeight = Movement.getInstance().getElevation();
                         if (idArray.length == 1 && idArray[0] == 5) {
                             Core.extractChannel(mArucoCornerList.get(0), corner, 0);
                             Point[] points = corner.toArray();
@@ -230,7 +230,7 @@ public class ApronArucoDetect {
                         endTime = System.currentTimeMillis();
                         //记录第一次识别不到二维码的时间,如果小于20s,拉高或拉低复降,否则降落至备降点
                         if (endTime - startTime > 700 && endTime - startTime <= 8000) {
-                            if (Movement.getInstance().getFlyingHeight() <= 8) {
+                            if (Movement.getInstance().getElevation() <= 8) {
                                 //可能由于appCrash后，识别不到二维码，尝试将飞机拉高识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, 0.7);
@@ -245,7 +245,7 @@ public class ApronArucoDetect {
 //                                    virtualStickAdvancedParam=0.145;
                                     LogUtil.log(TAG, "复降第:" + dropTimes + "次");
                                 }
-                            } else if (Movement.getInstance().getFlyingHeight() > 8) {
+                            } else if (Movement.getInstance().getElevation() > 8) {
                                 //可能是由于飞机太高，识别不到二维码，尝试将飞机拉低识别
                                 setDetectedBigMarkers();
                                 DroneHelper.getInstance().moveVxVyYawrateHeight(0f, 0f, 0f, -0.4);
@@ -294,8 +294,8 @@ public class ApronArucoDetect {
     private double markerId5MaxFindHeight=0.7;
     private double markerId1234MinFindHeight=7;
     public void findAruco(int[] idArray) {
-        if (Movement.getInstance().getFlyingHeight()<markerId1234MinFindHeight){
-            if (Movement.getInstance().getFlyingHeight() <= 1.5
+        if (Movement.getInstance().getElevation()<markerId1234MinFindHeight){
+            if (Movement.getInstance().getElevation() <= 1.5
                     || Movement.getInstance().getUltrasonicHeight() < 15) {
                 if (isDoublePayload) {
                     if (mFindArucoList.isEmpty()) {
@@ -443,7 +443,7 @@ public class ApronArucoDetect {
                 }
             }
 
-            if (Movement.getInstance().getFlyingHeight() > markerId5MaxFindHeight &&
+            if (Movement.getInstance().getElevation() > markerId5MaxFindHeight &&
                     mFindArucoList.isEmpty() && !detectedSmallMarkers) {
 
                 if (
@@ -465,7 +465,7 @@ public class ApronArucoDetect {
                 }
             }
 
-            if (Movement.getInstance().getFlyingHeight() > 2.5) {
+            if (Movement.getInstance().getElevation() > 2.5) {
                 if (mFindArucoList.isEmpty() && !detectedSmallMarkers &&
                         (detectedBigMarkerId == 0 || detectedBigMarkerId == 1 || detectedBigMarkerId == 2
                                 || detectedBigMarkerId == 3 || detectedBigMarkerId == 4)) {
@@ -856,12 +856,12 @@ public class ApronArucoDetect {
                         " Id=" + id +
                         " Size=" + arucoMarkers.size() +
                         " 宽度=" + arucoWidth +
-                        " 椭球=" + Movement.getInstance().getFlyingHeight() +
+                        " 椭球=" + Movement.getInstance().getElevation() +
                         " 融合=" + ultrasonicHeight +
                         " X=" + x +
                         " Z=" + z
         );
-        if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getFlyingHeight()<3.5)){
+        if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getElevation()<3.5)){
             if (ultrasonicHeight<=25){
                 outX=outX>0?0.125:-0.125;
                 outY=outY>0?0.125:-0.125;
@@ -887,7 +887,7 @@ public class ApronArucoDetect {
 
     private void checkConditions(double absX, double absY, int id, double arucoWidth) {
         double ultrasonicHeight = Movement.getInstance().getUltrasonicHeight();
-        double flyingHeight = Movement.getInstance().getFlyingHeight();
+        double flyingHeight = Movement.getInstance().getElevation();
         boolean xy = absX < 250 && absY < 300;
         String logMessage = "";
         if (!startFastStick) {

@@ -1,114 +1,70 @@
 package com.aros.apron.entity;
 
 public class MessageReply {
+    private String tid;
+    private String bid;
+    private long timestamp;
+    private String method;
+    private Data data;
 
-    private int msg_type;
-    private int result;
-    private String msg;
-    private byte[] payloadData;//接收psdk数据
-    private String waypointActionState;//推送航点动作状态
-    private String waypointIndex;//推送航点index
-    private String aircraftTotalFlightDistance;//总体飞行距离，单位：米。飞行器断电后不会清零。
-    private String flag;
-    private String task_id;
-    private String lat;
-    private String lon;
-    private String flyingHeight;//飞行高度
-
-    public String getFlyingHeight() {
-        return flyingHeight;
+    public String getTid() {
+        return tid;
     }
 
-    public void setFlyingHeight(String flyingHeight) {
-        this.flyingHeight = flyingHeight;
+    public void setTid(String tid) {
+        this.tid = tid;
     }
 
-    public String getLat() {
-        return lat;
+    public String getBid() {
+        return bid;
     }
 
-    public void setLat(String lat) {
-        this.lat = lat;
+    public void setBid(String bid) {
+        this.bid = bid;
     }
 
-    public String getLon() {
-        return lon;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setLon(String lon) {
-        this.lon = lon;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getTask_id() {
-        return task_id;
+    public String getMethod() {
+        return method;
     }
 
-    public void setTask_id(String task_id) {
-        this.task_id = task_id;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
-    public String getFlag() {
-        return flag;
+    public Data getData() {
+        return data;
     }
 
-    public void setFlag(String flag) {
-        this.flag = flag;
+    public void setData(Data data) {
+        this.data = data;
     }
 
-    public String getWaypointIndex() {
-        return waypointIndex;
-    }
+    public static class Data {
+        private int result;
+        private String errorMsg;
 
-    public void setWaypointIndex(String waypointIndex) {
-        this.waypointIndex = waypointIndex;
-    }
+        public String getErrorMsg() {
+            return errorMsg;
+        }
 
-    public String getWaypointActionState() {
-        return waypointActionState;
-    }
+        public void setErrorMsg(String errorMsg) {
+            this.errorMsg = errorMsg;
+        }
 
-    public void setWaypointActionState(String waypointActionState) {
-        this.waypointActionState = waypointActionState;
-    }
+        public int getResult() {
+            return result;
+        }
 
-    public String getAircraftTotalFlightDistance() {
-        return aircraftTotalFlightDistance;
+        public void setResult(int result) {
+            this.result = result;
+        }
     }
-
-    public void setAircraftTotalFlightDistance(String aircraftTotalFlightDistance) {
-        this.aircraftTotalFlightDistance = aircraftTotalFlightDistance;
-    }
-
-    public byte[] getPayloadData() {
-        return payloadData;
-    }
-
-    public void setPayloadData(byte[] payloadData) {
-        this.payloadData = payloadData;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public int getResult() {
-        return result;
-    }
-
-    public void setResult(int result) {
-        this.result = result;
-    }
-
-    public int getMsg_type() {
-        return msg_type;
-    }
-
-    public void setMsg_type(int msg_type) {
-        this.msg_type = msg_type;
-    }
-
 }

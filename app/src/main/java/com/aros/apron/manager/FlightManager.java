@@ -2,17 +2,20 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.callback.MqttCallBack;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.CurrentWayline;
-import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
 import com.aros.apron.tools.ApronArucoDetect;
@@ -23,21 +26,18 @@ import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.text.DecimalFormat;
 import java.util.List;
+
 import dji.sdk.keyvalue.key.AirLinkKey;
-import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.key.RtkMobileStationKey;
-import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.common.Attitude;
-import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
@@ -46,9 +46,12 @@ import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
 import dji.sdk.keyvalue.value.flightcontroller.GoHomeState;
+import dji.sdk.keyvalue.value.flightcontroller.LEDsSettings;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommand;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandResult;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationStatus;
+import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
+import dji.sdk.keyvalue.value.flightcontroller.RidWorkingStatusPushMsg;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
@@ -100,23 +103,6 @@ public class FlightManager extends BaseManager {
                 Movement.getInstance().setAlternatePointLon(PreferenceUtils.getInstance().getAlternatePointLon());
                 Movement.getInstance().setAlternatePointLat(PreferenceUtils.getInstance().getAlternatePointLat());
             }
-            Movement.getInstance().setTimestamp(System.currentTimeMillis());
-            // 开始定时推送任务
-            handler.postDelayed(runnable, TIME);
-            Boolean gimBalIsConnect = KeyManager.getInstance().getValue(createKey(GimbalKey.KeyConnection, 0));
-            if (gimBalIsConnect != null && gimBalIsConnect) {
-                KeyManager.getInstance().listen(createKey(GimbalKey.KeyGimbalAttitude, 0), this, new CommonCallbacks.KeyListener<Attitude>() {
-                    @Override
-                    public void onValueChange(@Nullable Attitude oldValue, @Nullable Attitude newValue) {
-                        if (newValue != null) {
-                            Movement.getInstance().setGimbalYaw(String.valueOf(newValue.getYaw()));
-                            Movement.getInstance().setGimbalRoll(String.valueOf(newValue.getRoll()));
-                            Movement.getInstance().setGimbalPitch(String.valueOf(newValue.getPitch()));
-                            pushFlightAttitude();
-                        }
-                    }
-                });
-            }
 
             iDeviceStatusManager = dji.v5.manager.diagnostic.DeviceStatusManager.getInstance();
             iDeviceStatusManager.addDJIDeviceStatusChangeListener(new DJIDeviceStatusChangeListener() {
@@ -128,16 +114,22 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-            iPerceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
-            iPerceptionManager.addPerceptionInformationListener(new PerceptionInformationListener() {
+
+            //避障状态
+            IPerceptionManager perceptionManager = dji.v5.manager.aircraft.perception.PerceptionManager.getInstance();
+            perceptionManager.addPerceptionInformationListener(new PerceptionInformationListener() {
                 @Override
                 public void onUpdate(@NonNull PerceptionInfo information) {
                     if (information != null) {
-                        Movement.getInstance().setLevelObstacleAvoidance(information.isHorizontalObstacleAvoidanceEnabled());
+                        Movement.getInstance().setDownside(information.getDownwardObstacleAvoidanceWorking() ? 1 : 0);
+                        Movement.getInstance().setHorizon(information.isHorizontalObstacleAvoidanceEnabled() ? 1 : 0);
+                        Movement.getInstance().setUpside(information.getUpwardObstacleAvoidanceWorking() ? 1 : 0);
                         pushFlightAttitude();
+
                     }
                 }
             });
+
             iDeviceHealthManager = dji.v5.manager.diagnostic.DeviceHealthManager.getInstance();
             iDeviceHealthManager.addDJIDeviceHealthInfoChangeListener(new DJIDeviceHealthInfoChangeListener() {
                 @Override
@@ -183,42 +175,61 @@ public class FlightManager extends BaseManager {
                 }
             });
 
-            KeyManager.getInstance().listen(KeyTools.createKey(ProductKey.KeyProductType), this, new CommonCallbacks.KeyListener<ProductType>() {
+
+            //挡位
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyRemoteControllerFlightMode), this, new CommonCallbacks.KeyListener<RemoteControllerFlightMode>() {
                 @Override
-                public void onValueChange(@Nullable ProductType productType, @Nullable ProductType t1) {
-                    if (t1!=null){
-                        Movement.getInstance().setProductName(t1.name());
+                public void onValueChange(@Nullable RemoteControllerFlightMode remoteControllerFlightMode, @Nullable RemoteControllerFlightMode t1) {
+                    if (remoteControllerFlightMode != null) {
+                        Movement.getInstance().setGear(remoteControllerFlightMode.value());
+                        pushFlightAttitude();
+
                     }
                 }
             });
 
+            KeyManager.getInstance().listen(KeyTools.createKey(ProductKey.KeyProductType), this, new CommonCallbacks.KeyListener<ProductType>() {
+                @Override
+                public void onValueChange(@Nullable ProductType productType, @Nullable ProductType t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setProductName(t1.name());
+                        pushFlightAttitude();
+
+                    }
+                }
+            });
+
+            //飞机SN号
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeySerialNumber), this, new CommonCallbacks.KeyListener<String>() {
                 @Override
                 public void onValueChange(@Nullable String s, @Nullable String t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setSerialNumber(t1);
-                    }
-                }
-            });
-
-            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyTakeoffLocationAltitude), this, new CommonCallbacks.KeyListener<Double>() {
-                @Override
-                public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
-                    if (t1 != null) {
-                        Movement.getInstance().setTakeoffLocationAltitude(t1);
+                        Movement.getInstance().setFirmware_version(t1);
                         pushFlightAttitude();
 
                     }
                 }
             });
 
+            //RID状态
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyRidWorkingStatusPush), this, new CommonCallbacks.KeyListener<RidWorkingStatusPushMsg>() {
+                @Override
+                public void onValueChange(@Nullable RidWorkingStatusPushMsg ridWorkingStatusPushMsg, @Nullable RidWorkingStatusPushMsg t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setRid_state(t1.getIsRidSupport());
+                        pushFlightAttitude();
+
+                    }
+                }
+            });
+
+            //rtk起飞高度(计算海拔高度使用)
             KeyManager.getInstance().listen(createKey(RtkMobileStationKey.KeyRTKTakeoffAltitudeInfo), this, new CommonCallbacks.KeyListener<RTKTakeoffAltitudeInfo>() {
                 @Override
                 public void onValueChange(@Nullable RTKTakeoffAltitudeInfo rtkTakeoffAltitudeInfo, @Nullable RTKTakeoffAltitudeInfo t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setRTKTakeoffAltitude(t1.getAltitude());
+                        Movement.getInstance().setRtk_takeoff_altitude(t1.getAltitude());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -227,124 +238,53 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-//更新前端按钮状态
+                        //更新前端按钮状态
                         updataButtonStatus();
-                        double distance = LocationUtils.getDistance(Movement.getInstance().getHomepointLong(),
-                                Movement.getInstance().getHomepointLat(),
+                        if (newValue.getAltitude() != null) {
+                            Movement.getInstance().setElevation(newValue.getAltitude());
+                        }
+
+                        double distance = LocationUtils.getDistance(String.valueOf(Movement.getInstance().getHomepoint_longitude()),
+                                String.valueOf(Movement.getInstance().getHomepoint_latitude()),
                                 String.valueOf(newValue.getLongitude()),
                                 String.valueOf(newValue.getLatitude()));
-                        Movement.getInstance().setDistance((int) distance);
+                        Movement.getInstance().setHome_distance(distance);
 
-                        Movement.getInstance().setEgm96Altitude(GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
-                                        Movement.getInstance().getFlyingHeight()),
+                        Movement.getInstance().setHeight(GpsUtils.egm96Altitude((Movement.getInstance().getRtk_takeoff_altitude() +
+                                        Movement.getInstance().getElevation()),
                                 newValue.getLatitude(), newValue.getLongitude()));
 
-                        if (newValue.getAltitude() != null) {
-                            Movement.getInstance().setFlyingHeight(Double.parseDouble(decimalFormat.format(newValue.getAltitude())));
-                        }
-                        Movement.getInstance().setCurrentLatitude(newValue.getLatitude() + "");
-                        Movement.getInstance().setCurrentLongitude(newValue.getLongitude() + "");
-                        if (waypointIndexAlreadySend != Movement.getInstance().getCurrentWaypointIndex() &&
-                                Movement.getInstance().getWaypointMissionExecuteState() != null &&
-                                (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
-//                                        ||Movement.getInstance().getWaypointMissionExecuteState().equals("FINISHED")
-                                )
-                                &&
-                                CurrentWayline.getInstance().getWaypoints() != null &&
-                                CurrentWayline.getInstance().getWaypoints().size() >
-                                        Movement.getInstance().getCurrentWaypointIndex() &&
-                                CurrentWayline.getInstance().getWaypoints().size() >
-                                        waypointIndexAlreadySend){
-                            if (!PreferenceUtils.getInstance().getIsNewRoute()){
-                                //当前位置与当前航点下标的距离
-                                double pointDistance = LocationUtils.getDistance(
-                                        CurrentWayline.getInstance().getWaypoints()
-                                                .get(Movement.getInstance().getCurrentWaypointIndex())
-                                                .getLocation().getLongitude().toString(),
-                                        CurrentWayline.getInstance().getWaypoints()
-                                                .get(Movement.getInstance().getCurrentWaypointIndex())
-                                                .getLocation().getLatitude().toString(),
-                                        String.valueOf(newValue.getLongitude()),
-                                        String.valueOf(newValue.getLatitude()));
-                                if (pointDistance>3) {
-//                                        //最后一个航点执行完 getCurrentWaypointIndex会变成0，在此前的index基础上+1得到最后一个航点的真实下标
-//                                        if (Movement.getInstance().getCurrentWaypointIndex() == 0 && waypointIndexAlreadySend > 0
-//                                        ) {
-//                                            //离开最后一个航点后有可能还会发送一次，通过航点数目，避免多次发送离点事件
-//                                            waypointIndexAlreadySend = waypointIndexAlreadySend + 1;
-//                                            if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-//                                                WaypointEventSender.getInstance().sendCustomReachOrLeave2Server(MqttManager.getInstance().mqttAndroidClient, "1",
-//                                                        String.valueOf(waypointIndexAlreadySend));
-//                                                LogUtil.log(TAG, "x离开第" + waypointIndexAlreadySend
-//                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-//                                            }else{
-//                                                LogUtil.log(TAG, "x已超出第" + waypointIndexAlreadySend
-//                                                        + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-//                                            }
-//                                        } else {
-                                    waypointIndexAlreadySend = Movement.getInstance().getCurrentWaypointIndex();
-                                    WaypointEventSender.getInstance().sendCustomReachOrLeave2Server("1",
-                                            String.valueOf(Movement.getInstance().getCurrentWaypointIndex()));
-                                    LogUtil.log(TAG, "y离开第" + Movement.getInstance().getCurrentWaypointIndex()
-                                            + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-//                                        }
-                                }
-                                //返回主航线
-                            }else if (PreferenceUtils.getInstance().getMissionType()==2){
-                                int indexInWaypoints = findIndexInWaypoints(Movement.getInstance().getCurrentWaypointIndex());
-                                if (indexInWaypoints!=-1){
-                                    //当前位置与当前航点下标的距离
-                                    double pointDistance = LocationUtils.getDistance(
-                                            CurrentWayline.getInstance().getWaypoints()
-                                                    .get(indexInWaypoints)
-                                                    .getLocation().getLongitude().toString(),
-                                            CurrentWayline.getInstance().getWaypoints()
-                                                    .get(indexInWaypoints)
-                                                    .getLocation().getLatitude().toString(),
-                                            String.valueOf(newValue.getLongitude()),
-                                            String.valueOf(newValue.getLatitude()));
-                                    if (pointDistance>5) {
-                                        waypointIndexAlreadySend = indexInWaypoints;
-                                        if (CurrentWayline.getInstance().getWaypoints().size() > waypointIndexAlreadySend) {
-                                            WaypointEventSender.getInstance().sendCustomReachOrLeave2Server( "1",
-                                                    String.valueOf(waypointIndexAlreadySend));
-                                            LogUtil.log(TAG, "续飞离开第" + waypointIndexAlreadySend
-                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                        }else{
-                                            LogUtil.log(TAG, "续飞已超出第" + waypointIndexAlreadySend
-                                                    + "个航点" + Movement.getInstance().getWaypointMissionExecuteState());
-                                        }
-
-                                    }
-                                }
-                            }
-                        }
-
-
+                        Movement.getInstance().setLatitude(newValue.getLatitude());
+                        Movement.getInstance().setLongitude(newValue.getLongitude());
                         pushFlightAttitude();
                     }
                 }
             });
+
+            //水平&垂直速度
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftVelocity), this, new CommonCallbacks.KeyListener<Velocity3D>() {
                 @Override
                 public void onValueChange(@Nullable Velocity3D oldValue, @Nullable Velocity3D newValue) {
                     if (newValue != null) {
                         if (newValue.getZ() != null) {
-                            Movement.getInstance().setVerticalSpeed(String.format("%.1f", Math.abs(newValue.getZ())));
+                            Movement.getInstance().setVertical_speed(newValue.getZ());
                         }
                         if (newValue.getY() != null && newValue.getX() != null) {
-                            Movement.getInstance().setHorizontalSpeed(String.format("%.1f", Math.abs(Math.sqrt((newValue.getX() * newValue.getX()) + (newValue.getY() * newValue.getY())))));
+                            Movement.getInstance().setHorizontal_speed(Math.abs(Math.sqrt((newValue.getX() * newValue.getX()) + (newValue.getY() * newValue.getY()))));
                         }
                         pushFlightAttitude();
+
                     }
                 }
             });
 
+            //卫星数
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyGPSSatelliteCount), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
-                        Movement.getInstance().setSatelliteNumber(newValue);
+                        Movement.getInstance().setGps_number(newValue);
+                        Movement.getInstance().setRtk_number(newValue);
                         pushFlightAttitude();
                     }
                 }
@@ -354,20 +294,22 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable GPSSignalLevel gpsSignalLevel, @Nullable GPSSignalLevel t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setGPSSignalLevel(t1.name());
+                        Movement.getInstance().setQuality(t1.value());
                         pushFlightAttitude();
 
                     }
                 }
             });
 
+            //返航位置
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyHomeLocation), this, new CommonCallbacks.KeyListener<LocationCoordinate2D>() {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate2D oldValue, @Nullable LocationCoordinate2D newValue) {
                     if (newValue != null) {
-                        Movement.getInstance().setHomepointLat(String.valueOf(newValue.getLatitude()));
-                        Movement.getInstance().setHomepointLong(String.valueOf(newValue.getLongitude()));
+                        Movement.getInstance().setHomepoint_latitude(newValue.getLatitude());
+                        Movement.getInstance().setHomepoint_longitude(newValue.getLongitude());
                         pushFlightAttitude();
+
                     }
                 }
             });
@@ -403,36 +345,45 @@ public class FlightManager extends BaseManager {
                 }
             });
 
+            //飞行器夜航灯状态
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyLEDsSettings), this, new CommonCallbacks.KeyListener<LEDsSettings>() {
+                @Override
+                public void onValueChange(@Nullable LEDsSettings leDsSettings, @Nullable LEDsSettings t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setNight_lights_state(t1.getNavigationLEDsOn() ? 1 : 0);
+                        pushFlightAttitude();
+
+                    }
+                }
+            });
+
+            //飞行器状态	(未找到类似上云api的枚举格式，先用FlightMode替代)
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyFlightMode), this, new CommonCallbacks.KeyListener<FlightMode>() {
                 @Override
                 public void onValueChange(@Nullable FlightMode oldValue, @Nullable FlightMode newValue) {
                     if (newValue != null) {
-
                         if (newValue == FlightMode.MOTOR_START) {
                             //刚起飞时，重置保存的状态
                             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
                             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-                            //每次起飞前 将最后降落的触发条件制成false
-                            isTriggerLanding=false;
-                            if (!sendStartTakeOffMsg) {
-                                SendStartTakeOffManager.getInstance().sendStartTakeOff2Server();
-                                sendStartTakeOffMsg = true;
-                            }
+
                         }
+                        Movement.getInstance().setMode_code(newValue.value());
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
                     }
                 }
             });
 
+
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftAttitude), this, new CommonCallbacks.KeyListener<Attitude>() {
                 @Override
                 public void onValueChange(@Nullable Attitude attitude, @Nullable Attitude t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setPitch(String.valueOf(t1.getPitch()));
-                        Movement.getInstance().setYaw(String.valueOf(t1.getYaw().intValue()));
-                        Movement.getInstance().setRoll(String.valueOf(t1.getRoll()));
+                        Movement.getInstance().setAttitude_pitch(t1.getPitch());
+                        Movement.getInstance().setAttitude_pitch(t1.getYaw());
+                        Movement.getInstance().setAttitude_roll(t1.getRoll());
                     }
                     pushFlightAttitude();
                 }
@@ -442,8 +393,9 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setRemoteControlSignal(newValue);
-                        pushFlightAttitude();
                     }
+                    pushFlightAttitude();
+
                 }
             });
 
@@ -452,8 +404,9 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setPictureBiographySignal(newValue);
-                        pushFlightAttitude();
                     }
+                    pushFlightAttitude();
+
                 }
             });
 
@@ -491,84 +444,145 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
                         Movement.getInstance().setUltrasonicHeight(newValue);
-                        pushFlightAttitude();
-
                     }
+                    pushFlightAttitude();
+
                 }
             });
 
+            //总里程(单位m)
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftTotalFlightDistance), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setAircraftTotalFlightDistance(t1.toString());
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setTotal_flight_distance(t1);
                     }
+                    pushFlightAttitude();
+
                 }
             });
 
+            //航迹 ID
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyTrackId), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setTrack_id(t1);
+                    }
+                    pushFlightAttitude();
+                }
+            });
+
+            //总航时
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftTotalFlightDuration), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
                 public void onValueChange(@Nullable Double aDouble, @Nullable Double t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setAircraftTotalFlightDuration(t1.toString());
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setTotal_flight_time(t1);
                     }
+                    pushFlightAttitude();
                 }
             });
 
+            //总架次
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftTotalFlightTimes), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setAircraftTotalFlightTimes(t1.toString());
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setTotal_flight_sorties(t1);
                     }
+                    pushFlightAttitude();
+
                 }
             });
+
+            //失联动作
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyFailsafeAction), this, new CommonCallbacks.KeyListener<FailsafeAction>() {
                 @Override
                 public void onValueChange(@Nullable FailsafeAction failsafeAction, @Nullable FailsafeAction t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setFailsafeAction(t1.value());
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setRc_lost_action(t1.value());
                     }
+                    pushFlightAttitude();
+
                 }
             });
+
+
+            //返航高度
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyGoHomeHeight), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setRth_altitude(t1);
+                    }
+                    pushFlightAttitude();
+
+                }
+            });
+
+            //限高
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyHeightLimit), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setHeightLimit(t1);
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setHeight_limit(t1);
                     }
+                    pushFlightAttitude();
+
                 }
             });
-            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimit), this, new CommonCallbacks.KeyListener<Integer>() {
+
+            //是否接近限高
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyIsNearHeightLimit), this, new CommonCallbacks.KeyListener<Boolean>() {
                 @Override
-                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setDistanceLimit(t1);
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setIs_near_height_limit(t1 ? 1 : 0);
                     }
+                    pushFlightAttitude();
+
                 }
             });
+
+            //是否接近设定的限制距离
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyIsNearDistanceLimit), this, new CommonCallbacks.KeyListener<Boolean>() {
+                @Override
+                public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setIs_near_distance_limit(t1 ? 1 : 0);
+                        Movement.getInstance().setIs_near_area_limit(t1 ? 1 : 0);
+                    }
+                    pushFlightAttitude();
+
+                }
+            });
+
+            //是否开启限远
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimitEnabled), this, new CommonCallbacks.KeyListener<Boolean>() {
                 @Override
                 public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setDistanceLimitEnabled(t1 ? 1 : 0);
-                        pushFlightAttitude();
-
+                        Movement.getInstance().setIs_near_distance_limit(t1 ? 1 : 0);
                     }
+                    pushFlightAttitude();
+
                 }
             });
+
+
+            //限远
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimit), this, new CommonCallbacks.KeyListener<Integer>() {
+                @Override
+                public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
+                    if (t1 != null) {
+                        Movement.getInstance().setDistance_limit(t1);
+                    }
+                    pushFlightAttitude();
+
+                }
+            });
+
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyLowBatteryWarningThreshold), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
@@ -604,10 +618,6 @@ public class FlightManager extends BaseManager {
         }
     }
 
-    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
-    Gson gson = new GsonBuilder()
-            .serializeSpecialFloatingPointValues() // 这是关键
-            .create();
     //标识是否降落后触发关舱门
     private boolean triggerLandOrGoHome;
     //标识飞机是否执行完任务处于landing或gohome，避免刚飞出去就执行精准降落
@@ -652,59 +662,6 @@ public class FlightManager extends BaseManager {
         droneStorage();
     }
 
-    private int TIME = 1000; // 每隔1s执行一次.
-    Handler handler = new Handler();
-
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                XcFileLog.getInstace().f(TAG,gson.toJson(Movement.getInstance()));
-//                XcFileLog.getInstace().f(TAG, "position:" + Movement.getInstance().getCurrentLongitude() + ","
-//                        + Movement.getInstance().getCurrentLatitude()
-//                        + " altitude:" + Movement.getInstance().getFlyingHeight()
-//                        + " uAltitude:" + Movement.getInstance().getUltrasonicHeight()
-//                        + " heath:" + Movement.getInstance().getWarningMessage()
-//                        + " status:" + Movement.getInstance().getPlaneMessage()
-//                        + " virtualStickEnableReason:" + Movement.getInstance().getVirtualStickEnableReason()
-//                        + " batteryTemperatureA:" + Movement.getInstance().getBatteryTemperatureA()
-//                        + " isStreaming:" + Movement.getInstance().getLiveStatus()
-//                        + " rtkHealthy:" + Movement.getInstance().isRtkSign()
-//                        + " isPlaneWing:" + Movement.getInstance().isPlaneWing()
-//                        + " isMotorsOn:" + Movement.getInstance().isMotorsOn());
-                Movement.getInstance().setEgm96Altitude(
-                        GpsUtils.egm96Altitude((Movement.getInstance().getRTKTakeoffAltitude() +
-                                        Movement.getInstance().getFlyingHeight()),
-                                Double.parseDouble(Movement.getInstance().getCurrentLatitude()), Double.parseDouble(Movement.getInstance().getCurrentLongitude())));
-                Movement.getInstance().setTimestamp(System.currentTimeMillis());
-                Movement.getInstance().setSn(PreferenceUtils.getInstance().getMqttSn());
-                if (isFlying) {
-                    Movement.getInstance().setTaskId(PreferenceUtils.getInstance().getTaskId());
-                }
-                //视频源
-                CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-                        KeyCameraVideoStreamSource, ComponentIndexType.PORT_1));
-                if (value!=null){
-                    Movement.getInstance().setCameraVideoStreamSource(value.value());
-                }
-                //推送飞行状态
-                MqttMessage flightMessage = null;
-                try {
-                    flightMessage = new MqttMessage(gson.toJson(Movement.getInstance()).getBytes("UTF-8"));
-                } catch (Exception e) {
-                    LogUtil.log(TAG, "推送飞机状态失败:mqtt未连接" + e);
-                }
-                flightMessage.setQos(0);
-                publish(MqttManager.getInstance().mqttAndroidClient, AMSConfig.getInstance().getMqttMsdkPushMessage2ServerTopic(), flightMessage);
-
-                // 再次调用postDelayed来保证每一秒都会执行run方法
-                handler.postDelayed(this, TIME);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
     private void updataButtonStatus(){
         //手控显示条件
         if (Movement.getInstance().getGoHomeState() != 1
@@ -713,7 +670,7 @@ public class FlightManager extends BaseManager {
                         (Movement.getInstance().getMissionType() == 3
                                 || PreferenceUtils.getInstance().getMissionType() == 1)
                         && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
-                        && Movement.getInstance().getFlyingHeight() > 10
+                        && Movement.getInstance().getElevation() > 10
                         && Movement.getInstance().getIsVirtualStickEnable() == 0)
                         || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
                         && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
@@ -750,7 +707,6 @@ public class FlightManager extends BaseManager {
         //继续按钮显示条件
         if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
                 Movement.getInstance().getMissionType() != 3 && Movement.getInstance().isWaylineCanResume()
-//                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
         )
                 || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
                 && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
@@ -787,16 +743,13 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
                     LogUtil.log(TAG,"电量低于阈值，直接返航");
-                    //低电量强制返航通知服务器
-                    sendLowBatteryRTHPosition2Server();
-                    sendMissionExecuteEvents("电量低于阈值，强制返航");
+                    sendEvent2Server("电量低于阈值，强制返航");
 
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG,"电量低于阈值，返航失败:"+new Gson().toJson(error));
-                    sendMissionExecuteEvents("电量低于阈值，返航失败");
+                    sendEvent2Server("电量低于阈值，返航失败");
                 }
             });
 
@@ -805,7 +758,7 @@ public class FlightManager extends BaseManager {
 
     private void closeCabinDoor() {
         // 获取飞行状态和航线状态
-        boolean isFlyingAndHeightOk = isFlying && Movement.getInstance().getFlyingHeight() > 10;
+        boolean isFlyingAndHeightOk = isFlying && Movement.getInstance().getElevation() > 10;
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         String missionState = Movement.getInstance().getWaypointMissionExecuteState();
         boolean isMissionExecuting = (!TextUtils.isEmpty(missionState) &&
@@ -815,7 +768,7 @@ public class FlightManager extends BaseManager {
         // 当飞机在飞行，高度足够，且航线状态为EXECUTING或ENTER_WAYLINE时，触发关舱门，开启水平避障
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint() && isFlyingAndHeightOk && !isDebugMode && isMissionExecuting && !sendCloseCabinDoorMsg) {
             sendCloseCabinDoorMsg = true;
-            DockCloseManager.getInstance().sendDockCloseMsg2Server(MqttManager.getInstance().mqttAndroidClient);
+            DockCloseManager.getInstance().sendDockCloseMsg2Server();
             PerceptionManager.getInstance().setPerceptionEnable(true);
         }
     }
@@ -827,8 +780,8 @@ public class FlightManager extends BaseManager {
     private void openCabinDoor() {
         boolean isReturningHome = goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value() ||
                 goHomeExecutionState == GoHomeState.LANDING.value();
-        float distance = Movement.getInstance().getDistance();
-        double flyingHeight = Movement.getInstance().getFlyingHeight();
+        double distance = Movement.getInstance().getHome_distance();
+        double flyingHeight = Movement.getInstance().getElevation();
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         boolean isDistanceAndHeightValid = distance < DISTANCE_THRESHOLD &&
                 flyingHeight > FLYING_HEIGHT_THRESHOLD && !sendOpenCabinDoorMsg;
@@ -837,7 +790,7 @@ public class FlightManager extends BaseManager {
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
-            DockOpenManager.getInstance().sendDockOpenMsg2Server(MqttManager.getInstance().mqttAndroidClient);
+            DockOpenManager.getInstance().sendDockOpenMsg2Server();
 
         }
     }
@@ -845,7 +798,7 @@ public class FlightManager extends BaseManager {
     //降落时将云台朝下
     private void gimbalDownwards() {
         if (goHomeExecutionState == GoHomeState.LANDING.value()
-                && Movement.getInstance().getFlyingHeight() > 11
+                && Movement.getInstance().getElevation() > 11
                 && !isGimbalDownwards) {
             DroneHelper.getInstance().setGimbalPitchDegree();
             //将镜头设置为自动对焦
@@ -855,13 +808,12 @@ public class FlightManager extends BaseManager {
             if (Movement.getInstance().getIsRecording()==1){
                 CameraManager.getInstance().stopRecordVideo(null);
             }
-
         }
     }
 
     private boolean shouldResetGimbalAndCamera() {
         return goHomeExecutionState == GoHomeState.RETURNING_TO_HOME.value()
-                && Movement.getInstance().getFlyingHeight() > 20
+                && Movement.getInstance().getElevation() > 20
                 && !isGimbalReset;
     }
 
@@ -900,8 +852,8 @@ public class FlightManager extends BaseManager {
         boolean needTriggerAlterArucoLand = PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand();
         double thresholdMax = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MAX_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MAX;
 
-        if (isFlying && Movement.getInstance().getFlyingHeight() < thresholdMax && !isSendDetect) {
-            double flyingHeight = Movement.getInstance().getFlyingHeight();
+        if (isFlying && Movement.getInstance().getElevation() < thresholdMax && !isSendDetect) {
+            double flyingHeight = Movement.getInstance().getElevation();
             double thresholdMin = triggerToAlternatePoint ? FLYING_HEIGHT_THRESHOLD_MIN_ALTERNATE : FLYING_HEIGHT_THRESHOLD_MIN;
 
             if (flyingHeight > thresholdMin) {
@@ -923,8 +875,8 @@ public class FlightManager extends BaseManager {
 
     private void triggerArucoDetection() {
         //当电池电量大于40时，允许复降次数设置为10次
-        if(Movement.getInstance().getElectricityInfoA()>40){
-            AMSConfig.getInstance().setAlternateLandingTimes(10+"");
+        if (Movement.getInstance().getBattery_a_capacity_percent() > 40) {
+            AMSConfig.getInstance().setAlternateLandingTimes(10 + "");
         }
 
         if (PreferenceUtils.getInstance().getTriggerToAlternatePoint()) {
@@ -932,15 +884,15 @@ public class FlightManager extends BaseManager {
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_ALTERNATE);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
-            LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents( "开始备降点视觉降落");
+            LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getElevation() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
+            sendEvent2Server("开始备降点视觉降落");
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
-            LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getFlyingHeight() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendMissionExecuteEvents( "开始视觉降落");
+            LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getElevation() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
+            sendEvent2Server("开始视觉降落");
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
@@ -979,20 +931,6 @@ public class FlightManager extends BaseManager {
         isGimbalDownwards = false;
     }
 
-    //FlightManager | 降落高度4.1米---2分米
-    //2025-11-28 11:16:44 | I | ApronArucoDetect | 过滤:falsetrue
-    //2025-11-28 11:16:44 | I | MainActivity | 自动降落调用成功
-    //2025-11-28 11:16:44 | I | StickManager | 控制权变更原因:MSDK_REQUEST
-    //2025-11-28 11:16:44 | I | StickManager | 控制权变更原因:MSDK_REQUEST
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
-    //2025-11-28 11:16:44 | I | DroneHelper | 控制权已取消
-    //2025-11-28 11:16:44 | I | FlightManager | GoHomeStatus:LANDING
-    //2025-11-28 11:16:44 | I | FlightManager | GoHomeStatus:LANDING
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
-    //2025-11-28 11:16:44 | I | StickManager | 控制权:false-高级模式:true
 
     /**
      * 打印这里的条件，判断是否满足降落停浆
@@ -1000,15 +938,7 @@ public class FlightManager extends BaseManager {
      * @return
      */
     private boolean shouldStopVisionAndLanding() {
-        if (Movement.getInstance().getFlyingHeight() < 5) {
-            XcFileLog.getInstace().w(TAG, "降落停浆条件:" + "isTriggerLanding:" + isTriggerLanding + "  isFlying:" + isFlying +
-                    "  isMotorsOn:" + isMotorsOn + "  getNeedTriggerAlterArucoLand():" +
-                    PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()
-                    + "  ApronAruco:" + ApronArucoDetect.getInstance().isCanLanding() +
-                    "  AlternateAruco:" + AlternateArucoDetect.getInstance().isCanLanding()
-            +"  isStartFastStick:"+ApronArucoDetect.getInstance().isStartFastStick()
-                    +"  CheckThrowingErrorsTimes:"+ApronArucoDetect.getInstance().getCheckThrowingErrorsTimes());
-        }
+
         //记录isFlying || isMotorsOn可能桨叶在转但是飞机不在飞的情况，可能导致不触发landing
         if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
             return !isTriggerLanding && (isFlying || isMotorsOn) && AlternateArucoDetect.getInstance().isCanLanding();
@@ -1020,7 +950,7 @@ public class FlightManager extends BaseManager {
     }
 
     private void logLandingHeight(int i) {
-        LogUtil.log(TAG, "降落高度" + Movement.getInstance().getFlyingHeight() + "米---"
+        LogUtil.log(TAG, "降落高度" + Movement.getInstance().getElevation() + "米---"
                 + Movement.getInstance().getUltrasonicHeight() + "分米");
     }
 
@@ -1028,8 +958,7 @@ public class FlightManager extends BaseManager {
     private void droneStorage() {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         // 检查无人机是否满足降落和入库的条件
-        if (triggerLandOrGoHome && !isMotorsOn &&
-                !isFlying && Movement.getInstance().getFlyingHeight() <= 0.0) {
+        if (triggerLandOrGoHome && !isMotorsOn && !isFlying && Movement.getInstance().getElevation() <= 0.0) {
             // 重置降落或返航的触发标志
             triggerLandOrGoHome = false;
             // 禁用触发和检测标志
@@ -1044,7 +973,7 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DroneStorageManager.getInstance().sendDroneStorageMsg2Server( 1);
+                    DockStorageManager.getInstance().sendDockStorageMsg2Server( );
                 }
                 // 上传媒体文件
                 SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
@@ -1053,45 +982,17 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-            MqttCallBack.isReceiverMission=false;
-            LogUtil.log(TAG, "droneStorage:" + PreferenceUtils.getInstance().getTaskId());
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    SendLandingManager.getInstance().sendLandingMsg2Server();
-                }
-            }, 1000);
 
-        }
-    }
-
-    //起飞
-    public void startTakeoff(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartTakeoff), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server( message);
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    sendMsg2Server( message, "起飞失败:" + getIDJIErrorMsg(error));
-                }
-            });
-        } else {
-            sendMsg2Server( message, "飞控未连接");
         }
     }
 
     //返航
-    public void startGoHome(MQMessage message) {
+    public void startGoHome(MessageDown message) {
         FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
 
-        if (Movement.getInstance().isPlaneWing() && Movement.getInstance().getDistance() < 20
-                && Movement.getInstance().getFlyingHeight() < 88
-                && Movement.getInstance().getElectricityInfoA() > 25
+        if (Movement.getInstance().isPlaneWing() && Movement.getInstance().getHome_distance() < 20
+                && Movement.getInstance().getElevation() < 88
+                && Movement.getInstance().getBattery_a_capacity_percent() > 25
                 && ((flightMode != null && flightMode == FlightMode.WAYPOINT) ||
                 (flightMode != null && flightMode == FlightMode.AUTO_TAKE_OFF))) {
             WayLineExecutingInterruptManager.getInstance().onExecutingInterruptToDo();
@@ -1101,34 +1002,22 @@ public class FlightManager extends BaseManager {
                 KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                     @Override
                     public void onSuccess(EmptyMsg emptyMsg) {
-                        if (message != null) {
                             sendMsg2Server( message);
-                        }
-                        LogUtil.log(TAG, "返航调用成功");
-
                     }
-
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (message != null) {
-                            sendMsg2Server( message, "返航执行失败:" + getIDJIErrorMsg(error));
-                        }
-                        LogUtil.log(TAG, "返航执行失败：" + new Gson().toJson(error));
+                            sendFailMsg2Server( message, "返航执行失败:" + getIDJIErrorMsg(error));
                     }
                 });
             } else {
-                if (message != null) {
-                    sendMsg2Server( message, "返航执行失败：飞控未连接");
-                }
-                LogUtil.log(TAG, "返航执行失败：飞控未连接");
-
+                sendFailMsg2Server( message, "返航执行失败:飞控未连接");
             }
         }
 
     }
 
     //取消返航
-    public void stopGoHome(MQMessage message) {
+    public void stopGoHome(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
@@ -1139,271 +1028,15 @@ public class FlightManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "取消返航执行失败:" + new Gson().toJson(error));
-                    sendMsg2Server( message, "取消返航执行失败:" + getIDJIErrorMsg(error));
+                    sendFailMsg2Server( message, "取消返航执行失败:" + getIDJIErrorMsg(error));
                 }
             });
         } else {
-            sendMsg2Server( message, "飞控未连接");
+            sendFailMsg2Server( message, "飞控未连接");
         }
     }
 
 
-    //降落
-    public void startAutoLanding(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    if (message!=null){
-                        sendMsg2Server( message);
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "降落失败:" + new Gson().toJson(error));
-                    if (message!=null){
-                        sendMsg2Server( message, "降落失败:" + getIDJIErrorMsg(error));
-                    }
-                }
-            });
-        } else {
-            sendMsg2Server( message, "飞控未连接");
-        }
-    }
-
-    //取消降落
-    public void stopAutoLanding(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                @Override
-                public void onSuccess(EmptyMsg emptyMsg) {
-                    sendMsg2Server( message);
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "取消降落失败:" + new Gson().toJson(error));
-                    sendMsg2Server( message, "取消降落失败:" + getIDJIErrorMsg(error));
-                }
-            });
-        } else {
-            sendMsg2Server( message, "飞控未连接");
-        }
-    }
-
-    //飞机失联后的自动操作
-    public void setFailsafeAction(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyFailsafeAction),
-                        FailsafeAction.find(message.getFailsafeAction()), new CommonCallbacks.CompletionCallback() {
-                            @Override
-                            public void onSuccess() {
-                                sendMsg2Server( message);
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "失控执行动作更新失败:" + new Gson().toJson(error));
-                                sendMsg2Server( message, "失控执行动作更新失败:" + getIDJIErrorMsg(error));
-                            }
-                        });
-            }
-        } else {
-            sendMsg2Server( message, "飞控未连接");
-        }
-    }
-
-    //设置返航高度
-    public void setGoHomeHeight(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyGoHomeHeight), message.getGoHomeHeight(), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server( message);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "返航高度设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server( message, "返航高度设置失败:" + getIDJIErrorMsg(error));
-                    }
-                });
-            }
-        } else {
-            sendMsg2Server( message, "飞控未连接");
-        }
-    }
-
-    //设置限高
-    public void setHeightLimit(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyHeightLimit), message.getHeightLimit(), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(message);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "限高设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(message, "限高设置失败:" + getIDJIErrorMsg(error));
-                    }
-                });
-            }
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    //设置限远
-    public void setDistanceLimit(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyDistanceLimit), message.getDistanceLimit(), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(message);
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "限远设置失败:" + new Gson().toJson(error));
-                    sendMsg2Server(message, "限远设置失败:" + getIDJIErrorMsg(error));
-                }
-            });
-
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    //设置是否启用限远
-    public void setDistanceLimitEnabled(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(createKey(FlightControllerKey.KeyDistanceLimitEnabled), message.getDistanceLimitEnabled() == 0 ? false : true, new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(message);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "限远使能设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(message, "限远使能设置失败:" + getIDJIErrorMsg(error));
-                    }
-                });
-            }
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    //获取总里程
-    public void getAircraftTotalFlightDistance(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            Double value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyAircraftTotalFlightDistance));
-            if (value != null) {
-                sendAircraftTotalFlightDistance2Server(message, value);
-            } else {
-                sendMsg2Server(message, "获取里程数为空");
-            }
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    /**
-     * 紧急悬停
-     */
-    public void emergencyHover(MQMessage message) {
-        FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
-        if (flightMode != null) {
-            switch (flightMode) {
-                case GO_HOME:
-                    KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                        @Override
-                        public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "紧急悬停，取消返航成功");
-                            sendMsg2Server( message);
-                            resetAircrftLandingStatus();
-
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "紧急悬停，取消返航失败:" + new Gson().toJson(error));
-                            sendMsg2Server( message, "紧急悬停，取消返航失败:" + getIDJIErrorMsg(error));
-                        }
-                    });
-                    break;
-                case WAYPOINT:
-                    IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-                    missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
-                            ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG, "紧急悬停，终止任务成功");
-                            sendMsg2Server( message);
-                            resetAircrftLandingStatus();
-
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "紧急悬停，终止任务失败:" + new Gson().toJson(error));
-                            sendMsg2Server( message, "紧急悬停，终止任务失败:" + getIDJIErrorMsg(error));
-                        }
-                    });
-                    break;
-                case AUTO_LANDING:
-                    KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                        @Override
-                        public void onSuccess(EmptyMsg emptyMsg) {
-                            LogUtil.log(TAG, "紧急悬停，取消降落成功");
-                            sendMsg2Server( message);
-                            resetAircrftLandingStatus();
-
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "紧急悬停，取消降落失败:" + new Gson().toJson(error));
-                            sendMsg2Server( message, "紧急悬停，取消降落失败:" + getIDJIErrorMsg(error));
-                        }
-                    });
-                    break;
-                case VIRTUAL_STICK:
-                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG, "紧急悬停，控制权释放成功");
-                            sendMsg2Server( message);
-                            resetAircrftLandingStatus();
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "紧急悬停，控制权释放失败:" + new Gson().toJson(error));
-                            sendMsg2Server( message, "紧急悬停，控制权失败:" + getIDJIErrorMsg(error));
-                        }
-                    });
-                    break;
-            }
-        }
-    }
 
     private void resetAircrftLandingStatus() {
         // 避免在下次起飞时触发视觉识别
@@ -1415,86 +1048,14 @@ public class FlightManager extends BaseManager {
         EventBus.getDefault().post(FLAG_STOP_ARUCO);
     }
 
-    //设置低电量阈值【15-50】
-    public void setLowBatteryWarningThreshold(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
-                KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyLowBatteryWarningThreshold), message.getLowBatteryWarningThreshold(), new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        sendMsg2Server(message);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "低电量阈值设置失败:" + new Gson().toJson(error));
-                        sendMsg2Server(message, "低电量阈值设置失败:" + getIDJIErrorMsg(error));
-                    }
-                });
-            }
-
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    //设置严重低电量阈值(该值默认为10%，Matrice 30 Series不可设置。)
-    public void setSeriousLowBatteryWarningThreshold(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
-                KeyConnection));
-        if (isConnect != null && isConnect) {
-            if (message != null) {
-                KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeySeriousLowBatteryWarningThreshold),
-                        message.getSeriousLowBatteryWarningThreshold(), new CommonCallbacks.CompletionCallback() {
-                            @Override
-                            public void onSuccess() {
-                                sendMsg2Server(message);
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "严重低电量阈值设置失败:" + new Gson().toJson(error));
-                                sendMsg2Server(message, "严重低电量阈值设置失败:" + getIDJIErrorMsg(error));
-                            }
-                        });
-            }
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
-
-    //设置智能低电量返航
-    public void setLowBatteryRTHEnabled(MQMessage message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
-                KeyConnection));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().setValue(KeyTools.createKey(FlightControllerKey.KeyLowBatteryRTHEnabled),
-                    message.getLowBatteryRTHEnabled() == 0 ? false : true, new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            sendMsg2Server(message);
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "智能低电量返航设置失败:" + new Gson().toJson(error));
-                            sendMsg2Server(message, "智能低电量返航设置失败:" + getIDJIErrorMsg(error));
-                        }
-                    });
-        } else {
-            sendMsg2Server(message, "飞控未连接");
-        }
-    }
 
     //开启低速转浆
-    public void startPropellerRotation(MQMessage message) {
+    public void startPropellerRotation(MessageDown message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation), PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
             @Override
             public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                sendMsg2Server( message);
-                if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION){
+                sendMsg2Server(message);
+                if (propellerRotationCommandResult.getStatus() == PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION) {
                     Movement.getInstance().setPropellerRotation(true);
                 }
                 LogUtil.log(TAG, "开始低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
@@ -1503,21 +1064,19 @@ public class FlightManager extends BaseManager {
             @Override
             public void onFailure(@NonNull IDJIError error) {
                 LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
-                sendMsg2Server( message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                sendFailMsg2Server(message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
             }
         });
     }
 
     //停止低速转浆
-    public void stopPropellerRotation(MQMessage message) {
+    public void stopPropellerRotation(MessageDown message) {
         KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation),
                 PropellerRotationCommand.EXIT_LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
                     @Override
                     public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                        if (message!=null){
-                            sendMsg2Server( message);
-                        }
-                        if (propellerRotationCommandResult.getStatus()== PropellerRotationStatus.NONE_MOTOR_IN_LOW_SPEED_ROTATION){
+                        sendMsg2Server(message);
+                        if (propellerRotationCommandResult.getStatus() == PropellerRotationStatus.NONE_MOTOR_IN_LOW_SPEED_ROTATION) {
                             Movement.getInstance().setPropellerRotation(false);
                         }
                         LogUtil.log(TAG, "停止低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
@@ -1525,10 +1084,8 @@ public class FlightManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        if (message != null) {
-                            sendMsg2Server( message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
-                        }
                         LogUtil.log(TAG, "停止低速转浆失败:" + new Gson().toJson(error));
+                        sendFailMsg2Server(message, "停止低速转浆失败:" + getIDJIErrorMsg(error));
                     }
                 });
     }

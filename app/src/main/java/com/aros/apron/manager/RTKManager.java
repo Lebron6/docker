@@ -20,6 +20,8 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.rtk.RTKCenter;
+import dji.v5.manager.aircraft.rtk.RTKLocationInfo;
+import dji.v5.manager.aircraft.rtk.RTKLocationInfoListener;
 import dji.v5.manager.aircraft.rtk.RTKSystemState;
 import dji.v5.manager.aircraft.rtk.RTKSystemStateListener;
 import dji.v5.manager.interfaces.IRTKCenter;
@@ -47,10 +49,9 @@ public class RTKManager extends BaseManager {
                         @Override
                         public void onUpdate(RTKSystemState newValue) {
                             if (newValue!=null){
-                                if (newValue.getRTKHealthy()!=Movement.getInstance().isRtkSign()){
-                                    Movement.getInstance().setRtkSign(newValue.getRTKHealthy());
+                                    Movement.getInstance().setIs_fixed(newValue.getRTKHealthy()?0:2);
                                     LogUtil.log(TAG, "机身RTK状态:" + newValue.getRTKHealthy());
-                                }
+
                             }
                         }
                     });
@@ -119,7 +120,7 @@ public class RTKManager extends BaseManager {
     //开启自定义网络RTK服务
     private void startNetworkRTKService() {
         if (PreferenceUtils.getInstance().getRtkType()==1) {
-            if (Movement.getInstance().isRtkSign()) {
+            if (Movement.getInstance().getIs_fixed()==2) {
                 LogUtil.log(TAG, "RTK服务已开启");
                 return;
             }

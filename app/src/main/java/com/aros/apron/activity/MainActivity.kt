@@ -6,8 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
-import android.text.TextUtils
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -21,10 +19,8 @@ import com.aros.apron.BuildConfig
 import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
-import com.aros.apron.entity.MQMessage
 import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
-import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
@@ -32,19 +28,8 @@ import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
-import com.aros.apron.manager.LEDsSettingsManager
-import com.aros.apron.manager.MLTEManager
-import com.aros.apron.manager.MediaManager
-import com.aros.apron.manager.MegaphoneManager
-import com.aros.apron.manager.MissionManager
-import com.aros.apron.manager.NavigationSatelliteSystemManager
-import com.aros.apron.manager.OffSiteLandingManager
-import com.aros.apron.manager.PayloadWidgetManager
-import com.aros.apron.manager.RTKManager
-import com.aros.apron.manager.RemoteManager
-import com.aros.apron.manager.StickManager
-import com.aros.apron.manager.StreamManager
-import com.aros.apron.manager.WayLineExecutingInterruptManager
+import com.aros.apron.manager.MissionV3Manager
+import com.aros.apron.manager.OSDManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
@@ -54,10 +39,8 @@ import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
-import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
-import dji.sdk.keyvalue.key.ProductKey
 import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
@@ -186,7 +169,6 @@ open class MainActivity : BaseActivity() {
 
     private var startArucoType = 0  //1执行机库二维码识别  2执行备降点二维码识别
     private var dictionary: Dictionary? = null
-    private var mqMessage: MQMessage? = null
 
     override fun useEventBus(): Boolean {
         return true
@@ -451,8 +433,15 @@ open class MainActivity : BaseActivity() {
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
         MqttManager.getInstance().needConnect()
-
-        initDJIManager()
+        KeyManager.getInstance().listen(
+            KeyTools.createKey(FlightControllerKey.KeyConnection),
+            this,
+            true
+        ) { _, newValue ->
+            newValue?.let { isConnected ->
+                if (isConnected) initDJIManager()
+            }
+        }
         initCameraManager()
         initCameraStream()
         initView()
@@ -485,20 +474,10 @@ open class MainActivity : BaseActivity() {
         btn_test1 = findViewById( R.id.btn_test1)
         btn_test?.setOnClickListener {
 //            MissionManager.getInstance().test()
-            val message = MQMessage().apply {
-                megaphonePlayMode = 1
-                msg_type = 60110
-                megaphoneVolume=100
-                megaphoneWord="阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1阿罗斯信息技术公司1"
-            }
-            MegaphoneManager.getInstance().startMegaphonePlay(message)
-
-
+            FlightManager.getInstance().startPropellerRotation(null)
         }
         btn_test1?.setOnClickListener {
-//            FlightManager.getInstance().stopPropellerRotation(null)
-            MegaphoneManager.getInstance().stopPlay(null)
-
+            FlightManager.getInstance().stopPropellerRotation(null)
         }
 
         initClickListener()
@@ -580,76 +559,30 @@ open class MainActivity : BaseActivity() {
     }
 
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
     private fun initDJIManager() {
-        val isFlightControllerConnect =
-            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
-        if (isFlightControllerConnect == null || !isFlightControllerConnect) {
-            handler.postDelayed({
-                initDJIManager()
-            }, 1000)
-        } else {
-            initTimes++
-            LogUtil.log(TAG, "初始化$initTimes")
-            RTKManager.getInstance().initRTKInfo()
-            StreamManager.getInstance().initStreamManager()
+        LogUtil.log(TAG, "初始化$initTimes")
+            MissionV3Manager.getInstance().initMissionManager()
+//            RTKManager.getInstance().initRTKInfo()
+//            StreamManager.getInstance().initStreamManager()
             FlightManager.getInstance().initFlightInfo()
-            MissionManager.getInstance().initMissionManager()
-            BatteryManager.getInstance().initBatteryInfo()
-            MediaManager.getInstance().init()
-            LEDsSettingsManager.getInstance().initLEDsInfo()
-            AlternateLandingManager.getInstance().initAlterLandingInfo()
-            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
-            CameraManager.getInstance().initCameraInfo()
-            StickManager.getInstance().initStickInfo()
+//            MissionManager.getInstance().initMissionManager()
+//            BatteryManager.getInstance().initBatteryInfo()
+//            MediaManager.getInstance().init()
+//            LEDsSettingsManager.getInstance().initLEDsInfo()
+//            AlternateLandingManager.getInstance().initAlterLandingInfo()
+//            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
+//            CameraManager.getInstance().initCameraInfo()
+//            StickManager.getInstance().initStickInfo()
             GimbalManager.getInstance().initGimbalInfo()
-            OffSiteLandingManager.getInstance().initOffSiteLandingInfo()
-            RemoteManager.getInstance().initRemoteInfo()
-            PayloadWidgetManager.getInstance().initPayloadInfo()
-            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
-            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
+            AlternateLandingManager.getInstance().initAlterLandingInfo()
+//            RemoteManager.getInstance().initRemoteInfo()
+//            PayloadWidgetManager.getInstance().initPayloadInfo()
+//            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
+//            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
+            OSDManager.getInstance().initOsd()
 
-            if (PreferenceUtils.getInstance().lteEnable){
-                MLTEManager.getInstance().initLTEManager()
-                Handler().postDelayed(Runnable {  MLTEManager.getInstance().setLTEEnhancedTransmissionType()},3000)
 
-            }
-            //这里修改推流逻辑
-            if (PreferenceUtils.getInstance().customStreamType!=3) {
-                Handler().postDelayed(Runnable {
-                    if (PreferenceUtils.getInstance().customStreamType==1){
-                        StreamManager.getInstance()
-                            .startLiveWithRTSP()
-                    }else if (PreferenceUtils.getInstance().customStreamType==2){
-                        StreamManager.getInstance()
-                            .startLiveWithCustom()
-                    }else{
-                        LogUtil.log(TAG,"推流方式配置有误")
-                    }
-
-                }, 5000)
-            }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
-                Handler().postDelayed(Runnable {
-                    StreamManager.getInstance()
-                        .startLiveWithCustom()
-                }, 5000)
-            }
-            val productType =
-                KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType))
-            val cameraType = KeyManager.getInstance().getValue(
-                KeyTools.createKey(
-                    CameraKey.KeyCameraType,
-                    ComponentIndexType.PORT_1
-                )
-            )
-
-            if (cameraType != null && productType != null) {
-                LogUtil.log(TAG, "设备类型:" + productType.name + "相机类型:" + cameraType.name)
-            } else {
-                LogUtil.log(TAG, "设备类型:" + (productType?.name ?: "未知") + "相机类型:" + (cameraType?.name ?: "未知"))
-            }
-        }
     }
     private val cameraHandler: Handler = Handler(Looper.getMainLooper())
     private var initCameraTimes=0
@@ -669,31 +602,9 @@ open class MainActivity : BaseActivity() {
         }
     }
 
-//    var shouldExecute = true
 
     @SuppressLint("SuspiciousIndentation")
     private fun initCameraStream() {
-//        mainBinding?.svCameraStream?.holder?.addCallback(object : SurfaceHolder.Callback {
-//            override fun surfaceCreated(holder: SurfaceHolder) {}
-//            override fun surfaceChanged(
-//                holder: SurfaceHolder,
-//                format: Int,
-//                width: Int,
-//                height: Int
-//            ) {
-//                cameraManager.putCameraStreamSurface(
-//                    ComponentIndexType.PORT_1,
-//                    holder.surface,
-//                    width,
-//                    height,
-//                    ICameraStreamManager.ScaleType.FIX_XY
-//                )
-//            }
-//
-//            override fun surfaceDestroyed(holder: SurfaceHolder) {
-//                cameraManager.removeCameraStreamSurface(holder.surface)
-//            }
-//        })
 
         cameraManager.addFrameListener(
             ComponentIndexType.PORT_1,
@@ -708,14 +619,14 @@ open class MainActivity : BaseActivity() {
                         height,
                         width,
                         frameData,
-                        dictionary,
+                        dictionary
                     )
                 } else if (startArucoType == 2) {
                     AlternateArucoDetect.getInstance()?.detectArucoTags(
                         height,
                         width,
                         frameData,
-                        dictionary,
+                        dictionary
                     )
                 }
 //            }
@@ -748,7 +659,7 @@ open class MainActivity : BaseActivity() {
                                 if (!ApronArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:飞往备降点")
                                     //测试图传丢失
-                                    AlternateLandingManager.getInstance().startTaskProcess(null)
+//                                    AlternateLandingManager.getInstance().startTaskProcess(null)
                                 }
                             }, 6000)
                             if (startArucoType == 1) {
@@ -786,7 +697,7 @@ open class MainActivity : BaseActivity() {
                                 if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:备降点直接降落")
                                     //测试图传丢失
-                                    FlightManager.getInstance().startAutoLanding(null)
+//                                    FlightManager.getInstance().startAutoLanding(null)
                                 }
                             }, 4000)
                             if (startArucoType == 2) {

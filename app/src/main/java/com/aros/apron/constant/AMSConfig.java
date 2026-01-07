@@ -16,58 +16,9 @@ public class AMSConfig {
         return AMSConfig.MqttConfigHolder.INSTANCE;
     }
 
-
     private String mqttServerUri;
     private String userName;
     private String password;
-    private String serialNumber;
-
-    private String mqttServer2MsdkTopic;
-    private String mqttMsdkReplyMessage2ServerTopic;
-    private String mqttMsdkPushMessage2ServerTopic;
-    private String mqttMsdkPushEvent2ServerTopic;
-    private String alternateLandingTimes;
-
-    public String getAlternateLandingTimes() {
-        return alternateLandingTimes;
-    }
-
-    public void setAlternateLandingTimes(String alternateLandingTimes) {
-        this.alternateLandingTimes = alternateLandingTimes;
-    }
-
-
-    public String getMqttMsdkPushEvent2ServerTopic() {
-        return mqttMsdkPushEvent2ServerTopic;
-    }
-
-    public void setMqttMsdkPushEvent2ServerTopic(String mqttMsdkPushEvent2ServerTopic) {
-        this.mqttMsdkPushEvent2ServerTopic = mqttMsdkPushEvent2ServerTopic;
-    }
-
-    public String getMqttServer2MsdkTopic() {
-        return mqttServer2MsdkTopic;
-    }
-
-    public void setMqttServer2MsdkTopic(String mqttServer2MsdkTopic) {
-        this.mqttServer2MsdkTopic = mqttServer2MsdkTopic;
-    }
-
-    public String getMqttMsdkReplyMessage2ServerTopic() {
-        return mqttMsdkReplyMessage2ServerTopic;
-    }
-
-    public void setMqttMsdkReplyMessage2ServerTopic(String mqttMsdkReplyMessage2ServerTopic) {
-        this.mqttMsdkReplyMessage2ServerTopic = mqttMsdkReplyMessage2ServerTopic;
-    }
-
-    public String getMqttMsdkPushMessage2ServerTopic() {
-        return mqttMsdkPushMessage2ServerTopic;
-    }
-
-    public void setMqttMsdkPushMessage2ServerTopic(String mqttMsdkPushMessage2ServerTopic) {
-        this.mqttMsdkPushMessage2ServerTopic = mqttMsdkPushMessage2ServerTopic;
-    }
 
     public String getMqttServerUri() {
         return mqttServerUri;
@@ -93,50 +44,40 @@ public class AMSConfig {
         this.password = password;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
+    private String alternateLandingTimes;
+
+    public String getAlternateLandingTimes() {
+        return alternateLandingTimes;
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setAlternateLandingTimes(String alternateLandingTimes) {
+        this.alternateLandingTimes = alternateLandingTimes;
     }
 
-    /**
-     * 服务器IP地址
-     */
-    //朋业测试
-//    public static String SOCKET_HOST = "tcp://212.64.64.69:1883";
-//    public static String USER_NAME = "admin";
-//    public static String USER_PASSWORD = "1qw23er45t";
-    //西安机库
-//    public static String SERIAL_NUMBER = "323RFDSVDTHBDFVSD";
-    //太仓单开门
-//    public static String SERIAL_NUMBER = "1581F5FJB229Q00A003W";
-    //太仓御三机库
-//    public static String SERIAL_NUMBER = "1581F5FJB229Q00A003Y";
-    //太仓御三机库2
-//    public static String SERIAL_NUMBER = "1581F5FJB229Q00A003A";
-    //太仓ARS350
-//    public static String SERIAL_NUMBER = "1581F5FJB229Q00A003980890809";
 
     /**
-     * 接收指令
+     * 服务端下发给msdk
      */
-//    public String MQTT_SERVER_2_MSDK_TOPIC = "nest/" + serialNumber + "/uav_services";
+    public static String DOWN_UAV_SERVICES = "nest/uav_services";
 
     /**
-     * 回复结果
+     * 收到服务端命令后相应回复
      */
-//    public static String MQTT_MSDK_REPLY_MESSAGE_2_SERVER_TOPIC = "nest/" + SERIAL_NUMBER + "/uav_services_reply";
+    public static String UP_UAV_SERVICES_REPLY = "nest/uav_services_reply";
 
     /**
-     * 推送飞行状态
+     * MSDK上报事件给服务端
      */
-//    public static String MQTT_MSDK_PUSH_MESSAGE_2_SERVER_TOPIC = "nest/" + SERIAL_NUMBER + "/uav_status_message";
+    public static String UP_UAV_EVENT = "nest/uav_event";
 
     /**
-     * 推送gis飞行状态（GIS需要定频2S）
+     * 服务端收到事件后回复给MSDK
      */
-//    public static String MQTT_MSDK_PUSH_GIS_MESSAGE_2_SERVER_TOPIC = "nest/" + SERIAL_NUMBER + "/uav_gis_message";
+    public static String DOWN_UAV_EVENT = "nest/uav_event_reply";
+
+    /**
+     * 客户端推送OSD给服务端
+     */
+    public static String UP_OSD = "nest/osd";
 
 }

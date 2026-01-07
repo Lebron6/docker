@@ -1,33 +1,19 @@
 package com.aros.apron.callback;
 
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
+import com.aros.apron.constant.Constant;
 import com.aros.apron.entity.ApronExecutionStatus;
-import com.aros.apron.entity.MQMessage;
+import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
-import com.aros.apron.manager.AMSLogManager;
-import com.aros.apron.manager.AlternateLandingManager;
 import com.aros.apron.manager.CameraManager;
 import com.aros.apron.manager.FlightManager;
-import com.aros.apron.manager.GimbalManager;
-import com.aros.apron.manager.MediaManager;
-import com.aros.apron.manager.MegaphoneManager;
-import com.aros.apron.manager.MissionManager;
-import com.aros.apron.manager.OffSiteLandingManager;
-import com.aros.apron.manager.PayloadWidgetManager;
-import com.aros.apron.manager.PerceptionManager;
-import com.aros.apron.manager.ResetHomePointManager;
-import com.aros.apron.manager.StickManager;
+import com.aros.apron.manager.MissionV3Manager;
 import com.aros.apron.manager.StreamManager;
 import com.aros.apron.manager.SystemManager;
 import com.aros.apron.tools.LogUtil;
@@ -36,17 +22,11 @@ import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.tools.RestartAPPTool;
 import com.google.gson.Gson;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.UnsupportedEncodingException;
-
-import dji.v5.common.callback.CommonCallbacks;
-import dji.v5.common.error.IDJIError;
-import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -68,8 +48,7 @@ public class MqttCallBack implements MqttCallbackExtended {
 
 
     public static boolean isReceiverMission = false;
-    private boolean isReceiverMissionAgain = false;
-    private boolean isWaiting30Min = false;
+
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
@@ -81,485 +60,428 @@ public class MqttCallBack implements MqttCallbackExtended {
             Log.e(TAG, "解析异常");
             throw new RuntimeException(e);
         }
-        MQMessage message = new Gson().fromJson(jsonString, MQMessage.class);
-        switch (message.getMsg_type()) {
-            //检测遥控器与开发板是否连接
-            case 60001:
-                LogUtil.log(TAG, "收到命令：遥控器是否连接" + jsonString);
+        MessageDown message = new Gson().fromJson(jsonString, MessageDown.class);
+        switch (message.getMethod()) {
+            //检测遥控器是否开机
+            case Constant.PILOT_ON:
+                LogUtil.log(TAG, "收到命令：遥控器是否开机" + jsonString);
                 SystemManager.getInstance().checkRemoteControlPowerStatus(message);
                 break;
             //检测飞机是否开机
-            case 60002:
+            case Constant.AIRCRAFT_ON:
                 LogUtil.log(TAG, "收到命令：飞机是否开机" + jsonString);
-                SystemManager.getInstance().checkAircraftPowerStatus( message);
+                SystemManager.getInstance().checkAircraftPowerStatus(message);
                 break;
-            //航线和推流地址指令，收到后立即回复1，自行处理航线和推流逻辑
-            case 60003:
-                if (Movement.getInstance().getIsVirtualStickEnable()==1) {
-                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆");
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "收到航线时取消虚拟摇杆失败:"+getIDJIErrorMsg(error));
-
-                        }
-                    });
-                }
-                //默认规定不在返航时才可以上传航线
-                //收到航线时将状态设置为不可关机状态
-                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                Movement.getInstance().setTaskFail(false);
-                Movement.getInstance().setVirtualStickQuitMission(false);
-
-                if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
-                    PreferenceUtils.getInstance().setIsNewRoute(message.isNewRoute());
-                    PreferenceUtils.getInstance().setMissionType(message.getMissionType());
-                    if (!message.isNewRoute()) {
-                        LogUtil.log(TAG, "收到命令：航线" + jsonString);
-                        //如果是一键起飞航线，返回给前端就一直是一键起飞航线
-                        Movement.getInstance().setMissionType(message.getMissionType());
-                        // 0.起飞前检查图传
-                        checkVtxWithDelay(() -> {
-                            if (isReceiverMission == false) {
-                                isReceiverMission = true;
-                                // 1.收到60003直接回复
-                                StreamManager.getInstance().sendReply2Server( message);
-                                //2.检查航线参数
-                                if (!SystemManager.getInstance().checkMissionParameter(message)){
-                                    return;
-                                }
-                                if (PreferenceUtils.getInstance().getCustomStreamType() == 3) {
-                                    // 3.开启推流
-                                    StreamManager.getInstance().startLive(message);
-                                }
-                                // 4.关闭避障
-                                PerceptionManager.getInstance().setPerceptionEnable(false);
-                                // 5.清空sd卡
-                                CameraManager.getInstance().formatStorage(null);
-
-                                MissionManager.getInstance().startTaskProcess(message);
-                                //可能遥控器上次流程结束未关机，就再次起飞
-                            }else {
-                                SystemManager.getInstance().replyAlreadyFlown(message);
-//                            if (isReceiverMissionAgain==false){
-//                                isReceiverMissionAgain=true;
-//                                new Handler().postDelayed(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        //这里需要考虑taskFail和waitForShutDown等参数的重置
-//                                        isWaiting30Min=true;
-//                                    }
-//                                },30000);
-//                            }else{
-//                                //等待30秒，如果飞机
-//                                if (isWaiting30Min&&!Movement.getInstance().isPlaneWing()){
-//                                    RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
-//                                }else{
-//                                    LogUtil.log(TAG,"重复收到航线,正在确认飞机状态后飞行:"+"isWaiting30Min="+isWaiting30Min+"isPlaneWing="+Movement.getInstance().isPlaneWing());
-//                                }
-//                            }
-                            }
-
-                        });
-
-                    } else {
-                        LogUtil.log(TAG, "收到命令：指点飞行" + jsonString);
-                        // 1.收到60003直接回复
-                        StreamManager.getInstance().sendReply2Server(message);
-                        // 2.下载航线
-                        MissionManager.getInstance().startTaskProcess(message);
-                    }
-                } else {
-                    LogUtil.log(TAG, "返航中,无法上传航线");
-                }
-                break;
-            //航线暂停
-            case 60004:
-                LogUtil.log(TAG, "收到命令：航线暂停" + jsonString);
-                MissionManager.getInstance().pauseMission(message);
-                break;
-            //航线继续
-            case 60005:
-                LogUtil.log(TAG, "收到命令：航线继续" + jsonString);
-                MissionManager.getInstance().resumeMission(message);
-                break;
-            //返航
-            case 60006:
-                LogUtil.log(TAG, "收到命令：返航" + jsonString);
-                FlightManager.getInstance().startGoHome(message);
-                break;
-            //获取控制权
-            case 60007:
-                LogUtil.log(TAG, "收到命令：获取控制权" + jsonString);
-                StickManager.getInstance().setVirtualStickModeEnabled(message);
-                break;
-            //虚拟摇杆数据
-            case 60008:
-                LogUtil.log(TAG, "收到命令：虚拟摇杆数据" + jsonString);
-                StickManager.getInstance().sendVirtualStickAdvancedParam(message);
-                break;
-            //云台角度控制
-            case 60009:
-                LogUtil.log(TAG, "收到命令：云台角度控制" + jsonString);
-                GimbalManager.getInstance().gimbalRotateByRelativeAngle(message);
-                break;
-            //收到此指令表示舱门已关闭，等待归中60012后可调用60011关机
-            case 60010:
-//                LogUtil.log(TAG, "收到命令：舱门已关闭" + jsonString);
-//                SystemManager.getInstance().droneShutdown(message);
-                break;
-            //收到60012表示已归中，立即回复60012，且上传相册后可以发送60011关闭飞机和遥控器
-            //收到60012表示服务端在确认飞机此时时候处于可关机的状态
-            case 60012:
-                LogUtil.log(TAG, "收到命令：飞机是否可关机" + jsonString);
+            //文件上传结束
+            case Constant.MEDIA_UPLOAD_COMPLETE:
+                LogUtil.log(TAG, "收到命令：文件上传是否结束" + jsonString);
                 SystemManager.getInstance().aircraftStoredReply(message);
                 break;
-            //收到60014表示Server已收到架次开始
-            case 60014:
-                LogUtil.log(TAG, "收到Server架次开始");
-                break;
-            //收到60015表示Server已收到架次结束
-            case 60015:
-                LogUtil.log(TAG, "收到Server架次结束");
-                break;
-            //取消控制权
-            case 60016:
-                LogUtil.log(TAG, "收到命令：取消控制权" + jsonString);
-                StickManager.getInstance().setVirtualStickModeDisable(message);
-                break;
-            //切换视频源 1广角 2变焦 3红外
-            case 60017:
-                LogUtil.log(TAG, "收到命令：切换视频源" + jsonString);
-                CameraManager.getInstance().setCameraVideoStreamSource(message);
-                break;
-            //设置相机模式 0拍照 1录像
-            case 60018:
-                LogUtil.log(TAG, "收到命令：设置相机模式" + jsonString);
-                CameraManager.getInstance().setCameraMode(message);
-                break;
-            //开始拍照
-            case 60019:
-                LogUtil.log(TAG, "收到命令：开始拍照" + jsonString);
-                CameraManager.getInstance().startShootPhoto(message);
-                break;
-            //开始录像
-            case 60020:
-                LogUtil.log(TAG, "收到命令：开始录像" + jsonString);
-                CameraManager.getInstance().startRecordVideo(message);
-                break;
-            //停止录像
-            case 60021:
-                LogUtil.log(TAG, "收到命令：停止录像" + jsonString);
-                CameraManager.getInstance().stopRecordVideo(message);
-                break;
-            //设置变焦倍率
-            case 60022:
-                LogUtil.log(TAG, "收到命令：设置变焦倍率" + jsonString);
-                CameraManager.getInstance().setCameraZoomRatios(message);
-                break;
-            //设置红外变焦倍率
-            case 60023:
-                LogUtil.log(TAG, "收到命令：设置红外变焦倍率" + jsonString);
-                CameraManager.getInstance().setThermalZoomRatios(message);
-                break;
-            //开始推流，可配置推流视角
-            case 60100:
-                LogUtil.log(TAG, "收到命令：开始推流" + jsonString);
-                StreamManager.getInstance().startLive(message);
-                break;
-            //设置推流分辨率
-            case 60101:
-                LogUtil.log(TAG, "收到命令：设置推流分辨率" + jsonString);
-                StreamManager.getInstance().setLiveStreamQuality(message);
-                break;
-            //设置限高
-            case 60102:
-                LogUtil.log(TAG, "收到命令：设置限高" + jsonString);
-                FlightManager.getInstance().setHeightLimit(message);
-                break;
-            //设置限远
-            case 60103:
-                LogUtil.log(TAG, "收到命令：设置限远" + jsonString);
-                FlightManager.getInstance().setDistanceLimit(message);
-                break;
-            //设置限远是否启用
-            case 60104:
-                LogUtil.log(TAG, "收到命令：设置限远是否启用" + jsonString);
-                FlightManager.getInstance().setDistanceLimitEnabled(message);
-                break;
-            //设置红外分屏
-            case 60105:
-                LogUtil.log(TAG, "收到命令：设置红外分屏" + jsonString);
-                CameraManager.getInstance().setThermalDisplayMode(message);
-                break;
-            //取消返航
-            case 60106:
-                LogUtil.log(TAG, "收到命令：取消返航" + jsonString);
-                FlightManager.getInstance().stopGoHome(message);
-                break;
-            //终止航线
-            case 60109:
-                LogUtil.log(TAG, "收到命令：终止航线" + jsonString);
-                MissionManager.getInstance().stopMission(message);
-                break;
-            //开始喊话
-            case 60110:
-                LogUtil.log(TAG, "收到命令：开始喊话" + jsonString);
-                MegaphoneManager.getInstance().startMegaphonePlay(message);
-                break;
-            //结束喊话
-            case 60111:
-                LogUtil.log(TAG, "收到命令：结束喊话" + jsonString);
-                MegaphoneManager.getInstance().stopPlay(message);
-                break;
-            //一键飞往紧急备降点
-            case 60112:
-                LogUtil.log(TAG, "收到命令：备降点降落" + jsonString);
-                AlternateLandingManager.getInstance().startTaskProcess(message);
-                break;
-            //降落
-            case 60113:
-                LogUtil.log(TAG, "收到命令：降落" + jsonString);
-                FlightManager.getInstance().startAutoLanding(message);
-                break;
-            //取消降落
-            case 60114:
-                LogUtil.log(TAG, "收到命令：取消降落" + jsonString);
-                FlightManager.getInstance().stopAutoLanding(message);
-                break;
-            //解锁抛投器
-            case 60115:
-                LogUtil.log(TAG, "收到命令：解锁" + jsonString);
-                PayloadWidgetManager.getInstance().unlock(message);
-                break;
-            //锁定抛投器
-            case 60116:
-                LogUtil.log(TAG, "收到命令：锁定" + jsonString);
-                PayloadWidgetManager.getInstance().lock(message);
-                break;
-            //抛投
-            case 60117:
-                LogUtil.log(TAG, "收到命令：抛投" + jsonString);
-                PayloadWidgetManager.getInstance().throwOne(message);
-                break;
-            //一键全抛
-            case 60118:
-                LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
-                PayloadWidgetManager.getInstance().throwAll(message);
-                break;
-            //设置备降点
-//            case 60119:
-//                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
-//                AlternateLandingManager.getInstance().setAlternatePoint(message);
-//                break;
-            //开始定时拍照
-            case 60120:
-                LogUtil.log(TAG, "收到命令：开始定时拍照" + jsonString);
-                CameraManager.getInstance().startTakePhotoWithInterval(message);
-                break;
-            //结束拍照
-            case 60121:
-                LogUtil.log(TAG, "收到命令：结束拍照" + jsonString);
-                CameraManager.getInstance().stopShootPhoto(message);
-                break;
-            //重置相机
-            case 60122:
-                LogUtil.log(TAG, "收到命令：重置相机设置" + jsonString);
-                CameraManager.getInstance().resetCameraSetting(message);
-                break;
-            //云台回中
-            case 60123:
-                LogUtil.log(TAG, "收到命令：云台回中" + jsonString);
-                GimbalManager.getInstance().gimbalResetWithPitchAndYaw(message);
-                break;
-            //设置对焦模式
-            case 60124:
-                LogUtil.log(TAG, "收到命令：设置对焦模式" + jsonString);
-                CameraManager.getInstance().setCameraFocusMode(message);
-                break;
-            //指点对焦
-            case 60125:
-                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
-                CameraManager.getInstance().tapZoomAtTarget(message);
-                break;
-            //设置照片xmp写入
-            case 60126:
-                LogUtil.log(TAG, "收到命令：写入exif" + jsonString);
-                MediaManager.getInstance().setMediaFileXMPCustomInfo(message);
-                break;
-            //设置曝光模式
-            case 60127:
-                LogUtil.log(TAG, "收到命令：设置曝光模式" + jsonString);
-                CameraManager.getInstance().setExposureMode(message);
-                break;
-            //设置ev
-            case 60128:
-                LogUtil.log(TAG, "收到命令：设置曝光补偿" + jsonString);
-                CameraManager.getInstance().setExposureCompensation(message);
-                break;
-            //发送数据到psdk
-            case 60129:
-                LogUtil.log(TAG, "收到命令：发送数据到psdk" + jsonString);
-                PayloadWidgetManager.getInstance().sendMsgToPayload(message);
-                break;
-            //停止推流
-            case 60130:
-                LogUtil.log(TAG, "收到命令：停止推流" + jsonString);
-                StreamManager.getInstance().stopLive(message);
-                break;
-            //设置对焦值
-            case 60131:
-                LogUtil.log(TAG, "收到命令：设置对焦值" + jsonString);
-                CameraManager.getInstance().setCameraFocusRingValue(message);
-                break;
-            //获取里程
-            case 60132:
-                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
-                FlightManager.getInstance().getAircraftTotalFlightDistance(message);
-                break;
-            //上传媒体文件
-            case 60134:
-//                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
-//                FlightManager.getInstance().getAircraftTotalFlightDistance(message);
-                break;
-            //异地降落
-            case 60135:
-                LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
-                OffSiteLandingManager.getInstance().startTaskProcess(message);
-                break;
-            //刷新返航点
-            case 60136:
-                LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
-                ResetHomePointManager.getInstance().startTaskProcess(message);
-                break;
-            //设置纯净模式
-            case 60137:
-                LogUtil.log(TAG, "收到命令：设置纯净模式" + jsonString);
-                PreferenceUtils.getInstance().setIsCleanMode(message.getIsCleanMode()==1?true:false);
-                EventBus.getDefault().post(FLAG_RESET_CLEAN_MODE);
-                break;
-            //设置测温模式
-            case 60138:
-                LogUtil.log(TAG, "收到命令：设置测温模式" + jsonString);
-                CameraManager.getInstance().setThermalTemperatureMeasureMode(message);
-                break;
-            //设置测温点
-            case 60139:
-                LogUtil.log(TAG, "收到命令：设置测温点" + jsonString);
-                CameraManager.getInstance().setThermalSpotMetersurePoint(message);
-                break;
-            //设置测温区域
-            case 60140:
-                LogUtil.log(TAG, "收到命令：设置测温区域" + jsonString);
-                CameraManager.getInstance().setThermalRegionMetersureArea(message);
-                break;
-            //切换直播视角
-            case 60141:
-                LogUtil.log(TAG, "收到命令：切换直播视角" + jsonString);
-                StreamManager.getInstance().switchCurrentView(message);
-                break;
-            //设置云台控制的最大速度
-            case 60142:
-                LogUtil.log(TAG, "收到命令：设置云台控制的最大速度" + jsonString);
-                GimbalManager.getInstance().setGimbalControlMaxSpeed(message);
-                break;
-            //紧急悬停
-            case 60143:
-                LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
-                FlightManager.getInstance().emergencyHover(message);
-                break;
-            //设置失控动作
-            case 60144:
-                LogUtil.log(TAG, "收到命令：设置失控动作" + jsonString);
-                FlightManager.getInstance().setFailsafeAction(message);
-                break;
-            //设置返航高度
-            case 60145:
-                LogUtil.log(TAG, "收到命令：设置返航高度" + jsonString);
-                FlightManager.getInstance().setGoHomeHeight(message);
-                break;
-            //设置低电量报警阈值
-            case 60146:
-                LogUtil.log(TAG, "收到命令：设置低电量报警阈值" + jsonString);
-                FlightManager.getInstance().setLowBatteryWarningThreshold(message);
-                break;
-            //设置严重低电量报警阈值
-            case 60147:
-                LogUtil.log(TAG, "收到命令：设置严重低电量报警阈值" + jsonString);
-                FlightManager.getInstance().setSeriousLowBatteryWarningThreshold(message);
-                break;
-            //设置智能低电量返航
-            case 60148:
-                LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
-                FlightManager.getInstance().setLowBatteryRTHEnabled(message);
-                break;
-            //指点对焦
-            case 60149:
-                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
-                break;
-            //云台偏航回中
-            case 60150:
-                LogUtil.log(TAG, "收到命令：云台偏航回中" + jsonString);
-                GimbalManager.getInstance().gimbalResetWithYaw(message);
-                break;
-            //云台偏航向下
-            case 60151:
-                LogUtil.log(TAG, "收到命令：云台偏航向下" + jsonString);
-                GimbalManager.getInstance().gimbalDownWithPitch(message);
-                break;
-            //云台向下
-            case 60152:
-                LogUtil.log(TAG, "收到命令：云台向下" + jsonString);
-                GimbalManager.getInstance().gimbalDownWithPitchAndYaw(message);
-                break;
             //开启低速转浆
-            case 60153:
+            case Constant.OPEN_SLOW_PROPELLER_ROTATION:
                 LogUtil.log(TAG, "收到命令：开启低速转浆" + jsonString);
                 FlightManager.getInstance().startPropellerRotation(message);
                 break;
             //停止低速转浆
-            case 60154:
+            case Constant.CLOSE_SLOW_PROPELLER_ROTATION:
                 LogUtil.log(TAG, "收到命令：停止低速转浆" + jsonString);
                 FlightManager.getInstance().stopPropellerRotation(message);
                 break;
-            //msdk日志上传
-            case 60666:
-                LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
-                AMSLogManager.getInstance().enableLogList(message);
+            //开始直播
+            case Constant.LIVE_START_PUSH:
+                LogUtil.log(TAG, "收到命令：开始直播" + jsonString);
+                StreamManager.getInstance().startLive(message);
                 break;
-            //设置PSDK控件值
-            case 60667:
-                LogUtil.log(TAG, "收到命令：设置psdk控件" + jsonString);
-                PayloadWidgetManager.getInstance().setWidget(message);
+            //设置直播清晰度
+            case Constant.LIVE_SET_QUALITY:
+                LogUtil.log(TAG, "收到命令：设置直播清晰度" + jsonString);
+                StreamManager.getInstance().setLiveStreamQuality(message);
                 break;
-            //监听机库收到AMS命令后的回执
-            case 60999:
-                if (!TextUtils.isEmpty(message.getStatus())) {
-                    switch (message.getStatus()) {
-                        case "0":
-                            LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
-                            break;
-                        case "1":
-                            ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
-                            LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
-                            break;
-                        case "2":
-                            ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
-                            LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
-                            break;
-                        case "3":
-                            ApronExecutionStatus.getInstance().setServerReplyDroneShut(true);
-                            LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
-                            break;
-                    }
-                } else {
-                    LogUtil.log(TAG, "收到命令：机库动作参数有误" + jsonString);
-                }
+            //切换直播镜头
+            case Constant.LIVE_LENS_CHANGE:
+                LogUtil.log(TAG, "收到命令：切换直播镜头" + jsonString);
+                CameraManager.getInstance().setCameraVideoStreamSource(message);
                 break;
+            //收到航线
+            case Constant.FLIGHTTASK_EXECUTE:
+                LogUtil.log(TAG, "收到命令：航线" + jsonString);
+                MissionV3Manager.getInstance().taskExecute(message);
+                break;
+            //航线暂停
+            case Constant.FLIGHTTASK_PAUSE:
+                LogUtil.log(TAG, "收到命令：航线暂停" + jsonString);
+                MissionV3Manager.getInstance().pauseMission(message);
+                break;
+            //航线继续
+            case Constant.FLIGHTTASK_RECOVERY:
+                LogUtil.log(TAG, "收到命令：航线继续" + jsonString);
+                MissionV3Manager.getInstance().resumeMission(message);
+                break;
+            //返航
+            case Constant.RETURN_HOME:
+                LogUtil.log(TAG, "收到命令：返航" + jsonString);
+                FlightManager.getInstance().startGoHome(message);
+                break;
+            //取消返航
+            case Constant.RETURN_HOME_CANCEL:
+                LogUtil.log(TAG, "收到命令：取消返航" + jsonString);
+                FlightManager.getInstance().stopGoHome(message);
+                break;
+            //服务端响应关舱门
+            case Constant.CLOSE_DOOR:
+                LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
+                ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
+                break;
+            //服务端响应开舱门
+            case Constant.OPEN_DOOR:
+                LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
+                ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
+                break;
+            //服务端响应入库
+            case Constant.INBOUND:
+                LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
+                ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
+                break;
+//            //获取控制权
+//            case 60007:
+//                LogUtil.log(TAG, "收到命令：获取控制权" + jsonString);
+//                StickManager.getInstance().setVirtualStickModeEnabled(message);
+//                break;
+//            //虚拟摇杆数据
+//            case 60008:
+//                LogUtil.log(TAG, "收到命令：虚拟摇杆数据" + jsonString);
+//                StickManager.getInstance().sendVirtualStickAdvancedParam(message);
+//                break;
+//            //云台角度控制
+//            case 60009:
+//                LogUtil.log(TAG, "收到命令：云台角度控制" + jsonString);
+//                GimbalManager.getInstance().gimbalRotateByRelativeAngle(message);
+//                break;
+//            //收到此指令表示舱门已关闭，等待归中60012后可调用60011关机
+//            case 60010:
+////                LogUtil.log(TAG, "收到命令：舱门已关闭" + jsonString);
+////                SystemManager.getInstance().droneShutdown(message);
+//                break;
+//
+//            //收到60014表示Server已收到架次开始
+//            case 60014:
+//                LogUtil.log(TAG, "收到Server架次开始");
+//                break;
+//            //收到60015表示Server已收到架次结束
+//            case 60015:
+//                LogUtil.log(TAG, "收到Server架次结束");
+//                break;
+//            //取消控制权
+//            case 60016:
+//                LogUtil.log(TAG, "收到命令：取消控制权" + jsonString);
+//                StickManager.getInstance().setVirtualStickModeDisable(message);
+//                break;
+//
+//            //设置相机模式 0拍照 1录像
+//            case 60018:
+//                LogUtil.log(TAG, "收到命令：设置相机模式" + jsonString);
+//                CameraManager.getInstance().setCameraMode(message);
+//                break;
+//            //开始拍照
+//            case 60019:
+//                LogUtil.log(TAG, "收到命令：开始拍照" + jsonString);
+//                CameraManager.getInstance().startShootPhoto(message);
+//                break;
+//            //开始录像
+//            case 60020:
+//                LogUtil.log(TAG, "收到命令：开始录像" + jsonString);
+//                CameraManager.getInstance().startRecordVideo(message);
+//                break;
+//            //停止录像
+//            case 60021:
+//                LogUtil.log(TAG, "收到命令：停止录像" + jsonString);
+//                CameraManager.getInstance().stopRecordVideo(message);
+//                break;
+//            //设置变焦倍率
+//            case 60022:
+//                LogUtil.log(TAG, "收到命令：设置变焦倍率" + jsonString);
+//                CameraManager.getInstance().setCameraZoomRatios(message);
+//                break;
+//            //设置红外变焦倍率
+//            case 60023:
+//                LogUtil.log(TAG, "收到命令：设置红外变焦倍率" + jsonString);
+//                CameraManager.getInstance().setThermalZoomRatios(message);
+//                break;
+//            //开始推流，可配置推流视角
+//            case 60100:
+//                LogUtil.log(TAG, "收到命令：开始推流" + jsonString);
+//                StreamManager.getInstance().startLive(message);
+//                break;
+//
+//            //设置限高
+//            case 60102:
+//                LogUtil.log(TAG, "收到命令：设置限高" + jsonString);
+//                FlightManager.getInstance().setHeightLimit(message);
+//                break;
+//            //设置限远
+//            case 60103:
+//                LogUtil.log(TAG, "收到命令：设置限远" + jsonString);
+//                FlightManager.getInstance().setDistanceLimit(message);
+//                break;
+//            //设置限远是否启用
+//            case 60104:
+//                LogUtil.log(TAG, "收到命令：设置限远是否启用" + jsonString);
+//                FlightManager.getInstance().setDistanceLimitEnabled(message);
+//                break;
+//            //设置红外分屏
+//            case 60105:
+//                LogUtil.log(TAG, "收到命令：设置红外分屏" + jsonString);
+//                CameraManager.getInstance().setThermalDisplayMode(message);
+//                break;
+//            //取消返航
+//            case 60106:
+//                LogUtil.log(TAG, "收到命令：取消返航" + jsonString);
+//                FlightManager.getInstance().stopGoHome(message);
+//                break;
+//            //终止航线
+//            case 60109:
+//                LogUtil.log(TAG, "收到命令：终止航线" + jsonString);
+//                MissionManager.getInstance().stopMission(message);
+//                break;
+//            //开始喊话
+//            case 60110:
+//                LogUtil.log(TAG, "收到命令：开始喊话" + jsonString);
+//                MegaphoneManager.getInstance().startMegaphonePlay(message);
+//                break;
+//            //结束喊话
+//            case 60111:
+//                LogUtil.log(TAG, "收到命令：结束喊话" + jsonString);
+//                MegaphoneManager.getInstance().stopPlay(message);
+//                break;
+//            //一键飞往紧急备降点
+//            case 60112:
+//                LogUtil.log(TAG, "收到命令：备降点降落" + jsonString);
+//                AlternateLandingManager.getInstance().startTaskProcess(message);
+//                break;
+//            //降落
+//            case 60113:
+//                LogUtil.log(TAG, "收到命令：降落" + jsonString);
+//                FlightManager.getInstance().startAutoLanding(message);
+//                break;
+//            //取消降落
+//            case 60114:
+//                LogUtil.log(TAG, "收到命令：取消降落" + jsonString);
+//                FlightManager.getInstance().stopAutoLanding(message);
+//                break;
+//            //解锁抛投器
+//            case 60115:
+//                LogUtil.log(TAG, "收到命令：解锁" + jsonString);
+//                PayloadWidgetManager.getInstance().unlock(message);
+//                break;
+//            //锁定抛投器
+//            case 60116:
+//                LogUtil.log(TAG, "收到命令：锁定" + jsonString);
+//                PayloadWidgetManager.getInstance().lock(message);
+//                break;
+//            //抛投
+//            case 60117:
+//                LogUtil.log(TAG, "收到命令：抛投" + jsonString);
+//                PayloadWidgetManager.getInstance().throwOne(message);
+//                break;
+//            //一键全抛
+//            case 60118:
+//                LogUtil.log(TAG, "收到命令：一键全投" + jsonString);
+//                PayloadWidgetManager.getInstance().throwAll(message);
+//                break;
+//            //设置备降点
+////            case 60119:
+////                LogUtil.log(TAG, "收到命令：设置备降点" + jsonString);
+////                AlternateLandingManager.getInstance().setAlternatePoint(message);
+////                break;
+//            //开始定时拍照
+//            case 60120:
+//                LogUtil.log(TAG, "收到命令：开始定时拍照" + jsonString);
+//                CameraManager.getInstance().startTakePhotoWithInterval(message);
+//                break;
+//            //结束拍照
+//            case 60121:
+//                LogUtil.log(TAG, "收到命令：结束拍照" + jsonString);
+//                CameraManager.getInstance().stopShootPhoto(message);
+//                break;
+//            //重置相机
+//            case 60122:
+//                LogUtil.log(TAG, "收到命令：重置相机设置" + jsonString);
+//                CameraManager.getInstance().resetCameraSetting(message);
+//                break;
+//            //云台回中
+//            case 60123:
+//                LogUtil.log(TAG, "收到命令：云台回中" + jsonString);
+//                GimbalManager.getInstance().gimbalResetWithPitchAndYaw(message);
+//                break;
+//            //设置对焦模式
+//            case 60124:
+//                LogUtil.log(TAG, "收到命令：设置对焦模式" + jsonString);
+//                CameraManager.getInstance().setCameraFocusMode(message);
+//                break;
+//            //指点对焦
+//            case 60125:
+//                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
+//                CameraManager.getInstance().tapZoomAtTarget(message);
+//                break;
+//            //设置照片xmp写入
+//            case 60126:
+//                LogUtil.log(TAG, "收到命令：写入exif" + jsonString);
+//                MediaManager.getInstance().setMediaFileXMPCustomInfo(message);
+//                break;
+//            //设置曝光模式
+//            case 60127:
+//                LogUtil.log(TAG, "收到命令：设置曝光模式" + jsonString);
+//                CameraManager.getInstance().setExposureMode(message);
+//                break;
+//            //设置ev
+//            case 60128:
+//                LogUtil.log(TAG, "收到命令：设置曝光补偿" + jsonString);
+//                CameraManager.getInstance().setExposureCompensation(message);
+//                break;
+//            //发送数据到psdk
+//            case 60129:
+//                LogUtil.log(TAG, "收到命令：发送数据到psdk" + jsonString);
+//                PayloadWidgetManager.getInstance().sendMsgToPayload(message);
+//                break;
+//            //停止推流
+//            case 60130:
+//                LogUtil.log(TAG, "收到命令：停止推流" + jsonString);
+//                StreamManager.getInstance().stopLive(message);
+//                break;
+//            //设置对焦值
+//            case 60131:
+//                LogUtil.log(TAG, "收到命令：设置对焦值" + jsonString);
+//                CameraManager.getInstance().setCameraFocusRingValue(message);
+//                break;
+//            //获取里程
+//            case 60132:
+//                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
+//                FlightManager.getInstance().getAircraftTotalFlightDistance(message);
+//                break;
+//            //上传媒体文件
+//            case 60134:
+////                LogUtil.log(TAG, "收到命令：获取里程" + jsonString);
+////                FlightManager.getInstance().getAircraftTotalFlightDistance(message);
+//                break;
+//            //异地降落
+//            case 60135:
+//                LogUtil.log(TAG, "收到命令：异地降落" + jsonString);
+//                OffSiteLandingManager.getInstance().startTaskProcess(message);
+//                break;
+//            //刷新返航点
+//            case 60136:
+//                LogUtil.log(TAG, "收到命令：重置返航点" + jsonString);
+//                ResetHomePointManager.getInstance().startTaskProcess(message);
+//                break;
+//            //设置纯净模式
+//            case 60137:
+//                LogUtil.log(TAG, "收到命令：设置纯净模式" + jsonString);
+//                PreferenceUtils.getInstance().setIsCleanMode(message.getIsCleanMode()==1?true:false);
+//                EventBus.getDefault().post(FLAG_RESET_CLEAN_MODE);
+//                break;
+//            //设置测温模式
+//            case 60138:
+//                LogUtil.log(TAG, "收到命令：设置测温模式" + jsonString);
+//                CameraManager.getInstance().setThermalTemperatureMeasureMode(message);
+//                break;
+//            //设置测温点
+//            case 60139:
+//                LogUtil.log(TAG, "收到命令：设置测温点" + jsonString);
+//                CameraManager.getInstance().setThermalSpotMetersurePoint(message);
+//                break;
+//            //设置测温区域
+//            case 60140:
+//                LogUtil.log(TAG, "收到命令：设置测温区域" + jsonString);
+//                CameraManager.getInstance().setThermalRegionMetersureArea(message);
+//                break;
+//            //切换直播视角
+//            case 60141:
+//                LogUtil.log(TAG, "收到命令：切换直播视角" + jsonString);
+//                StreamManager.getInstance().switchCurrentView(message);
+//                break;
+//            //设置云台控制的最大速度
+//            case 60142:
+//                LogUtil.log(TAG, "收到命令：设置云台控制的最大速度" + jsonString);
+//                GimbalManager.getInstance().setGimbalControlMaxSpeed(message);
+//                break;
+//            //紧急悬停
+//            case 60143:
+//                LogUtil.log(TAG, "收到命令：设置紧急悬停" + jsonString);
+//                FlightManager.getInstance().emergencyHover(message);
+//                break;
+//            //设置失控动作
+//            case 60144:
+//                LogUtil.log(TAG, "收到命令：设置失控动作" + jsonString);
+//                FlightManager.getInstance().setFailsafeAction(message);
+//                break;
+//            //设置返航高度
+//            case 60145:
+//                LogUtil.log(TAG, "收到命令：设置返航高度" + jsonString);
+//                FlightManager.getInstance().setGoHomeHeight(message);
+//                break;
+//            //设置低电量报警阈值
+//            case 60146:
+//                LogUtil.log(TAG, "收到命令：设置低电量报警阈值" + jsonString);
+//                FlightManager.getInstance().setLowBatteryWarningThreshold(message);
+//                break;
+//            //设置严重低电量报警阈值
+//            case 60147:
+//                LogUtil.log(TAG, "收到命令：设置严重低电量报警阈值" + jsonString);
+//                FlightManager.getInstance().setSeriousLowBatteryWarningThreshold(message);
+//                break;
+//            //设置智能低电量返航
+//            case 60148:
+//                LogUtil.log(TAG, "收到命令：设置智能低电量返航" + jsonString);
+//                FlightManager.getInstance().setLowBatteryRTHEnabled(message);
+//                break;
+//            //指点对焦
+//            case 60149:
+//                LogUtil.log(TAG, "收到命令：指点对焦" + jsonString);
+//                break;
+//            //云台偏航回中
+//            case 60150:
+//                LogUtil.log(TAG, "收到命令：云台偏航回中" + jsonString);
+//                GimbalManager.getInstance().gimbalResetWithYaw(message);
+//                break;
+//            //云台偏航向下
+//            case 60151:
+//                LogUtil.log(TAG, "收到命令：云台偏航向下" + jsonString);
+//                GimbalManager.getInstance().gimbalDownWithPitch(message);
+//                break;
+//            //云台向下
+//            case 60152:
+//                LogUtil.log(TAG, "收到命令：云台向下" + jsonString);
+//                GimbalManager.getInstance().gimbalDownWithPitchAndYaw(message);
+//                break;
+//            //msdk日志上传
+//            case 60666:
+//                LogUtil.log(TAG, "收到命令：日志上传" + jsonString);
+//                AMSLogManager.getInstance().enableLogList(message);
+//                break;
+//            //监听机库收到AMS命令后的回执
+//            case 60999:
+//                if (!TextUtils.isEmpty(message.getStatus())) {
+//                    switch (message.getStatus()) {
+//                        case "0":
+//                            LogUtil.log(TAG, "收到命令：服务端响应关舱门" + jsonString);
+//                            break;
+//                        case "1":
+//                            ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
+//                            LogUtil.log(TAG, "收到命令：服务端响应开舱门" + jsonString);
+//                            break;
+//                        case "2":
+//                            ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
+//                            LogUtil.log(TAG, "收到命令：服务端响应入库" + jsonString);
+//                            break;
+//                        case "3":
+//                            ApronExecutionStatus.getInstance().setServerReplyDroneShut(true);
+//                            LogUtil.log(TAG, "收到命令：服务端响应关机" + jsonString);
+//                            break;
+
+//                } else {
+//                    LogUtil.log(TAG, "收到命令：机库动作参数有误" + jsonString);
+//                }
+//                break;
 
         }
     }
@@ -577,7 +499,7 @@ public class MqttCallBack implements MqttCallbackExtended {
         try {
             if (reconnect) {//重新订阅
                 LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
-                MqttManager.getInstance().mqttAndroidClient.subscribe(AMSConfig.getInstance().getMqttServer2MsdkTopic(), 1);//订阅主题:注册
+                MqttManager.getInstance().mqttAndroidClient.subscribe(AMSConfig.DOWN_UAV_EVENT, 1);//订阅主题:注册
                 // publish(topic,"注册",0);
             }
         } catch (Exception e) {
