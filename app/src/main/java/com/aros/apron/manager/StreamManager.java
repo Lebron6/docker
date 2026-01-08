@@ -73,7 +73,7 @@ public class StreamManager extends BaseManager {
     }
 
     public void startLive(MessageDown message) {
-
+        sendMsg2Server(message);
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
@@ -98,15 +98,12 @@ public class StreamManager extends BaseManager {
                         liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                             @Override
                             public void onSuccess() {
-                                LogUtil.log(TAG, "推流成功");
-                                sendMsg2Server(message);
+                                sendEvent2Server("AMS推流成功");
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "推流失败:" + error.description());
-                                sendFailMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
-
+                                sendEvent2Server("推流失败:" + getIDJIErrorMsg(error));
                             }
                         });
                     }
@@ -124,15 +121,12 @@ public class StreamManager extends BaseManager {
                                 liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        LogUtil.log(TAG, "改变地址推流成功");
-                                        sendMsg2Server(message);
+                                        sendEvent2Server("AMS推流成功");
                                     }
 
                                     @Override
                                     public void onFailure(@NonNull IDJIError error) {
-                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description());
-                                        sendFailMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
-
+                                        sendEvent2Server("改变地址推流失败:" + getIDJIErrorMsg(error));
                                     }
                                 });
                             }
@@ -141,8 +135,7 @@ public class StreamManager extends BaseManager {
 
                     @Override
                     public void onFailure(@NonNull IDJIError idjiError) {
-                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description());
-                        sendFailMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
+                        sendEvent2Server("改变地址终止推流失败:" + idjiError.description());
                     }
                 });
             }
@@ -152,7 +145,6 @@ public class StreamManager extends BaseManager {
     public void setLiveStreamQuality(MessageDown message) {
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
-            LogUtil.log(TAG, "飞行器未连接");
             sendFailMsg2Server(message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();

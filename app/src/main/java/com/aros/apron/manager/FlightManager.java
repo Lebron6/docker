@@ -3,7 +3,6 @@ package com.aros.apron.manager;
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.callback.MqttCallBack;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.CurrentWayline;
@@ -24,7 +22,6 @@ import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
@@ -61,8 +58,6 @@ import dji.v5.common.utils.GpsUtils;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.perception.data.PerceptionInfo;
 import dji.v5.manager.aircraft.perception.listener.PerceptionInformationListener;
-import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
-import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfo;
 import dji.v5.manager.diagnostic.DJIDeviceHealthInfoChangeListener;
 import dji.v5.manager.diagnostic.DJIDeviceStatus;
@@ -70,7 +65,6 @@ import dji.v5.manager.diagnostic.DJIDeviceStatusChangeListener;
 import dji.v5.manager.interfaces.IDeviceHealthManager;
 import dji.v5.manager.interfaces.IDeviceStatusManager;
 import dji.v5.manager.interfaces.IPerceptionManager;
-import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 public class FlightManager extends BaseManager {
 
@@ -121,9 +115,13 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onUpdate(@NonNull PerceptionInfo information) {
                     if (information != null) {
-                        Movement.getInstance().setDownside(information.getDownwardObstacleAvoidanceWorking() ? 1 : 0);
+                        if (information.getDownwardObstacleAvoidanceWorking() != null) {
+                            Movement.getInstance().setDownside(information.getDownwardObstacleAvoidanceWorking() ? 1 : 0);
+                        }
+                        if (information.getUpwardObstacleAvoidanceWorking() != null) {
+                            Movement.getInstance().setUpside(information.getUpwardObstacleAvoidanceWorking() ? 1 : 0);
+                        }
                         Movement.getInstance().setHorizon(information.isHorizontalObstacleAvoidanceEnabled() ? 1 : 0);
-                        Movement.getInstance().setUpside(information.getUpwardObstacleAvoidanceWorking() ? 1 : 0);
                         pushFlightAttitude();
 
                     }
@@ -1063,7 +1061,6 @@ public class FlightManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
                 sendFailMsg2Server(message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
             }
         });
