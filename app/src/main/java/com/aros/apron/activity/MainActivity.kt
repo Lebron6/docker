@@ -21,7 +21,6 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
-import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
@@ -31,8 +30,6 @@ import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
-import com.aros.apron.manager.RTKManager
-import com.aros.apron.manager.StreamManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
@@ -566,10 +563,11 @@ open class MainActivity : BaseActivity() {
     private fun initDJIManager() {
         LogUtil.log(TAG, "初始化$initTimes")
             MissionV3Manager.getInstance().initMissionManager()
-            RTKManager.getInstance().initRTKInfo()
-            StreamManager.getInstance().initStreamManager()
+//            RTKManager.getInstance().initRTKInfo()
+//            StreamManager.getInstance().initStreamManager()
             FlightManager.getInstance().initFlightInfo()
-            BatteryManager.getInstance().initBatteryInfo()
+//            MissionManager.getInstance().initMissionManager()
+//            BatteryManager.getInstance().initBatteryInfo()
 //            MediaManager.getInstance().init()
 //            LEDsSettingsManager.getInstance().initLEDsInfo()
 //            AlternateLandingManager.getInstance().initAlterLandingInfo()

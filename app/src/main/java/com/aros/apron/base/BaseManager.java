@@ -14,8 +14,6 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -26,10 +24,7 @@ public abstract class BaseManager {
 
     public String TAG = getClass().getSimpleName();
 
-    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
-    Gson gson = new GsonBuilder()
-            .serializeSpecialFloatingPointValues() // 这是关键
-            .create();
+
     /**
      * 响应reply
      * @param entity
@@ -45,7 +40,7 @@ public abstract class BaseManager {
                 MessageReply.Data data=new MessageReply.Data();
                 data.setResult(0);
                 messageReply.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(gson.toJson(messageReply).getBytes("UTF-8"));
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY, mqttMessage);
             } else {
@@ -76,7 +71,7 @@ public abstract class BaseManager {
                 data.setResult(-1);
                 data.setErrorMsg(errorMsg);
                 messageReply.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(gson.toJson(messageReply).getBytes("UTF-8"));
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY, mqttMessage);
 
@@ -133,7 +128,7 @@ public abstract class BaseManager {
                 data.setResult(-1);
                 data.setErrorMsg(msg);
                 messageEvent.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(gson.toJson(messageEvent).getBytes("UTF-8"));
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
@@ -161,7 +156,7 @@ public abstract class BaseManager {
                 data.setResult(1);
                 data.setErrorMsg(msg);
                 messageEvent.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(gson.toJson(messageEvent).getBytes("UTF-8"));
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
@@ -181,10 +176,10 @@ public abstract class BaseManager {
 //            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
 //                MqttMessage mqttMessage = null;
 //                result.setMsg_type(msgType);
-//                mqttMessage = new MqttMessage(gson.toJson(result).getBytes("UTF-8"));
+//                mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
 //                mqttMessage.setQos(2);
 //                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//                LogUtil.log(TAG, "文件上传发送成功："+gson.toJson(result));
+//                LogUtil.log(TAG, "文件上传发送成功："+new Gson().toJson(result));
 //
 //            } else {
 //                LogUtil.log(TAG, "文件上传发送失败：mqtt 未连接");
@@ -206,7 +201,7 @@ public abstract class BaseManager {
 //                message.setResult(1);
 //                message.setFlag(mqMessage.getFlag());
 //                message.setAircraftTotalFlightDistance(data+"");
-//                mqttMessage = new MqttMessage(gson.toJson(message).getBytes("UTF-8"));
+//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
 //                mqttMessage.setQos(0);
 //                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
 //            } else {
@@ -231,7 +226,7 @@ public abstract class BaseManager {
 //                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
 //                message.setFlyingHeight(Movement.getInstance().getElevation()+"");
 //                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
-//                mqttMessage = new MqttMessage(gson.toJson(message).getBytes("UTF-8"));
+//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
 //                mqttMessage.setQos(2);
 //                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
 //                LogUtil.log(TAG,"低电量返航发送成功");
@@ -254,7 +249,7 @@ public abstract class BaseManager {
 //                message.setResult(1);
 //                message.setWaypointActionState(data);
 //                message.setWaypointIndex(index);
-//                mqttMessage = new MqttMessage(gson.toJson(message).getBytes("UTF-8"));
+//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
 //                mqttMessage.setQos(0);
 //                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
 //            } else {

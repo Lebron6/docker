@@ -860,7 +860,6 @@ public void stopRecordVideo(MessageDown message) {
 
                     @Override
                     public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG,"切换相机视频流失败:"+new Gson().toJson(error));
                         sendFailMsg2Server(message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
                     }
                 });
