@@ -10,7 +10,11 @@ public class MWaylineExecutingInfoListener extends BaseManager implements dji.v5
 
     @Override
     public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
-        //状态等执行完发送再更新
-        Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+        if (excutingWaylineInfo!=null){
+            //状态等执行完发送再更新
+            Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+            Movement.getInstance().setTask_current_waypoint_index(excutingWaylineInfo.getCurrentWaypointIndex());
+        }
+
     }
 }

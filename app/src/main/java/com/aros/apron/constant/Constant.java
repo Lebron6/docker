@@ -93,4 +93,174 @@ public class Constant {
      */
     public static final String INBOUND="inbound";
 
+    /**
+     * 一键起飞
+     */
+    public static final String TAKEOFF_TO_POINT="takeoff_to_point";
+
+    /**
+     * 飞向目标点
+     */
+    public static final String FLY_TO_POINT="fly_to_point";
+
+    /**
+     * 结束 flyto 飞向目标点任务
+     */
+    public static final String FLY_TO_POINT_STOP="fly_to_point_stop";
+
+    /**
+     * 更新 flyto 目标点
+     */
+    public static final String FLY_TO_POINT_STOP_UPDATE="fly_to_point_update";
+
+    /**
+     * 飞行控制权抢夺
+     */
+    public static final String FLIGHT_AUTHORITY_GRAB="flight_authority_grab";
+
+    /**
+     * 负载控制权抢夺
+     */
+    public static final String PAYLOAD_AUTHORITY_GRAB="payload_authority_grab";
+
+    /**
+     * 进入指令飞行控制模式
+     */
+    public static final String DRC_MODE_ENTER="drc_mode_enter";
+
+    /**
+     * 退出指令飞行控制模式
+     */
+    public static final String DRC_MODE_EXIT="drc_mode_exit";
+
+    /**
+     * DRC-飞行控制
+     */
+    public static final String DRONE_CONTROL="drone_control";
+
+    /**
+     * DRC-飞行器急停
+     */
+    public static final String DRONE_EMERGENCY_STOP="drone_emergency_stop";
+
+    /**
+     * 负载控制—切换相机模式
+     */
+    public static final String CAMERA_MODE_SWITCH="camera_mode_switch";
+
+    /**
+     * 负载控制—开始拍照
+     */
+    public static final String CAMERA_PHOTO_TAKE="camera_photo_take";
+
+    /**
+     * 负载控制—停止拍照
+     */
+    public static final String CAMERA_PHOTO_STOP="camera_photo_stop";
+
+    /**
+     * 负载控制—开始录像
+     */
+    public static final String CAMERA_RECORDING_START="camera_recording_start";
+
+    /**
+     * 负载控制—停止录像
+     */
+    public static final String CAMERA_RECORDING_STOP="camera_recording_stop";
+
+    /**
+     * 负载控制—画面拖动控制
+     */
+    public static final String CAMERA_SCREEN_DRAG="camera_screen_drag";
+
+    /**
+     * 负载控制—双击成为 AIM
+     */
+    public static final String CAMERA_AIM="camera_aim";
+
+    /**
+     * 负载控制—变焦
+     */
+    public static final String CAMERA_FOCAL_LENGTH_SET="camera_focal_length_set";
+
+    /**
+     * 负载控制—重置云台
+     */
+    public static final String GIMBAL_RESET="gimbal_reset";
+
+    /**
+     * 负载控制—Look At
+     */
+    public static final String CAMERA_LOOK_AT="camera_look_at";
+
+    /**
+     * 负载控制—分屏
+     */
+    public static final String CAMERA_SCREEN_SPLIT="camera_screen_split";
+
+    /**
+     * 负载控制—照片存储设置
+     */
+    public static final String PHOTO_STORAGE_SET="photo_storage_set";
+
+    /**
+     * 负载控制—视频存储设置
+     */
+    public static final String VIDEO_STORAGE_SET="video_storage_set";
+
+    /**
+     * 负载控制—相机曝光模式设置
+     */
+    public static final String CAMERA_EXPOSURE_MODE_SET="camera_exposure_mode_set";
+
+    /**
+     * 负载控制—相机曝光值调节
+     */
+    public static final String CAMERA_EXPOSURE_SET="camera_exposure_set";
+
+    /**
+     * 负载控制—相机对焦模式
+     */
+    public static final String CAMERA_FOCUS_MODE_SET="camera_focus_mode_set";
+
+    /**
+     * 负载控制—相机对焦值设置
+     */
+    public static final String CAMERA_FOCUS_MODE_VALUE_SET="camera_focus_value_set";
+
+    /**
+     * 负载控制—点对焦
+     */
+    public static final String CAMERA_POINT_FOCUS_ACTION="camera_point_focus_action";
+
+    /**
+     * 负载控制—红外测温模式设置
+     */
+    public static final String IR_METERING_MODE_SET="ir_metering_mode_set";
+
+    /**
+     * 负载控制—红外测温点设置
+     */
+    public static final String IR_METERING_POINT_SET="ir_metering_point_set";
+
+    /**
+     * 负载控制—红外测温区域设置
+     */
+    public static final String IR_METERING_AREA_SET="ir_metering_area_set";
+
+    /**
+     * 飞行控制—进入 POI 环绕模式
+     */
+    public static final String POI_MODE_ENTER="poi_mode_enter";
+
+    /**
+     * 飞行控制—退出 POI 环绕模式
+     */
+    public static final String POI_MODE_EXIT="poi_mode_exit";
+
+    /**
+     * 飞行控制—POI 环绕速度设置
+     */
+    public static final String POI_CIRCLE_SPEED_SET="poi_circle_speed_set";
+
 }

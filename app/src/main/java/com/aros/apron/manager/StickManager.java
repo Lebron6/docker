@@ -1,18 +1,29 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
+import android.os.Handler;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.callback.MVirtualStickStateListener;
+import com.aros.apron.entity.MessageDown;
+import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.virtualstick.VirtualStickManager;
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
+import dji.v5.manager.interfaces.IWaypointMissionManager;
 
 public class StickManager extends BaseManager {
 
@@ -50,86 +61,80 @@ public class StickManager extends BaseManager {
         });
     }
 
-//    //设置虚拟摇杆控制权
-//    public void setVirtualStickModeEnabled(MQMessage message) {
-//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-//        if (isConnect != null && isConnect) {
-//            FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
-//            if (flightMode != null) {
-//                switch (flightMode) {
-//                    case GO_HOME:
-//                        LogUtil.log(TAG, "返航时无法手控");
-//                        sendMsg2Server( message, "返航时无法手控");
-//                        break;
-//                    case WAYPOINT:
-//                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-//                        missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
-//                                ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                new Handler().postDelayed(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
-//                                            @Override
-//                                            public void onSuccess() {
-//                                                sendMsg2Server( message);
-//                                                LogUtil.log(TAG, "终止任务,控制权设置成功");
-//                                                Movement.getInstance().setWaylineCanResume(true);
-//                                                Movement.getInstance().setVirtualStickEnableReason(3);
-//                                                Movement.getInstance().setVirtualStickQuitMission(true);
-//                                            }
+    //飞行控制权抢夺
+    public void setVirtualStickModeEnabled(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
+            if (flightMode != null) {
+                switch (flightMode) {
+                    case GO_HOME:
+                        sendFailMsg2Server( message, "返航时无法手控");
+                        break;
+                    case WAYPOINT:
+                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+                        missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
+                                ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                                            @Override
+                                            public void onSuccess() {
+                                                sendMsg2Server( message);
+                                                LogUtil.log(TAG, "终止任务,控制权设置成功");
+                                                Movement.getInstance().setWaylineCanResume(true);
+                                                Movement.getInstance().setVirtualStickEnableReason(3);
+                                                Movement.getInstance().setVirtualStickQuitMission(true);
+                                            }
+
+                                            @Override
+                                            public void onFailure(@NonNull IDJIError error) {
+                                                sendFailMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                                            }
+                                        });
+                                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+                                    }
+                                }, 400);
+
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendFailMsg2Server( message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
+                        break;
+                    case AUTO_LANDING:
+                        sendFailMsg2Server( message, "降落时无法手控");
+                        break;
+                    case VIRTUAL_STICK:
+                        sendFailMsg2Server( message, "已获取控制权,无需重复获取");
+                        break;
+                    default:
+                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server( message);
+                                Movement.getInstance().setWaylineCanResume(true);
+                                Movement.getInstance().setVirtualStickEnableReason(3);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                LogUtil.log(TAG, "控制权设置失败:" + error.description());
+                                sendFailMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
+                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+                        break;
+                }
+            }
+        }
 //
-//                                            @Override
-//                                            public void onFailure(@NonNull IDJIError error) {
-//                                                LogUtil.log(TAG, "终止任务,控制权设置失败:" + error.description());
-//                                                sendMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
-//                                            }
-//                                        });
-//                                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-//                                    }
-//                                }, 400);
-//
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull IDJIError error) {
-//                                LogUtil.log(TAG, "终止任务以获取控制权失败:" + new Gson().toJson(error));
-//                                sendMsg2Server( message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
-//                            }
-//                        });
-//                        break;
-//                    case AUTO_LANDING:
-//                        LogUtil.log(TAG, "降落时无法手控");
-//                        sendMsg2Server( message, "降落时无法手控");
-//                        break;
-//                    case VIRTUAL_STICK:
-//                        LogUtil.log(TAG, "已获取控制权,无需重复获取");
-//                        sendMsg2Server( message, "已获取控制权,无需重复获取");
-//                        break;
-//                    default:
-//                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                sendMsg2Server( message);
-//                                LogUtil.log(TAG, "控制权设置成功");
-//                                Movement.getInstance().setWaylineCanResume(true);
-//                                Movement.getInstance().setVirtualStickEnableReason(3);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull IDJIError error) {
-//                                LogUtil.log(TAG, "控制权设置失败:" + error.description());
-//                                sendMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
-//                            }
-//                        });
-//                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-//                        break;
-//                }
-//            }
-//        }
-//
-//    }
+    }
 //
 //    //设置虚拟摇杆控制权
 //    public void setVirtualStickModeDisable(MQMessage message) {

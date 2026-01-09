@@ -241,6 +241,162 @@ public class Movement {
     private int total;
     private int used;
 
+    private double task_attitude_head;
+    private int task_break_reason;
+    private double task_height;
+    private int task_index;
+    private double task_latitude;
+    private double task_longitude;
+    private double task_progress;
+    private int task_state;
+    private int task_wayline_id;
+
+    private int task_current_waypoint_index;
+    private String task_flight_id;
+    private int task_media_count;
+    private String task_track_id;
+    private int task_out_task_wayline_id;
+    private int task_wayline_mission_state;
+
+    private int task_current_step;
+    private int task_percent;
+
+    public double getTask_attitude_head() {
+        return task_attitude_head;
+    }
+
+    public void setTask_attitude_head(double task_attitude_head) {
+        this.task_attitude_head = task_attitude_head;
+    }
+
+    public int getTask_break_reason() {
+        return task_break_reason;
+    }
+
+    public void setTask_break_reason(int task_break_reason) {
+        this.task_break_reason = task_break_reason;
+    }
+
+    public double getTask_height() {
+        return task_height;
+    }
+
+    public void setTask_height(double task_height) {
+        this.task_height = task_height;
+    }
+
+    public int getTask_index() {
+        return task_index;
+    }
+
+    public void setTask_index(int task_index) {
+        this.task_index = task_index;
+    }
+
+    public double getTask_latitude() {
+        return task_latitude;
+    }
+
+    public void setTask_latitude(double task_latitude) {
+        this.task_latitude = task_latitude;
+    }
+
+    public double getTask_longitude() {
+        return task_longitude;
+    }
+
+    public void setTask_longitude(double task_longitude) {
+        this.task_longitude = task_longitude;
+    }
+
+    public double getTask_progress() {
+        return task_progress;
+    }
+
+    public void setTask_progress(double task_progress) {
+        this.task_progress = task_progress;
+    }
+
+    public int getTask_state() {
+        return task_state;
+    }
+
+    public void setTask_state(int task_state) {
+        this.task_state = task_state;
+    }
+
+    public int getTask_wayline_id() {
+        return task_wayline_id;
+    }
+
+    public void setTask_wayline_id(int task_wayline_id) {
+        this.task_wayline_id = task_wayline_id;
+    }
+
+    public int getTask_current_waypoint_index() {
+        return task_current_waypoint_index;
+    }
+
+    public void setTask_current_waypoint_index(int task_current_waypoint_index) {
+        this.task_current_waypoint_index = task_current_waypoint_index;
+    }
+
+    public String getTask_flight_id() {
+        return task_flight_id;
+    }
+
+    public void setTask_flight_id(String task_flight_id) {
+        this.task_flight_id = task_flight_id;
+    }
+
+    public int getTask_media_count() {
+        return task_media_count;
+    }
+
+    public void setTask_media_count(int task_media_count) {
+        this.task_media_count = task_media_count;
+    }
+
+    public String getTask_track_id() {
+        return task_track_id;
+    }
+
+    public void setTask_track_id(String task_track_id) {
+        this.task_track_id = task_track_id;
+    }
+
+    public int getTask_out_task_wayline_id() {
+        return task_out_task_wayline_id;
+    }
+
+    public void setTask_out_task_wayline_id(int task_out_task_wayline_id) {
+        this.task_out_task_wayline_id = task_out_task_wayline_id;
+    }
+
+    public int getTask_wayline_mission_state() {
+        return task_wayline_mission_state;
+    }
+
+    public void setTask_wayline_mission_state(int task_wayline_mission_state) {
+        this.task_wayline_mission_state = task_wayline_mission_state;
+    }
+
+    public int getTask_current_step() {
+        return task_current_step;
+    }
+
+    public void setTask_current_step(int task_current_step) {
+        this.task_current_step = task_current_step;
+    }
+
+    public int getTask_percent() {
+        return task_percent;
+    }
+
+    public void setTask_percent(int task_percent) {
+        this.task_percent = task_percent;
+    }
+
     public int getMissionStateCode() {
         return missionStateCode;
     }

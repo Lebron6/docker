@@ -4,6 +4,7 @@ import static dji.sdk.keyvalue.key.KeyTools.createKey;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
@@ -50,6 +51,10 @@ public class GimbalManager extends BaseManager {
         }
     }
 
+    //负载控制权抢夺（MSDK没有此方法，直接返回true）
+    public void payloadAuthorityGrab(MessageDown message) {
+        sendMsg2Server(message);
+    }
 
 
     //云台重置

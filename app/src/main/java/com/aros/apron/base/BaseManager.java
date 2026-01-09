@@ -6,6 +6,7 @@ import android.os.Looper;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
 import com.aros.apron.entity.FileUploadResult;
+import com.aros.apron.entity.FlightTaskProgress;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
@@ -148,6 +149,34 @@ public abstract class BaseManager {
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 MessageEvent messageEvent = new MessageEvent();
+                messageEvent.setBid(UUID.randomUUID().toString());
+                messageEvent.setTid(UUID.randomUUID().toString());
+                messageEvent.setTimestamp(System.currentTimeMillis());
+                messageEvent.setMethod("simple");
+                MessageEvent.Data data=new MessageEvent.Data();
+                data.setResult(1);
+                data.setErrorMsg(msg);
+                messageEvent.setData(data);
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
+                mqttMessage.setQos(1);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+            } else {
+                LogUtil.log(TAG, "发送event失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, "回复event异常：" + e.toString());
+        }
+    }
+
+    /**
+     * 上报航线任务进度
+     */
+    public void sendFlightTaskProgressEventServer(FlightTaskProgress flightTaskProgress) {
+        LogUtil.log(TAG,"发送航线任务进度:"+flightTaskProgress);
+        try {
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                FlightTaskProgress messageEvent = new FlightTaskProgress();
                 messageEvent.setBid(UUID.randomUUID().toString());
                 messageEvent.setTid(UUID.randomUUID().toString());
                 messageEvent.setTimestamp(System.currentTimeMillis());

@@ -15,16 +15,20 @@ import com.aros.apron.callback.MWaylineExecutingInfoListener;
 import com.aros.apron.callback.MWaypointActionListener;
 import com.aros.apron.callback.MWaypointMissionExecuteStateListener;
 import com.aros.apron.entity.ApronExecutionStatus;
+import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.dji.wpmzsdk.common.data.KMZInfo;
+import com.dji.wpmzsdk.manager.WPMZManager;
 import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
@@ -32,6 +36,9 @@ import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
+import dji.sdk.wpmz.value.mission.Wayline;
+import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
+import dji.sdk.wpmz.value.mission.WaylineWaylinesParseInfo;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -77,6 +84,7 @@ public class MissionV3Manager extends BaseManager {
 
     //收到航线
     public void taskExecute(MessageDown message) {
+        PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
         //避免重复执行
         if (isReceiverMission == false) {
             isReceiverMission = true;
@@ -250,6 +258,45 @@ public class MissionV3Manager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
+
+            KMZInfo kmzInfo = WPMZManager.getInstance().getKMZInfo(
+                    Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz");
+            if (kmzInfo != null) {
+//                Utils.printJson(TAG,"航点详情:"+new Gson().toJson(kmzInfo));
+                WaylineWaylinesParseInfo waylineWaylinesParseInfo = kmzInfo.getWaylineWaylinesParseInfo();
+                if (waylineWaylinesParseInfo != null) {
+                    List<Wayline> waylines = waylineWaylinesParseInfo.getWaylines();
+                    if (waylines != null && waylines.size() > 0) {
+                        List<WaylineExecuteWaypoint> waypoints = waylines.get(0).getWaypoints();
+                        if (waypoints != null&&waypoints.size()>0) {
+                            //将航点列表保存在本地
+                            if (!PreferenceUtils.getInstance().getIsNewRoute()) {
+                                CurrentWayline.getInstance().setWaypoints(waypoints);
+                            } else if (PreferenceUtils.getInstance().getMissionType() == 2) {
+                                if (waylines.size()>2){
+                                    //清除飞机当前坐标点和断点位置
+                                    waylines.subList(0,2).clear();
+                                }
+                                CurrentWayline.getInstance().setRouteWaypoints(waypoints);
+
+                            }
+                            LogUtil.log(TAG, "该航线有" + waypoints.size() + "个航点");
+                        } else {
+                            LogUtil.log(TAG, "WPMZManager getWaypointInfo有误");
+                        }
+                    } else {
+                        LogUtil.log(TAG, "WPMZManager getTemplates有误");
+                    }
+
+                } else {
+                    LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+                }
+            } else {
+                LogUtil.log(TAG, "WPMZManager getKMZInfo有误");
+
+            }
+
+
             WaypointMissionManager.getInstance().pushKMZFileToAircraft(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
                 @Override
                 public void onProgressUpdate(Double progress) {
@@ -380,7 +427,6 @@ public class MissionV3Manager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server( message);
-                    LogUtil.log(TAG, "航线暂停成功");
                     Movement.getInstance().setFlightPathStatus(1);
                 }
 
@@ -402,19 +448,13 @@ public class MissionV3Manager extends BaseManager {
             missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onSuccess() {
-                    if (message != null) {
                         sendMsg2Server( message);
-                    }
-                    LogUtil.log(TAG, "航线继续成功");
                     Movement.getInstance().setFlightPathStatus(0);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    if (message != null) {
                         sendFailMsg2Server( message, "航线继续失败:" + getIDJIErrorMsg(error));
-                    }
-                    LogUtil.log(TAG, "航线继续失败:" + new Gson().toJson(error));
                 }
             });
         } else {

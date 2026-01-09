@@ -246,6 +246,7 @@ public class FlightManager extends BaseManager {
                         updataButtonStatus();
                         if (newValue.getAltitude() != null) {
                             Movement.getInstance().setElevation(newValue.getAltitude());
+                            Movement.getInstance().setTask_height(newValue.getAltitude());
                         }
 
                         double distance = LocationUtils.getDistance(String.valueOf(Movement.getInstance().getHomepoint_longitude()),
@@ -386,7 +387,8 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Attitude attitude, @Nullable Attitude t1) {
                     if (t1 != null) {
                         Movement.getInstance().setAttitude_pitch(t1.getPitch());
-                        Movement.getInstance().setAttitude_pitch(t1.getYaw());
+                        Movement.getInstance().setAttitude_head(t1.getYaw());
+                        Movement.getInstance().setTask_attitude_head(t1.getYaw());
                         Movement.getInstance().setAttitude_roll(t1.getRoll());
                     }
                     pushFlightAttitude();
@@ -972,6 +974,7 @@ public class FlightManager extends BaseManager {
             ApronArucoDetect.getInstance().setCanLanding(false);
             // 发布事件，通知其他组件停止Aruco检测
             EventBus.getDefault().post(FLAG_STOP_ARUCO);
+            //调试模式下不上传媒体文件 不入库
             if (!isDebugMode) {
                 //这里可能也会触发备降点关舱门的逻辑
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {

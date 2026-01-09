@@ -60,10 +60,10 @@ public class BatteryManager extends BaseManager {
                         Movement.getInstance().setReturn_home_power(t1.getBatteryPercentNeededToGoHome());
                         if (t1.getLowBatteryRTHStatus() != null) {
                             Movement.getInstance().setLowBatteryRTHState(t1.getLowBatteryRTHStatus().value());
-                            if (t1.getLowBatteryRTHStatus().value() == 1 && !sendLowBatteryRTHPosition2Server) {
-                                sendLowBatteryRTHPosition2Server = true;
-                                sendLowBatteryRTHPosition2Server();
-                            }
+//                            if (t1.getLowBatteryRTHStatus().value() == 1 && !sendLowBatteryRTHPosition2Server) {
+//                                sendLowBatteryRTHPosition2Server = true;
+//                                sendLowBatteryRTHPosition2Server();
+//                            }
                         }
                     }
                 }

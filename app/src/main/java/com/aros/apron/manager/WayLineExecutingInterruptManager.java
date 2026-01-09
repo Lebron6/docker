@@ -120,15 +120,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                     VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG, "到达100米,取消虚拟摇杆控制并返航");
-                            sendMissionExecuteEvents( "航线中断:到达指定高度,开始返航");
+                            sendEvent2Server( "航线中断:到达指定高度,开始返航");
                             FlightManager.getInstance().startGoHome(null);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
-                            sendMissionExecuteEvents( "航线中断:释放控制权失败,开始返航");
-                            LogUtil.log(TAG, "到达80米,取消虚拟摇杆控制返航失败:" + new Gson().toJson(idjiError));
+                            sendEvent2Server( "航线中断:释放控制权失败,开始返航");
                             FlightManager.getInstance().startGoHome( null);
                         }
                     });

@@ -135,6 +135,7 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
             }
             LogUtil.log(TAG, "WaypointMissionExecuteState:" + missionState.name());
             Movement.getInstance().setWaypointMissionExecuteState(missionState.name());
+            Movement.getInstance().setTask_wayline_mission_state(missionState.value());
             Movement.getInstance().setMissionStateCode(missionState.value());
         }
     }

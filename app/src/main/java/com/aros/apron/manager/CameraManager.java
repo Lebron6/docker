@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.ProductKey;
 import dji.sdk.keyvalue.value.camera.CameraExposureCompensation;
 import dji.sdk.keyvalue.value.camera.CameraExposureMode;
 import dji.sdk.keyvalue.value.camera.CameraFocusMode;
@@ -36,6 +37,7 @@ import dji.sdk.keyvalue.value.common.CameraLensType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.DoublePoint2D;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
+import dji.sdk.keyvalue.value.product.ProductType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -494,19 +496,7 @@ public class CameraManager extends BaseManager {
         }
     }
 
-//    private void publishCamera2Server() {
-//        if (isFlyClickTime()) {
-//            MqttMessage flightMessage = null;
-//            try {
-//                CameraStateEntity.getInstance().setTimeStamp(String.valueOf(System.currentTimeMillis()));
-//                flightMessage = new MqttMessage(new Gson().toJson(CameraStateEntity.getInstance()).getBytes("UTF-8"));
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//            flightMessage.setQos(0);
-//            publish(client, MqttConfig.MQTT_CAMERA_TOPIC, flightMessage);
-//        }
-//    }
+
 
 //    //设置手动对焦值
 //    public void setCameraFocusRingValue(MQMessage message) {
@@ -535,99 +525,38 @@ public class CameraManager extends BaseManager {
 //            sendMsg2Server( message, "当前状态相机禁止操作");
 //        }
 //    }
-//    //切换相机拍照录像模式
-//    public void setCameraMode(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            if (message != null) {
-//                int cameraMode = message.getCameraMode();
-//                ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
-//                if (productType!=null){
-//                    if (productType==ProductType.M300_RTK){
-//                        if (cameraMode==0){
-//                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_NORMAL, new CommonCallbacks.CompletionCallback() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    sendMsg2Server( message);
-//                                }
-//
-//                                @Override
-//                                public void onFailure(@NonNull IDJIError error) {
-//                                    LogUtil.log(TAG, "相机模式切换拍照失败:" + new Gson().toJson(error));
-//                                    sendMsg2Server( message, "相机模式切换拍照失败:" + getIDJIErrorMsg(error));
-//                                }
-//                            });
-//
-//                        } else if (cameraMode == 1) {
-//                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.VIDEO_NORMAL, new CommonCallbacks.CompletionCallback() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    sendMsg2Server( message);
-//                                }
-//
-//                                @Override
-//                                public void onFailure(@NonNull IDJIError error) {
-//                                    LogUtil.log(TAG, "相机模式切换录像失败:" + new Gson().toJson(error));
-//                                    sendMsg2Server( message, "相机模式切换录像失败:" + getIDJIErrorMsg(error));
-//                                }
-//                            });
-//                        } else if (cameraMode == 8) {
-//                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_INTERVAL, new CommonCallbacks.CompletionCallback() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    sendMsg2Server( message);
-//                                }
-//
-//                                @Override
-//                                public void onFailure(@NonNull IDJIError error) {
-//                                    LogUtil.log(TAG, "相机模式切换定时拍照失败:" + new Gson().toJson(error));
-//                                    sendMsg2Server( message, "相机模式切换定时拍照失败:" + getIDJIErrorMsg(error));
-//                                }
-//                            });
-//                        } else if (cameraMode == 12) {
-//                            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraFlatMode, ComponentIndexType.PORT_1), CameraFlatMode.PHOTO_PANO, new CommonCallbacks.CompletionCallback() {
-//                                @Override
-//                                public void onSuccess() {
-//                                    sendMsg2Server( message);
-//                                }
-//
-//                                @Override
-//                                public void onFailure(@NonNull IDJIError error) {
-//                                    LogUtil.log(TAG, "相机模式切换全景拍照失败:" + new Gson().toJson(error));
-//                                    sendMsg2Server( message, "相机模式切换全景拍照失败:" + getIDJIErrorMsg(error));
-//                                }
-//                            });
-//                        } else {
-//                            LogUtil.log(TAG, "相机模式切换失败:暂不支持" + cameraMode);
-//                            sendMsg2Server( message, "相机模式切换失败:暂不支持");
-//                        }
-//
-//                    }else{
-//                        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode, ComponentIndexType.PORT_1),CameraMode.find(cameraMode), new CommonCallbacks.CompletionCallback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                sendMsg2Server( message);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull IDJIError error) {
-//                                LogUtil.log(TAG,"相机模式切换失败:"+new Gson().toJson(error));
-//                                sendMsg2Server( message, "相机模式切换失败:" + getIDJIErrorMsg(error));                            }
-//                        });
-//
-//                    }
-//                }else{
-//                    sendMsg2Server( message, "切换失败:当前状态相机禁止操作");
-//
-//                }
-//
-//            }
-//        } else {
-//            sendMsg2Server( message, "当前状态相机禁止操作");
-//        }
-//    }
-//
+//切换相机拍照录像模式
+public void setCameraMode(MessageDown message) {
+    Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+            KeyConnection, ComponentIndexType.PORT_1));
+    if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+        if (message != null) {
+            int cameraMode = message.getData().getCamera_mode();
+            ProductType productType = KeyManager.getInstance().getValue(KeyTools.createKey(ProductKey.KeyProductType));
+            if (productType != null) {
+                KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraMode, ComponentIndexType.PORT_1),
+                        CameraMode.find(cameraMode == 4 ? CameraMode.PHOTO_PANORAMA.value() : cameraMode),
+                        new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                sendMsg2Server(message);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendFailMsg2Server(message, "相机模式切换失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
+            } else {
+                sendFailMsg2Server(message, "切换失败:当前状态相机禁止操作");
+            }
+        }
+    } else {
+        sendFailMsg2Server(message, "当前状态相机禁止操作");
+    }
+}
+
+    //
 //    //设置定时拍照参数
 //    public void startTakePhotoWithInterval(MQMessage message) {
 //        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
@@ -672,102 +601,93 @@ public class CameraManager extends BaseManager {
 //    }
 //
 //
-//    //开始拍照
-//    public void startShootPhoto(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartShootPhoto,
-//                            ComponentIndexType.PORT_1),
-//                    new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-//                @Override
-//                public void onSuccess(EmptyMsg emptyMsg) {
-//                    sendMsg2Server( message);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"拍照失败:"+new Gson().toJson(error));
-//                    sendMsg2Server( message, "拍照失败:" + getIDJIErrorMsg(error));
-//                }
-//            });
-//        } else {
-//            sendMsg2Server( message, "当前状态相机禁止操作");
-//        }
-//    }
-//
-//
-//    //结束拍照
-//    public void stopShootPhoto(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopShootPhoto,
-//                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-//                @Override
-//                public void onSuccess(EmptyMsg emptyMsg) {
-//                    sendMsg2Server( message);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"停止拍照失败:"+new Gson().toJson(error));
-//                    sendMsg2Server( message, "停止拍照失败:" + getIDJIErrorMsg(error));
-//                }
-//            });
-//        } else {
-//            sendMsg2Server(message, "当前状态相机禁止操作");
-//        }
-//    }
-//
-//    //开始录像
-//    public void startRecordVideo(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartRecord,
-//                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-//                @Override
-//                public void onSuccess(EmptyMsg emptyMsg) {
-//                    sendMsg2Server(message);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"开始录像失败:"+new Gson().toJson(error));
-//                    sendMsg2Server(message, "开始录像失败:" + getIDJIErrorMsg(error));
-//                }
-//            });
-//        } else {
-//            sendMsg2Server(message, "当前状态相机禁止操作");
-//        }
-//    }
-//
-//停止录像
-public void stopRecordVideo(MessageDown message) {
-    Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-            KeyConnection, ComponentIndexType.PORT_1));
-    //降落时也允许停止录像
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-    if (isConnect != null && isConnect) {
-        KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopRecord,
-                ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-            @Override
-            public void onSuccess(EmptyMsg emptyMsg) {
-                if (message != null) {
+//开始拍照
+    public void startShootPhoto(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartShootPhoto,
+                            ComponentIndexType.PORT_1),
+                    new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "拍照失败:" + new Gson().toJson(error));
+                            sendFailMsg2Server(message, "拍照失败:" + getIDJIErrorMsg(error));
+                        }
+                    });
+        } else {
+            sendFailMsg2Server(message, "当前状态相机禁止操作");
+        }
+    }
+
+
+    //结束拍照
+    public void stopShootPhoto(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopShootPhoto,
+                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
                     sendMsg2Server(message);
                 }
-                LogUtil.log(TAG, "停止录像成功");
-            }
 
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                if (message != null) {
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "停止拍照失败:" + new Gson().toJson(error));
+                    sendFailMsg2Server(message, "停止拍照失败:" + getIDJIErrorMsg(error));
+                }
+            });
+        } else {
+            sendFailMsg2Server(message, "当前状态相机禁止操作");
+        }
+    }
+
+    //开始录像
+    public void startRecordVideo(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartRecord,
+                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    sendMsg2Server(message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendFailMsg2Server(message, "开始录像失败:" + getIDJIErrorMsg(error));
+                }
+            });
+        } else {
+            sendFailMsg2Server(message, "当前状态相机禁止操作");
+        }
+    }
+
+    //停止录像
+    public void stopRecordVideo(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStopRecord,
+                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    LogUtil.log(TAG, "停止录像成功");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
                     sendFailMsg2Server(message, "停止录像失败:" + getIDJIErrorMsg(error));
                 }
-                LogUtil.log(TAG, "停止录像失败:" + new Gson().toJson(error));
-            }
-        });
+            });
     } else {
         sendFailMsg2Server(message, "当前状态相机禁止操作");
     }

@@ -67,6 +67,16 @@ public class MessageDown {
         private int out_of_control_action;
         private boolean takeoffToPointTask;
         private BreakPoint break_point;
+        private int camera_mode;
+
+
+        public int getCamera_mode() {
+            return camera_mode;
+        }
+
+        public void setCamera_mode(int camera_mode) {
+            this.camera_mode = camera_mode;
+        }
 
         public BreakPoint getBreak_point() {
             return break_point;
