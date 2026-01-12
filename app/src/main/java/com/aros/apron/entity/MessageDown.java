@@ -68,7 +68,51 @@ public class MessageDown {
         private boolean takeoffToPointTask;
         private BreakPoint break_point;
         private int camera_mode;
+        private double h;
+        private int seq;
+        private double w;
+        private double x;
+        private double y;
 
+        public double getH() {
+            return h;
+        }
+
+        public void setH(double h) {
+            this.h = h;
+        }
+
+        public int getSeq() {
+            return seq;
+        }
+
+        public void setSeq(int seq) {
+            this.seq = seq;
+        }
+
+        public double getW() {
+            return w;
+        }
+
+        public void setW(double w) {
+            this.w = w;
+        }
+
+        public double getX() {
+            return x;
+        }
+
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public double getY() {
+            return y;
+        }
+
+        public void setY(double y) {
+            this.y = y;
+        }
 
         public int getCamera_mode() {
             return camera_mode;

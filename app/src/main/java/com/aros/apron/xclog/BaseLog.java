@@ -1,6 +1,5 @@
 package com.aros.apron.xclog;
 
-import com.aros.apron.manager.AMSLogManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -27,9 +27,11 @@ import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
+import com.aros.apron.manager.FlightTaskProgressManager
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
+import com.aros.apron.manager.StickManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
@@ -573,7 +575,7 @@ open class MainActivity : BaseActivity() {
 //            AlternateLandingManager.getInstance().initAlterLandingInfo()
 //            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
 //            CameraManager.getInstance().initCameraInfo()
-//            StickManager.getInstance().initStickInfo()
+            StickManager.getInstance().initStickInfo()
             GimbalManager.getInstance().initGimbalInfo()
             AlternateLandingManager.getInstance().initAlterLandingInfo()
 //            RemoteManager.getInstance().initRemoteInfo()
@@ -581,6 +583,7 @@ open class MainActivity : BaseActivity() {
 //            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
 //            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
             OSDManager.getInstance().initOsd()
+            FlightTaskProgressManager.getInstance().initFlightTaskProgress()
 
 
     }

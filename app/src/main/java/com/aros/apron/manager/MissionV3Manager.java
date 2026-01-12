@@ -107,7 +107,7 @@ public class MissionV3Manager extends BaseManager {
         if (isConnect != null && isConnect) {
             //1.若当前处于虚拟摇杆状态，取消虚拟摇杆
             if (Movement.getInstance().getIsVirtualStickEnable() == 1) {
-                StickManager.getInstance().disableVirtualStick();
+                StickManager.getInstance().disableVirtualStick(null);
             }
             //2.关闭避障
             PerceptionManager.getInstance().setPerceptionEnable(false);

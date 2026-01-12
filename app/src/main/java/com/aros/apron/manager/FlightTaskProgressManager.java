@@ -1,5 +1,7 @@
 package com.aros.apron.manager;
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -21,8 +23,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
+import dji.v5.manager.KeyManager;
 import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
 import dji.v5.manager.aircraft.waypoint3.model.BreakPointInfo;
 
@@ -38,6 +42,15 @@ public class FlightTaskProgressManager extends BaseManager {
 
     public static FlightTaskProgressManager getInstance() {
         return FlightTaskHolder.INSTANCE;
+    }
+
+    public void initFlightTaskProgress() {
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            handler.postDelayed(runnable, INTERVAL);
+        } else {
+            LogUtil.log(TAG, "初始化航线任务失败" + "flight controller is null");
+        }
     }
 
     // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
@@ -118,10 +131,8 @@ public class FlightTaskProgressManager extends BaseManager {
         ext.setTrack_id(Movement.getInstance().getTrack_id());
         ext.setWayline_id(Movement.getInstance().getTask_wayline_id());
         ext.setWayline_mission_state(Movement.getInstance().getTask_wayline_mission_state());
-        if (CurrentWayline.getInstance().getWaypoints()!=null){
-            progress.setPercent(100 * (Movement.getInstance().getCurrentWaypointIndex() + 1)
-                    / CurrentWayline.getInstance().getWaypoints().size());
-        }
+
+        progress.setPercent(Movement.getInstance().getTask_percent());
         progress.setCurrent_step(Movement.getInstance().getTask_current_step());
 
         ext.setBreak_point(breakPoint);
