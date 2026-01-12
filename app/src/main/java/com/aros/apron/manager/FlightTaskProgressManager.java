@@ -74,7 +74,6 @@ public class FlightTaskProgressManager extends BaseManager {
             lastExecuteTime = now;
             try {
                 pushFlightAttitude();
-                Log.e(TAG, "打印task：" + new Gson().toJson(flightTaskProgress));
                 MqttMessage flightMessage =
                         new MqttMessage(gson.toJson(flightTaskProgress).getBytes(StandardCharsets.UTF_8));
                 flightMessage.setQos(0);

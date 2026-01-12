@@ -74,6 +74,8 @@ public class MessageDown {
         private double x;
         private double y;
 
+
+
         public double getH() {
             return h;
         }
@@ -170,6 +172,67 @@ public class MessageDown {
             this.video_type = video_type;
         }
 
+
+        public static class File {
+            private String fingerprint;
+            private String url;
+
+            public String getFingerprint() {
+                return fingerprint;
+            }
+
+            public void setFingerprint(String fingerprint) {
+                this.fingerprint = fingerprint;
+            }
+
+            public String getUrl() {
+                return url;
+            }
+
+            public void setUrl(String url) {
+                this.url = url;
+            }
+        }
+
+
+        public static class BreakPoint {
+            private int index;
+            private double progress;
+            private int state;
+            private int wayline_id;
+
+            public int getIndex() {
+                return index;
+            }
+
+            public void setIndex(int index) {
+                this.index = index;
+            }
+
+            public double getProgress() {
+                return progress;
+            }
+
+            public void setProgress(double progress) {
+                this.progress = progress;
+            }
+
+            public int getState() {
+                return state;
+            }
+
+            public void setState(int state) {
+                this.state = state;
+            }
+
+            public int getWayline_id() {
+                return wayline_id;
+            }
+
+            public void setWayline_id(int wayline_id) {
+                this.wayline_id = wayline_id;
+            }
+        }
 
         public AlternateLandPoint getAlternate_land_point() {
             return alternate_land_point;
@@ -270,7 +333,7 @@ public class MessageDown {
         public static class AlternateLandPoint {
             private double latitude;
             private double longitude;
-            private int safe_land_height;
+            private double safe_land_height;
 
             public double getLatitude() {
                 return latitude;
@@ -288,73 +351,12 @@ public class MessageDown {
                 this.longitude = longitude;
             }
 
-            public int getSafe_land_height() {
+            public double getSafe_land_height() {
                 return safe_land_height;
             }
 
-            public void setSafe_land_height(int safe_land_height) {
+            public void setSafe_land_height(double safe_land_height) {
                 this.safe_land_height = safe_land_height;
-            }
-        }
-
-        public static class File {
-            private String fingerprint;
-            private String url;
-
-            public String getFingerprint() {
-                return fingerprint;
-            }
-
-            public void setFingerprint(String fingerprint) {
-                this.fingerprint = fingerprint;
-            }
-
-            public String getUrl() {
-                return url;
-            }
-
-            public void setUrl(String url) {
-                this.url = url;
-            }
-        }
-
-
-        public static class BreakPoint {
-            private int index;
-            private double progress;
-            private int state;
-            private int wayline_id;
-
-            public int getIndex() {
-                return index;
-            }
-
-            public void setIndex(int index) {
-                this.index = index;
-            }
-
-            public double getProgress() {
-                return progress;
-            }
-
-            public void setProgress(double progress) {
-                this.progress = progress;
-            }
-
-            public int getState() {
-                return state;
-            }
-
-            public void setState(int state) {
-                this.state = state;
-            }
-
-            public int getWayline_id() {
-                return wayline_id;
-            }
-
-            public void setWayline_id(int wayline_id) {
-                this.wayline_id = wayline_id;
             }
         }
 

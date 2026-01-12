@@ -76,11 +76,11 @@ public class DockStorageManager extends BaseManager {
                                     isSendDockStorageSuccess = true;
                                     LogUtil.log(TAG, "已经收到服务端响应入库");
                                 } else {
-                                    if (Movement.getInstance().isPlaneWing()&&Movement.getInstance().getElevation()>40){
+                                    if (!Movement.getInstance().isPlaneWing()){
                                         LogUtil.log(TAG, "未收到收到服务端响应入库,重新发送");
                                         retrySend();
                                     }else{
-                                        LogUtil.log(TAG,"飞机状态不满足入库门条件:"+Movement.getInstance().isPlaneWing()+"--"+Movement.getInstance().getElevation());
+                                        LogUtil.log(TAG,"飞机状态不满足入库门条件:"+Movement.getInstance().isPlaneWing());
                                     }
                                 }
                             }

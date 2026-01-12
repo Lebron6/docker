@@ -15,10 +15,10 @@ public class MWaylineExecutingInfoListener extends BaseManager implements dji.v5
             //状态等执行完发送再更新
             Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
             Movement.getInstance().setTask_current_waypoint_index(excutingWaylineInfo.getCurrentWaypointIndex());
-            if (CurrentWayline.getInstance().getWaypoints()!=null){
-                Movement.getInstance().setTask_percent(100 * (Movement.getInstance().getCurrentWaypointIndex() + 1)
-                        / CurrentWayline.getInstance().getWaypoints().size());
-            }
+//            if (CurrentWayline.getInstance().getWaypoints()!=null){
+//                Movement.getInstance().setTask_percent(100 * (Movement.getInstance().getCurrentWaypointIndex() + 1)
+//                        / CurrentWayline.getInstance().getWaypoints().size());
+//            }
 //            if (Movement.getInstance().getMissionStateCode()==WaypointMissionExecuteState.EXECUTING.value()){
 //
 //            }

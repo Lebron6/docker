@@ -1097,15 +1097,29 @@ public class FlightManager extends BaseManager {
                 });
     }
 
-    public int findIndexInWaypoints(int indexInRouteWaypoints) {
-        // 边界检查
-        if (indexInRouteWaypoints < 0 || indexInRouteWaypoints >= CurrentWayline.getInstance().getRouteWaypoints().size()) {
-            return -1;
+    //降落
+    public void startAutoLanding(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
+        if (isConnect != null && isConnect) {
+            KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    if (message!=null){
+                        sendMsg2Server( message);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "降落失败:" + new Gson().toJson(error));
+                    if (message!=null){
+                        sendFailMsg2Server( message, "降落失败:" + getIDJIErrorMsg(error));
+                    }
+                }
+            });
+        } else {
+            sendFailMsg2Server( message, "飞控未连接");
         }
-        // 获取 routeWaypoints 中的指定元素
-        WaylineExecuteWaypoint waylineExecuteWaypoint = CurrentWayline.getInstance().getRouteWaypoints().get(indexInRouteWaypoints);
-        // 在 waypoints 中查找该元素的索引
-        return CurrentWayline.getInstance().getWaypoints().indexOf(waylineExecuteWaypoint);
     }
 
 }

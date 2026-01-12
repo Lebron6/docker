@@ -85,6 +85,10 @@ public class MissionV3Manager extends BaseManager {
     //收到航线
     public void taskExecute(MessageDown message) {
         PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
+        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude()+"");
+        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude()+"");
+        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height()+"");
+        PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
         //避免重复执行
         if (isReceiverMission == false) {
             isReceiverMission = true;
@@ -114,7 +118,7 @@ public class MissionV3Manager extends BaseManager {
             //3.清空sd卡
             CameraManager.getInstance().formatStorage(null);
             //4.返航或降落状态无法执行航线
-            if (Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
+            if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
                 sendFailMsg2Server(message, "返航中,无法执行航线任务");
                 return;
             }

@@ -42,7 +42,7 @@ public abstract class BaseManager {
                 data.setResult(0);
                 messageReply.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY, mqttMessage);
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -60,7 +60,7 @@ public abstract class BaseManager {
      * @param errorMsg
      */
     public void sendFailMsg2Server(MessageDown entity,String errorMsg) {
-        LogUtil.log(TAG,errorMsg);
+        LogUtil.log(TAG,entity.getMethod()+":"+errorMsg);
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 MessageReply messageReply = new MessageReply();
@@ -73,21 +73,23 @@ public abstract class BaseManager {
                 data.setErrorMsg(errorMsg);
                 messageReply.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageReply).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY, mqttMessage);
 
-                //这里通过event事件上报执行动作失败
-                mainHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-                        } catch (MqttException e) {
-                            throw new RuntimeException(e);
-                        }
+                if (!entity.getMethod().equals(Constant.AIRCRAFT_ON)){
+                    //这里通过event事件上报执行动作失败
+                    mainHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                            } catch (MqttException e) {
+                                throw new RuntimeException(e);
+                            }
 
-                    }
-                },500);
+                        }
+                    },500);
+                }
 
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -130,7 +132,7 @@ public abstract class BaseManager {
                 data.setErrorMsg(msg);
                 messageEvent.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
                 LogUtil.log(TAG, "发送event失败：mqtt 未连接");
@@ -158,7 +160,7 @@ public abstract class BaseManager {
                 data.setErrorMsg(msg);
                 messageEvent.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
-                mqttMessage.setQos(1);
+                mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
                 LogUtil.log(TAG, "发送event失败：mqtt 未连接");

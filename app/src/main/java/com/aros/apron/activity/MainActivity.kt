@@ -21,6 +21,7 @@ import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
 import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
+import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
@@ -569,7 +570,7 @@ open class MainActivity : BaseActivity() {
 //            StreamManager.getInstance().initStreamManager()
             FlightManager.getInstance().initFlightInfo()
 //            MissionManager.getInstance().initMissionManager()
-//            BatteryManager.getInstance().initBatteryInfo()
+            BatteryManager.getInstance().initBatteryInfo()
 //            MediaManager.getInstance().init()
 //            LEDsSettingsManager.getInstance().initLEDsInfo()
 //            AlternateLandingManager.getInstance().initAlterLandingInfo()
@@ -662,7 +663,7 @@ open class MainActivity : BaseActivity() {
                                 if (!ApronArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:飞往备降点")
                                     //测试图传丢失
-//                                    AlternateLandingManager.getInstance().startTaskProcess(null)
+                                    AlternateLandingManager.getInstance().startTaskProcess(null)
                                 }
                             }, 6000)
                             if (startArucoType == 1) {
@@ -700,7 +701,7 @@ open class MainActivity : BaseActivity() {
                                 if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
                                     LogUtil.log(TAG, "图传异常:备降点直接降落")
                                     //测试图传丢失
-//                                    FlightManager.getInstance().startAutoLanding(null)
+                                    FlightManager.getInstance().startAutoLanding(null)
                                 }
                             }, 4000)
                             if (startArucoType == 2) {

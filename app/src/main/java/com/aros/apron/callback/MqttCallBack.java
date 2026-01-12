@@ -3,6 +3,7 @@ package com.aros.apron.callback;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
@@ -48,8 +49,8 @@ public class MqttCallBack implements MqttCallbackExtended {
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
-        LogUtil.log(TAG, "--------" + mqttMessage.toString());
         String jsonString = null;
+//        Log.e(TAG, "入口打印:" +mqttMessage.toString());
         try {
             jsonString = new String(mqttMessage.getPayload(), "UTF-8");
         } catch (Exception e) {
@@ -130,7 +131,6 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.FLY_TO_POINT_STOP:
                 LogUtil.log(TAG, "收到：结束 flyto 飞向目标点任务" + jsonString);
-
                 break;
             case Constant.FLY_TO_POINT_STOP_UPDATE:
                 LogUtil.log(TAG, "收到：更新 flyto 目标点" + jsonString);
@@ -594,16 +594,22 @@ public class MqttCallBack implements MqttCallbackExtended {
     public void deliveryComplete(IMqttDeliveryToken token) {
 
     }
-
+    String[] topics = new String[] {
+            AMSConfig.getInstance().DOWN_UAV_EVENT_REPLY,
+            AMSConfig.getInstance().DOWN_UAV_SERVICES,
+    };
+    int[] qos = new int[] {
+            1, 1
+    };
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
         try {
-            if (reconnect) {//重新订阅
+//            if (reconnect) {//重新订阅
                 LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
-                MqttManager.getInstance().mqttAndroidClient.subscribe(AMSConfig.DOWN_UAV_SERVICES, 1);//订阅主题:注册
-                MqttManager.getInstance().mqttAndroidClient.subscribe(AMSConfig.DOWN_UAV_EVENT, 1);//订阅主题:注册
+                MqttManager.getInstance().mqttAndroidClient.subscribe(topics, qos);//订阅主题:注册
+//                MqttManager.getInstance().mqttAndroidClient.subscribe(AMSConfig.DOWN_UAV_EVENT_REPLY, 1);//订阅主题:注册
                 // publish(topic,"注册",0);
-            }
+//            }
         } catch (Exception e) {
             LogUtil.log(TAG, "MQtt ConnectException:" + e.toString());
         }

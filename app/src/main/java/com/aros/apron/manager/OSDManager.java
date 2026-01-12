@@ -100,7 +100,7 @@ public class OSDManager extends BaseManager {
 
         batterieA.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
         batterieA.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());
-        batterieA.setHigh_voltage_storage_days(Movement.getInstance().getBattery_b_high_voltage_storage_days());
+        batterieA.setHigh_voltage_storage_days(Movement.getInstance().getBattery_a_high_voltage_storage_days());
         batterieA.setIndex(0);
         batterieA.setLoop_times(Movement.getInstance().getBattery_a_loop_times());
         batterieA.setSn(Movement.getInstance().getBattery_a_battery_sn());
@@ -109,18 +109,31 @@ public class OSDManager extends BaseManager {
         batterieA.setTemperature(Movement.getInstance().getBattery_a_temperature());
         batterieA.setSub_type(Movement.getInstance().getBattery_a_sub_type());
         batterieA.setVoltage(Movement.getInstance().getBattery_a_voltage());
-
-        batterieB.setCapacity_percent(Movement.getInstance().getBattery_b_capacity_percent());
-        batterieB.setFirmware_version(Movement.getInstance().getBattery_b_battery_firmware_version());
-        batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_b_high_voltage_storage_days());
-        batterieB.setIndex(1);
-        batterieB.setLoop_times(Movement.getInstance().getBattery_b_loop_times());
-        batterieB.setSn(Movement.getInstance().getBattery_b_battery_sn());
-        batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
-        batterieB.setType(Movement.getInstance().getBattery_b_type());
-        batterieB.setTemperature(Movement.getInstance().getBattery_b_temperature());
-        batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
-        batterieB.setVoltage(Movement.getInstance().getBattery_b_voltage());
+if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
+    batterieB.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
+    batterieB.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());
+    batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_a_high_voltage_storage_days());
+    batterieB.setIndex(1);
+    batterieB.setLoop_times(Movement.getInstance().getBattery_a_loop_times());
+    batterieB.setSn(Movement.getInstance().getBattery_a_battery_sn());
+    batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
+    batterieB.setType(Movement.getInstance().getBattery_a_type());
+    batterieB.setTemperature(Movement.getInstance().getBattery_a_temperature());
+    batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
+    batterieB.setVoltage(Movement.getInstance().getBattery_a_voltage());
+} else {
+    batterieB.setCapacity_percent(Movement.getInstance().getBattery_b_capacity_percent());
+    batterieB.setFirmware_version(Movement.getInstance().getBattery_b_battery_firmware_version());
+    batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_b_high_voltage_storage_days());
+    batterieB.setIndex(1);
+    batterieB.setLoop_times(Movement.getInstance().getBattery_b_loop_times());
+    batterieB.setSn(Movement.getInstance().getBattery_b_battery_sn());
+    batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
+    batterieB.setType(Movement.getInstance().getBattery_b_type());
+    batterieB.setTemperature(Movement.getInstance().getBattery_b_temperature());
+    batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
+    batterieB.setVoltage(Movement.getInstance().getBattery_b_voltage());
+}
 
         batteries.add(batterieA);
         batteries.add(batterieB);

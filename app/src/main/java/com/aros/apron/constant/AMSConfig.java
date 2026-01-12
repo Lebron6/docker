@@ -61,7 +61,7 @@ public class AMSConfig {
     public static String DOWN_UAV_SERVICES = "nest/uav_services";
 
     /**
-     * 收到服务端命令后相应回复
+     * 收到服务端命令后MSDK回复
      */
     public static String UP_UAV_SERVICES_REPLY = "nest/uav_services_reply";
 
@@ -73,7 +73,7 @@ public class AMSConfig {
     /**
      * 服务端收到事件后回复给MSDK
      */
-    public static String DOWN_UAV_EVENT = "nest/uav_event_reply";
+    public static String DOWN_UAV_EVENT_REPLY = "nest/uav_event_reply";
 
 
 }
