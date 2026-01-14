@@ -5,8 +5,9 @@ import android.os.Looper;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
-import com.aros.apron.entity.FileUploadResult;
+import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.FlightTaskProgress;
+import com.aros.apron.entity.MediaUpLoad;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
@@ -168,6 +169,99 @@ public abstract class BaseManager {
         } catch (Exception e) {
             e.printStackTrace();
             LogUtil.log(TAG, "回复event异常：" + e.toString());
+        }
+    }
+
+    /**
+     * 发送媒体文件上传事件
+     */
+    public void sendMediaUpload2Server(String fileName,int uploaded_file_count,int expected_file_count) {
+        LogUtil.log(TAG,"发送媒体上传完成事件:"+fileName);
+        try {
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                MediaUpLoad mediaUpLoad = MediaUpLoad.getInstance();
+                mediaUpLoad.setBid(UUID.randomUUID().toString());
+                mediaUpLoad.setTid(UUID.randomUUID().toString());
+                mediaUpLoad.setTimestamp(System.currentTimeMillis());
+                mediaUpLoad.setMethod(Constant.FILE_UPLOAD_CALLBACK);
+                MediaUpLoad.Data data=new MediaUpLoad.Data();
+                data.setBucket_name(PreferenceUtils.getInstance().getBucketName());
+                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
+                data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
+                data.setFile_name(fileName);
+                data.setUploaded_file_count(uploaded_file_count);
+                data.setExpected_file_count(expected_file_count);
+                mediaUpLoad.setData(data);
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(mediaUpLoad).getBytes("UTF-8"));
+                mqttMessage.setQos(0);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+            } else {
+                LogUtil.log(TAG, "发送媒体event失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, "回复event异常：" + e.toString());
+        }
+    }
+
+
+    FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint = new FlightTaskProgress.Data.Output.Ext.BreakPoint();
+    FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
+    FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
+
+    FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
+    FlightTaskProgress.Data data = new FlightTaskProgress.Data();
+    FlightTaskProgress flightTaskProgress = FlightTaskProgress.getInstance();
+    /**
+     * 发送航线任务进度
+     */
+    public void sendFlightTaskProgress2Server() {
+        LogUtil.log(TAG,"发送任务进度事件事件:"+new Gson().toJson(flightTaskProgress));
+        try {
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                breakPoint.setAttitude_head(Movement.getInstance().getTask_attitude_head());
+                breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
+                breakPoint.setHeight(Movement.getInstance().getTask_height());
+                breakPoint.setIndex(0);
+                breakPoint.setLatitude(Movement.getInstance().getTask_latitude());
+                breakPoint.setLongitude(Movement.getInstance().getTask_longitude());
+                breakPoint.setProgress(Movement.getInstance().getTask_progress());
+                breakPoint.setState(Movement.getInstance().getState());
+                breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
+
+                ext.setCurrent_waypoint_index(Movement.getInstance().getTask_current_waypoint_index());
+                ext.setFlight_id(PreferenceUtils.getInstance().getFlightId());
+                ext.setMedia_count(Movement.getInstance().getTask_media_count());
+                ext.setTrack_id(Movement.getInstance().getTrack_id());
+                ext.setWayline_id(Movement.getInstance().getTask_wayline_id());
+                ext.setWayline_mission_state(Movement.getInstance().getTask_wayline_mission_state());
+
+                progress.setPercent(Movement.getInstance().getTask_percent());
+                progress.setCurrent_step(Movement.getInstance().getTask_current_step());
+
+                ext.setBreak_point(breakPoint);
+                output.setExt(ext);
+                data.setOutput(output);
+//                if (CurrentWayline.getInstance().getWaypoints()!=null
+//                        &&CurrentWayline.getInstance().getWaypoints().size()>0){
+//                }
+//                if (Movement.getInstance().getCurrentWaypointIndex())
+//                data.setResult("ok");
+
+                flightTaskProgress.setTid(UUID.randomUUID().toString());
+                flightTaskProgress.setBid(UUID.randomUUID().toString());
+                flightTaskProgress.setTimestamp(System.currentTimeMillis());
+                flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+                flightTaskProgress.setData(data);
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+                mqttMessage.setQos(0);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+            } else {
+                LogUtil.log(TAG, "发送任务进度event失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, "发送任务进度event异常：" + e.toString());
         }
     }
 

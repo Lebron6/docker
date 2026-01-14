@@ -88,7 +88,6 @@ public class MissionV3Manager extends BaseManager {
         PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude()+"");
         PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude()+"");
         PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height()+"");
-        PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
         //避免重复执行
         if (isReceiverMission == false) {
             isReceiverMission = true;
@@ -96,17 +95,18 @@ public class MissionV3Manager extends BaseManager {
         //1.回复收到指令
         sendMsg2Server(message);
         //2.检查飞机状态（不满足条件直接taskFail入库）
-        verifyAircraftStatus(message);
+        boolean statusOk=verifyAircraftStatus(message);
         //3.信号收敛(等待GPS搜星)
-        verifyGpsAndMissionState(message);
-
+        if (statusOk){
+            verifyGpsAndMissionState(message);
+        }
     }
 
 
     /**
      * 1.校验飞机状态
      */
-    private void verifyAircraftStatus(MessageDown message) {
+    private boolean verifyAircraftStatus(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             //1.若当前处于虚拟摇杆状态，取消虚拟摇杆
@@ -120,7 +120,7 @@ public class MissionV3Manager extends BaseManager {
             //4.返航或降落状态无法执行航线
             if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
                 sendFailMsg2Server(message, "返航中,无法执行航线任务");
-                return;
+                return false;
             }
             //5.检查相机是否连接正常
             CameraType cameraType = KeyManager.getInstance().getValue(createKey(
@@ -129,32 +129,37 @@ public class MissionV3Manager extends BaseManager {
             ));
             if (cameraType == null || cameraType == CameraType.NOT_SUPPORTED || !Movement.getInstance().isVtx()) {
                 sendTaskFailEvent2Server("挂载连接异常");
-                return;
+                return false;
             }
             //6.检查航线备降点参数
             if (message.getData().getAlternate_land_point() == null) {
                 sendTaskFailEvent2Server("备降点参数异常");
-                return;
+                return false;
             }
             //7.检查航线参数
             if (message.getData().getFile() == null) {
                 sendTaskFailEvent2Server("航线参数异常");
-                return;
+                return false;
             }
             //8.检查电池电量
             Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                     KeyBatteryPowerPercent, 0));
             if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())) {
                 sendTaskFailEvent2Server("任务执行失败,电量过低");
-                return;
+                return false;
             }
             RemoteControllerFlightMode remoteControllerFlightMode =
                     KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
             if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
                 sendTaskFailEvent2Server("任务执行失败,请将遥控器切换为P/N挡");
+                return false;
+
             }
+            return true;
         } else {
             sendFailMsg2Server(message, "无人机未连接");
+            return false;
+
         }
     }
 

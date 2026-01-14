@@ -19,7 +19,6 @@ import com.amazonaws.services.s3.model.ProgressListener;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
-import com.aros.apron.entity.FileUploadResult;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.autonavi.base.amap.mapcore.FileUtil;
@@ -356,18 +355,8 @@ public class MediaManager extends BaseManager {
 
                     @Override
                     public void onNext(String url) {
-                        FileUploadResult fileUploadResult = new FileUploadResult();
-                        fileUploadResult.setResult(1);
-                        fileUploadResult.setFileName(mediaFile.getFileName());
-                        fileUploadResult.setFileSize(mediaFile.getFileSize());
-                        fileUploadResult.setFileNum(mediaFiles.size());
-                        fileUploadResult.setBuckName(PreferenceUtils.getInstance().getBucketName());
-                        fileUploadResult.setObjectKey(PreferenceUtils.getInstance().getObjectKey());
-                        fileUploadResult.setTask_id(PreferenceUtils.getInstance().getTaskId());
-                        fileUploadResult.setUrl(PreferenceUtils.getInstance().getUploadUrl());
-                        fileUploadResult.setOffIndex(downLoadMediaFileIndex);
-
-//                        sendFileUploadCallback(60102, fileUploadResult);
+                        //上传完成发送事件
+                        sendMediaUpload2Server(mediaFile.getFileName(),mediaFiles.size(),downLoadMediaFileIndex);
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)

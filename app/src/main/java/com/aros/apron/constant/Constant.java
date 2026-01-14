@@ -263,4 +263,14 @@ public class Constant {
      */
     public static final String POI_CIRCLE_SPEED_SET="poi_circle_speed_set";
 
+    /**
+     *  媒体上传事件
+     */
+    public static final String FILE_UPLOAD_CALLBACK="file_upload_callback";
+
+    /**
+     *  上报航线任务进度
+     */
+    public static final String FLIGHT_TASK_PROGRESS="flighttask_progress";
+
 }

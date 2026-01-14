@@ -28,7 +28,6 @@ import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
-import com.aros.apron.manager.FlightTaskProgressManager
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
@@ -584,7 +583,6 @@ open class MainActivity : BaseActivity() {
 //            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
 //            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
             OSDManager.getInstance().initOsd()
-            FlightTaskProgressManager.getInstance().initFlightTaskProgress()
 
 
     }

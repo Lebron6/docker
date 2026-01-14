@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
@@ -137,7 +136,8 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
             Movement.getInstance().setWaypointMissionExecuteState(missionState.name());
             Movement.getInstance().setTask_wayline_mission_state(missionState.value());
             Movement.getInstance().setMissionStateCode(missionState.value());
-
+            //发送航线任务进度
+            sendFlightTaskProgress2Server();
 
         }
     }

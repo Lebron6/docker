@@ -474,10 +474,12 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable String s, @Nullable String t1) {
                     if (t1 != null) {
                         Movement.getInstance().setTrack_id(t1);
+                        Movement.getInstance().setTask_track_id(t1);
                     }
                     pushFlightAttitude();
                 }
             });
+
 
             //总航时
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftTotalFlightDuration), this, new CommonCallbacks.KeyListener<Double>() {
