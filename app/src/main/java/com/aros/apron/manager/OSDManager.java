@@ -259,7 +259,6 @@ if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
 
             try {
                 pushFlightAttitude();
-                Log.e(TAG, "打印osd：" + new Gson().toJson(osd));
 
                 MqttMessage flightMessage =
                         new MqttMessage(gson.toJson(osd).getBytes(StandardCharsets.UTF_8));

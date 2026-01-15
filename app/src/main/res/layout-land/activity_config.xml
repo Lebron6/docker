@@ -849,6 +849,7 @@
                         <EditText
                             android:id="@+id/et_rtsp_user_name"
                             android:layout_width="0dp"
+                            android:text="admin"
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -877,6 +878,7 @@
                         <EditText
                             android:id="@+id/et_rtsp_password"
                             android:layout_width="0dp"
+                            android:text="123456"
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"
@@ -904,6 +906,7 @@
                         <EditText
                             android:id="@+id/et_rtsp_port"
                             android:layout_width="0dp"
+                            android:text="8554"
                             android:layout_height="match_parent"
                             android:layout_alignParentRight="true"
                             android:layout_weight="7"

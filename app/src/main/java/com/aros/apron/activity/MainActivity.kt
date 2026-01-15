@@ -32,6 +32,7 @@ import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
 import com.aros.apron.manager.StickManager
+import com.aros.apron.manager.StreamManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
@@ -575,16 +576,29 @@ open class MainActivity : BaseActivity() {
 //            AlternateLandingManager.getInstance().initAlterLandingInfo()
 //            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
 //            CameraManager.getInstance().initCameraInfo()
-            StickManager.getInstance().initStickInfo()
-            GimbalManager.getInstance().initGimbalInfo()
-            AlternateLandingManager.getInstance().initAlterLandingInfo()
+        StickManager.getInstance().initStickInfo()
+        GimbalManager.getInstance().initGimbalInfo()
+        AlternateLandingManager.getInstance().initAlterLandingInfo()
 //            RemoteManager.getInstance().initRemoteInfo()
 //            PayloadWidgetManager.getInstance().initPayloadInfo()
 //            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
 //            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
-            OSDManager.getInstance().initOsd()
+        OSDManager.getInstance().initOsd()
+        //这里修改推流逻辑
+        if (PreferenceUtils.getInstance().customStreamType!=3) {
+            Handler().postDelayed(Runnable {
+                if (PreferenceUtils.getInstance().customStreamType==1){
+                    StreamManager.getInstance()
+                        .startLiveWithRTSP()
+                }else if (PreferenceUtils.getInstance().customStreamType==2){
+                    StreamManager.getInstance()
+                        .startLiveWithCustom()
+                }else{
+                    LogUtil.log(TAG,"推流方式配置有误")
+                }
 
-
+            }, 5000)
+        }
     }
     private val cameraHandler: Handler = Handler(Looper.getMainLooper())
     private var initCameraTimes=0

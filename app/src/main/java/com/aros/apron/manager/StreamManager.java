@@ -24,7 +24,6 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.datacenter.MediaDataCenter;
-import dji.v5.manager.datacenter.livestream.LiveStreamManager;
 import dji.v5.manager.datacenter.livestream.LiveStreamSettings;
 import dji.v5.manager.datacenter.livestream.LiveStreamStatus;
 import dji.v5.manager.datacenter.livestream.LiveStreamStatusListener;
@@ -74,79 +73,79 @@ public class StreamManager extends BaseManager {
 
     public void startLive(MessageDown message) {
 sendMsg2Server(message);
-        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-        if (isAircraftConnected == null || !isAircraftConnected) {
-            LogUtil.log(TAG, "飞行器未连接");
-            sendFailMsg2Server(message, "飞行器未连接");
-        } else {
-            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            if (TextUtils.isEmpty(message.getData().getUrl())) {
-                LogUtil.log(TAG, "推流地址配置有误");
-                sendFailMsg2Server(message, "推流地址配置有误");
-            }
-            LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
-            LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
-                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getData().getUrl()).build()).build();
-            liveStreamManager.setLiveStreamSettings(streamSettings);
-            liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
-            liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-            if (!liveStreamManager.isStreaming()) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                            @Override
-                            public void onSuccess() {
-                                LogUtil.log(TAG, "推流成功");
-                                sendMsg2Server(message);
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "推流失败:" + error.description());
-                                sendFailMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
-
-                            }
-                        });
-                    }
-                }, 1000);
-                //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
-            } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
-                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getData().getUrl())) {
-                PreferenceUtils.getInstance().setCustomStreamUrl(message.getData().getUrl());
-                liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        LogUtil.log(TAG, "改变地址推流成功");
-                                        sendMsg2Server(message);
-                                    }
-
-                                    @Override
-                                    public void onFailure(@NonNull IDJIError error) {
-                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description());
-                                        sendFailMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
-
-                                    }
-                                });
-                            }
-                        }, 1000);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError idjiError) {
-                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description());
-                        sendFailMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
-                    }
-                });
-            }
-        }
+//        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
+//        if (isAircraftConnected == null || !isAircraftConnected) {
+//            LogUtil.log(TAG, "飞行器未连接");
+//            sendFailMsg2Server(message, "飞行器未连接");
+//        } else {
+//            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+//            if (TextUtils.isEmpty(message.getData().getUrl())) {
+//                LogUtil.log(TAG, "推流地址配置有误");
+//                sendFailMsg2Server(message, "推流地址配置有误");
+//            }
+//            LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
+//            LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
+//                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getData().getUrl()).build()).build();
+//            liveStreamManager.setLiveStreamSettings(streamSettings);
+//            liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
+//             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
+//            liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
+//            if (!liveStreamManager.isStreaming()) {
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+//                            @Override
+//                            public void onSuccess() {
+//                                LogUtil.log(TAG, "推流成功");
+//                                sendMsg2Server(message);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(@NonNull IDJIError error) {
+//                                LogUtil.log(TAG, "推流失败:" + error.description());
+//                                sendFailMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
+//
+//                            }
+//                        });
+//                    }
+//                }, 1000);
+//                //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
+//            } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
+//                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getData().getUrl())) {
+//                PreferenceUtils.getInstance().setCustomStreamUrl(message.getData().getUrl());
+//                liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+//                                    @Override
+//                                    public void onSuccess() {
+//                                        LogUtil.log(TAG, "改变地址推流成功");
+//                                        sendMsg2Server(message);
+//                                    }
+//
+//                                    @Override
+//                                    public void onFailure(@NonNull IDJIError error) {
+//                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description());
+//                                        sendFailMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
+//
+//                                    }
+//                                });
+//                            }
+//                        }, 1000);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NonNull IDJIError idjiError) {
+//                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description());
+//                        sendFailMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
+//                    }
+//                });
+//            }
+//        }
     }
 
     public void setLiveStreamQuality(MessageDown message) {
@@ -235,28 +234,32 @@ sendMsg2Server(message);
             LogUtil.log(TAG, "飞行器未连接");
 
         } else {
-            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            LogUtil.log(TAG, "自定义RTSP推流:" + PreferenceUtils.getInstance().getRtspUserName()
-                    +"--"+PreferenceUtils.getInstance().getRtspPort()+"--"+PreferenceUtils.getInstance().getRtspPassWord());
-            LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
-            LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTSP)
-                    .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).
-                            setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).
-                            setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
+            if (PreferenceUtils.getInstance().getRtspUserName()!=null&&
+                    PreferenceUtils.getInstance().getRtspPort()!=null&&
+            PreferenceUtils.getInstance().getRtspPassWord()!=null
+            ){
+                ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+                LogUtil.log(TAG, "自定义RTSP推流:" + PreferenceUtils.getInstance().getRtspUserName()
+                        +"--"+PreferenceUtils.getInstance().getRtspPort()+"--"+PreferenceUtils.getInstance().getRtspPassWord());
+                LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
+                LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTSP)
+                        .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).
+                                setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).
+                                setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
 
-            liveStreamManager.setLiveStreamSettings(streamSettings);
-            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
-            if (value != null && (value == CameraType.ZENMUSE_H20T ||
-                    value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
-                    || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
-                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-            } else {
-                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-            }
-            liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
-            liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-            if (!liveStreamManager.isStreaming()) {
-                     liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                liveStreamManager.setLiveStreamSettings(streamSettings);
+                CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
+                if (value != null && (value == CameraType.ZENMUSE_H20T ||
+                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
+                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
+                    liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
+                } else {
+                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+                }
+                liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
+                liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
+                if (!liveStreamManager.isStreaming()) {
+                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "自定义推流启动成功");
@@ -278,9 +281,11 @@ sendMsg2Server(message);
                                 }, 3000);
                             }
                         }
-                });
+                    });
+                }
+            }else{
+                LogUtil.log(TAG,"RTSP配置参数有误");
             }
-
         }
     }
 

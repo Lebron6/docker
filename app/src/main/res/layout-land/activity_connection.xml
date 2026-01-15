@@ -19,7 +19,7 @@
             android:textColor="@color/white"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:text="阿罗斯AFCS地面站" />
+            android:text="FCS地面站" />
 
         <LinearLayout
             android:layout_marginTop="20dp"
