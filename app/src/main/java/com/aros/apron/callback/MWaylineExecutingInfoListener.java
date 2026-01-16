@@ -3,6 +3,9 @@ package com.aros.apron.callback;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.Movement;
+
+import dji.v5.common.error.IDJIError;
+import dji.v5.manager.aircraft.waypoint3.WaylineExecutingInfoListener;
 import dji.v5.manager.aircraft.waypoint3.model.WaylineExecutingInfo;
 
 
@@ -24,5 +27,9 @@ public class MWaylineExecutingInfoListener extends BaseManager implements dji.v5
 //            }
         }
 
+    }
+
+    @Override
+    public void onWaylineExecutingInterruptReasonUpdate(IDJIError error) {
     }
 }

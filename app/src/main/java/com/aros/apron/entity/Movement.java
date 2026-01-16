@@ -18,7 +18,6 @@ public class Movement {
 
     private int msg_type = 60013;
 
-    private int windSpeed;//风速
     private int ultrasonicHeight;//超声波测高，只在飞行高度5m时奏效,单位/分米
     private int remoteControlSignal;//遥控器信号
     private int pictureBiographySignal;//图传信号
@@ -32,6 +31,7 @@ public class Movement {
     private String flightPathName;//航线名称
     private String planeMode;//飞机模式字符串
     private int missionStateCode;//航线任务状态
+    private boolean isMissionFinish;//用来标识航线in_progress还是ok
 
     private int cameraMode;//相机模式(拍照/录像) 0拍照 1录像
     private int isShootingPhoto;//是否正在拍照 1正在拍照 0未在拍照
@@ -260,6 +260,14 @@ public class Movement {
 
     private int task_current_step;
     private int task_percent;
+
+    public boolean isMissionFinish() {
+        return isMissionFinish;
+    }
+
+    public void setMissionFinish(boolean missionFinish) {
+        isMissionFinish = missionFinish;
+    }
 
     public double getTask_attitude_head() {
         return task_attitude_head;
@@ -2027,14 +2035,6 @@ public class Movement {
 
     private int liveStatus;//推流状态 0失败  1成功
 
-
-    public int getWindSpeed() {
-        return windSpeed;
-    }
-
-    public void setWindSpeed(int windSpeed) {
-        this.windSpeed = windSpeed;
-    }
 
     public int getRemoteControlSignal() {
         return remoteControlSignal;

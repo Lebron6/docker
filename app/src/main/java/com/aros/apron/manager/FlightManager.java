@@ -52,6 +52,7 @@ import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationCommandResult;
 import dji.sdk.keyvalue.value.flightcontroller.PropellerRotationStatus;
 import dji.sdk.keyvalue.value.flightcontroller.RemoteControllerFlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.RidWorkingStatusPushMsg;
+import dji.sdk.keyvalue.value.flightcontroller.WindDirection;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
@@ -334,11 +335,22 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
                     if (newValue != null) {
-                        Movement.getInstance().setWindSpeed(newValue);
+                        Movement.getInstance().setWind_speed(newValue);
                         pushFlightAttitude();
                     }
                 }
             });
+
+            KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyWindDirection), this, new CommonCallbacks.KeyListener<WindDirection>() {
+                @Override
+                public void onValueChange(@Nullable WindDirection windDirection, @Nullable WindDirection t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setWind_direction(t1.value());
+                        pushFlightAttitude();
+                    }
+                }
+            });
+
 
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyCompassHeading), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
@@ -793,6 +805,10 @@ public class FlightManager extends BaseManager {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         boolean isDistanceAndHeightValid = distance < DISTANCE_THRESHOLD &&
                 flyingHeight > FLYING_HEIGHT_THRESHOLD && !sendOpenCabinDoorMsg;
+//        LogUtil.log(TAG,"开门触发条件:"+"goHomeExecutionState:"+goHomeExecutionState
+//                +"distance:"+distance+"flyingHeight:"+Movement.getInstance().getElevation()
+//        +"isDebugMode:"+PreferenceUtils.getInstance().getIsDebugMode()
+//        +"sendOpenCabinDoorMsg:"+sendOpenCabinDoorMsg);
 
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint() &&
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
@@ -801,6 +817,7 @@ public class FlightManager extends BaseManager {
             DockOpenManager.getInstance().sendDockOpenMsg2Server();
 
         }
+
     }
 
     //降落时将云台朝下
@@ -991,7 +1008,8 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-
+            Movement.getInstance().setMissionFinish(true);
+            sendFlightTaskProgress2Server();
         }
     }
 

@@ -111,6 +111,7 @@ public class PreferenceUtils extends BasePreference {
     public String getTaskId() {
         return getString(TASK_ID);
     }
+
     public void setFlightId(String flightId) {
         setString(FLIGHT_ID,flightId);
     }

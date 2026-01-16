@@ -425,6 +425,10 @@ public class MissionV3Manager extends BaseManager {
         }
     }
 
+    /**
+     * 暂停航线
+     * @param message
+     */
     public void pauseMission(MessageDown message) {
         //暂停前将index保存
         PreferenceUtils.getInstance().setPauseIndex(Movement.getInstance().getCurrentWaypointIndex()+"");

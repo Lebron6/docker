@@ -32,11 +32,15 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                     Movement.getInstance().setAirlineFlight(false);
                     Movement.getInstance().setWaylineCanResume(false);
                     sendEvent2Server( "任务状态:初始化");
+//                    sendFlightTaskProgress2Server();
+
                     break;
                 case NOT_SUPPORTED:
                     Movement.getInstance().setAirlineFlight(false);
                     Movement.getInstance().setWaylineCanResume(false);
                     sendEvent2Server( "任务状态:此机型不支持航线任务3.0");
+//                    sendFlightTaskProgress2Server();
+
                     break;
                 case READY:
                     Movement.getInstance().setAirlineFlight(false);
@@ -47,6 +51,8 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                         Movement.getInstance().setWaylineCanResume(false);
                     }
                     sendEvent2Server( "任务状态:准备中");
+//                    sendFlightTaskProgress2Server();
+
                     break;
                 case UPLOADING:
                     Movement.getInstance().setAirlineFlight(false);
@@ -58,6 +64,7 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                     }
                     sendEvent2Server( "任务状态:上传中");
                     Movement.getInstance().setVirtualStickQuitMission(false);
+                    sendFlightTaskProgress2Server();
 
                     break;
                 case PREPARING:
@@ -70,6 +77,8 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                     }
                     sendEvent2Server( "任务状态:执行准备中");
                     Movement.getInstance().setVirtualStickQuitMission(false);
+                    sendFlightTaskProgress2Server();
+
                     break;
                 case ENTER_WAYLINE:
                     enterWayLineTime = System.currentTimeMillis();
@@ -81,9 +90,8 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                         Movement.getInstance().setWaylineCanResume(false);
                     }
                     Movement.getInstance().setVirtualStickQuitMission(false);
-
                     sendEvent2Server( "任务状态:进入航线飞行,飞往指定航线的第一个航点");
-
+                    sendFlightTaskProgress2Server();
                     break;
                 case EXECUTING:
                     Movement.getInstance().setAirlineFlight(true);
@@ -95,19 +103,24 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                         Movement.getInstance().setWaylineCanResume(false);
                     }
                     Movement.getInstance().setVirtualStickQuitMission(false);
-
+                    //发送航线任务进度
+                    sendFlightTaskProgress2Server();
                     break;
                 case INTERRUPTED:
                     Movement.getInstance().setAirlineFlight(true);
                     Movement.getInstance().setWaylineCanResume(false);
                     Movement.getInstance().setVirtualStickQuitMission(false);
                     sendEvent2Server( "任务状态:航线任务执行中断");
+                    sendFlightTaskProgress2Server();
+
                     break;
                 case RECOVERING:
                     Movement.getInstance().setAirlineFlight(true);
                     Movement.getInstance().setWaylineCanResume(false);
                     Movement.getInstance().setVirtualStickQuitMission(false);
                     sendEvent2Server( "任务状态:航线任务恢复中");
+                    sendFlightTaskProgress2Server();
+
                     break;
                 case FINISHED:
                     finishWayLineTime = System.currentTimeMillis();
@@ -127,17 +140,20 @@ public class MWaypointMissionExecuteStateListener extends BaseManager implements
                             }
                         }
                     }, 5000);
+                    sendFlightTaskProgress2Server();
+
                     break;
                 case RETURN_TO_START_POINT:
                     Movement.getInstance().setAirlineFlight(true);
+                    sendFlightTaskProgress2Server();
+
                     break;
             }
             LogUtil.log(TAG, "WaypointMissionExecuteState:" + missionState.name());
             Movement.getInstance().setWaypointMissionExecuteState(missionState.name());
             Movement.getInstance().setTask_wayline_mission_state(missionState.value());
             Movement.getInstance().setMissionStateCode(missionState.value());
-            //发送航线任务进度
-            sendFlightTaskProgress2Server();
+
 
         }
     }

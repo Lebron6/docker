@@ -302,9 +302,13 @@ public class MediaManager extends BaseManager {
                         s3.putObject(
                                 new PutObjectRequest(
                                         PreferenceUtils.getInstance().getBucketName(),
-                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" +
-                                                PreferenceUtils.getInstance().getTaskId() + "/" + mediaFile.getFileName(),
+                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" + mediaFile.getFileName(),
                                         file
+//                    new PutObjectRequest(
+//                                        PreferenceUtils.getInstance().getBucketName(),
+//                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" +
+//                                                PreferenceUtils.getInstance().getFlightId() + "/" + mediaFile.getFileName(),
+//                                        file
                                 ).withProgressListener(new ProgressListener() {
                                     @Override
                                     public void progressChanged(ProgressEvent progressEvent) {

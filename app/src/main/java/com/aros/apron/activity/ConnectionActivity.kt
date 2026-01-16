@@ -323,25 +323,16 @@ open class ConnectionActivity : BaseActivity() {
             .start()
     }
     private fun toMain(){
-//        val isFlightControllerConnect =
-//            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
         val cameraType = KeyManager.getInstance().getValue(
             KeyTools.createKey(
                 CameraKey.KeyCameraType,
                 ComponentIndexType.PORT_1
             )
         )
-//        if (isFlightControllerConnect == null || !isFlightControllerConnect||cameraType==CameraType.NOT_SUPPORTED) {
-//            handler.postDelayed({
-//                toMain()
-//            }, 1000)
-//        } else {
-//            checkTimes++
-            LogUtil.log(TAG, "飞机是否连接$checkTimes${cameraType?.name}")
+            LogUtil.log(TAG, "相机是否连接$checkTimes${cameraType?.name}")
             if (!MainActivity.isAppStarted) {
                     startActivity(Intent(this, MainActivity::class.java))
             }
-//        }
     }
 
     private fun <T> enableShowCaseButton(view: View, cl: Class<T>) {

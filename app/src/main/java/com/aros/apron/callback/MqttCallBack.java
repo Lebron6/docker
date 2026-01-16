@@ -60,11 +60,11 @@ public class MqttCallBack implements MqttCallbackExtended {
         MessageDown message = new Gson().fromJson(jsonString, MessageDown.class);
         switch (message.getMethod()) {
             case Constant.PILOT_ON:
-                LogUtil.log(TAG, "收到：遥控器是否开机" + jsonString);
+//                LogUtil.log(TAG, "收到：遥控器是否开机" + jsonString);
                 SystemManager.getInstance().checkRemoteControlPowerStatus(message);
                 break;
             case Constant.AIRCRAFT_ON:
-                LogUtil.log(TAG, "收到：飞机是否开机" + jsonString);
+//                LogUtil.log(TAG, "收到：飞机是否开机" + jsonString);
                 SystemManager.getInstance().checkAircraftPowerStatus(message);
                 break;
             case Constant.MEDIA_UPLOAD_COMPLETE:
@@ -201,11 +201,11 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.PHOTO_STORAGE_SET:
                 SystemManager.getInstance().checkRemoteControlPowerStatus(message);
-                LogUtil.log(TAG, "收到：负载控制—照片存储设置" + jsonString);
+//                LogUtil.log(TAG, "收到：负载控制—照片存储设置" + jsonString);
                 break;
             case Constant.VIDEO_STORAGE_SET:
                 SystemManager.getInstance().checkRemoteControlPowerStatus(message);
-                LogUtil.log(TAG, "收到：负载控制—视频存储设置" + jsonString);
+//                LogUtil.log(TAG, "收到：负载控制—视频存储设置" + jsonString);
                 break;
             case Constant.CAMERA_EXPOSURE_MODE_SET:
                 LogUtil.log(TAG, "收到：负载控制—相机曝光模式设置" + jsonString);

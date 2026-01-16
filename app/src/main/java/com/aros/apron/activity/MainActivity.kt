@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -29,6 +30,7 @@ import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.GimbalManager
+import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
 import com.aros.apron.manager.StickManager
@@ -42,8 +44,10 @@ import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
 import dji.sdk.keyvalue.key.CameraKey
+import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
+import dji.sdk.keyvalue.key.ProductKey
 import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
@@ -436,16 +440,8 @@ open class MainActivity : BaseActivity() {
         GeoidManager.getInstance().init(this)
         WPMZManager.getInstance().init(this)
         MqttManager.getInstance().needConnect()
-        KeyManager.getInstance().listen(
-            KeyTools.createKey(FlightControllerKey.KeyConnection),
-            this,
-            true
-        ) { _, newValue ->
-            newValue?.let { isConnected ->
-                if (isConnected) initDJIManager()
-            }
-        }
-        initCameraManager()
+
+        initDJIManager()
         initCameraStream()
         initView()
     }
@@ -561,62 +557,52 @@ open class MainActivity : BaseActivity() {
         DJINetworkManager.getInstance().removeNetworkStatusListener(networkStatusListener)
     }
 
-
+    private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
     private fun initDJIManager() {
-        LogUtil.log(TAG, "初始化$initTimes")
-            MissionV3Manager.getInstance().initMissionManager()
-//            RTKManager.getInstance().initRTKInfo()
-//            StreamManager.getInstance().initStreamManager()
-            FlightManager.getInstance().initFlightInfo()
-//            MissionManager.getInstance().initMissionManager()
-            BatteryManager.getInstance().initBatteryInfo()
-//            MediaManager.getInstance().init()
-//            LEDsSettingsManager.getInstance().initLEDsInfo()
-//            AlternateLandingManager.getInstance().initAlterLandingInfo()
-//            WayLineExecutingInterruptManager.getInstance().initWayLineExecutingInterruptInfo()
-//            CameraManager.getInstance().initCameraInfo()
-        StickManager.getInstance().initStickInfo()
-        GimbalManager.getInstance().initGimbalInfo()
-        AlternateLandingManager.getInstance().initAlterLandingInfo()
-//            RemoteManager.getInstance().initRemoteInfo()
-//            PayloadWidgetManager.getInstance().initPayloadInfo()
-//            NavigationSatelliteSystemManager.getInstance().initNavigationSatelliteSystem()
-//            NavigationSatelliteSystemManager.getInstance().setNavigationSatelliteSystem()
-        OSDManager.getInstance().initOsd()
-        //这里修改推流逻辑
-        if (PreferenceUtils.getInstance().customStreamType!=3) {
-            Handler().postDelayed(Runnable {
-                if (PreferenceUtils.getInstance().customStreamType==1){
-                    StreamManager.getInstance()
-                        .startLiveWithRTSP()
-                }else if (PreferenceUtils.getInstance().customStreamType==2){
-                    StreamManager.getInstance()
-                        .startLiveWithCustom()
-                }else{
-                    LogUtil.log(TAG,"推流方式配置有误")
-                }
-
-            }, 5000)
-        }
-    }
-    private val cameraHandler: Handler = Handler(Looper.getMainLooper())
-    private var initCameraTimes=0
-    private fun initCameraManager() {
-        val isConnect = KeyManager.getInstance()
-            .getValue(KeyTools.createKey(CameraKey.KeyConnection, ComponentIndexType.PORT_1))
-
-        if (isConnect == null || !isConnect) {
-            cameraHandler.postDelayed({
+        val isFlightControllerConnect =
+            KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
+        if (isFlightControllerConnect == null || !isFlightControllerConnect) {
+            handler.postDelayed({
                 initDJIManager()
             }, 1000)
         } else {
-            initCameraTimes++
-            LogUtil.log(TAG, "初始化相机$initCameraTimes")
+            initTimes++
+            LogUtil.log(TAG, "初始化$initTimes")
+            MissionV3Manager.getInstance().initMissionManager()
+            FlightManager.getInstance().initFlightInfo()
+            BatteryManager.getInstance().initBatteryInfo()
+            StickManager.getInstance().initStickInfo()
+            GimbalManager.getInstance().initGimbalInfo()
+            AlternateLandingManager.getInstance().initAlterLandingInfo()
+            OSDManager.getInstance().initOsd()
+            MediaManager.getInstance().init()
 
-            CameraManager.getInstance().initCameraInfo()
+            //这里修改推流逻辑
+            if (PreferenceUtils.getInstance().customStreamType!=3) {
+                Handler().postDelayed(Runnable {
+                    if (PreferenceUtils.getInstance().customStreamType==1){
+                        StreamManager.getInstance()
+                            .startLiveWithRTSP()
+                    }else if (PreferenceUtils.getInstance().customStreamType==2){
+                        StreamManager.getInstance()
+                            .startLiveWithCustom()
+                    }else{
+                        LogUtil.log(TAG,"推流方式配置有误")
+                    }
+
+                }, 5000)
+                //如果选择不默认推流，就从缓存里取上次的推流地址，开机就推流
+            }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
+                Handler().postDelayed(Runnable {
+                    StreamManager.getInstance()
+                        .startLiveWithCustom()
+                }, 5000)
+            }
+
         }
     }
+
 
 
     @SuppressLint("SuspiciousIndentation")

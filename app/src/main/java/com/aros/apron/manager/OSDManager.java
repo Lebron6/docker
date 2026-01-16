@@ -5,7 +5,6 @@ import static dji.sdk.keyvalue.key.KeyTools.createKey;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -29,24 +28,14 @@ import dji.v5.manager.KeyManager;
 public class OSDManager extends BaseManager {
 
 
-    private OSDManager() {
-    }
-
-    private static class OSDHolder {
-        private static final OSDManager INSTANCE = new OSDManager();
-    }
-
-    public static OSDManager getInstance() {
-        return OSDHolder.INSTANCE;
-    }
-
+    private static final long INTERVAL = 1000L;
+    private final Handler handler = new Handler(Looper.getMainLooper());
     Osd.Data._$5300 _5300 = new Osd.Data._$5300();
     Osd.Data data = new Osd.Data();
     Osd.Data.Battery battery = new Osd.Data.Battery();
     List<Osd.Data.Battery.Batteries> batteries = new ArrayList<>();
     Osd.Data.Battery.Batteries batterieA = new Osd.Data.Battery.Batteries();
     Osd.Data.Battery.Batteries batterieB = new Osd.Data.Battery.Batteries();
-
     List<Osd.Data.Cameras> cameras = new ArrayList<>();
     Osd.Data.Cameras cameraA = new Osd.Data.Cameras();
     Osd.Data.Cameras.IrMeteringPoint irMeteringPoint = new Osd.Data.Cameras.IrMeteringPoint();
@@ -55,6 +44,51 @@ public class OSDManager extends BaseManager {
     Osd.Data.PositionState positionState = new Osd.Data.PositionState();
     Osd.Data.Storage storage = new Osd.Data.Storage();
     Osd osd = Osd.getInstance();
+    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
+    Gson gson = new GsonBuilder()
+            .serializeSpecialFloatingPointValues() // 这是关键
+            .create();
+    private long lastExecuteTime = 0L;
+    private final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            long now = SystemClock.elapsedRealtime();
+
+            if (now - lastExecuteTime < INTERVAL) {
+                handler.postDelayed(this, INTERVAL - (now - lastExecuteTime));
+                return;
+            }
+
+            lastExecuteTime = now;
+
+            try {
+                pushFlightAttitude();
+
+                MqttMessage flightMessage =
+                        new MqttMessage(gson.toJson(osd).getBytes(StandardCharsets.UTF_8));
+                flightMessage.setQos(0);
+
+                publish(
+                        MqttManager.getInstance().mqttAndroidClient,
+                        AMSConfig.UP_UAV_EVENT,
+                        flightMessage
+                );
+
+            } catch (Exception e) {
+                LogUtil.log(TAG, "推送OSD异常: " + e);
+            }
+
+            // 始终基于“实际执行时间”来调度
+            handler.postDelayed(this, INTERVAL);
+        }
+    };
+
+    private OSDManager() {
+    }
+
+    public static OSDManager getInstance() {
+        return OSDHolder.INSTANCE;
+    }
 
     public void initOsd() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
@@ -64,7 +98,6 @@ public class OSDManager extends BaseManager {
             LogUtil.log(TAG, "初始化飞控osd失败" + "flight controller is null");
         }
     }
-
 
     private void pushFlightAttitude() {
         if (batteries != null && batteries.size() > 0) {
@@ -109,31 +142,31 @@ public class OSDManager extends BaseManager {
         batterieA.setTemperature(Movement.getInstance().getBattery_a_temperature());
         batterieA.setSub_type(Movement.getInstance().getBattery_a_sub_type());
         batterieA.setVoltage(Movement.getInstance().getBattery_a_voltage());
-if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
-    batterieB.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
-    batterieB.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());
-    batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_a_high_voltage_storage_days());
-    batterieB.setIndex(1);
-    batterieB.setLoop_times(Movement.getInstance().getBattery_a_loop_times());
-    batterieB.setSn(Movement.getInstance().getBattery_a_battery_sn());
-    batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
-    batterieB.setType(Movement.getInstance().getBattery_a_type());
-    batterieB.setTemperature(Movement.getInstance().getBattery_a_temperature());
-    batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
-    batterieB.setVoltage(Movement.getInstance().getBattery_a_voltage());
-} else {
-    batterieB.setCapacity_percent(Movement.getInstance().getBattery_b_capacity_percent());
-    batterieB.setFirmware_version(Movement.getInstance().getBattery_b_battery_firmware_version());
-    batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_b_high_voltage_storage_days());
-    batterieB.setIndex(1);
-    batterieB.setLoop_times(Movement.getInstance().getBattery_b_loop_times());
-    batterieB.setSn(Movement.getInstance().getBattery_b_battery_sn());
-    batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
-    batterieB.setType(Movement.getInstance().getBattery_b_type());
-    batterieB.setTemperature(Movement.getInstance().getBattery_b_temperature());
-    batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
-    batterieB.setVoltage(Movement.getInstance().getBattery_b_voltage());
-}
+        if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
+            batterieB.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
+            batterieB.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());
+            batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_a_high_voltage_storage_days());
+            batterieB.setIndex(1);
+            batterieB.setLoop_times(Movement.getInstance().getBattery_a_loop_times());
+            batterieB.setSn(Movement.getInstance().getBattery_a_battery_sn());
+            batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
+            batterieB.setType(Movement.getInstance().getBattery_a_type());
+            batterieB.setTemperature(Movement.getInstance().getBattery_a_temperature());
+            batterieB.setSub_type(Movement.getInstance().getBattery_a_sub_type());
+            batterieB.setVoltage(Movement.getInstance().getBattery_a_voltage());
+        } else {
+            batterieB.setCapacity_percent(Movement.getInstance().getBattery_b_capacity_percent());
+            batterieB.setFirmware_version(Movement.getInstance().getBattery_b_battery_firmware_version());
+            batterieB.setHigh_voltage_storage_days(Movement.getInstance().getBattery_b_high_voltage_storage_days());
+            batterieB.setIndex(1);
+            batterieB.setLoop_times(Movement.getInstance().getBattery_b_loop_times());
+            batterieB.setSn(Movement.getInstance().getBattery_b_battery_sn());
+            batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
+            batterieB.setType(Movement.getInstance().getBattery_b_type());
+            batterieB.setTemperature(Movement.getInstance().getBattery_b_temperature());
+            batterieB.setSub_type(Movement.getInstance().getBattery_b_sub_type());
+            batterieB.setVoltage(Movement.getInstance().getBattery_b_voltage());
+        }
 
         batteries.add(batterieA);
         batteries.add(batterieB);
@@ -225,6 +258,9 @@ if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
         data.setVertical_speed(Movement.getInstance().getVertical_speed());
         data.setWind_direction(Movement.getInstance().getWind_direction());
         data.setWind_speed(Movement.getInstance().getWind_speed());
+        data.setHomepoint_latitude(Movement.getInstance().getHomepoint_latitude());
+        data.setHomepoint_longitude(Movement.getInstance().getHomepoint_longitude());
+        data.setRtk_takeoff_altitude(Movement.getInstance().getRtk_takeoff_altitude());
 
         osd.setTid(UUID.randomUUID().toString());
         osd.setBid(UUID.randomUUID().toString());
@@ -235,47 +271,7 @@ if (Movement.getInstance().getBattery_b_capacity_percent() == 0) {
         osd.setData(data);
     }
 
-    // 使用GsonBuilder配置Gson实例以允许序列化特殊浮点数值
-    Gson gson = new GsonBuilder()
-            .serializeSpecialFloatingPointValues() // 这是关键
-            .create();
-
-    private static final long INTERVAL = 1000L;
-
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private long lastExecuteTime = 0L;
-
-    private final Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            long now = SystemClock.elapsedRealtime();
-
-            if (now - lastExecuteTime < INTERVAL) {
-                handler.postDelayed(this, INTERVAL - (now - lastExecuteTime));
-                return;
-            }
-
-            lastExecuteTime = now;
-
-            try {
-                pushFlightAttitude();
-
-                MqttMessage flightMessage =
-                        new MqttMessage(gson.toJson(osd).getBytes(StandardCharsets.UTF_8));
-                flightMessage.setQos(0);
-
-                publish(
-                        MqttManager.getInstance().mqttAndroidClient,
-                        AMSConfig.UP_UAV_EVENT,
-                        flightMessage
-                );
-
-            } catch (Exception e) {
-                LogUtil.log(TAG, "推送OSD异常: " + e);
-            }
-
-            // 始终基于“实际执行时间”来调度
-            handler.postDelayed(this, INTERVAL);
-        }
-    };
+    private static class OSDHolder {
+        private static final OSDManager INSTANCE = new OSDManager();
+    }
 }

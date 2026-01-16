@@ -237,7 +237,7 @@ public class CameraManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable RecordingState recordingState, @Nullable RecordingState t1) {
                     if (t1 != null) {
-                        Movement.getInstance().setRecording_state(t1.value());
+                        Movement.getInstance().setRecording_state(t1.value()==0?0:1);
                     }
                 }
             });
@@ -252,8 +252,6 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
-
-
 
             //剩余录像时间
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.

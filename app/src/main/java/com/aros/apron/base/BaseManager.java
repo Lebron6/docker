@@ -77,20 +77,20 @@ public abstract class BaseManager {
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY, mqttMessage);
 
-                if (!entity.getMethod().equals(Constant.AIRCRAFT_ON)){
-                    //这里通过event事件上报执行动作失败
-                    mainHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-                            } catch (MqttException e) {
-                                throw new RuntimeException(e);
-                            }
-
-                        }
-                    },500);
-                }
+//                if (!entity.getMethod().equals(Constant.AIRCRAFT_ON)){
+//                    //这里通过event事件上报执行动作失败
+//                    mainHandler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+//                            } catch (MqttException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//
+//                        }
+//                    },500);
+//                }
 
             } else {
                 LogUtil.log(TAG, "回复失败：mqtt 未连接");
@@ -179,7 +179,7 @@ public abstract class BaseManager {
         LogUtil.log(TAG,"发送媒体上传完成事件:"+fileName);
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-                MediaUpLoad mediaUpLoad = MediaUpLoad.getInstance();
+                MediaUpLoad mediaUpLoad = new MediaUpLoad();
                 mediaUpLoad.setBid(UUID.randomUUID().toString());
                 mediaUpLoad.setTid(UUID.randomUUID().toString());
                 mediaUpLoad.setTimestamp(System.currentTimeMillis());
@@ -193,7 +193,7 @@ public abstract class BaseManager {
                 data.setExpected_file_count(expected_file_count);
                 mediaUpLoad.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(mediaUpLoad).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
+                mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
                 LogUtil.log(TAG, "发送媒体event失败：mqtt 未连接");
@@ -216,7 +216,6 @@ public abstract class BaseManager {
      * 发送航线任务进度
      */
     public void sendFlightTaskProgress2Server() {
-        LogUtil.log(TAG,"发送任务进度事件事件:"+new Gson().toJson(flightTaskProgress));
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 breakPoint.setAttitude_head(Movement.getInstance().getTask_attitude_head());
@@ -241,12 +240,15 @@ public abstract class BaseManager {
 
                 ext.setBreak_point(breakPoint);
                 output.setExt(ext);
+                if (Movement.getInstance().isMissionFinish()){
+                    output.setStatus("ok");
+                }else{
+                    output.setStatus("in_progress");
+                }
                 data.setOutput(output);
-//                if (CurrentWayline.getInstance().getWaypoints()!=null
-//                        &&CurrentWayline.getInstance().getWaypoints().size()>0){
-//                }
-//                if (Movement.getInstance().getCurrentWaypointIndex())
-//                data.setResult("ok");
+                if (CurrentWayline.getInstance().getWaypoints()!=null
+                        &&CurrentWayline.getInstance().getWaypoints().size()>0){
+                }
 
                 flightTaskProgress.setTid(UUID.randomUUID().toString());
                 flightTaskProgress.setBid(UUID.randomUUID().toString());
@@ -256,6 +258,8 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                LogUtil.log(TAG,"发送任务进度事件:"+new Gson().toJson(flightTaskProgress));
+
             } else {
                 LogUtil.log(TAG, "发送任务进度event失败：mqtt 未连接");
             }

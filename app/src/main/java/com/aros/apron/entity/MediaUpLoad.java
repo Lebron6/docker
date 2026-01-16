@@ -2,16 +2,6 @@ package com.aros.apron.entity;
 
 public class MediaUpLoad {
 
-    private static class MediaHolder {
-        private static final MediaUpLoad INSTANCE = new MediaUpLoad();
-    }
-
-    private MediaUpLoad() {
-    }
-
-    public static final MediaUpLoad getInstance() {
-        return MediaHolder.INSTANCE;
-    }
 
     private String bid;
     private Data data;

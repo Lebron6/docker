@@ -187,13 +187,13 @@ sendMsg2Server(message);
                     ).build()).build();
             liveStreamManager.setLiveStreamSettings(streamSettings);
             CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
-            if (value != null && (value == CameraType.ZENMUSE_H20T ||
-                    value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
-                    || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
+//            if (value != null && (value == CameraType.ZENMUSE_H20T ||
+//                    value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
+//                    || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
                 liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-            } else {
-                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-            }
+//            } else {
+//                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+//            }
             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
             liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
             if (!liveStreamManager.isStreaming()) {
@@ -249,13 +249,13 @@ sendMsg2Server(message);
 
                 liveStreamManager.setLiveStreamSettings(streamSettings);
                 CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
-                if (value != null && (value == CameraType.ZENMUSE_H20T ||
-                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
-                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
+//                if (value != null && (value == CameraType.ZENMUSE_H20T ||
+//                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
+//                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
                     liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-                } else {
-                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-                }
+//                } else {
+//                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+//                }
                 liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
                 liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
                 if (!liveStreamManager.isStreaming()) {
