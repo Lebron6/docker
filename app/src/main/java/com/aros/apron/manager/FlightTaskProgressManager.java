@@ -5,14 +5,9 @@ import static dji.sdk.keyvalue.key.KeyTools.createKey;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.entity.FlightTaskProgress;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.manager.KeyManager;
 

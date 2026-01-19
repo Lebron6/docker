@@ -53,6 +53,7 @@ public class StickManager extends BaseManager {
 
     //取消虚拟摇杆控制权
     public void enableVirtualStick(MessageDown message) {
+        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
         VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
@@ -173,7 +174,6 @@ public class StickManager extends BaseManager {
 //
     }
 
-    VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
     public void sendVirtualStickAdvancedParam(MessageDown message) {
@@ -187,26 +187,29 @@ public class StickManager extends BaseManager {
                 LogUtil.log(TAG,"飞机未起飞:禁止手控");
                 return;
             }
-            if (param == null) {
-                param = new VirtualStickFlightControlParam();
+            VirtualStickFlightControlParam param = new VirtualStickFlightControlParam();
                 param.setRollPitchControlMode(RollPitchControlMode.VELOCITY);//
                 param.setYawControlMode(YawControlMode.ANGULAR_VELOCITY);
                 param.setVerticalControlMode(VerticalControlMode.VELOCITY);
                 param.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
-            }
+
             if (!TextUtils.isEmpty(message.getData().getY())){
                 param.setPitch(Double.valueOf(message.getData().getY()));//左右(速度模式-10m/s-10m/s)
             }
             if (!TextUtils.isEmpty(message.getData().getX())){
                 param.setRoll(Double.valueOf(message.getData().getX()));//前后(速度模式-10m/s-10m/s)
+
             }
             if (!TextUtils.isEmpty(message.getData().getW())){
                 param.setYaw(Double.valueOf(message.getData().getW()));//旋转(角速度模式-100-100)
+
             }
             if (!TextUtils.isEmpty(message.getData().getH())){
                 param.setVerticalThrottle(Double.valueOf(message.getData().getH()));//上下(速度模式-4m/s-4m/s)
+
             }
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
+
             Movement.getInstance().setVirtualStickEnableReason(3);
 //            sendMsg2Server( message, "移动...");
         }

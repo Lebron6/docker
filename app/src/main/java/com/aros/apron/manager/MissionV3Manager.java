@@ -100,6 +100,7 @@ public class MissionV3Manager extends BaseManager {
                                 Movement.getInstance().setWaylineCanResume(false);
                                 sendEvent2Server("任务状态:此机型不支持航线任务3.0");
                                 Movement.getInstance().setTask_status("rejected");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case READY:
@@ -111,7 +112,6 @@ public class MissionV3Manager extends BaseManager {
                                     Movement.getInstance().setWaylineCanResume(false);
                                 }
                                 sendEvent2Server("任务状态:准备中");
-
                                 break;
                             case UPLOADING:
                                 Movement.getInstance().setAirlineFlight(false);
@@ -124,6 +124,7 @@ public class MissionV3Manager extends BaseManager {
                                 sendEvent2Server("任务状态:上传中");
                                 Movement.getInstance().setVirtualStickQuitMission(false);
                                 Movement.getInstance().setTask_status("sent");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case PREPARING:
@@ -137,6 +138,7 @@ public class MissionV3Manager extends BaseManager {
                                 sendEvent2Server("任务状态:执行准备中");
                                 Movement.getInstance().setVirtualStickQuitMission(false);
                                 Movement.getInstance().setTask_status("in_progress");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case ENTER_WAYLINE:
@@ -152,6 +154,7 @@ public class MissionV3Manager extends BaseManager {
                                 sendEvent2Server("任务状态:进入航线飞行,飞往指定航线的第一个航点");
                                 sendFlightTaskProgress2Server();
                                 Movement.getInstance().setTask_status("in_progress");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case EXECUTING:
@@ -165,6 +168,7 @@ public class MissionV3Manager extends BaseManager {
                                 }
                                 Movement.getInstance().setVirtualStickQuitMission(false);
                                 Movement.getInstance().setTask_status("in_progress");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case INTERRUPTED:
@@ -173,6 +177,7 @@ public class MissionV3Manager extends BaseManager {
                                 Movement.getInstance().setVirtualStickQuitMission(false);
                                 sendEvent2Server("任务状态:航线任务执行中断");
                                 Movement.getInstance().setTask_status("paused");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case RECOVERING:
@@ -181,6 +186,7 @@ public class MissionV3Manager extends BaseManager {
                                 Movement.getInstance().setVirtualStickQuitMission(false);
                                 sendEvent2Server("任务状态:航线任务恢复中");
                                 Movement.getInstance().setTask_status("in_progress");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case FINISHED:
@@ -206,6 +212,7 @@ public class MissionV3Manager extends BaseManager {
                             case RETURN_TO_START_POINT:
                                 Movement.getInstance().setAirlineFlight(true);
                                 Movement.getInstance().setTask_status("in_progress");
+                                Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                         }
@@ -562,7 +569,6 @@ public class MissionV3Manager extends BaseManager {
                     Movement.getInstance().setTask_current_step(23);
                     sendFlightTaskProgress2Server();
                     Movement.getInstance().setMode_code(5);
-
                 }
 
                 @Override
@@ -623,7 +629,7 @@ public class MissionV3Manager extends BaseManager {
                 @Override
                 public void onSuccess() {
                     sendMsg2Server(message);
-                    Movement.getInstance().setTask_status("pause");
+                    Movement.getInstance().setTask_status("paused");
                     sendFlightTaskProgress2Server();
 
                 }

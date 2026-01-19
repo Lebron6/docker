@@ -182,7 +182,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.CAMERA_SCREEN_DRAG:
                 LogUtil.log(TAG, "收到：负载控制—画面拖动控制" + jsonString);
-
+GimbalManager.getInstance().
                 break;
             case Constant.CAMERA_AIM:
                 LogUtil.log(TAG, "收到：负载控制—双击成为 AIM" + jsonString);
