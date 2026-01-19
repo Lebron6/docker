@@ -42,6 +42,7 @@ import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
 import dji.sdk.keyvalue.value.common.Velocity3D;
+import dji.sdk.keyvalue.value.flightcontroller.FCFlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
@@ -386,12 +387,49 @@ public class FlightManager extends BaseManager {
                             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
 
                         }
-                        Movement.getInstance().setMode_code(newValue.value());
                         Movement.getInstance().setPlaneMode(newValue.name());
                         pushFlightAttitude();
+
+                      switch (newValue){
+                          case VIRTUAL_STICK:
+                              Movement.getInstance().setMode_code(3);
+                              break;
+                          case AUTO_TAKE_OFF:
+                              Movement.getInstance().setMode_code(4);
+                              break;
+                          case WAYPOINT:
+                              Movement.getInstance().setMode_code(5);
+                              break;
+                          case PANO:
+                              Movement.getInstance().setMode_code(6);
+                              break;
+                          case SMART_FLY:
+                              Movement.getInstance().setMode_code(7);
+                              break;
+                          case AUTO_AVOIDANCE:
+                              Movement.getInstance().setMode_code(8);
+                              break;
+                          case GO_HOME:
+                              Movement.getInstance().setMode_code(9);
+                              break;
+                          case AUTO_LANDING:
+                              Movement.getInstance().setMode_code(10);
+                              break;
+                          case FORCE_LANDING:
+                              Movement.getInstance().setMode_code(11);
+                              break;
+                          case POI:
+                              Movement.getInstance().setMode_code(20);
+                              break;
+                          default:
+                              Movement.getInstance().setMode_code(4);
+                              break;
+
+                      }
                     }
                 }
             });
+
 
 
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftAttitude), this, new CommonCallbacks.KeyListener<Attitude>() {
@@ -805,7 +843,7 @@ public class FlightManager extends BaseManager {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         boolean isDistanceAndHeightValid = distance < DISTANCE_THRESHOLD &&
                 flyingHeight > FLYING_HEIGHT_THRESHOLD && !sendOpenCabinDoorMsg;
-//        LogUtil.log(TAG,"开门触发条件:"+"goHomeExecutionState:"+goHomeExecutionState
+//        LogUtil.logA(TAG,"开门触发条件:"+"goHomeExecutionState:"+goHomeExecutionState
 //                +"distance:"+distance+"flyingHeight:"+Movement.getInstance().getElevation()
 //        +"isDebugMode:"+PreferenceUtils.getInstance().getIsDebugMode()
 //        +"sendOpenCabinDoorMsg:"+sendOpenCabinDoorMsg);
@@ -1009,7 +1047,9 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             Movement.getInstance().setMissionFinish(true);
-            sendFlightTaskProgress2Server();
+            Movement.getInstance().setTask_current_step(25);
+
+            sendOpenCabinDoorMsg=false;
         }
     }
 
@@ -1141,5 +1181,83 @@ public class FlightManager extends BaseManager {
             sendFailMsg2Server( message, "飞控未连接");
         }
     }
+
+    /**
+     * 紧急悬停
+     */
+    public void emergencyHover(MessageDown message) {
+        FlightMode flightMode = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyFlightMode));
+        if (flightMode != null) {
+            switch (flightMode) {
+                case GO_HOME:
+                    KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            LogUtil.log(TAG, "紧急悬停，取消返航成功");
+                            sendMsg2Server( message);
+                            resetAircrftLandingStatus();
+
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendFailMsg2Server( message, "紧急悬停，取消返航失败:" + getIDJIErrorMsg(error));
+                        }
+                    });
+                    break;
+                case WAYPOINT:
+                    IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+                    missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
+                            ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "紧急悬停，终止任务成功");
+                            sendMsg2Server( message);
+                            resetAircrftLandingStatus();
+
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendFailMsg2Server( message, "紧急悬停，终止任务失败:" + getIDJIErrorMsg(error));
+                        }
+                    });
+                    break;
+                case AUTO_LANDING:
+                    KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server( message);
+                            resetAircrftLandingStatus();
+
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "紧急悬停，取消降落失败:" + new Gson().toJson(error));
+                            sendFailMsg2Server( message, "紧急悬停，取消降落失败:" + getIDJIErrorMsg(error));
+                        }
+                    });
+                    break;
+                case VIRTUAL_STICK:
+                    VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            LogUtil.log(TAG, "紧急悬停，控制权释放成功");
+                            sendMsg2Server( message);
+                            resetAircrftLandingStatus();
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "紧急悬停，控制权释放失败:" + new Gson().toJson(error));
+                            sendFailMsg2Server( message, "紧急悬停，控制权失败:" + getIDJIErrorMsg(error));
+                        }
+                    });
+                    break;
+            }
+        }
+    }
+
 
 }

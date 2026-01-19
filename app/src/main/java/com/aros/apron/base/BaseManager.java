@@ -2,6 +2,7 @@ package com.aros.apron.base;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
@@ -205,19 +206,19 @@ public abstract class BaseManager {
     }
 
 
-    FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint = new FlightTaskProgress.Data.Output.Ext.BreakPoint();
-    FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
-    FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
 
-    FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
-    FlightTaskProgress.Data data = new FlightTaskProgress.Data();
-    FlightTaskProgress flightTaskProgress = FlightTaskProgress.getInstance();
     /**
      * 发送航线任务进度
      */
     public void sendFlightTaskProgress2Server() {
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint = new FlightTaskProgress.Data.Output.Ext.BreakPoint();
+                FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
+                FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
+
+                FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
+                FlightTaskProgress.Data data = new FlightTaskProgress.Data();
                 breakPoint.setAttitude_head(Movement.getInstance().getTask_attitude_head());
                 breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
                 breakPoint.setHeight(Movement.getInstance().getTask_height());
@@ -235,20 +236,26 @@ public abstract class BaseManager {
                 ext.setWayline_id(Movement.getInstance().getTask_wayline_id());
                 ext.setWayline_mission_state(Movement.getInstance().getTask_wayline_mission_state());
 
-                progress.setPercent(Movement.getInstance().getTask_percent());
+                if (CurrentWayline.getInstance().getWaypoints()!=null
+                        &&CurrentWayline.getInstance().getWaypoints().size()>0
+                        &&Movement.getInstance().getTask_wayline_mission_state()==6){
+                    progress.setPercent((100 * (Movement.getInstance().getCurrentWaypointIndex()+ 1)
+                            / CurrentWayline.getInstance().getWaypoints().size()));
+                }
                 progress.setCurrent_step(Movement.getInstance().getTask_current_step());
 
                 ext.setBreak_point(breakPoint);
                 output.setExt(ext);
+                output.setProgress(progress);
                 if (Movement.getInstance().isMissionFinish()){
                     output.setStatus("ok");
                 }else{
-                    output.setStatus("in_progress");
+                    output.setStatus(Movement.getInstance().getTask_status());
                 }
+                data.setResult(0);
                 data.setOutput(output);
-                if (CurrentWayline.getInstance().getWaypoints()!=null
-                        &&CurrentWayline.getInstance().getWaypoints().size()>0){
-                }
+
+                FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
 
                 flightTaskProgress.setTid(UUID.randomUUID().toString());
                 flightTaskProgress.setBid(UUID.randomUUID().toString());

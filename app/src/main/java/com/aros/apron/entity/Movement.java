@@ -49,7 +49,6 @@ public class Movement {
     private String flightId;//航线id
     private String waypointMissionExecuteState;//航线执行状态
     private boolean airlineFlight;//是否航线飞行
-    private int flightPathStatus;//航线状态航线状态 （0 航线飞行中 1 航线暂停中 2航线已终止）
     private String waylineExecutingInterruptReason;//航线暂停原因
     private int goHomeState;//返航执行状态  0未触发返航 1返航中 2返航下降中 3返航完成
     private int returnHomePower;//返航电量所需百分比
@@ -249,6 +248,7 @@ public class Movement {
     private double task_longitude;
     private double task_progress;
     private int task_state;
+    private String task_status;
     private int task_wayline_id;
 
     private int task_current_waypoint_index;
@@ -260,6 +260,14 @@ public class Movement {
 
     private int task_current_step;
     private int task_percent;
+
+    public String getTask_status() {
+        return task_status;
+    }
+
+    public void setTask_status(String task_status) {
+        this.task_status = task_status;
+    }
 
     public boolean isMissionFinish() {
         return isMissionFinish;
@@ -2007,14 +2015,6 @@ public class Movement {
 
     public void setAngleYaw(int angleYaw) {
         this.angleYaw = angleYaw;
-    }
-
-    public int getFlightPathStatus() {
-        return flightPathStatus;
-    }
-
-    public void setFlightPathStatus(int flightPathStatus) {
-        this.flightPathStatus = flightPathStatus;
     }
 
     public String getWarningMessage() {

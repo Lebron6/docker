@@ -14,10 +14,10 @@ import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.Utils;
-import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.RollPitchControlMode;
@@ -46,9 +46,31 @@ public class StickManager extends BaseManager {
 
     public void initStickInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-        if (isConnect!=null&&isConnect) {
+        if (isConnect != null && isConnect) {
             VirtualStickManager.getInstance().setVirtualStickStateListener(new MVirtualStickStateListener());
         }
+    }
+
+    //取消虚拟摇杆控制权
+    public void enableVirtualStick(MessageDown message) {
+        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onSuccess() {
+                if (message != null) {
+                    sendMsg2Server(message);
+                }
+                LogUtil.log(TAG, "控制权获取成功");
+                VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError error) {
+                if (message != null) {
+                    sendFailMsg2Server(message, "控制权获取失败:" + Utils.getIDJIErrorMsg(error));
+                }
+            }
+        });
     }
 
     //取消虚拟摇杆控制权
@@ -56,7 +78,7 @@ public class StickManager extends BaseManager {
         VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onSuccess() {
-                if (message!=null){
+                if (message != null) {
                     sendMsg2Server(message);
                 }
                 LogUtil.log(TAG, "控制权已取消");
@@ -77,10 +99,20 @@ public class StickManager extends BaseManager {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
+            LogUtil.log(TAG, "控制权抢夺当前飞机状态:" + flightMode.name());
             if (flightMode != null) {
                 switch (flightMode) {
                     case GO_HOME:
-                        sendFailMsg2Server( message, "返航时无法手控");
+                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                            @Override
+                            public void onSuccess(EmptyMsg emptyMsg) {
+                                sendMsg2Server(message);
+                            }
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendFailMsg2Server(message, "取消返航执行失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
                         break;
                     case WAYPOINT:
                         IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
@@ -109,92 +141,44 @@ public class StickManager extends BaseManager {
                                     }
                                 }, 400);
                             }
+
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                sendFailMsg2Server( message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
+                                sendFailMsg2Server(message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
                             }
                         });
                         break;
                     case AUTO_LANDING:
-                        sendFailMsg2Server( message, "降落时无法手控");
-                        break;
-                    case VIRTUAL_STICK:
-                        sendFailMsg2Server( message, "已获取控制权,无需重复获取");
-                        break;
-                    default:
-                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                             @Override
-                            public void onSuccess() {
-                                sendMsg2Server( message);
-                                Movement.getInstance().setWaylineCanResume(true);
-                                Movement.getInstance().setVirtualStickEnableReason(3);
+                            public void onSuccess(EmptyMsg emptyMsg) {
+                                sendMsg2Server(message);
                             }
 
                             @Override
                             public void onFailure(@NonNull IDJIError error) {
-                                LogUtil.log(TAG, "控制权设置失败:" + error.description());
-                                sendFailMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
+                                sendFailMsg2Server(message, "取消降落执行失败:" + getIDJIErrorMsg(error));
                             }
                         });
-                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+                        break;
+                    case VIRTUAL_STICK:
+                        sendFailMsg2Server(message, "已获取控制权,无需重复获取");
+                        break;
+                    default:
+                        sendMsg2Server(message);
                         break;
                 }
             }
         }
 //
     }
-//
-//    //设置虚拟摇杆控制权
-//    public void setVirtualStickModeDisable(MQMessage message) {
-//        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-//        if (isConnect != null && isConnect) {
-//            VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
-//                @Override
-//                public void onSuccess() {
-//                    sendMsg2Server( message);
-//                    LogUtil.log(TAG,"控制权取消成功");
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"控制权取消失败:"+new Gson().toJson(error));
-//                    sendMsg2Server( message, "控制权取消失败:" + getIDJIErrorMsg(error));
-//                }
-//            });
-//
-//        } else {
-//            sendMsg2Server( message, "飞控未连接");
-//        }
-//    }
-//
-    //参数
-    //模式
-    //数值限制
-    //x
-    //速度模式
-    //[-10 m/s, +10 m/s] 超过最大值，仍按最大值运动
-    //角度模式
-    //[-30°, +30 °]
-    //y
-    //速度模式
-    //[-10 m/s, +10 m/s] 超过最大值，仍按最大值运动
-    //角度模式
-    //[-30°, +30 °]
-    //z
-    //速度模式
-    //[-4 m/s, +4 m/s] 超过最大值，仍按最大值运动
-    //位置模式
-    //[0m, 100m]
-    //yaw
-    //角度模式
-    //[-180°, +180 °]
-    //角速度模式
-    //[-100°/s, +100 °/s]
+
     VirtualStickFlightControlParam param;
 
     //飞行器虚拟摇杆
     public void sendVirtualStickAdvancedParam(MessageDown message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+        Boolean isConnect = KeyManager.getInstance().getValue(
+                KeyTools.createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect ) {
             if (!getGimbalAndCameraEnabled()){
                 return;
@@ -210,17 +194,25 @@ public class StickManager extends BaseManager {
                 param.setVerticalControlMode(VerticalControlMode.VELOCITY);
                 param.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
             }
-            param.setPitch(Double.valueOf(message.getData().getY()));//左右(速度模式-10m/s-10m/s)
-            param.setRoll(Double.valueOf(message.getData().getX()));//前后(速度模式-10m/s-10m/s)
-            param.setYaw(Double.valueOf(message.getData().getW()));//旋转(角速度模式-100-100)
-            param.setVerticalThrottle(message.getData().getH());//上下(速度模式-4m/s-4m/s)
+            if (!TextUtils.isEmpty(message.getData().getY())){
+                param.setPitch(Double.valueOf(message.getData().getY()));//左右(速度模式-10m/s-10m/s)
+            }
+            if (!TextUtils.isEmpty(message.getData().getX())){
+                param.setRoll(Double.valueOf(message.getData().getX()));//前后(速度模式-10m/s-10m/s)
+            }
+            if (!TextUtils.isEmpty(message.getData().getW())){
+                param.setYaw(Double.valueOf(message.getData().getW()));//旋转(角速度模式-100-100)
+            }
+            if (!TextUtils.isEmpty(message.getData().getH())){
+                param.setVerticalThrottle(Double.valueOf(message.getData().getH()));//上下(速度模式-4m/s-4m/s)
+            }
             VirtualStickManager.getInstance().sendVirtualStickAdvancedParam(param);
             Movement.getInstance().setVirtualStickEnableReason(3);
-
 //            sendMsg2Server( message, "移动...");
-        } else {
-            sendFailMsg2Server( message, "飞控未连接");
         }
+//        else {
+//            sendFailMsg2Server( message, "飞控未连接");
+//        }
     }
 //
 //

@@ -9,4 +9,8 @@ public class LogUtil {
         Log.e(tag,content);
         XcFileLog.getInstace().i(tag,content);
     }
+    public static void logA(String tag,String content){
+//        Log.e(tag,content);
+        XcFileLog.getInstace().i(tag,content);
+    }
 }

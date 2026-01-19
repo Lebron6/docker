@@ -2,16 +2,6 @@ package com.aros.apron.entity;
 
 public class FlightTaskProgress {
 
-    private static class TaskHolder {
-        private static final FlightTaskProgress INSTANCE = new FlightTaskProgress();
-    }
-
-    private FlightTaskProgress() {
-    }
-
-    public static final FlightTaskProgress getInstance() {
-        return TaskHolder.INSTANCE;
-    }
 
     private String bid;
     private Data data;
@@ -61,7 +51,7 @@ public class FlightTaskProgress {
 
     public static class Data {
         private Output output;
-        private String result;
+        private int result;
 
         public Output getOutput() {
             return output;
@@ -71,11 +61,11 @@ public class FlightTaskProgress {
             this.output = output;
         }
 
-        public String getResult() {
+        public int getResult() {
             return result;
         }
 
-        public void setResult(String result) {
+        public void setResult(int result) {
             this.result = result;
         }
 

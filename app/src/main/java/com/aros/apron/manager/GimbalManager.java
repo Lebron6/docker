@@ -36,6 +36,7 @@ public class GimbalManager extends BaseManager {
 
     public void initGimbalInfo() {
         ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getCameraLocationType() == 2);
+        LogUtil.log(TAG,"主摄像头位置:"+PreferenceUtils.getInstance().getCameraLocationType());
         Boolean gimBalIsConnect = KeyManager.getInstance().getValue(createKey(GimbalKey.KeyConnection, ComponentIndexType.PORT_1));
         if (gimBalIsConnect != null && gimBalIsConnect) {
             KeyManager.getInstance().listen(createKey(GimbalKey.KeyGimbalAttitude,  ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<Attitude>() {

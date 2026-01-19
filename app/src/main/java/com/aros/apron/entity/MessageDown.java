@@ -68,53 +68,85 @@ public class MessageDown {
         private boolean takeoffToPointTask;
         private BreakPoint break_point;
         private int camera_mode;
-        private double h;
-        private int seq;
-        private double w;
-        private double x;
-        private double y;
+        private String h;
+        private String seq;
+        private String w;
+        //摇杆和云台
+        private String x;
+        private String y;
+
+        private String camera_type;
+        private boolean locked;
+        private String payload_index;
 
 
+        public String getCamera_type() {
+            return camera_type;
+        }
 
-        public double getH() {
+        public void setCamera_type(String camera_type) {
+            this.camera_type = camera_type;
+        }
+
+        public boolean isLocked() {
+            return locked;
+        }
+
+        public void setLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        public String getPayload_index() {
+            return payload_index;
+        }
+
+        public void setPayload_index(String payload_index) {
+            this.payload_index = payload_index;
+        }
+
+
+        public String getH() {
             return h;
         }
 
-        public void setH(double h) {
+        public void setH(String h) {
             this.h = h;
         }
 
-        public int getSeq() {
+        public String getSeq() {
             return seq;
         }
 
-        public void setSeq(int seq) {
+        public void setSeq(String seq) {
             this.seq = seq;
         }
 
-        public double getW() {
+        public String getW() {
             return w;
         }
 
-        public void setW(double w) {
+        public void setW(String w) {
             this.w = w;
         }
 
-        public double getX() {
+        public String getX() {
             return x;
         }
 
-        public void setX(double x) {
+        public void setX(String x) {
             this.x = x;
         }
 
-        public double getY() {
+        public String getY() {
             return y;
         }
 
-        public void setY(double y) {
+        public void setY(String y) {
             this.y = y;
         }
+
+
+
 
         public int getCamera_mode() {
             return camera_mode;

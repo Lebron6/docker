@@ -29,7 +29,9 @@ import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
+import com.aros.apron.manager.FlightTaskProgressManager
 import com.aros.apron.manager.GimbalManager
+import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
@@ -576,7 +578,10 @@ open class MainActivity : BaseActivity() {
             GimbalManager.getInstance().initGimbalInfo()
             AlternateLandingManager.getInstance().initAlterLandingInfo()
             OSDManager.getInstance().initOsd()
+            FlightTaskProgressManager.getInstance().initFlightTaskProgress()
             MediaManager.getInstance().init()
+            StreamManager.getInstance().initStreamManager()
+            LEDsSettingsManager.getInstance().initLEDsInfo()
 
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {

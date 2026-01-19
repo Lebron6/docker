@@ -3,6 +3,8 @@ package com.aros.apron.manager;
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -30,9 +32,11 @@ import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.LaserMeasureInformation;
 import dji.sdk.keyvalue.value.camera.PhotoState;
 import dji.sdk.keyvalue.value.camera.RecordingState;
+import dji.sdk.keyvalue.value.camera.TapZoomMode;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalGainMode;
 import dji.sdk.keyvalue.value.camera.ThermalTemperatureMeasureMode;
+import dji.sdk.keyvalue.value.camera.ZoomTargetPointInfo;
 import dji.sdk.keyvalue.value.common.CameraLensType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.DoublePoint2D;
@@ -991,125 +995,51 @@ public void setCameraMode(MessageDown message) {
 //    }
 //}
 //
-//    //指点对焦
-//    public void tapZoomAtTarget(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//
-//            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomEnable,
-//                            ComponentIndexType.PORT_1,CameraLensType.CAMERA_LENS_ZOOM), true, new CommonCallbacks.CompletionCallback() {
-//                @Override
-//                public void onSuccess() {
-//                    LogUtil.log(TAG,"设置使能指点成功");
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"设置使能指点失败:"+new Gson().toJson(error));
-//                    sendMsg2Server(message, "设置使能指点失败:" + getIDJIErrorMsg(error));                            }
-//            });
-//
-//            //默认视频源
-//            CameraVideoStreamSourceType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                    KeyCameraVideoStreamSource,ComponentIndexType.PORT_1));
-//            ZoomTargetPointInfo zoomTargetPointInfo=new ZoomTargetPointInfo();
-//            zoomTargetPointInfo.setX(message.getZoomTargetX());
-//            zoomTargetPointInfo.setY(message.getZoomTargetY());
-//            zoomTargetPointInfo.setTapZoomModeEnable(true);
-//            zoomTargetPointInfo.setMode(TapZoomMode.GIMBAL_FOLLOW);
-//            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
-//                    ComponentIndexType.PORT_1,
-//                    CameraLensType.CAMERA_LENS_ZOOM),zoomTargetPointInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-//                @Override
-//                public void onSuccess(EmptyMsg emptyMsg) {
-//                    sendMsg2Server(message);
-//                    new Handler().postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            if (message.getZoom()!=0||message.getZoom()>0&&value!=null){
-//                                switch (value.value()){
-//                                    case 0|1:
-//
-//                                        KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource,
-//                                                ComponentIndexType.PORT_1), CameraVideoStreamSourceType.ZOOM_CAMERA, new CommonCallbacks.CompletionCallback() {
-//                                            @Override
-//                                            public void onSuccess() {
-//                                                new Handler().postDelayed(new Runnable() {
-//                                                    @Override
-//                                                    public void run() {
-//                                                        KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-//                                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
-//                                                            @Override
-//                                                            public void onSuccess() {
-//                                                                sendMsg2Server(message);
-//                                                            }
-//
-//                                                            @Override
-//                                                            public void onFailure(@NonNull IDJIError error) {
-//                                                                LogUtil.log(TAG,"指点变焦失败:"+new Gson().toJson(error));
-//                                                                sendMsg2Server(message, "指点变焦失败:" + getIDJIErrorMsg(error));
-//                                                            }
-//                                                        });
-//                                                    }
-//                                                },300);
-//                                            }
-//
-//                                            @Override
-//                                            public void onFailure(@NonNull IDJIError error) {
-//                                                LogUtil.log(TAG,"切换相机视频流失败:"+new Gson().toJson(error));
-////                                                sendMsg2Server(message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
-//                                            }
-//                                        });
-//                                        break;
-//                                    case 2:
-//                                        KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-//                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), message.getZoom(), new CommonCallbacks.CompletionCallback() {
-//                                            @Override
-//                                            public void onSuccess() {
-//                                                sendMsg2Server(message);
-//                                            }
-//
-//                                            @Override
-//                                            public void onFailure(@NonNull IDJIError error) {
-//                                                LogUtil.log(TAG,"指点变焦失败:"+new Gson().toJson(error));
-//                                                sendMsg2Server(message, "指点变焦失败:" + getIDJIErrorMsg(error));
-//                                            }
-//                                        });
-//                                        break;
-//                                    case 3:
-//                                        KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyThermalZoomRatios,
-//                                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL),message.getZoom(), new CommonCallbacks.CompletionCallback() {
-//                                            @Override
-//                                            public void onSuccess() {
-//                                                sendMsg2Server(message);
-//                                            }
-//
-//                                            @Override
-//                                            public void onFailure(@NonNull IDJIError error) {
-//                                                LogUtil.log(TAG,"设置红外变焦倍率失败:"+new Gson().toJson(error));
-//                                                sendMsg2Server(message, "设置红外变焦倍率失败:" + getIDJIErrorMsg(error));
-//                                            }
-//                                        });
-//                                        break;
-//                                }
-//                            }
-//
-//                        }
-//                    },200);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG,"指点对焦失败:"+new Gson().toJson(error));
-//                    sendMsg2Server(message, "指点对焦失败:" + getIDJIErrorMsg(error));
-//                }
-//            });
-//        } else {
-//            LogUtil.log(TAG, "指点对焦失败：当前状态相机禁止操作");
-//        }
     }
 
+    //指点对焦
+    public void tapZoomAtTarget(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+
+            KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyTapZoomEnable,
+                    ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), true, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "设置使能指点成功");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "设置使能指点失败:" + new Gson().toJson(error));
+                    sendFailMsg2Server(message, "设置使能指点失败:" + getIDJIErrorMsg(error));
+                }
+            });
+
+            ZoomTargetPointInfo zoomTargetPointInfo = new ZoomTargetPointInfo();
+            zoomTargetPointInfo.setX(Double.valueOf(message.getData().getX()));
+            zoomTargetPointInfo.setY(Double.valueOf(message.getData().getY()));
+            zoomTargetPointInfo.setTapZoomModeEnable(true);
+            zoomTargetPointInfo.setMode(TapZoomMode.GIMBAL_FOLLOW);
+            KeyManager.getInstance().performAction(KeyTools.createCameraKey(CameraKey.KeyTapZoomAtTarget,
+                    ComponentIndexType.PORT_1,
+                    CameraLensType.CAMERA_LENS_ZOOM), zoomTargetPointInfo,
+                    new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                @Override
+                public void onSuccess(EmptyMsg emptyMsg) {
+                    sendMsg2Server(message);
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendFailMsg2Server(message, "指点对焦失败:" + getIDJIErrorMsg(error));
+                }
+            });
+        } else {
+            LogUtil.log(TAG, "指点对焦失败：当前状态相机禁止操作");
+        }
+    }
 
         //切换为广角镜头，降低曝光率
         public void resumeLensToWideISOManual () {

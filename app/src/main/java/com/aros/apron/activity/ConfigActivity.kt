@@ -83,6 +83,9 @@ class ConfigActivity : BaseActivity() {
                 configBinding.layoutStreamRtsp.visibility = GONE
             }
         }
+        PreferenceUtils.getInstance().rtspPort=configBinding.etRtspPort.text.toString()
+        PreferenceUtils.getInstance().rtspPassWord=configBinding.etRtspPassword.text.toString()
+        PreferenceUtils.getInstance().rtspUserName=configBinding.etRtspUserName.text.toString()
         configBinding.etStreamUrl.setText(PreferenceUtils.getInstance().customStreamUrl)
         configBinding.etRtspUserName.setText(PreferenceUtils.getInstance().rtspUserName)
         configBinding.etRtspPassword.setText(PreferenceUtils.getInstance().rtspPassWord)
@@ -108,6 +111,7 @@ class ConfigActivity : BaseActivity() {
 //        configBinding.etAircraftHeading.setText(PreferenceUtils.getInstance().aircraftHeading)
         configBinding.etMinimumBattery.setText(PreferenceUtils.getInstance().minumumBattery)
         configBinding.etForcedBattery.setText(PreferenceUtils.getInstance().forcedBattery)
+        PreferenceUtils.getInstance().alternatePointTimes=configBinding.etSetAlternateTimes.text.toString()
         configBinding.etSetAlternateTimes.setText(PreferenceUtils.getInstance().alternatePointTimes)
 
         configBinding.cbNeedUploadVideo.isChecked = PreferenceUtils.getInstance().needUpLoadVideo

@@ -146,19 +146,19 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.DRC_MODE_ENTER:
                 LogUtil.log(TAG, "收到：进入指令飞行控制模式" + jsonString);
-                StickManager.getInstance().sendVirtualStickAdvancedParam(message);
+                StickManager.getInstance().enableVirtualStick(message);
                 break;
             case Constant.DRC_MODE_EXIT:
                 LogUtil.log(TAG, "收到：退出指令飞行控制模式" + jsonString);
-                StickManager.getInstance().setVirtualStickModeEnabled(message);
+                StickManager.getInstance().disableVirtualStick(message);
                 break;
             case Constant.DRONE_CONTROL:
                 LogUtil.log(TAG, "收到：DRC-飞行控制" + jsonString);
-
+                StickManager.getInstance().sendVirtualStickAdvancedParam(message);
                 break;
             case Constant.DRONE_EMERGENCY_STOP:
                 LogUtil.log(TAG, "收到：DRC-飞行器急停" + jsonString);
-
+                FlightManager.getInstance().emergencyHover(message);
                 break;
             case Constant.CAMERA_MODE_SWITCH:
                 LogUtil.log(TAG, "收到：负载控制—切换相机模式" + jsonString);
@@ -186,6 +186,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.CAMERA_AIM:
                 LogUtil.log(TAG, "收到：负载控制—双击成为 AIM" + jsonString);
+                CameraManager.getInstance().tapZoomAtTarget(message);
                 break;
             case Constant.CAMERA_FOCAL_LENGTH_SET:
                 LogUtil.log(TAG, "收到：负载控制—变焦" + jsonString);

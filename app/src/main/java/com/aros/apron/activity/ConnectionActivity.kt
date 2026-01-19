@@ -106,7 +106,7 @@ open class ConnectionActivity : BaseActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)){
             PreferenceUtils.getInstance().mqttServerUri =
-                "tcp://192.168.2.90:2883"
+                "tcp://192.168.20.90:2883"
         }
 
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)){
@@ -123,7 +123,7 @@ open class ConnectionActivity : BaseActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl)){
             PreferenceUtils.getInstance().uploadUrl =
-                "http://192.168.2.90:9090"
+                "http://192.168.20.90:9090"
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName)){
             PreferenceUtils.getInstance().bucketName =

@@ -4,6 +4,7 @@ import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -57,9 +58,7 @@ public class StreamManager extends BaseManager {
                 public void onLiveStreamStatusUpdate(LiveStreamStatus status) {
                     if (status != null) {
                         Movement.getInstance().setLiveStatus(status.isStreaming() ? 1 : 0);
-//                        if (isGisFlyClickTime()) {
-//                            LogUtil.log(TAG, "帧率:" + status.getFps() + "--" + "码率:" + status.getVbps()+"---"+"延迟:"+status.getRtt());
-//                        }
+                            Log.d(TAG, "推流状态"+status.isStreaming()+"帧率:" + status.getFps() + "--" + "码率:" + status.getVbps()+"---"+"延迟:"+status.getRtt());
                     }
                 }
 
@@ -73,79 +72,7 @@ public class StreamManager extends BaseManager {
 
     public void startLive(MessageDown message) {
 sendMsg2Server(message);
-//        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-//        if (isAircraftConnected == null || !isAircraftConnected) {
-//            LogUtil.log(TAG, "飞行器未连接");
-//            sendFailMsg2Server(message, "飞行器未连接");
-//        } else {
-//            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-//            if (TextUtils.isEmpty(message.getData().getUrl())) {
-//                LogUtil.log(TAG, "推流地址配置有误");
-//                sendFailMsg2Server(message, "推流地址配置有误");
-//            }
-//            LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
-//            LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
-//                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getData().getUrl()).build()).build();
-//            liveStreamManager.setLiveStreamSettings(streamSettings);
-//            liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-//             liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
-//            liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-//            if (!liveStreamManager.isStreaming()) {
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                LogUtil.log(TAG, "推流成功");
-//                                sendMsg2Server(message);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull IDJIError error) {
-//                                LogUtil.log(TAG, "推流失败:" + error.description());
-//                                sendFailMsg2Server(message, "推流失败:" + getIDJIErrorMsg(error));
-//
-//                            }
-//                        });
-//                    }
-//                }, 1000);
-//                //如果下发航线时推流地址与本地地址不一致，且已在推流，终止当前推流，再开启航线下发的推流地址
-//            } else if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getCustomStreamUrl())
-//                    && !PreferenceUtils.getInstance().getCustomStreamUrl().equals(message.getData().getUrl())) {
-//                PreferenceUtils.getInstance().setCustomStreamUrl(message.getData().getUrl());
-//                liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
-//                    @Override
-//                    public void onSuccess() {
-//                        new Handler().postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-//                                    @Override
-//                                    public void onSuccess() {
-//                                        LogUtil.log(TAG, "改变地址推流成功");
-//                                        sendMsg2Server(message);
-//                                    }
-//
-//                                    @Override
-//                                    public void onFailure(@NonNull IDJIError error) {
-//                                        LogUtil.log(TAG, "改变地址推流失败:" + error.description());
-//                                        sendFailMsg2Server(message, "改变地址推流失败:" + getIDJIErrorMsg(error));
-//
-//                                    }
-//                                });
-//                            }
-//                        }, 1000);
-//                    }
-//
-//                    @Override
-//                    public void onFailure(@NonNull IDJIError idjiError) {
-//                        LogUtil.log(TAG, "改变地址终止推流失败:" + idjiError.description());
-//                        sendFailMsg2Server(message, "改变地址终止推流失败:" + getIDJIErrorMsg(idjiError));
-//                    }
-//                });
-//            }
-//        }
+
     }
 
     public void setLiveStreamQuality(MessageDown message) {
@@ -225,8 +152,6 @@ sendMsg2Server(message);
     }
 
 
-
-    //知眸测试
     public void startLiveWithRTSP() {
 
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
@@ -262,13 +187,13 @@ sendMsg2Server(message);
                     liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG, "自定义推流启动成功");
+                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
                             isLiveStreamAlreadyStart=true;
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始推流失败:"+new Gson().toJson(error));
+                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
                             if (!isLiveStreamAlreadyStart){
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
