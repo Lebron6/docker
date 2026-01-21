@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.base.BaseManager;
+import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
@@ -365,11 +366,22 @@ public class MissionV3Manager extends BaseManager {
         } else {
             if (!verifyGpsAndMissionStateSuccess) {
                 if (verifyGpsAndMissionStateTimes < maxRetries) {
-                    verifyGpsAndMissionStateTimes++;
-                    sendEvent2Server("飞行器自检中..." + verifyGpsAndMissionStateTimes);
-                    verifyGpsAndMissionState(message);
-                    sendEvent2Server("航线状态第" + verifyGpsAndMissionStateTimes + "次检索失败:" +
-                            WaypointMissionExecuteState.find(missionStateCode).name() +
+                    mainHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            verifyGpsAndMissionStateTimes++;
+                            verifyGpsAndMissionState(message);
+                            sendEvent2Server("航线状态第" + verifyGpsAndMissionStateTimes + "次检索失败:" +
+                                    WaypointMissionExecuteState.find(missionStateCode).name() +
+                                    "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
+                                    Movement.getInstance().getPlaneMessage() +
+                                    "-GPS信号等级:" + Movement.getInstance().getQuality());
+                        }
+                    },2000);
+
+                }else{
+                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                    sendTaskFailEvent2Server("飞行器自检异常:"+WaypointMissionExecuteState.find(missionStateCode).name() +
                             "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
                             Movement.getInstance().getPlaneMessage() +
                             "-GPS信号等级:" + Movement.getInstance().getQuality());

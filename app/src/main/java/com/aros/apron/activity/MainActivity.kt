@@ -32,11 +32,13 @@ import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.FlightTaskProgressManager
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
+import com.aros.apron.manager.LTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
+import com.aros.apron.manager.WirelessLinkManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
 import com.aros.apron.tools.DroneHelper
@@ -582,7 +584,8 @@ open class MainActivity : BaseActivity() {
             MediaManager.getInstance().init()
             StreamManager.getInstance().initStreamManager()
             LEDsSettingsManager.getInstance().initLEDsInfo()
-
+            LTEManager.getInstance().initLTEInfo()
+            WirelessLinkManager.getInstance().initWirelessLink()
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {
                 Handler().postDelayed(Runnable {

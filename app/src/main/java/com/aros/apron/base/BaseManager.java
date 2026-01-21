@@ -13,6 +13,7 @@ import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.entity.WirelessLink;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
@@ -208,7 +209,7 @@ public abstract class BaseManager {
 
 
     /**
-     * 发送航线任务进度
+     * 上报航线任务进度
      */
     public void sendFlightTaskProgress2Server() {
         try {
@@ -254,9 +255,7 @@ public abstract class BaseManager {
                 }
                 data.setResult(0);
                 data.setOutput(output);
-
                 FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
-
                 flightTaskProgress.setTid(UUID.randomUUID().toString());
                 flightTaskProgress.setBid(UUID.randomUUID().toString());
                 flightTaskProgress.setTimestamp(System.currentTimeMillis());
@@ -279,123 +278,40 @@ public abstract class BaseManager {
     /**
      * 上报航线任务进度
      */
-//    public void sendFlightTaskProgressEventServer(FlightTaskProgress flightTaskProgress) {
-//        LogUtil.log(TAG,"发送航线任务进度:"+flightTaskProgress);
-//        try {
-//            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-//                FlightTaskProgress messageEvent = new FlightTaskProgress();
-//                messageEvent.setBid(UUID.randomUUID().toString());
-//                messageEvent.setTid(UUID.randomUUID().toString());
-//                messageEvent.setTimestamp(System.currentTimeMillis());
-//                messageEvent.setMethod("simple");
-//                MessageEvent.Data data=new MessageEvent.Data();
-//                data.setResult(1);
-//                data.setErrorMsg(msg);
-//                messageEvent.setData(data);
-//                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
-//                mqttMessage.setQos(1);
-//                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//            } else {
-//                LogUtil.log(TAG, "发送event失败：mqtt 未连接");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            LogUtil.log(TAG, "回复event异常：" + e.toString());
-//        }
-//    }
+    public void sendWireless2Server() {
+        try {
+            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
+                WirelessLink wirelessLink=new WirelessLink();
+                WirelessLink.Data data=new WirelessLink.Data();
+                data.setDongle_number(Movement.getInstance().getDongle_number());
+                data.setLink_state_4g(Movement.getInstance().getLink_state_4g());
+                data.setSdr_link_state(Movement.getInstance().getSdr_link_state());
+                data.setLink_workmode(Movement.getInstance().getLink_workmode());
+                data.setSdr_quality(Movement.getInstance().getSdr_quality());
+                data.setQuality_4g(Movement.getInstance().getQuality_4g());
+                data.setUav_quality_4g(Movement.getInstance().getUav_quality_4g());
+                data.setGnd_quality_4g(Movement.getInstance().getGnd_quality_4g());
+                data.setSdr_freq_band(Movement.getInstance().getSdr_freq_band());
+                data.setFreq_band_4g(Movement.getInstance().getFreq_band_4g());
 
+                wirelessLink.setTid(UUID.randomUUID().toString());
+                wirelessLink.setBid(UUID.randomUUID().toString());
+                wirelessLink.setTimestamp(System.currentTimeMillis());
+                wirelessLink.setMethod(Constant.WIRELESS_LINK);
+                wirelessLink.setData(data);
+                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(wirelessLink).getBytes("UTF-8"));
+                mqttMessage.setQos(0);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                LogUtil.log(TAG,"发送sdr事件:"+new Gson().toJson(wirelessLink));
 
-
-//    //媒体文件上传结果上报
-//    public void sendFileUploadCallback(int msgType, FileUploadResult result) {
-//        try {
-//            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-//                MqttMessage mqttMessage = null;
-//                result.setMsg_type(msgType);
-//                mqttMessage = new MqttMessage(new Gson().toJson(result).getBytes("UTF-8"));
-//                mqttMessage.setQos(2);
-//                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//                LogUtil.log(TAG, "文件上传发送成功："+new Gson().toJson(result));
-//
-//            } else {
-//                LogUtil.log(TAG, "文件上传发送失败：mqtt 未连接");
-//            }
-//        } catch (Exception e) {
-//            LogUtil.log(TAG, "文件上传发送异常：mqtt 未连接");
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
-//    //获取总飞行里程
-//    public void sendAircraftTotalFlightDistance2Server( MQMessage mqMessage, double data) {
-//        try {
-//            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-//                MqttMessage mqttMessage = null;
-//                MessageReply message = new MessageReply();
-//                message.setMsg_type(60132);
-//                message.setResult(1);
-//                message.setFlag(mqMessage.getFlag());
-//                message.setAircraftTotalFlightDistance(data+"");
-//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-//                mqttMessage.setQos(0);
-//                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//            } else {
-//                LogUtil.log(TAG, "总飞行里程发送失败：mqtt 未连接");
-//            }
-//        } catch (Exception e) {
-//            LogUtil.log(TAG, "总飞行里程发送异常：mqtt 未连接");
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    //收到暂停航线命令后，发送经纬度给后端
-//    public void sendLowBatteryRTHPosition2Server() {
-//        try {
-//            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-//                MqttMessage mqttMessage = null;
-//                MessageReply message = new MessageReply();
-//                message.setMsg_type(60201);
-//                message.setResult(1);
-//                message.setLat(String.valueOf(Movement.getInstance().getLatitude()));
-//                message.setLon(String.valueOf(Movement.getInstance().getLongitude()));
-//                message.setTask_id(PreferenceUtils.getInstance().getTaskId());
-//                message.setFlyingHeight(Movement.getInstance().getElevation()+"");
-//                message.setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
-//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-//                mqttMessage.setQos(2);
-//                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//                LogUtil.log(TAG,"低电量返航发送成功");
-//            } else {
-//                LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
-//            }
-//        } catch (Exception e) {
-//            LogUtil.log(TAG, "触发低电量返航发送失败：mqtt 未连接");
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    //自定义到达/离开航点的事件
-//    public void sendCustomReachOrLeave2Server(String data,String index) {
-//        try {
-//            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-//                MqttMessage mqttMessage = null;
-//                MessageReply message = new MessageReply();
-//                message.setMsg_type(60203);
-//                message.setResult(1);
-//                message.setWaypointActionState(data);
-//                message.setWaypointIndex(index);
-//                mqttMessage = new MqttMessage(new Gson().toJson(message).getBytes("UTF-8"));
-//                mqttMessage.setQos(0);
-//                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-//            } else {
-//                LogUtil.log(TAG, "推送自定义到达/离开航点的事件失败：mqtt 未连接");
-//            }
-//        } catch (Exception e) {
-//            LogUtil.log(TAG, "推送自定义到达/离开航点的事件异常：mqtt 未连接");
-//            e.printStackTrace();
-//        }
-//    }
+            } else {
+                LogUtil.log(TAG, "发送sdr失败：mqtt 未连接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, "发送sdr异常：" + e.toString());
+        }
+    }
 
 
     public boolean getGimbalAndCameraEnabled() {

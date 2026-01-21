@@ -273,4 +273,9 @@ public class Constant {
      */
     public static final String FLIGHT_TASK_PROGRESS="flighttask_progress";
 
+    /**
+     *  遥控器上报sdr和4g状态
+     */
+    public static final String WIRELESS_LINK="wireless_link";
+
 }
