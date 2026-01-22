@@ -883,7 +883,7 @@ public class FlightManager extends BaseManager {
 
     private void gimbalAndCameraReset() {
         if (shouldResetGimbalAndCamera()) {
-            GimbalManager.getInstance().gimbalReset();
+            GimbalManager.getInstance().gimbalReset(null);
             CameraManager.getInstance().resumeLensToWideISOManual();
             isGimbalReset = true;
         }
@@ -1250,7 +1250,6 @@ public class FlightManager extends BaseManager {
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "紧急悬停，控制权释放失败:" + new Gson().toJson(error));
                             sendFailMsg2Server( message, "紧急悬停，控制权失败:" + getIDJIErrorMsg(error));
                         }
                     });

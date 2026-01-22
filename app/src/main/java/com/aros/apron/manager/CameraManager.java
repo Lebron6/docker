@@ -492,41 +492,10 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
-
-
-
         }
     }
 
 
-
-//    //设置手动对焦值
-//    public void setCameraFocusRingValue(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            if (message != null) {
-//                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraFocusRingValue,
-//                                ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
-//                        message.getCameraFocusRingValue(), new CommonCallbacks.CompletionCallback() {
-//                            @Override
-//                            public void onSuccess() {
-//                                sendMsg2Server( message);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(@NonNull IDJIError error) {
-//                                LogUtil.log(TAG,"设置对焦值失败:"+new Gson().toJson(error));
-//                                sendMsg2Server( message, "设置对焦值失败:" + getIDJIErrorMsg(error));
-//                            }
-//                        });
-//            } else {
-//                sendMsg2Server( message, "参数有误");
-//            }
-//        } else {
-//            sendMsg2Server( message, "当前状态相机禁止操作");
-//        }
-//    }
 //切换相机拍照录像模式
 public void setCameraMode(MessageDown message) {
     Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
@@ -558,52 +527,8 @@ public void setCameraMode(MessageDown message) {
     }
 }
 
-    //
-//    //设置定时拍照参数
-//    public void startTakePhotoWithInterval(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            PhotoIntervalShootSettings shootSettings = new PhotoIntervalShootSettings();
-//            shootSettings.setInterval(message.getShootInterval());
-//            shootSettings.setCount(message.getShootCount());
-//            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyPhotoIntervalShootSettings, ComponentIndexType.PORT_1),shootSettings, new CommonCallbacks.CompletionCallback() {
-//                @Override
-//                public void onSuccess() {
-//                    new Handler().postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            KeyManager.getInstance().performAction(KeyTools.createKey(CameraKey.KeyStartShootPhoto,
-//                                    ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-//                                @Override
-//                                public void onSuccess(EmptyMsg emptyMsg) {
-//                                    sendMsg2Server( message);
-//                                }
-//
-//                                @Override
-//                                public void onFailure(@NonNull IDJIError error) {
-//                                    LogUtil.log(TAG, "定时拍照失败:" + new Gson().toJson(error));
-//                                    sendMsg2Server( message, "定时拍照失败:" + getIDJIErrorMsg(error));
-//                                }
-//                            });
-//                        }
-//                    }, 500);
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull IDJIError error) {
-//                    LogUtil.log(TAG, "设置定时拍照参数失败:" + new Gson().toJson(error));
-//                    sendMsg2Server( message, "设置定时拍照参数失败:" + getIDJIErrorMsg(error));
-//
-//                }
-//            });
-//        } else {
-//            sendMsg2Server( message, "当前状态相机禁止操作");
-//        }
-//    }
-//
-//
-//开始拍照
+
+    //开始拍照
     public void startShootPhoto(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
                 KeyConnection, ComponentIndexType.PORT_1));
@@ -690,37 +615,70 @@ public void setCameraMode(MessageDown message) {
                     sendFailMsg2Server(message, "停止录像失败:" + getIDJIErrorMsg(error));
                 }
             });
-    } else {
-        sendFailMsg2Server(message, "当前状态相机禁止操作");
+        } else {
+            sendFailMsg2Server(message, "当前状态相机禁止操作");
+        }
     }
-}
-//
-//
-//    //设置变焦倍率
-//    public void setCameraZoomRatios(MQMessage message) {
-//        Boolean isConnect =KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
-//                KeyConnection,ComponentIndexType.PORT_1));
-//        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
-//            if (message != null) {
-//                int cameraZoomRatios = message.getCameraZoomRatios();
-//                KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
-//                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM), Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
-//                    @Override
-//                    public void onSuccess() {
-//                        sendMsg2Server(message);
-//                    }
-//
-//                    @Override
-//                    public void onFailure(@NonNull IDJIError error) {
-//                        LogUtil.log(TAG,"设置变焦倍率失败:"+new Gson().toJson(error));
-//                        sendMsg2Server(message, "设置变焦倍率失败:" + getIDJIErrorMsg(error));
-//                    }
-//                });
-//            }
-//        } else {
-//            sendMsg2Server(message, "当前状态相机禁止操作");
-//        }
-//    }
+
+
+    //设置变焦倍率
+    public void setCameraZoomRatios(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+            if (message != null) {
+                int type = 1;
+                switch (message.getData().getCamera_type()) {
+                    case "ir":
+                        type = 3;
+                        break;
+                    case "normal":
+                        type = 0;
+                        break;
+                    case "wide":
+                        type = 1;
+                        break;
+                    case "zoom":
+                        type = 2;
+                        break;
+                }
+                KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyCameraVideoStreamSource,
+                                ComponentIndexType.PORT_1)
+                        , CameraVideoStreamSourceType.find(type),
+                        new CommonCallbacks.CompletionCallback() {
+                            @Override
+                            public void onSuccess() {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int cameraZoomRatios = message.getData().getZoom_factor();
+                                        KeyManager.getInstance().setValue(KeyTools.createCameraKey(CameraKey.KeyCameraZoomRatios,
+                                                        ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_ZOOM),
+                                                Double.valueOf(cameraZoomRatios), new CommonCallbacks.CompletionCallback() {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        sendMsg2Server(message);
+                                                    }
+                                                    @Override
+                                                    public void onFailure(@NonNull IDJIError error) {
+                                                        sendFailMsg2Server(message, "设置变焦倍率失败:" + getIDJIErrorMsg(error));
+                                                    }
+                                                });
+                                    }
+                                }, 200);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError error) {
+                                sendFailMsg2Server(message, "切换相机视频流失败:" + getIDJIErrorMsg(error));
+                            }
+                        });
+                {
+                    sendFailMsg2Server(message, "当前状态相机禁止操作");
+                }
+            }
+        }
+    }
 //
 //    //设置红外变焦倍率(支持1x、2x、4x、8x变焦倍率)
 //    public void setThermalZoomRatios(MQMessage message) {

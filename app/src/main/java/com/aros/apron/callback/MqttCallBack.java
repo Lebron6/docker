@@ -138,7 +138,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.FLIGHT_AUTHORITY_GRAB:
                 LogUtil.log(TAG, "收到：飞行控制权抢夺" + jsonString);
-                StickManager.getInstance().setVirtualStickModeEnabled(message);
+                StickManager.getInstance().enableVirtualStick(message);
                 break;
             case Constant.PAYLOAD_AUTHORITY_GRAB:
                 LogUtil.log(TAG, "收到：负载控制权抢夺" + jsonString);
@@ -146,8 +146,9 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.DRC_MODE_ENTER:
                 LogUtil.log(TAG, "收到：进入指令飞行控制模式" + jsonString);
-                StickManager.getInstance().enableVirtualStick(message);
+                StickManager.getInstance().setVirtualStickModeEnabled(message);
                 break;
+                //退出控制权时，要自动触发续飞航线
             case Constant.DRC_MODE_EXIT:
                 LogUtil.log(TAG, "收到：退出指令飞行控制模式" + jsonString);
                 StickManager.getInstance().disableVirtualStick(message);
@@ -190,12 +191,15 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.CAMERA_FOCAL_LENGTH_SET:
                 LogUtil.log(TAG, "收到：负载控制—变焦" + jsonString);
+                CameraManager.getInstance().setCameraZoomRatios(message);
                 break;
             case Constant.GIMBAL_RESET:
                 LogUtil.log(TAG, "收到：负载控制—重置云台" + jsonString);
+                GimbalManager.getInstance().gimbalReset(message);
                 break;
             case Constant.CAMERA_LOOK_AT:
                 LogUtil.log(TAG, "收到：负载控制—Look At" + jsonString);
+                GimbalManager.getInstance().gimbalLookAt(message);
                 break;
             case Constant.CAMERA_SCREEN_SPLIT:
                 LogUtil.log(TAG, "收到：负载控制—分屏" + jsonString);

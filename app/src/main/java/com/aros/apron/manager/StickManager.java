@@ -97,80 +97,81 @@ public class StickManager extends BaseManager {
 
     //飞行控制权抢夺
     public void setVirtualStickModeEnabled(MessageDown message) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
-        if (isConnect != null && isConnect) {
-            FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
-            LogUtil.log(TAG, "控制权抢夺当前飞机状态:" + flightMode.name());
-            if (flightMode != null) {
-                switch (flightMode) {
-                    case GO_HOME:
-                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                            @Override
-                            public void onSuccess(EmptyMsg emptyMsg) {
-                                sendMsg2Server(message);
-                            }
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                sendFailMsg2Server(message, "取消返航执行失败:" + getIDJIErrorMsg(error));
-                            }
-                        });
-                        break;
-                    case WAYPOINT:
-                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-                        missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
-                                ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
-                            @Override
-                            public void onSuccess() {
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
-                                            @Override
-                                            public void onSuccess() {
-                                                sendMsg2Server( message);
-                                                LogUtil.log(TAG, "终止任务,控制权设置成功");
-                                                Movement.getInstance().setWaylineCanResume(true);
-                                                Movement.getInstance().setVirtualStickEnableReason(3);
-                                                Movement.getInstance().setVirtualStickQuitMission(true);
-                                            }
-                                            @Override
-                                            public void onFailure(@NonNull IDJIError error) {
-                                                sendFailMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
-                                            }
-                                        });
-                                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-                                    }
-                                }, 400);
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                sendFailMsg2Server(message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
-                            }
-                        });
-                        break;
-                    case AUTO_LANDING:
-                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
-                            @Override
-                            public void onSuccess(EmptyMsg emptyMsg) {
-                                sendMsg2Server(message);
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull IDJIError error) {
-                                sendFailMsg2Server(message, "取消降落执行失败:" + getIDJIErrorMsg(error));
-                            }
-                        });
-                        break;
-                    case VIRTUAL_STICK:
-                        sendFailMsg2Server(message, "已获取控制权,无需重复获取");
-                        break;
-                    default:
-                        sendMsg2Server(message);
-                        break;
-                }
-            }
-        }
+        sendMsg2Server(message);
+//////        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));
+//////        if (isConnect != null && isConnect) {
+//////            FlightMode flightMode = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyFlightMode));
+//////            LogUtil.log(TAG, "控制权抢夺当前飞机状态:" + flightMode.name());
+//////            if (flightMode != null) {
+//////                switch (flightMode) {
+//////                    case GO_HOME:
+//////                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//////                            @Override
+//////                            public void onSuccess(EmptyMsg emptyMsg) {
+//////                                sendMsg2Server(message);
+//////                            }
+//////                            @Override
+//////                            public void onFailure(@NonNull IDJIError error) {
+//////                                sendFailMsg2Server(message, "取消返航执行失败:" + getIDJIErrorMsg(error));
+//////                            }
+//////                        });
+//////                        break;
+//////                    case WAYPOINT:
+//////                        IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
+//////                        missionManager.stopMission(TextUtils.isEmpty(Movement.getInstance().getMissionName())
+//////                                ? "aros" : Movement.getInstance().getMissionName(), new CommonCallbacks.CompletionCallback() {
+//////                            @Override
+//////                            public void onSuccess() {
+//////                                new Handler().postDelayed(new Runnable() {
+//////                                    @Override
+//////                                    public void run() {
+//////                                        VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
+//////                                            @Override
+//////                                            public void onSuccess() {
+//////                                                sendMsg2Server( message);
+//////                                                LogUtil.log(TAG, "终止任务,控制权设置成功");
+//////                                                Movement.getInstance().setWaylineCanResume(true);
+//////                                                Movement.getInstance().setVirtualStickEnableReason(3);
+//////                                                Movement.getInstance().setVirtualStickQuitMission(true);
+//////                                            }
+//////                                            @Override
+//////                                            public void onFailure(@NonNull IDJIError error) {
+//////                                                sendFailMsg2Server( message, "控制权设置失败:" + getIDJIErrorMsg(error));
+//////                                            }
+//////                                        });
+//////                                        VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
+//////                                    }
+//////                                }, 400);
+//////                            }
+//////
+//////                            @Override
+//////                            public void onFailure(@NonNull IDJIError error) {
+//////                                sendFailMsg2Server(message, "终止任务以获取控制权失败:" + getIDJIErrorMsg(error));
+//////                            }
+//////                        });
+//////                        break;
+//////                    case AUTO_LANDING:
+//////                        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//////                            @Override
+//////                            public void onSuccess(EmptyMsg emptyMsg) {
+//////                                sendMsg2Server(message);
+//////                            }
+//////
+//////                            @Override
+//////                            public void onFailure(@NonNull IDJIError error) {
+//////                                sendFailMsg2Server(message, "取消降落执行失败:" + getIDJIErrorMsg(error));
+//////                            }
+//////                        });
+//////                        break;
+//////                    case VIRTUAL_STICK:
+//////                        sendFailMsg2Server(message, "已获取控制权,无需重复获取");
+//////                        break;
+//////                    default:
+//////                        sendMsg2Server(message);
+//////                        break;
+//////                }
+////            }
+//        }
 //
     }
 

@@ -1,19 +1,27 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+
+import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.Attitude;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
+import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
+import dji.sdk.keyvalue.value.flightcontroller.LookAtInfo;
+import dji.sdk.keyvalue.value.flightcontroller.LookAtMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalResetType;
 import dji.v5.common.callback.CommonCallbacks;
@@ -59,20 +67,24 @@ public class GimbalManager extends BaseManager {
 
 
     //云台重置
-    public void gimbalReset() {
+    public void gimbalReset(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
+                            if (message != null) {
+                                sendMsg2Server(message);
+                            }
                             LogUtil.log(TAG, "云台复位");
                         }
-
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
+                            if (message != null) {
+                                sendFailMsg2Server(message, "云台重置失败:" + getIDJIErrorMsg(error));
+                            }
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
-
                         }
                     }
             );
@@ -80,6 +92,37 @@ public class GimbalManager extends BaseManager {
             LogUtil.log(TAG, "云台未连接");
         }
     }
+
+    //Look At
+    public void gimbalLookAt(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect) {
+            LookAtInfo lookAtInfo = new LookAtInfo();
+            lookAtInfo.setMode(message.getData().isLocked() ?
+                    LookAtMode.LOOK_AT_GIMBAL_FOLLOWING : LookAtMode.LOOK_AT_GIMBAL_FREE);
+            LocationCoordinate3D locationCoordinate3D = new LocationCoordinate3D();
+            locationCoordinate3D.setLatitude(message.getData().getLatitude());
+            locationCoordinate3D.setLongitude(message.getData().getLongitude());
+            locationCoordinate3D.setAltitude(Double.parseDouble(message.getData().getHeight() + ""));
+            lookAtInfo.setLocation(locationCoordinate3D);
+            KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyLookAt), lookAtInfo, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                        @Override
+                        public void onSuccess(EmptyMsg emptyMsg) {
+                            sendMsg2Server(message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            sendFailMsg2Server(message, "看向目标点失败:" + getIDJIErrorMsg(error));
+                        }
+                    }
+            );
+        } else {
+            LogUtil.log(TAG, "云台未连接");
+        }
+    }
+
 
     //设置云台模式
     public void setGimbalMode(int gimbalMode) {
@@ -93,7 +136,7 @@ public class GimbalManager extends BaseManager {
                     switch (gimbalMode) {
                         case 0:
                             LogUtil.log(TAG, "设置云台自由模式成功");
-                            gimbalReset();
+                            gimbalReset(null);
                             break;
                         case 1:
                             LogUtil.log(TAG, "设置云台FPV模式成功");

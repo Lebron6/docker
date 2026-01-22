@@ -586,6 +586,7 @@ open class MainActivity : BaseActivity() {
             LEDsSettingsManager.getInstance().initLEDsInfo()
             LTEManager.getInstance().initLTEInfo()
             WirelessLinkManager.getInstance().initWirelessLink()
+            CameraManager.getInstance().initCameraInfo()
             //这里修改推流逻辑
             if (PreferenceUtils.getInstance().customStreamType!=3) {
                 Handler().postDelayed(Runnable {

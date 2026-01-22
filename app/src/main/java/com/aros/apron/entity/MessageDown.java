@@ -76,8 +76,47 @@ public class MessageDown {
         private String y;
 
         private String camera_type;
-        private boolean locked;
         private String payload_index;
+
+        private int height;
+        private double latitude;
+        private boolean locked;
+        private double longitude;
+        private int zoom_factor;
+
+
+        public int getZoom_factor() {
+            return zoom_factor;
+        }
+
+        public void setZoom_factor(int zoom_factor) {
+            this.zoom_factor = zoom_factor;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
 
 
         public String getCamera_type() {
