@@ -893,7 +893,7 @@ public class ApronArucoDetect {
         if (!startFastStick) {
 
 //            if (absX <= 250 && absY <= 300 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
-            if (absX <= 230 && absY <= 250 && ultrasonicHeight <= 4 && flyingHeight <= 3) {
+            if (absX <= 230 && absY <= 250 && arucoWidth >= 230 && ultrasonicHeight <= 3 && flyingHeight <= 3) {
                 logMessage = "参考融合高度降落:" + id + " arucoW" + arucoWidth +
                         " Flying Height:" + flyingHeight + "--" +
                         " Ultrasonic Height:" + ultrasonicHeight;
