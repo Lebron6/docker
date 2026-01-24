@@ -313,6 +313,7 @@ public class AlternateLandingManager extends BaseManager {
         FlightMission flightMission = new FlightMission();
         flightMission.setPoints(missionPoints);
         flightMission.setMissionId(2);
+        flightMission.setFinishAction("autoLand");
         flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
 

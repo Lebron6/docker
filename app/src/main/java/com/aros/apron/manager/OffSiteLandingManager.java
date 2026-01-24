@@ -323,6 +323,7 @@ public class OffSiteLandingManager extends BaseManager {
         flightMission.setMissionId(2);
         flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
+        flightMission.setFinishAction("autoLand");
 
         sendMissionExecuteEvents( "开始生成异地降落航线");
 
