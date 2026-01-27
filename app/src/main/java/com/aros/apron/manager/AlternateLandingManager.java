@@ -99,16 +99,13 @@ public class AlternateLandingManager extends BaseManager {
                     checkDroneState(message);
                 } else {
                     if (message != null) {
-                        sendEvent2Server("挡位不正确,不触发去备降点");
+                        sendEvent2Server("挡位不正确,不触发去备降点",2);
                     }
-                    sendEvent2Server( "挡位不正确,不触发去备降点");
-                    LogUtil.log(TAG, "检测到挡位不正确,不触发去备降点");
                 }
             } else {
                 if (message != null) {
-                    sendEvent2Server( "飞机未起飞,不触发去备降点");
+                    sendEvent2Server( "飞机未起飞,不触发去备降点",2);
                 }
-                sendEvent2Server( "飞机未起飞,不触发去备降点");
             }
         }
     }
@@ -122,14 +119,14 @@ public class AlternateLandingManager extends BaseManager {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
                             toAlternatePoint();
-                            sendEvent2Server( "取消返航:去备降点");
+                            sendEvent2Server( "取消返航:去备降点",1);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "取消返航失败:" + new Gson().toJson(error));
                             toAlternatePoint();
-                            sendEvent2Server( "取消返航失败:" + new Gson().toJson(error));
+                            sendEvent2Server( "取消返航失败:" + new Gson().toJson(error),2);
 
                         }
                     });
@@ -141,14 +138,14 @@ public class AlternateLandingManager extends BaseManager {
                         @Override
                         public void onSuccess() {
                             LogUtil.log(TAG, "终止任务成功");
-                            sendEvent2Server( "终止任务成功:去备降点");
+                            sendEvent2Server( "终止任务成功:去备降点",1);
                             toAlternatePoint();
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "终止任务失败:" + new Gson().toJson(error));
-                            sendEvent2Server( "终止任务失败:去备降点");
+                            sendEvent2Server( "终止任务失败:去备降点",2);
                             toAlternatePoint();
                         }
                     });
@@ -157,13 +154,13 @@ public class AlternateLandingManager extends BaseManager {
                     KeyManager.getInstance().performAction(KeyTools.createKey(FlightControllerKey.KeyStopAutoLanding), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            sendEvent2Server( "取消降落成功:去备降点");
+                            sendEvent2Server( "取消降落成功:去备降点",1);
                             toAlternatePoint();
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            sendEvent2Server( "取消降落失败:去备降点");
+                            sendEvent2Server( "取消降落失败:去备降点",2);
                             toAlternatePoint();
                         }
                     });
@@ -191,10 +188,10 @@ public class AlternateLandingManager extends BaseManager {
 
     public void toAlternatePoint() {
         if (Movement.getInstance().getElevation() < 10) {
-            sendEvent2Server( "正在拉高去备降点");
+            sendEvent2Server( "正在拉高去备降点",1);
             raisesDrone();
         } else {
-            sendEvent2Server( "开始创建备降任务");
+            sendEvent2Server( "开始创建备降任务",1);
             creatMissionAndUpload();
         }
     }
@@ -307,6 +304,7 @@ public class AlternateLandingManager extends BaseManager {
         FlightMission flightMission = new FlightMission();
         flightMission.setPoints(missionPoints);
         flightMission.setMissionId(2);
+        flightMission.setFinishAction("autoLand");
         flightMission.setTakeOffSecurityHeight(Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
         flightMission.setSpeed(15.0);
 
@@ -314,7 +312,7 @@ public class AlternateLandingManager extends BaseManager {
                 + "---飞往备降点高度:" + Double.parseDouble(PreferenceUtils.getInstance().getAlternatePointSecurityHeight())
                 + "---航线安全起飞高度:" + Float.parseFloat(PreferenceUtils.getInstance().getAlternatePointSecurityHeight()));
 
-        sendEvent2Server( "开始生成备降点航线");
+        sendEvent2Server( "开始生成备降点航线",1);
 
         // 生成xml文件
         File file1 = new File(
@@ -322,12 +320,12 @@ public class AlternateLandingManager extends BaseManager {
         if (!file1.exists()) {
             if (file1.mkdirs()) {
                 LogUtil.log(TAG, "生成备降航线成功");
-                sendEvent2Server( "生成备降路线文件成功");
+                sendEvent2Server( "生成备降路线文件成功",1);
 
             } else {
                 LogUtil.log(TAG, "生成备降航线失败");
-                sendEvent2Server( "生成备降航线失败");
-                    sendEvent2Server( "生成备降航线失败");
+                sendEvent2Server( "生成备降航线失败",2);
+                    sendEvent2Server( "生成备降航线失败",2);
 
             }
         }
@@ -345,7 +343,7 @@ public class AlternateLandingManager extends BaseManager {
         try {
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz");
         } catch (IOException e) {
-            sendEvent2Server( "备降任务生成异常");
+            sendEvent2Server( "备降任务生成异常",2);
 
             throw new RuntimeException(e);
         }
@@ -355,14 +353,13 @@ public class AlternateLandingManager extends BaseManager {
             @Override
             public void onProgressUpdate(Double aDouble) {
                 LogUtil.log(TAG, "备降点航线上传进度:" + aDouble + "%");
-                sendEvent2Server( "备降任务上传中:" + aDouble + "%");
+                sendEvent2Server( "备降任务上传中:" + aDouble + "%",1);
 
             }
 
             @Override
             public void onSuccess() {
-                LogUtil.log(TAG, "备降点航线上传成功");
-                sendEvent2Server( "备降点航线上传成功");
+                sendEvent2Server( "备降点航线上传成功",1);
                 if (PreferenceUtils.getInstance().getHaveRTK() && !(Movement.getInstance().getIs_fixed()==2)) {
                     RTKManager.getInstance().enableRtk(false);
                 }
@@ -376,7 +373,7 @@ public class AlternateLandingManager extends BaseManager {
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(true);
                                 PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
                                 PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
-                                sendEvent2Server( "开始飞往备降点");
+                                sendEvent2Server( "开始飞往备降点",1);
                                 //设置为未开始识别二维码状态
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);
@@ -386,7 +383,7 @@ public class AlternateLandingManager extends BaseManager {
                             public void onFailure(@NonNull IDJIError idjiError) {
                                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
                                 LogUtil.log(TAG, "飞往备降点失败:" + new Gson().toJson(idjiError));
-                                sendEvent2Server( "飞往备降点失败");
+                                sendEvent2Server( "飞往备降点失败",2);
                             }
                         });
                     }
@@ -395,9 +392,8 @@ public class AlternateLandingManager extends BaseManager {
 
             @Override
             public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG, "备降航线上传失败:" + new Gson().toJson(error));
                 PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
-                sendEvent2Server( "备降航线上传失败");
+                sendEvent2Server( "备降航线上传失败",2);
             }
         });
     }

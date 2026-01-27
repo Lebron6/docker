@@ -1,4 +1,4 @@
-//package com.aros.apron.manager;
+package com.aros.apron.manager;//package com.aros.apron.manager;
 //
 //import android.os.Build;
 //import android.os.Environment;

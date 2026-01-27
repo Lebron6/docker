@@ -1,22 +1,15 @@
 package com.aros.apron.manager;
 
 import static com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO;
-
 import android.os.Handler;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.greenrobot.eventbus.EventBus;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.flightcontroller.FlightCoordinateSystem;
@@ -65,13 +58,11 @@ public class WayLineExecutingInterruptManager extends BaseManager {
         });
 
         if (Movement.getInstance().getElevation() < 90) {
-            LogUtil.log(TAG, "航线中断,拉高" + Movement.getInstance().getElevation());
             raiseTheReturnFlight();
-            sendEvent2Server( "航线中断:拉高后返航");
+            sendEvent2Server( "航线中断:拉高后返航"+ Movement.getInstance().getElevation(),2);
         } else {
-            LogUtil.log(TAG, "航线中断,返航" + Movement.getInstance().getElevation());
             FlightManager.getInstance().startGoHome(null);
-            sendEvent2Server( "航线中断:直接返航");
+            sendEvent2Server( "航线中断:直接返航" + Movement.getInstance().getElevation(),2);
 
         }
 
@@ -92,13 +83,11 @@ public class WayLineExecutingInterruptManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    LogUtil.log(TAG, "失控拉高,控制权获取失败:" + error.description());
-                    sendEvent2Server( "航线中断:执行拉高失败");
+                    sendEvent2Server( "失控拉高,控制权获取失败:" + error.description(),2);
                 }
             });
         } else {
-            LogUtil.log(TAG, "失控拉高,飞控未连接");
-            sendEvent2Server( "航线中断:飞控未连接");
+            sendEvent2Server( "航线中断:飞控未连接",2);
         }
     }
 
@@ -120,13 +109,13 @@ public class WayLineExecutingInterruptManager extends BaseManager {
                     VirtualStickManager.getInstance().disableVirtualStick(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            sendEvent2Server( "航线中断:到达指定高度,开始返航");
+                            sendEvent2Server( "航线中断:到达指定高度,开始返航",2);
                             FlightManager.getInstance().startGoHome(null);
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
-                            sendEvent2Server( "航线中断:释放控制权失败,开始返航");
+                            sendEvent2Server( "航线中断:释放控制权失败,开始返航",2);
                             FlightManager.getInstance().startGoHome( null);
                         }
                     });

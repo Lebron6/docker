@@ -9,7 +9,6 @@ import com.aros.apron.entity.MissionPoint;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.Text;
 import org.dom4j.io.XMLWriter;
 
 import java.io.File;
@@ -48,10 +47,7 @@ public class DomParserWPML {
         createFolder(mission);
         try {
             // 设置生成xml的格式
-//            OutputFormat format = OutputFormat.createPrettyPrint();
-//            format.setEncoding("UTF-8");
             XMLWriter writer = new XMLWriter(new FileWriter(new File(fileName)));
-//            writer.setEscapeText(false);
             writer.write(document); //写入
             writer.close();
         } catch (Exception e) {
@@ -75,7 +71,8 @@ public class DomParserWPML {
                 missionConfigElement.addElement("wpml:flyToWaylineMode").setText("safely");
 
                 //航线结束动作
-                missionConfigElement.addElement("wpml:finishAction").setText("autoLand");
+//                missionConfigElement.addElement("wpml:finishAction").setText("autoLand");
+                missionConfigElement.addElement("wpml:finishAction").setText(flightMission.getFinishAction());
 
                 //失控是否继续执行航线
                 missionConfigElement.addElement("wpml:exitOnRCLost").setText("executeLostAction");
@@ -141,8 +138,7 @@ public class DomParserWPML {
     }
 
     /**
-     * 向Placemark添加航点信息
-     *
+     * 向 Placemark添加航点信息
      * @param parentElement
      */
     private boolean addPointToPlacemark(Element parentElement, MissionPoint missionPoint, int index) {

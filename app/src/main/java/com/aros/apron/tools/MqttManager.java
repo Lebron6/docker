@@ -32,7 +32,7 @@ public class MqttManager {
     }
 
     public static MqttManager getInstance() {
-        return MqttManager.MqttHolder.INSTANCE;
+        return MqttHolder.INSTANCE;
     }
 
     public void needConnect() {

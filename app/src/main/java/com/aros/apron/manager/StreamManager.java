@@ -1,9 +1,6 @@
 package com.aros.apron.manager;
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -200,7 +197,57 @@ sendMsg2Server(message);
                                     public void run() {
                                         if (startLiveFailTimes < 10) {
                                             startLiveFailTimes++;
-                                            startLiveWithCustom();
+                                            startLiveWithRTSP();
+                                        }
+                                    }
+                                }, 3000);
+                            }
+                        }
+                    });
+                }else{
+                    liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+                        @Override
+                        public void onSuccess() {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
+                                            isLiveStreamAlreadyStart=true;
+                                        }
+
+                                        @Override
+                                        public void onFailure(@NonNull IDJIError error) {
+                                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
+                                            if (!isLiveStreamAlreadyStart){
+                                                new Handler().postDelayed(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (startLiveFailTimes < 10) {
+                                                            startLiveFailTimes++;
+                                                            startLiveWithRTSP();
+                                                        }
+                                                    }
+                                                }, 3000);
+                                            }
+                                        }
+                                    });
+                                }
+                            },2000);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError error) {
+                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
+                            if (!isLiveStreamAlreadyStart){
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (startLiveFailTimes < 10) {
+                                            startLiveFailTimes++;
+                                            startLiveWithRTSP();
                                         }
                                     }
                                 }, 3000);

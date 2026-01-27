@@ -48,7 +48,6 @@ public class Movement {
     private int thermalDisplayMode;//红外模式 1仅红外  2红外分屏
     private String flightId;//航线id
     private String waypointMissionExecuteState;//航线执行状态
-    private boolean airlineFlight;//是否航线飞行
     private String waylineExecutingInterruptReason;//航线暂停原因
     private int goHomeState;//返航执行状态  0未触发返航 1返航中 2返航下降中 3返航完成
     private int returnHomePower;//返航电量所需百分比
@@ -85,10 +84,8 @@ public class Movement {
     private int lowBatteryWarningThreshold;//低电量报警阈值
     private int seriousLowBatteryWarningThreshold;//严重低电量报警阈值
     private int lowBatteryRTHEnabled;//智能低电量返航是否启用 0 未启用 1启用
-    private boolean taskFail;//任务是否执行失败
     private String taskId;
     private String version;
-    private boolean waylineCanResume;//航线是否可断点恢复(指点飞行结束/虚拟摇杆退出航线)
     private int virtualStickEnableReason;//0未启用 虚拟摇杆启用原因 1异常拉高返航触发 2视觉降落触发 3手动触发
     private int photoIntervalCount;//当前定时拍照默认设置张数
     private double photoInterval;//当前定时拍照默认时间间隔
@@ -1622,13 +1619,6 @@ public class Movement {
         this.lowBatteryRTHState = lowBatteryRTHState;
     }
 
-    public boolean isWaylineCanResume() {
-        return waylineCanResume;
-    }
-
-    public void setWaylineCanResume(boolean waylineCanResume) {
-        this.waylineCanResume = waylineCanResume;
-    }
 
     public String getVersion() {
         return version;
@@ -1646,13 +1636,6 @@ public class Movement {
         this.taskId = taskId;
     }
 
-    public boolean isTaskFail() {
-        return taskFail;
-    }
-
-    public void setTaskFail(boolean taskFail) {
-        this.taskFail = taskFail;
-    }
 
     public int getLowBatteryRTHEnabled() {
         return lowBatteryRTHEnabled;
@@ -1923,15 +1906,6 @@ public class Movement {
     public void setIsVirtualStickEnable(int isVirtualStickEnable) {
         this.isVirtualStickEnable = isVirtualStickEnable;
     }
-
-    public boolean isAirlineFlight() {
-        return airlineFlight;
-    }
-
-    public void setAirlineFlight(boolean airlineFlight) {
-        this.airlineFlight = airlineFlight;
-    }
-
 
     public int getGoHomeState() {
         return goHomeState;

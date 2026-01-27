@@ -6,8 +6,8 @@ import com.aros.apron.app.ApronApp;
 
 
 public class PreferenceUtils extends BasePreference {
-    private String TAG = "PreferenceUtils";
 
+    private String TAG = "PreferenceUtils";
     private static PreferenceUtils preferenceUtils;
 
     /**
@@ -68,49 +68,10 @@ public class PreferenceUtils extends BasePreference {
     private String MISSION_TYPE = "mission_type";
     private String PAUSE_WAYPOINT_INDEX = "pause_index";//暂停航线前记录index，暂停成功后将下标推送给服务器
     private String RESTART_AMS_TIMES = "restart_ams_times";//每次收到航线可能图传不会过来，需要重启app，记录重启次数，最大重启5次
+    private String ATTITUDE_HEAD = "attitude_head";//航线断点保存机头角度
+    private String WAYPOINT_INDEX = "waypoint_index";//航线断点保存当前航点index
 
-    //http://223.108.157.174:9000/kmz/1581F6GKB244L00402TE/1953(完整上传地址示例)
-//    public void setStreamAndMinIOConfig(MQMessage message) {
-//        setString(RTMP_PUSH_URL, getRTMPUrl());
-//        LogUtil.log(TAG,"setStreamAndMinIOConfig:"+message.getTask_id());
-//        if (!TextUtils.isEmpty(message.getTask_id())){
-//            setString(TASK_ID,message.getTask_id());
-//        }
-//        if (!TextUtils.isEmpty(message.getUpload_url())) {
-//            String[] split = message.getUpload_url().split("//");
-//            String[] split1 = split[1].split("/");
-//            if (!(split1.length < 4)) {
-//                setString(UPLOAD_URL, "http://" + split1[0]);
-//                setString(BUCKET_NAME, split1[1]);
-//                setString(OBJECT_KEY, split1[2]);
-//                setString(SORTIES_ID, split1[3]);
-//            } else {
-//                LogUtil.log(TAG, "minio参数有误");
-//            }
-//            setString(ACCESS_KEY, message.getAccess_key());
-//            setString(SECRET_KEY, message.getSecret_key());
-//            setString(FLIGHT_NAME, message.getFlight_name());
-//            setString(FLIGHT_ID, message.getFlightId());
-//
-//        } else {
-//            LogUtil.log(TAG, "minio参数有误:地址为空");
-//        }
-//    }
 
-    public String getFlightName() {
-        return getString(FLIGHT_NAME);
-    }
-
-    public String getSortiesId() {
-        return getString(SORTIES_ID);
-    }
-    public void setTaskId(String taskId) {
-        setString(TASK_ID,taskId);
-    }
-
-    public String getTaskId() {
-        return getString(TASK_ID);
-    }
 
     public void setFlightId(String flightId) {
         setString(FLIGHT_ID,flightId);
@@ -368,29 +329,6 @@ public class PreferenceUtils extends BasePreference {
     public void setCameraLocationType(int locationType) {
         setInt(CAMERA_LOCATION, locationType);
     }
-    public String getDockerLat() {
-        return getString(DOCKER_LAT);
-    }
-
-    public void setDockerLat(String dockerLat) {
-        setString(DOCKER_LAT, dockerLat);
-    }
-
-    public String getDockerLon() {
-        return getString(DOCKER_LON);
-    }
-
-    public void setDockerLon(String dockerLon) {
-        setString(DOCKER_LON, dockerLon);
-    }
-
-    public String getAircraftHeading() {
-        return getString(AIRCRAFT_HEADING);
-    }
-
-    public void setAircraftHeading(String dockerLon) {
-        setString(AIRCRAFT_HEADING, dockerLon);
-    }
 
     public String getMinumumBattery() {
         return getString(MINIMUM_BATTERY);
@@ -438,14 +376,6 @@ public class PreferenceUtils extends BasePreference {
 
     public void setAlternatePointTimes(String alternatePointTimes) {
         setString(ALTERNATE_POINT_TIMES, alternatePointTimes);
-    }
-
-    public String getPauseIndex() {
-        return getString(PAUSE_WAYPOINT_INDEX);
-    }
-
-    public void setPauseIndex(String pauseIndex) {
-        setString(PAUSE_WAYPOINT_INDEX, pauseIndex);
     }
 
     public boolean getIsDebugMode() {
@@ -502,6 +432,22 @@ public class PreferenceUtils extends BasePreference {
 
     public void setRestartAMSTimes(int restartAMSTimes) {
         setInt(RESTART_AMS_TIMES, restartAMSTimes);
+    }
+
+    public String getAttitudeHead() {
+        return getString(ATTITUDE_HEAD);
+    }
+
+    public void setAttitudeHead(String attitudeHead) {
+        setString(ATTITUDE_HEAD, attitudeHead);
+    }
+
+    public String getWaypointIndex() {
+        return getString(WAYPOINT_INDEX);
+    }
+
+    public void setWaypointIndex(String waypointIndex) {
+        setString(WAYPOINT_INDEX, waypointIndex);
     }
 
     private PreferenceUtils(Context context) {

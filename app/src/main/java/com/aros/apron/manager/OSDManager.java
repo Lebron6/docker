@@ -1,11 +1,14 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
@@ -24,7 +27,11 @@ import java.util.List;
 import java.util.UUID;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
+import dji.v5.manager.aircraft.waypoint3.model.BreakPointInfo;
 
 public class OSDManager extends BaseManager {
 
@@ -61,7 +68,7 @@ public class OSDManager extends BaseManager {
             }
             lastExecuteTime = now;
             Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-            if (isConnect != null && isConnect) {
+            if (isConnect != null && isConnect  && !Movement.getInstance().isMissionFinish()) {
                 pushFlightAttitude();
             }else{
                 LogUtil.log(TAG,"osd stop:flight controller is null");
@@ -89,6 +96,7 @@ public class OSDManager extends BaseManager {
 
     private void pushFlightAttitude() {
         try {
+
 
             if (batteries != null && batteries.size() > 0) {
                 batteries.clear();
@@ -269,7 +277,7 @@ public class OSDManager extends BaseManager {
                     AMSConfig.UP_UAV_EVENT,
                     flightMessage
             );
-            Log.e(TAG,"推送osd:"+gson.toJson(osd));
+//            Log.e(TAG,"推送osd:"+gson.toJson(osd));
         } catch (Exception e) {
             LogUtil.log(TAG, "推送osd异常: " + e);
         }

@@ -119,7 +119,7 @@ public class LTEManager extends BaseManager {
             dji.v5.manager.aircraft.lte.LTEManager.getInstance().addLTEDongleInfoListener(new LTEDongleInfoListener() {
                 @Override
                 public void onLTEAircraftDongleInfoUpdate(@NonNull List<WlmDongleInfo> aircraftDongleInfos) {
-                    if (aircraftDongleInfos != null) {
+                    if (aircraftDongleInfos != null&&aircraftDongleInfos.size()>0) {
                         Movement.getInstance().setDongle_number(aircraftDongleInfos.size() + "");
                         Movement.getInstance().setSdr_link_state(
                                 aircraftDongleInfos.get(0).getWorkState() == WlmDongleWorkState.REGISTER_ROAMING ? "1" : "0");

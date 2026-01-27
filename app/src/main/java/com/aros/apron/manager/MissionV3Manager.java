@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.entity.ApronExecutionStatus;
+import com.aros.apron.constant.ErrorCode;
 import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
@@ -87,132 +87,120 @@ public class MissionV3Manager extends BaseManager {
                     if (missionState != null) {
                         switch (missionState) {
                             case DISCONNECTED:
-                                Movement.getInstance().setAirlineFlight(false);
-                                Movement.getInstance().setWaylineCanResume(false);
-                                sendEvent2Server("任务状态:未连接");
+                                sendEvent2Server("任务状态:未连接", 1);
                                 break;
                             case IDLE:
-                                Movement.getInstance().setAirlineFlight(false);
-                                Movement.getInstance().setWaylineCanResume(false);
-                                sendEvent2Server("任务状态:初始化");
+                                sendEvent2Server("任务状态:初始化", 1);
                                 break;
                             case NOT_SUPPORTED:
-                                Movement.getInstance().setAirlineFlight(false);
-                                Movement.getInstance().setWaylineCanResume(false);
-                                sendEvent2Server("任务状态:此机型不支持航线任务3.0");
+                                sendEvent2Server("任务状态:此机型不支持航线任务3.0", 1);
                                 Movement.getInstance().setTask_status("rejected");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case READY:
-                                Movement.getInstance().setAirlineFlight(false);
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
                                 } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
+                                    Movement.getInstance().setTask_status("in_progress");
                                 }
-                                sendEvent2Server("任务状态:准备中");
+                                sendEvent2Server("任务状态:准备中", 1);
                                 break;
                             case UPLOADING:
-                                Movement.getInstance().setAirlineFlight(false);
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
                                 } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
+                                    Movement.getInstance().setTask_status("sent");
                                 }
-                                sendEvent2Server("任务状态:上传中");
+                                sendEvent2Server("任务状态:上传中", 1);
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                Movement.getInstance().setTask_status("sent");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case PREPARING:
-                                Movement.getInstance().setAirlineFlight(false);
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
                                 } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
+                                    Movement.getInstance().setTask_status("in_progress");
                                 }
-                                sendEvent2Server("任务状态:执行准备中");
+                                sendEvent2Server("任务状态:执行准备中", 1);
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                Movement.getInstance().setTask_status("in_progress");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case ENTER_WAYLINE:
                                 enterWayLineTime = System.currentTimeMillis();
-                                Movement.getInstance().setAirlineFlight(true);
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
                                 } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
+                                    Movement.getInstance().setTask_status("in_progress");
                                 }
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                sendEvent2Server("任务状态:进入航线飞行,飞往指定航线的第一个航点");
+                                sendEvent2Server("任务状态:进入航线飞行,飞往指定航线的第一个航点", 1);
                                 sendFlightTaskProgress2Server();
-                                Movement.getInstance().setTask_status("in_progress");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case EXECUTING:
-                                Movement.getInstance().setAirlineFlight(true);
-                                sendEvent2Server("任务状态:航线任务执行中");
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
+                                sendEvent2Server("任务状态:航线任务执行中", 1);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
                                 } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
+                                    Movement.getInstance().setTask_status("in_progress");
                                 }
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                Movement.getInstance().setTask_status("in_progress");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case INTERRUPTED:
-                                Movement.getInstance().setAirlineFlight(true);
-                                Movement.getInstance().setWaylineCanResume(false);
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                sendEvent2Server("任务状态:航线任务执行中断");
+                                sendEvent2Server("任务状态:航线任务执行中断", 1);
                                 Movement.getInstance().setTask_status("paused");
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case RECOVERING:
-                                Movement.getInstance().setAirlineFlight(true);
-                                Movement.getInstance().setWaylineCanResume(false);
                                 Movement.getInstance().setVirtualStickQuitMission(false);
-                                sendEvent2Server("任务状态:航线任务恢复中");
-                                Movement.getInstance().setTask_status("in_progress");
+                                sendEvent2Server("任务状态:航线任务恢复中", 1);
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
+                                } else {
+                                    Movement.getInstance().setTask_status("in_progress");
+                                }
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
                             case FINISHED:
                                 finishWayLineTime = System.currentTimeMillis();
-                                Movement.getInstance().setAirlineFlight(false);
-                                if (PreferenceUtils.getInstance().getIsNewRoute() &&
-                                        !(Movement.getInstance().getCurrentWaypointIndex() > 0)) {
-                                    Movement.getInstance().setWaylineCanResume(true);
-                                } else {
-                                    Movement.getInstance().setWaylineCanResume(false);
-                                }
                                 mainHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing()
                                         ) {
-                                            sendTaskFailEvent2Server("10s内任务非正常结束,直接入库");
+                                            sendEvent2Server("任务非正常结束", 2);
+                                            TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                                         }
                                     }
                                 }, 5000);
+                                //需要在这里保存下来机头角度，index等断点，在降落后若查询到断点，在拼接起来
+                                PreferenceUtils.getInstance().setAttitudeHead(Movement.getInstance().getAttitude_head()+"");
+                                PreferenceUtils.getInstance().setWaypointIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
+                                queryBreakPoint();
                                 sendFlightTaskProgress2Server();
                                 break;
                             case RETURN_TO_START_POINT:
-                                Movement.getInstance().setAirlineFlight(true);
-                                Movement.getInstance().setTask_status("in_progress");
+                                if (PreferenceUtils.getInstance().getMissionType()==2
+                                ) {
+                                    Movement.getInstance().setTask_status("paused");
+                                } else {
+                                    Movement.getInstance().setTask_status("in_progress");
+                                }
                                 Movement.getInstance().setMissionFinish(false);
                                 sendFlightTaskProgress2Server();
                                 break;
@@ -221,19 +209,18 @@ public class MissionV3Manager extends BaseManager {
                         Movement.getInstance().setWaypointMissionExecuteState(missionState.name());
                         Movement.getInstance().setTask_wayline_mission_state(missionState.value());
                         Movement.getInstance().setMissionStateCode(missionState.value());
-
-
                     }
-
                 }
             });
             waypointMissionManager.addWaylineExecutingInfoListener(new WaylineExecutingInfoListener() {
                 @Override
                 public void onWaylineExecutingInfoUpdate(WaylineExecutingInfo excutingWaylineInfo) {
                     if (excutingWaylineInfo != null) {
-                        //状态等执行完发送再更新
-                        Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
-                        Movement.getInstance().setTask_current_waypoint_index(excutingWaylineInfo.getCurrentWaypointIndex());
+                        //状态等执行完发送再更新(测试暂停时不改变index为0)
+                        if (excutingWaylineInfo.getCurrentWaypointIndex() != 0) {
+                            Movement.getInstance().setCurrentWaypointIndex(excutingWaylineInfo.getCurrentWaypointIndex());
+                            Movement.getInstance().setTask_current_waypoint_index(excutingWaylineInfo.getCurrentWaypointIndex());
+                        }
                     }
                 }
 
@@ -268,6 +255,7 @@ public class MissionV3Manager extends BaseManager {
 
     //收到航线
     public void taskExecute(MessageDown message) {
+        PreferenceUtils.getInstance().setMissionType(0);
         PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
         PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
         PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
@@ -315,25 +303,29 @@ public class MissionV3Manager extends BaseManager {
             }
             //5.检查航线备降点参数
             if (message.getData().getAlternate_land_point() == null) {
-                sendTaskFailEvent2Server("备降点参数异常");
+                sendEvent2Server("备降点参数异常", 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                 return false;
             }
             //6.检查航线参数
             if (message.getData().getFile() == null) {
-                sendTaskFailEvent2Server("航线参数异常");
+                sendEvent2Server("航线参数异常", 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                 return false;
             }
             //7.检查电池电量
             Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
                     KeyBatteryPowerPercent, 0));
             if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())) {
-                sendTaskFailEvent2Server("任务执行失败,电量过低");
+                sendEvent2Server("任务执行失败,电量过低", 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(ErrorCode.DEVICE_BATTERY_LEVEL_TOO_LOW);
                 return false;
             }
             RemoteControllerFlightMode remoteControllerFlightMode =
                     KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
             if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
-                sendTaskFailEvent2Server("任务执行失败,请将遥控器切换为P/N挡");
+                sendEvent2Server("任务执行失败,请将遥控器切换为P/N挡", 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                 return false;
 
             }
@@ -375,16 +367,17 @@ public class MissionV3Manager extends BaseManager {
                                     WaypointMissionExecuteState.find(missionStateCode).name() +
                                     "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
                                     Movement.getInstance().getPlaneMessage() +
-                                    "-GPS信号等级:" + Movement.getInstance().getQuality());
+                                    "-GPS信号等级:" + Movement.getInstance().getQuality(), 1);
                         }
                     },2000);
 
-                }else{
-                    ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                    sendTaskFailEvent2Server("飞行器自检异常:"+WaypointMissionExecuteState.find(missionStateCode).name() +
+                }else {
+                    sendEvent2Server("飞行器自检异常:" + WaypointMissionExecuteState.find(missionStateCode).name() +
                             "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
                             Movement.getInstance().getPlaneMessage() +
-                            "-GPS信号等级:" + Movement.getInstance().getQuality());
+                            "-GPS信号等级:" + Movement.getInstance().getQuality(), 2);
+
+                    TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                 }
             }
         }
@@ -401,7 +394,8 @@ public class MissionV3Manager extends BaseManager {
         new OkHttpClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                sendTaskFailEvent2Server("任务下载失败:" + e.toString());
+                sendEvent2Server("任务下载失败:" + e.toString(), 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
             }
 
             @Override
@@ -424,7 +418,7 @@ public class MissionV3Manager extends BaseManager {
                             fos.write(buf, 0, len);
                         }
                         fos.flush();
-                        sendEvent2Server("航线下载成功 ");
+                        sendEvent2Server("航线下载成功 ", 1);
                         mainHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -432,7 +426,8 @@ public class MissionV3Manager extends BaseManager {
                             }
                         });
                     } catch (Exception e) {
-                        sendTaskFailEvent2Server("任务下载失败,网络异常:" + e.toString());
+                        sendEvent2Server("任务下载失败,网络异常:" + e.toString(), 2);
+                        TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                     }
                 }
             }
@@ -472,17 +467,9 @@ public class MissionV3Manager extends BaseManager {
                     if (waylines != null && waylines.size() > 0) {
                         List<WaylineExecuteWaypoint> waypoints = waylines.get(0).getWaypoints();
                         if (waypoints != null&&waypoints.size()>0) {
-                            //将航点列表保存在本地
-                            if (!PreferenceUtils.getInstance().getIsNewRoute()) {
-                                CurrentWayline.getInstance().setWaypoints(waypoints);
-                            } else if (PreferenceUtils.getInstance().getMissionType() == 2) {
-                                if (waylines.size()>2){
-                                    //清除飞机当前坐标点和断点位置
-                                    waylines.subList(0,2).clear();
-                                }
-                                CurrentWayline.getInstance().setRouteWaypoints(waypoints);
 
-                            }
+                                CurrentWayline.getInstance().setWaypoints(waypoints);
+
                             LogUtil.log(TAG, "该航线有" + waypoints.size() + "个航点");
                         } else {
                             LogUtil.log(TAG, "WPMZManager getWaypointInfo有误");
@@ -503,14 +490,14 @@ public class MissionV3Manager extends BaseManager {
             WaypointMissionManager.getInstance().pushKMZFileToAircraft(Environment.getExternalStorageDirectory().getPath() + "/" + "aros.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
                 @Override
                 public void onProgressUpdate(Double progress) {
-                    sendEvent2Server("航线上传进度:" + progress);
+                    sendEvent2Server("航线上传进度:" + progress, 1);
                     Movement.getInstance().setTask_current_step(17);
 
                 }
 
                 @Override
                 public void onSuccess() {
-                    sendEvent2Server("航线上传成功,准备执行任务");
+                    sendEvent2Server("航线上传成功,准备执行任务", 1);
                     isPushKMZSuccess = true;
                     mainHandler.postDelayed(new Runnable() {
                         @Override
@@ -543,10 +530,11 @@ public class MissionV3Manager extends BaseManager {
                                 LogUtil.log(TAG, "上传航线只处理一次回调" + ":" + new Gson().toJson(error));
                             }
                         } else {
-                            sendTaskFailEvent2Server("航线第" + pushKMZFileTimes + "次上传失败,直接关机");
+                            sendEvent2Server("航线第" + pushKMZFileTimes + "次上传失败,直接关机", 2);
+                            TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                         }
                     } else {
-                        sendEvent2Server("航线上传已经执行onSuccess回调:" + WaypointMissionExecuteState.find(Movement.getInstance().getMissionStateCode()).name());
+                        sendEvent2Server("航线上传已经执行onSuccess回调:" + WaypointMissionExecuteState.find(Movement.getInstance().getMissionStateCode()).name(), 1);
                     }
                 }
             });
@@ -577,10 +565,10 @@ public class MissionV3Manager extends BaseManager {
                     LogUtil.log(TAG, "航线第" + startMissionFailTimes + "次开始成功");
                     Movement.getInstance().setTask_status("in_progress");
                     startMissionFailTimes = 0;
-                    sendEvent2Server("任务开始执行");
+                    sendEvent2Server("任务开始执行", 1);
                     Movement.getInstance().setTask_current_step(23);
                     sendFlightTaskProgress2Server();
-                    Movement.getInstance().setMode_code(5);
+//                    Movement.getInstance().setMode_code(5);
                 }
 
                 @Override
@@ -594,17 +582,18 @@ public class MissionV3Manager extends BaseManager {
                                     @Override
                                     public void run() {
                                         startMission(message);
-                                        sendEvent2Server("航线第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getQuality());
+                                        sendEvent2Server("航线第" + startMissionFailTimes + "次开始失败" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getQuality(), 2);
                                         startMissionFailTimes++;
                                     }
                                 }, 2000);
                             } else {
                                 if (!Movement.getInstance().isPlaneWing()) {
-                                    sendTaskFailEvent2Server("航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getQuality());
+                                    sendEvent2Server("航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getQuality(), 2);
+                                    TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                                 }
                             }
                         } else {
-                            sendEvent2Server("航线已经执行:" + WaypointMissionExecuteState.find(missionStateCode).name());
+                            sendEvent2Server("航线已经执行:" + WaypointMissionExecuteState.find(missionStateCode).name(), 1);
                         }
                     }
                 }
@@ -622,7 +611,7 @@ public class MissionV3Manager extends BaseManager {
             }
 
         } else {
-            sendEvent2Server("任务开始失败,设备未连接");
+            sendEvent2Server("任务开始失败,设备未连接", 2);
         }
     }
 
@@ -631,8 +620,7 @@ public class MissionV3Manager extends BaseManager {
      * @param message
      */
     public void pauseMission(MessageDown message) {
-        //暂停前将index保存
-        PreferenceUtils.getInstance().setPauseIndex(Movement.getInstance().getCurrentWaypointIndex()+"");
+
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -662,20 +650,61 @@ public class MissionV3Manager extends BaseManager {
                 KeyConnection));
         if (isConnect != null && isConnect) {
             IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-            missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(message);
-                    Movement.getInstance().setTask_status("in_progress");
-                    sendFlightTaskProgress2Server();
+            //如果航线是暂停状态,直接恢复航线，否则查询断点信息
+            if (Movement.getInstance().getMissionStateCode() == 7) {
+                missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(message);
+                        Movement.getInstance().setTask_status("in_progress");
+                        sendFlightTaskProgress2Server();
+                    }
 
-                }
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendFailMsg2Server(message, "航线继续失败:" + getIDJIErrorMsg(error));
+                    }
+                });
+            } else {
+                missionManager.queryBreakPointInfoFromAircraft("aros", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
+                    @Override
+                    public void onSuccess(BreakPointInfo breakPointInfo) {
+                        if (breakPointInfo != null) {
+                            LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+                            mainHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    WaypointMissionManager.getInstance().startMission("aros", breakPointInfo,
+                                            new CommonCallbacks.CompletionCallback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    sendMsg2Server(message);
+                                                    PreferenceUtils.getInstance().setIsNewRoute(false);
+                                                    LogUtil.log(TAG, "恢复断点航线成功");
+                                                    Movement.getInstance().setTask_status("in_progress");
+                                                    sendFlightTaskProgress2Server();
+                                                }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    sendFailMsg2Server(message, "航线继续失败:" + getIDJIErrorMsg(error));
-                }
-            });
+                                                @Override
+                                                public void onFailure(@NonNull IDJIError idjiError) {
+                                                    LogUtil.log(TAG, "恢复断点航线失败:" + getIDJIErrorMsg(idjiError));
+                                                    sendFailMsg2Server(message, "恢复断点航线失败:" + getIDJIErrorMsg(idjiError));
+                                                }
+                                            });
+                                }
+                            }, 500);
+                        } else {
+                            LogUtil.log(TAG, "未查询到断点信息");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        LogUtil.log(TAG, "查询断点失败:" + getIDJIErrorMsg(idjiError));
+                    }
+                });
+            }
+
         } else {
             LogUtil.log(TAG, "设备未连接");
         }
@@ -698,7 +727,7 @@ public class MissionV3Manager extends BaseManager {
             if (!Movement.getInstance().isVtx()) {
                 // 图传仍未恢复 → 执行重启逻辑
                 int times = PreferenceUtils.getInstance().getRestartAMSTimes();
-                if (times < 3) {
+                if (times < 5) {
                     PreferenceUtils.getInstance().setRestartAMSTimes(times + 1);
                     LogUtil.log(TAG, "图传仍未恢复，重启 AMS 第 " + (times + 1) + " 次");
                     RestartAPPTool.INSTANCE.restartApp(ApronApp.Companion.getContext());
@@ -709,7 +738,7 @@ public class MissionV3Manager extends BaseManager {
                 LogUtil.log(TAG, "图传在延迟期间恢复，继续执行任务流程");
                 onVtxReady.run();
             }
-        }, 10000);
+        }, 5000);
     }
 
 }

@@ -3,6 +3,8 @@ package com.aros.apron.manager;
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -12,6 +14,7 @@ import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
@@ -22,6 +25,8 @@ import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
 import dji.sdk.keyvalue.value.flightcontroller.LookAtInfo;
 import dji.sdk.keyvalue.value.flightcontroller.LookAtMode;
+import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
+import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalResetType;
 import dji.v5.common.callback.CommonCallbacks;
@@ -67,27 +72,101 @@ public class GimbalManager extends BaseManager {
 
 
     //云台重置
-    public void gimbalReset(MessageDown message) {
+    public void gimbalReset() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
                 KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
             KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                         @Override
                         public void onSuccess(EmptyMsg emptyMsg) {
-                            if (message != null) {
-                                sendMsg2Server(message);
-                            }
                             LogUtil.log(TAG, "云台复位");
                         }
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
-                            if (message != null) {
-                                sendFailMsg2Server(message, "云台重置失败:" + getIDJIErrorMsg(error));
-                            }
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
                         }
                     }
             );
+        } else {
+            LogUtil.log(TAG, "云台未连接");
+        }
+    }
+
+    //云台重置
+    public void gimbalReset(MessageDown message) {
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+        if (isConnect != null && isConnect) {
+            switch (message.getData().getReset_mode()){
+                case 0:
+                    KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1), GimbalResetType.PITCH_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    sendMsg2Server(message);
+                                }
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendFailMsg2Server(message,"云台复位失败:" + error.description());
+                                }
+                            }
+                    );
+                    break;
+                case 1:
+                    GimbalAngleRotation rotation = new GimbalAngleRotation();
+                    rotation.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+                    rotation.setYaw(0.0);
+                    rotation.setRoll(0.0);
+                    rotation.setPitch(-90.0);
+                    KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    sendMsg2Server(message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendFailMsg2Server(message,"云台向下失败:" + error.description());
+                                }
+                            }
+                    );
+                    break;
+                case 2:
+                    KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyGimbalReset, ComponentIndexType.PORT_1),
+                            GimbalResetType.ONLY_YAW, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    sendMsg2Server(message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendFailMsg2Server(message,"云台偏航回中失败:" + getIDJIErrorMsg(error));
+                                }
+                            }
+                    );
+                    break;
+                case 3:
+                    GimbalAngleRotation rotation1 = new GimbalAngleRotation();
+                    rotation1.setMode(GimbalAngleRotationMode.ABSOLUTE_ANGLE);
+                    if (!TextUtils.isEmpty(Movement.getInstance().getGimbal_yaw()+"")){
+                        rotation1.setYaw(Movement.getInstance().getGimbal_yaw());
+                    }
+                    rotation1.setPitch(-90.0);
+                    KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateByAngle, ComponentIndexType.PORT_1), rotation1, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                                @Override
+                                public void onSuccess(EmptyMsg emptyMsg) {
+                                    sendMsg2Server(message);
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError error) {
+                                    sendFailMsg2Server(message,"偏航向下失败:"+getIDJIErrorMsg(error));
+                                }
+                            }
+                    );
+                    break;
+            }
+
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
@@ -121,56 +200,5 @@ public class GimbalManager extends BaseManager {
         } else {
             LogUtil.log(TAG, "云台未连接");
         }
-    }
-
-
-    //设置云台模式
-    public void setGimbalMode(int gimbalMode) {
-        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
-                KeyConnection, ComponentIndexType.PORT_1));
-        if (isConnect != null && isConnect) {
-            KeyManager.getInstance().setValue(KeyTools.createKey(GimbalKey.KeyGimbalMode,
-                    ComponentIndexType.PORT_1), GimbalMode.find(gimbalMode), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    switch (gimbalMode) {
-                        case 0:
-                            LogUtil.log(TAG, "设置云台自由模式成功");
-                            gimbalReset(null);
-                            break;
-                        case 1:
-                            LogUtil.log(TAG, "设置云台FPV模式成功");
-                            break;
-                        case 2:
-                            LogUtil.log(TAG, "设置云台跟随模式成功");
-                            break;
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    switch (gimbalMode) {
-                        case 0:
-                            LogUtil.log(TAG, "设置云台自由模式失败:" + error.description());
-                            break;
-                        case 1:
-                            LogUtil.log(TAG, "设置云台FPV模式失败:" + error.description());
-                            break;
-                        case 2:
-                            LogUtil.log(TAG, "设置云台跟随模式失败:" + error.description());
-                            break;
-
-                    }
-                }
-            });
-
-        } else {
-            LogUtil.log(TAG, "设置云台模式失败:未连接");
-        }
-
-    }
-
-    public void releaseGimbalKey() {
-        KeyManager.getInstance().cancelListen(this);
     }
 }

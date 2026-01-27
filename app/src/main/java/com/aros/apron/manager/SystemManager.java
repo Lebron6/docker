@@ -55,9 +55,10 @@ public class SystemManager extends BaseManager {
     //文件是否上传结束
     public void aircraftStoredReply(MessageDown message) {
         if (ApronExecutionStatus.getInstance().isAircraftWaitShutDown()) {
-            sendMsg2Server( message);
+            sendMsg2Server(message);
+            PreferenceUtils.getInstance().setFlightId("null");
         } else {
-            sendFailMsg2Server( message, "不可关机");
+            sendFailMsg2Server(message, "不可关机");
         }
     }
 
@@ -76,7 +77,6 @@ public class SystemManager extends BaseManager {
         } else {
             LogUtil.log(TAG, "minio上传参数有误,直接入库");
             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-            Movement.getInstance().setTaskFail(true);
         }
     }
 }

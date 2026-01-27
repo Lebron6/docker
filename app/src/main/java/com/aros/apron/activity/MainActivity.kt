@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -47,11 +46,9 @@ import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
-import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
-import dji.sdk.keyvalue.key.ProductKey
 import dji.sdk.keyvalue.value.common.CameraLensType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.sdk.keyvalue.value.common.EmptyMsg
@@ -587,28 +584,21 @@ open class MainActivity : BaseActivity() {
             LTEManager.getInstance().initLTEInfo()
             WirelessLinkManager.getInstance().initWirelessLink()
             CameraManager.getInstance().initCameraInfo()
-            //这里修改推流逻辑
-            if (PreferenceUtils.getInstance().customStreamType!=3) {
-                Handler().postDelayed(Runnable {
+            LogUtil.log(TAG,"自定义推流方式:"+PreferenceUtils.getInstance().customStreamType)
+            Handler().postDelayed(Runnable {
                     if (PreferenceUtils.getInstance().customStreamType==1){
                         StreamManager.getInstance()
                             .startLiveWithRTSP()
                     }else if (PreferenceUtils.getInstance().customStreamType==2){
                         StreamManager.getInstance()
                             .startLiveWithCustom()
-                    }else{
-                        LogUtil.log(TAG,"推流方式配置有误")
+                    }else {
+                        StreamManager.getInstance()
+                            .startLiveWithCustom()
                     }
 
                 }, 5000)
-                //如果选择不默认推流，就从缓存里取上次的推流地址，开机就推流
-            }else if(!TextUtils.isEmpty(PreferenceUtils.getInstance().customStreamUrl)){
-                Handler().postDelayed(Runnable {
-                    StreamManager.getInstance()
-                        .startLiveWithCustom()
-                }, 5000)
-            }
-
+LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
         }
     }
 

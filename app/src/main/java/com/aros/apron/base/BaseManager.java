@@ -1,8 +1,12 @@
 package com.aros.apron.base;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
@@ -13,16 +17,22 @@ import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.entity.TaskFailEvent;
 import com.aros.apron.entity.WirelessLink;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.UUID;
+
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.common.error.IDJIError;
+import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
+import dji.v5.manager.aircraft.waypoint3.model.BreakPointInfo;
 
 public abstract class BaseManager {
 
@@ -118,55 +128,31 @@ public abstract class BaseManager {
     }
 
     /**
-     * 发送taskFailevent
-     * @param msg
-     */
-    public void sendTaskFailEvent2Server(String msg) {
-        LogUtil.log(TAG,"发送任务失败事件:"+"  -"+msg);
-        try {
-            if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-                MessageEvent messageEvent = new MessageEvent();
-                messageEvent.setBid(UUID.randomUUID().toString());
-                messageEvent.setTid(UUID.randomUUID().toString());
-                messageEvent.setTimestamp(System.currentTimeMillis());
-                messageEvent.setMethod(Constant.TASK_FAIL);
-                MessageEvent.Data data=new MessageEvent.Data();
-                data.setResult(-1);
-                data.setErrorMsg(msg);
-                messageEvent.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
-                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-            } else {
-                LogUtil.log(TAG, "发送event失败：mqtt 未连接");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.log(TAG, "回复event异常：" + e.toString());
-        }
-    }
-
-    /**
      * 发送常规event事件
      */
-    public void sendEvent2Server(String msg) {
-        LogUtil.log(TAG,"发送常规事件:"+"simple  -"+msg);
+    public void sendEvent2Server(String msg,int level) {
+        LogUtil.log(TAG,"发送常规事件:"+"run_log  -"+msg);
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 MessageEvent messageEvent = new MessageEvent();
                 messageEvent.setBid(UUID.randomUUID().toString());
                 messageEvent.setTid(UUID.randomUUID().toString());
                 messageEvent.setTimestamp(System.currentTimeMillis());
-                messageEvent.setMethod("simple");
+                messageEvent.setMethod("run_log");
                 MessageEvent.Data data=new MessageEvent.Data();
-                data.setResult(1);
-                data.setErrorMsg(msg);
+                data.setMsg(msg);
+                data.setLevel(level);
+                if (TextUtils.isEmpty(PreferenceUtils.getInstance().getFlightId())){
+                    data.setFlight_id("null");
+                }else{
+                    data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
+                }
                 messageEvent.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
-                LogUtil.log(TAG, "发送event失败：mqtt 未连接");
+                LogUtil.log(TAG, "发送run_log event失败：mqtt 未连接");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,21 +200,11 @@ public abstract class BaseManager {
     public void sendFlightTaskProgress2Server() {
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-                FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint = new FlightTaskProgress.Data.Output.Ext.BreakPoint();
                 FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
                 FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
 
                 FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
                 FlightTaskProgress.Data data = new FlightTaskProgress.Data();
-                breakPoint.setAttitude_head(Movement.getInstance().getTask_attitude_head());
-                breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
-                breakPoint.setHeight(Movement.getInstance().getTask_height());
-                breakPoint.setIndex(0);
-                breakPoint.setLatitude(Movement.getInstance().getTask_latitude());
-                breakPoint.setLongitude(Movement.getInstance().getTask_longitude());
-                breakPoint.setProgress(Movement.getInstance().getTask_progress());
-                breakPoint.setState(Movement.getInstance().getState());
-                breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
 
                 ext.setCurrent_waypoint_index(Movement.getInstance().getTask_current_waypoint_index());
                 ext.setFlight_id(PreferenceUtils.getInstance().getFlightId());
@@ -245,14 +221,51 @@ public abstract class BaseManager {
                 }
                 progress.setCurrent_step(Movement.getInstance().getTask_current_step());
 
-                ext.setBreak_point(breakPoint);
-                output.setExt(ext);
-                output.setProgress(progress);
                 if (Movement.getInstance().isMissionFinish()){
-                    output.setStatus("ok");
+                    WaypointMissionManager.getInstance().queryBreakPointInfoFromAircraft(
+                            "aros", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
+                        @Override
+                        public void onSuccess(BreakPointInfo breakPointInfo) {
+                            if (breakPointInfo != null) {
+                                LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+                                FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint =
+                                        new FlightTaskProgress.Data.Output.Ext.BreakPoint();
+                                if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAttitudeHead())){
+                                    breakPoint.setAttitude_head(Integer.parseInt(PreferenceUtils.getInstance().getAttitudeHead()));
+                                }else{
+                                    breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
+                                }
+                                breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
+                                breakPoint.setHeight(breakPointInfo.getLocation().getAltitude());
+                                if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getWaypointIndex())){
+                                    breakPoint.setIndex(Integer.parseInt(PreferenceUtils.getInstance().getWaypointIndex()));
+                                }else{
+                                    breakPoint.setIndex(0);
+                                }
+                                breakPoint.setLatitude(breakPointInfo.getLocation().getLatitude());
+                                breakPoint.setLongitude(breakPointInfo.getLocation().getLongitude());
+                                breakPoint.setProgress(Movement.getInstance().getTask_progress());
+                                breakPoint.setState(Movement.getInstance().getState());
+                                breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
+                                ext.setBreak_point(breakPoint);
+                                output.setStatus("partially_done");
+
+                            } else {
+                                output.setStatus("ok");
+                                LogUtil.log(TAG, "未查询到断点信息");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull IDJIError idjiError) {
+                            output.setStatus("ok");
+                        }
+                    });
                 }else{
                     output.setStatus(Movement.getInstance().getTask_status());
                 }
+                output.setExt(ext);
+                output.setProgress(progress);
                 data.setResult(0);
                 data.setOutput(output);
                 FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
@@ -275,8 +288,37 @@ public abstract class BaseManager {
         }
     }
 
+    //计划在航线状态为finish时，查询断点并上报
+    public void queryBreakPoint() {
+        WaypointMissionManager.getInstance().queryBreakPointInfoFromAircraft("aros",
+                new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
+            @Override
+            public void onSuccess(BreakPointInfo breakPointInfo) {
+                if (breakPointInfo != null) {
+                    LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+                    Movement.getInstance().setTask_attitude_head(Movement.getInstance().getAttitude_head());
+                    Movement.getInstance().setTask_break_reason(2);
+                    Movement.getInstance().setTask_index(Movement.getInstance().getTask_current_waypoint_index());
+                    Movement.getInstance().setHeight(breakPointInfo.getLocation().getAltitude());
+                    Movement.getInstance().setTask_latitude(breakPointInfo.getLocation().getLatitude());
+                    Movement.getInstance().setTask_longitude(breakPointInfo.getLocation().getLongitude());
+                    Movement.getInstance().setTask_progress(breakPointInfo.getSegmentProgress());
+                    Movement.getInstance().setTask_state(0);
+                    Movement.getInstance().setTask_wayline_id(breakPointInfo.getWaylineID());
+                } else {
+                    LogUtil.log(TAG, "未查询到断点信息");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull IDJIError idjiError) {
+                LogUtil.log(TAG, "查询断点失败:" + getIDJIErrorMsg(idjiError));
+            }
+        });
+    }
+
     /**
-     * 上报航线任务进度
+     * 上报sdr
      */
     public void sendWireless2Server() {
         try {
@@ -302,7 +344,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(wirelessLink).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-                LogUtil.log(TAG,"发送sdr事件:"+new Gson().toJson(wirelessLink));
+//                LogUtil.log(TAG,"发送sdr事件:"+new Gson().toJson(wirelessLink));
 
             } else {
                 LogUtil.log(TAG, "发送sdr失败：mqtt 未连接");
@@ -315,7 +357,7 @@ public abstract class BaseManager {
 
 
     public boolean getGimbalAndCameraEnabled() {
-        if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()&& Movement.getInstance().getGoHomeState()!=1&&Movement.getInstance().getGoHomeState()!=2) {
+        if (!PreferenceUtils.getInstance().getNeedTriggerApronArucoLand() && !PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() && Movement.getInstance().getGoHomeState() != 1 && Movement.getInstance().getGoHomeState() != 2) {
             return true;
         } else {
             LogUtil.log(TAG, "降落时不允许操作云台/相机/虚拟摇杆");

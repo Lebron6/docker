@@ -1,4 +1,4 @@
-//package com.aros.apron.manager;
+package com.aros.apron.manager;//package com.aros.apron.manager;
 //
 //
 //import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
@@ -263,7 +263,7 @@
 //                                        if (finishWayLineTime - enterWayLineTime <= 11000 && !Movement.getInstance().isPlaneWing() && !message.isNewRoute()) {
 //                                            LogUtil.log(TAG, "10s内任务非正常结束,直接入库");
 //                                            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-//                                            sendTaskFailEvent2Server( "10s内任务非正常结束,直接入库");
+//                                            TaskFailManager.getInstance().sendTaskFailMsg2Server( "10s内任务非正常结束,直接入库");
 //                                        }
 //                                    }
 //                                }, 5000);

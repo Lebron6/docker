@@ -62,13 +62,12 @@ public class DockOpenManager extends BaseManager {
                 messageEvent.setTimestamp(System.currentTimeMillis());
                 messageEvent.setMethod(Constant.OPEN_DOOR);
                 MessageEvent.Data data=new MessageEvent.Data();
-                data.setResult(1);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes(StandardCharsets.UTF_8));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        sendEvent2Server("AMS通知机库开舱");
+                        sendEvent2Server("AMS通知机库开舱",1);
                         mainHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {

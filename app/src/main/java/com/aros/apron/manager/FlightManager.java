@@ -2,19 +2,13 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.callback.MqttCallBack;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
-import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
@@ -24,14 +18,9 @@ import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.xclog.XcFileLog;
 import com.google.gson.Gson;
-
 import org.greenrobot.eventbus.EventBus;
-
-import java.text.DecimalFormat;
 import java.util.List;
-
 import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -42,7 +31,6 @@ import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.common.LocationCoordinate2D;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
 import dji.sdk.keyvalue.value.common.Velocity3D;
-import dji.sdk.keyvalue.value.flightcontroller.FCFlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.FailsafeAction;
 import dji.sdk.keyvalue.value.flightcontroller.FlightMode;
 import dji.sdk.keyvalue.value.flightcontroller.GPSSignalLevel;
@@ -56,7 +44,6 @@ import dji.sdk.keyvalue.value.flightcontroller.RidWorkingStatusPushMsg;
 import dji.sdk.keyvalue.value.flightcontroller.WindDirection;
 import dji.sdk.keyvalue.value.product.ProductType;
 import dji.sdk.keyvalue.value.rtkmobilestation.RTKTakeoffAltitudeInfo;
-import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.common.utils.GpsUtils;
@@ -77,13 +64,10 @@ import dji.v5.manager.interfaces.IWaypointMissionManager;
 public class FlightManager extends BaseManager {
 
 
-    private IPerceptionManager iPerceptionManager;
     private IDeviceHealthManager iDeviceHealthManager;
     private IDeviceStatusManager iDeviceStatusManager;
     private boolean isFlying;
     private boolean isMotorsOn;
-    private int waypointIndexAlreadySend=-1;
-    DecimalFormat decimalFormat = new DecimalFormat("#.0"); // 保留一位小数
 
     private FlightManager() {
     }
@@ -95,7 +79,6 @@ public class FlightManager extends BaseManager {
     public static FlightManager getInstance() {
         return FlightControlHolder.INSTANCE;
     }
-
 
     public void initFlightInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
@@ -160,7 +143,6 @@ public class FlightManager extends BaseManager {
                 public void onValueChange(@Nullable Boolean oldValue, @Nullable Boolean newValue) {
                     if (newValue != null) {
                         if (newValue) {
-                            Movement.getInstance().setTaskFail(false);
                             ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
                         }
                         isFlying = newValue;
@@ -181,7 +163,6 @@ public class FlightManager extends BaseManager {
                 }
             });
 
-
             //挡位
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyRemoteControllerFlightMode), this, new CommonCallbacks.KeyListener<RemoteControllerFlightMode>() {
                 @Override
@@ -189,7 +170,6 @@ public class FlightManager extends BaseManager {
                     if (remoteControllerFlightMode != null) {
                         Movement.getInstance().setGear(remoteControllerFlightMode.value());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -200,7 +180,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setProductName(t1.name());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -212,7 +191,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setFirmware_version(t1);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -244,8 +222,6 @@ public class FlightManager extends BaseManager {
                 @Override
                 public void onValueChange(@Nullable LocationCoordinate3D oldValue, @Nullable LocationCoordinate3D newValue) {
                     if (newValue != null) {
-                        //更新前端按钮状态
-                        updataButtonStatus();
                         if (newValue.getAltitude() != null) {
                             Movement.getInstance().setElevation(newValue.getAltitude());
                             Movement.getInstance().setTask_height(newValue.getAltitude());
@@ -331,7 +307,6 @@ public class FlightManager extends BaseManager {
                 }
             });
 
-
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyWindSpeed), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
@@ -351,7 +326,6 @@ public class FlightManager extends BaseManager {
                     }
                 }
             });
-
 
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyCompassHeading), this, new CommonCallbacks.KeyListener<Double>() {
                 @Override
@@ -391,6 +365,9 @@ public class FlightManager extends BaseManager {
                         pushFlightAttitude();
 
                       switch (newValue){
+                          case TAKE_OFF_READY:
+                              Movement.getInstance().setMode_code(2);
+                              break;
                           case VIRTUAL_STICK:
                               Movement.getInstance().setMode_code(3);
                               break;
@@ -403,7 +380,7 @@ public class FlightManager extends BaseManager {
                           case PANO:
                               Movement.getInstance().setMode_code(6);
                               break;
-                          case SMART_FLY:
+                          case FOLLOW_ME:
                               Movement.getInstance().setMode_code(7);
                               break;
                           case AUTO_AVOIDANCE:
@@ -421,16 +398,11 @@ public class FlightManager extends BaseManager {
                           case POI:
                               Movement.getInstance().setMode_code(20);
                               break;
-                          default:
-                              Movement.getInstance().setMode_code(4);
-                              break;
 
                       }
                     }
                 }
             });
-
-
 
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftAttitude), this, new CommonCallbacks.KeyListener<Attitude>() {
                 @Override
@@ -444,6 +416,7 @@ public class FlightManager extends BaseManager {
                     pushFlightAttitude();
                 }
             });
+
             KeyManager.getInstance().listen(createKey(AirLinkKey.KeyUpLinkQuality), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
@@ -451,7 +424,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setRemoteControlSignal(newValue);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -462,7 +434,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setPictureBiographySignal(newValue);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -480,15 +451,12 @@ public class FlightManager extends BaseManager {
                         goHomeExecutionState = newValue.value();
                         //返航或降落中不允许恢复断点航线
                         if (newValue.value() == 1 || newValue.value() == 2 || newValue.value() == 3) {
-                            Movement.getInstance().setWaylineCanResume(false);
                             Movement.getInstance().setCurrentWaypointIndex(0);
                         }
                         //返航后触发可入库条件
                         if (newValue.value() == 2) {
-                            PreferenceUtils.getInstance().setIsNewRoute(false);
                             triggerLandOrGoHome = true;
                             Movement.getInstance().setVirtualStickQuitMission(false);
-
                         }
                         pushFlightAttitude();
                     }
@@ -502,7 +470,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setUltrasonicHeight(newValue);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -514,7 +481,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setTotal_flight_distance(t1);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -529,7 +495,6 @@ public class FlightManager extends BaseManager {
                     pushFlightAttitude();
                 }
             });
-
 
             //总航时
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyAircraftTotalFlightDuration), this, new CommonCallbacks.KeyListener<Double>() {
@@ -550,7 +515,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setTotal_flight_sorties(t1);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -562,10 +526,8 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setRc_lost_action(t1.value());
                     }
                     pushFlightAttitude();
-
                 }
             });
-
 
             //返航高度
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyGoHomeHeight), this, new CommonCallbacks.KeyListener<Integer>() {
@@ -575,7 +537,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setRth_altitude(t1);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -587,7 +548,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setHeight_limit(t1);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -599,7 +559,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setIs_near_height_limit(t1 ? 1 : 0);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -612,7 +571,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setIs_near_area_limit(t1 ? 1 : 0);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -624,10 +582,8 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setIs_near_distance_limit(t1 ? 1 : 0);
                     }
                     pushFlightAttitude();
-
                 }
             });
-
 
             //限远
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeyDistanceLimit), this, new CommonCallbacks.KeyListener<Integer>() {
@@ -637,7 +593,6 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setDistance_limit(t1);
                     }
                     pushFlightAttitude();
-
                 }
             });
 
@@ -647,17 +602,16 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setLowBatteryWarningThreshold(t1);
                         pushFlightAttitude();
-
                     }
                 }
             });
+
             KeyManager.getInstance().listen(createKey(FlightControllerKey.KeySeriousLowBatteryWarningThreshold), this, new CommonCallbacks.KeyListener<Integer>() {
                 @Override
                 public void onValueChange(@Nullable Integer integer, @Nullable Integer t1) {
                     if (t1 != null) {
                         Movement.getInstance().setSeriousLowBatteryWarningThreshold(t1);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -667,7 +621,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setLowBatteryRTHEnabled(t1 ? 1 : 0);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -720,62 +673,6 @@ public class FlightManager extends BaseManager {
         droneStorage();
     }
 
-    private void updataButtonStatus(){
-        //手控显示条件
-        if (Movement.getInstance().getGoHomeState() != 1
-                && Movement.getInstance().getGoHomeState() != 2 &&
-                ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
-                        (Movement.getInstance().getMissionType() == 3
-                                || PreferenceUtils.getInstance().getMissionType() == 1)
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
-                        && Movement.getInstance().getElevation() > 10
-                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
-                        || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED")
-                        && Movement.getInstance().getIsVirtualStickEnable() == 0)
-                        || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                        && Movement.getInstance().getWaypointMissionExecuteState().equals("READY") &&
-                        isFlying && Movement.getInstance().getIsVirtualStickEnable() == 0))
-        ) {
-            Movement.getInstance().setVirtualStickStatus(true);
-        } else {
-            Movement.getInstance().setVirtualStickStatus(false);
-        }
-        //取消手控显示条件
-        if (Movement.getInstance().getGoHomeState()!=1&&
-                Movement.getInstance().getGoHomeState()!=2&&
-                Movement.getInstance().getIsVirtualStickEnable() == 1
-                && Movement.getInstance().getVirtualStickEnableReason() != 2
-                && Movement.getInstance().getVirtualStickEnableReason() != 1) {
-            Movement.getInstance().setCancelVirtualStickStatus(true);
-        }else{
-            Movement.getInstance().setCancelVirtualStickStatus(false);
-        }
-        //暂停按钮显示条件
-        if (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                && (Movement.getInstance().getWaypointMissionExecuteState().equals("EXECUTING")
-                || Movement.getInstance().getWaypointMissionExecuteState().equals("RETURN_TO_START_POINT"))
-                && (PreferenceUtils.getInstance().getMissionType() == 0
-                //续飞航线要到主航线才能暂停
-                || (PreferenceUtils.getInstance().getMissionType() == 2&&Movement.getInstance().getCurrentWaypointIndex()>0))) {
-            Movement.getInstance().setPauseMissionStautus(true);
-        } else {
-            Movement.getInstance().setPauseMissionStautus(false);
-        }
-        //继续按钮显示条件
-        if ((!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState()) &&
-                Movement.getInstance().getMissionType() != 3 && Movement.getInstance().isWaylineCanResume()
-        )
-                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("INTERRUPTED"))
-                || (!TextUtils.isEmpty(Movement.getInstance().getWaypointMissionExecuteState())
-                && Movement.getInstance().getWaypointMissionExecuteState().equals("READY")
-                && Movement.getInstance().isVirtualStickQuitMission())) {
-            Movement.getInstance().setResumeMissionStatus(true);
-        } else {
-            Movement.getInstance().setResumeMissionStatus(false);
-        }
-    }
 
     //(决定飞机触发电量低的返航)
     public boolean isTriggerRoomBattrryLanding;
@@ -800,14 +697,12 @@ public class FlightManager extends BaseManager {
             KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyStartGoHome), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    LogUtil.log(TAG,"电量低于阈值，直接返航");
-                    sendEvent2Server("电量低于阈值，强制返航");
-
+                    sendEvent2Server("电量低于阈值，强制返航",2);
                 }
 
                 @Override
                 public void onFailure(@NonNull IDJIError error) {
-                    sendEvent2Server("电量低于阈值，返航失败");
+                    sendEvent2Server("电量低于阈值，返航失败",2);
                 }
             });
 
@@ -843,10 +738,6 @@ public class FlightManager extends BaseManager {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         boolean isDistanceAndHeightValid = distance < DISTANCE_THRESHOLD &&
                 flyingHeight > FLYING_HEIGHT_THRESHOLD && !sendOpenCabinDoorMsg;
-//        LogUtil.logA(TAG,"开门触发条件:"+"goHomeExecutionState:"+goHomeExecutionState
-//                +"distance:"+distance+"flyingHeight:"+Movement.getInstance().getElevation()
-//        +"isDebugMode:"+PreferenceUtils.getInstance().getIsDebugMode()
-//        +"sendOpenCabinDoorMsg:"+sendOpenCabinDoorMsg);
 
         if (!PreferenceUtils.getInstance().getTriggerToAlternatePoint() &&
                 isReturningHome && isDistanceAndHeightValid && !isDebugMode) {
@@ -883,7 +774,7 @@ public class FlightManager extends BaseManager {
 
     private void gimbalAndCameraReset() {
         if (shouldResetGimbalAndCamera()) {
-            GimbalManager.getInstance().gimbalReset(null);
+            GimbalManager.getInstance().gimbalReset();
             CameraManager.getInstance().resumeLensToWideISOManual();
             isGimbalReset = true;
         }
@@ -891,9 +782,7 @@ public class FlightManager extends BaseManager {
 
     // 检查是否满足开始视觉识别降落的条件
     private void checkAndStartVisionLanding() {
-//        boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2 || !Movement.getInstance().isRtkSign()) ;
         boolean shouldStartVisionLanding = (PreferenceUtils.getInstance().getLandType() == 2);
-//                && !PreferenceUtils.getInstance().getTriggerToAlternatePoint();
         if (shouldStartVisionLanding) {
             startVisionLanding();
             // 检查是否满足降落条件
@@ -948,14 +837,14 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(true);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);
             LogUtil.log(TAG, "开始识别备降点二维码,椭球高度:" + Movement.getInstance().getElevation() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendEvent2Server("开始备降点视觉降落");
+            sendEvent2Server("开始备降点视觉降落",1);
         } else {
             LogUtil.log(TAG, "识别ApronTag:" + PreferenceUtils.getInstance().getNeedTriggerApronArucoLand());
             EventBus.getDefault().post(FLAG_START_DETECT_ARUCO_APRON);
             PreferenceUtils.getInstance().setNeedTriggerAlterArucoLand(false);
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(true);
             LogUtil.log(TAG, "开始识别机库二维码,椭球高度:" + Movement.getInstance().getElevation() + "米" + "--超声波高度:" + Movement.getInstance().getUltrasonicHeight() + "分米");
-            sendEvent2Server("开始视觉降落");
+            sendEvent2Server("开始视觉降落",1);
         }
         isSendDetect = true;
         PerceptionManager.getInstance().setPerceptionEnable(false);
@@ -1048,7 +937,6 @@ public class FlightManager extends BaseManager {
             PreferenceUtils.getInstance().setTriggerToAlternatePoint(false);
             Movement.getInstance().setMissionFinish(true);
             Movement.getInstance().setTask_current_step(25);
-
             sendOpenCabinDoorMsg=false;
         }
     }

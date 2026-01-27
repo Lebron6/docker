@@ -62,7 +62,6 @@ public class DockCloseManager extends BaseManager {
         messageEvent.setTimestamp(System.currentTimeMillis());
         messageEvent.setMethod(Constant.CLOSE_DOOR);
         MessageEvent.Data data=new MessageEvent.Data();
-        data.setResult(1);
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes(StandardCharsets.UTF_8));
         mqttMessage.setQos(1);
         try {
@@ -70,7 +69,7 @@ public class DockCloseManager extends BaseManager {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
 	                    LogUtil.log(TAG, "关舱发送成功："+sendDockCloseSuccessTimes+"clientId:"+MqttManager.getInstance().mqttAndroidClient.getClientId());
-                    sendEvent2Server("AMS通知机库关舱");
+                    sendEvent2Server("AMS通知机库关舱",1);
                     isSendDockCloseSuccess = true;
                 }
                 @Override

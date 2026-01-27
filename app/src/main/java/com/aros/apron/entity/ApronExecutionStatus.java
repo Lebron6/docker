@@ -20,8 +20,18 @@ public class ApronExecutionStatus {
     private boolean serverReplyDroneShut;
     //服务端是否响应了开舱门指令
     private boolean serverReplyDockOpen;
+    //服务端是否响应了TaskFail
+    private boolean serverReplyTaskFail;
     //用于确认飞机此时可以关机的状态(APC流程默认)
     private boolean isAircraftWaitShutDown=true;
+
+    public boolean isServerReplyTaskFail() {
+        return serverReplyTaskFail;
+    }
+
+    public void setServerReplyTaskFail(boolean serverReplyTaskFail) {
+        this.serverReplyTaskFail = serverReplyTaskFail;
+    }
 
     public boolean isAircraftWaitShutDown() {
         return isAircraftWaitShutDown;

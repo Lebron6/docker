@@ -74,7 +74,7 @@ public class Constant {
     public static final String RETURN_HOME_CANCEL="return_home_cancel";
 
     /**
-     * 任务失败
+     * 任务失败(服务端收到后自动执行入库)
      */
     public static final String TASK_FAIL="task_fail";
 

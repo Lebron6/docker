@@ -13,11 +13,13 @@ import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.manager.CameraManager;
 import com.aros.apron.manager.FlightManager;
+import com.aros.apron.manager.FlyToPointManager;
 import com.aros.apron.manager.GimbalManager;
 import com.aros.apron.manager.MissionV3Manager;
 import com.aros.apron.manager.StickManager;
 import com.aros.apron.manager.StreamManager;
 import com.aros.apron.manager.SystemManager;
+import com.aros.apron.manager.TakeOffToPointManager;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
@@ -119,22 +121,28 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到：服务端响应开舱门" + jsonString);
                 ApronExecutionStatus.getInstance().setServerReplyDockOpen(true);
                 break;
+            case Constant.TASK_FAIL:
+                LogUtil.log(TAG, "收到：服务端响应TaskFail" + jsonString);
+                ApronExecutionStatus.getInstance().setServerReplyTaskFail(true);
+                break;
             case Constant.INBOUND:
                 LogUtil.log(TAG, "收到：服务端响应入库" + jsonString);
                 ApronExecutionStatus.getInstance().setServerReplyDockIn(true);
                 break;
             case Constant.TAKEOFF_TO_POINT:
                 LogUtil.log(TAG, "收到：一键起飞" + jsonString);
+                TakeOffToPointManager.getInstance().taskExecute(message);
                 break;
             case Constant.FLY_TO_POINT:
                 LogUtil.log(TAG, "收到：飞向目标点" + jsonString);
+                FlyToPointManager.getInstance().taskExecute(message);
                 break;
             case Constant.FLY_TO_POINT_STOP:
                 LogUtil.log(TAG, "收到：结束 flyto 飞向目标点任务" + jsonString);
+                FlyToPointManager.getInstance().stopMission(message);
                 break;
             case Constant.FLY_TO_POINT_STOP_UPDATE:
                 LogUtil.log(TAG, "收到：更新 flyto 目标点" + jsonString);
-
                 break;
             case Constant.FLIGHT_AUTHORITY_GRAB:
                 LogUtil.log(TAG, "收到：飞行控制权抢夺" + jsonString);

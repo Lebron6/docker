@@ -8,6 +8,8 @@ import android.os.SystemClock;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.PreferenceUtils;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.manager.KeyManager;
 
@@ -27,9 +29,10 @@ public class FlightTaskProgressManager extends BaseManager {
                 return;
             }
             lastExecuteTime = now;
-            if (Movement.getInstance().isPlaneWing()
+            //如果是一键起飞航线或之后的指点飞行，这个就不用发，除此之外航线以及指点飞行都要发
+            if (PreferenceUtils.getInstance().getMissionType()==0&&(Movement.getInstance().isPlaneWing()
                     || Movement.getInstance().isMotorsOn()
-                    || Movement.getInstance().isMissionFinish()) {
+                    || Movement.getInstance().isMissionFinish())) {
                 sendFlightTaskProgress2Server();
             }
             if (Movement.getInstance().isMissionFinish()) {

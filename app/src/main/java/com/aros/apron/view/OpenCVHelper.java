@@ -1,4 +1,4 @@
-//package com.aros.apron.view;
+package com.aros.apron.view;//package com.aros.apron.view;
 //
 //import static org.opencv.core.Core.BORDER_DEFAULT;
 //import static java.lang.Math.abs;

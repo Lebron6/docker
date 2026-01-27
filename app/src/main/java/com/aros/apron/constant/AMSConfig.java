@@ -13,7 +13,7 @@ public class AMSConfig {
     }
 
     public static AMSConfig getInstance() {
-        return AMSConfig.MqttConfigHolder.INSTANCE;
+        return MqttConfigHolder.INSTANCE;
     }
 
     private String mqttServerUri;

@@ -1,5 +1,7 @@
 package com.aros.apron.entity;
 
+import java.util.List;
+
 public class MessageDown {
 
     private String tid;
@@ -54,7 +56,6 @@ public class MessageDown {
         private int video_quality;
         private int ideo_quality;
         private AlternateLandPoint alternate_land_point;
-        private int rth_altitude;
         private int rth_mode;
         private int task_type;
         private int wayline_precision_type;
@@ -83,7 +84,181 @@ public class MessageDown {
         private boolean locked;
         private double longitude;
         private int zoom_factor;
+        private boolean enable;
+        private int exposure_mode;
+        private int exposure_value;
+        private int focus_mode;
+        private int focus_value;
 
+        private int commander_flight_height;
+        private int commander_mode_lost_action;
+        private String max_speed;
+        private int rc_lost_action;
+        private int rth_altitude;
+        private String security_takeoff_height;
+        private int target_height;
+        private double target_latitude;
+        private double target_longitude;
+        private String fly_to_id;
+        private List<Points> points;
+        private int reset_mode;
+
+        public int getReset_mode() {
+            return reset_mode;
+        }
+
+        public void setReset_mode(int reset_mode) {
+            this.reset_mode = reset_mode;
+        }
+
+        public String getFly_to_id() {
+            return fly_to_id;
+        }
+
+        public void setFly_to_id(String fly_to_id) {
+            this.fly_to_id = fly_to_id;
+        }
+
+        public List<Points> getPoints() {
+            return points;
+        }
+
+        public void setPoints(List<Points> points) {
+            this.points = points;
+        }
+
+        public static class Points {
+            private int height;
+            private double latitude;
+            private double longitude;
+
+            public int getHeight() {
+                return height;
+            }
+
+            public void setHeight(int height) {
+                this.height = height;
+            }
+
+            public double getLatitude() {
+                return latitude;
+            }
+
+            public void setLatitude(double latitude) {
+                this.latitude = latitude;
+            }
+
+            public double getLongitude() {
+                return longitude;
+            }
+
+            public void setLongitude(double longitude) {
+                this.longitude = longitude;
+            }
+        }
+        public int getCommander_flight_height() {
+            return commander_flight_height;
+        }
+
+        public void setCommander_flight_height(int commander_flight_height) {
+            this.commander_flight_height = commander_flight_height;
+        }
+
+        public int getCommander_mode_lost_action() {
+            return commander_mode_lost_action;
+        }
+
+        public void setCommander_mode_lost_action(int commander_mode_lost_action) {
+            this.commander_mode_lost_action = commander_mode_lost_action;
+        }
+
+        public String getMax_speed() {
+            return max_speed;
+        }
+
+        public void setMax_speed(String max_speed) {
+            this.max_speed = max_speed;
+        }
+
+        public int getRc_lost_action() {
+            return rc_lost_action;
+        }
+
+        public void setRc_lost_action(int rc_lost_action) {
+            this.rc_lost_action = rc_lost_action;
+        }
+
+        public String getSecurity_takeoff_height() {
+            return security_takeoff_height;
+        }
+
+        public void setSecurity_takeoff_height(String security_takeoff_height) {
+            this.security_takeoff_height = security_takeoff_height;
+        }
+
+        public int getTarget_height() {
+            return target_height;
+        }
+
+        public void setTarget_height(int target_height) {
+            this.target_height = target_height;
+        }
+
+        public double getTarget_latitude() {
+            return target_latitude;
+        }
+
+        public void setTarget_latitude(double target_latitude) {
+            this.target_latitude = target_latitude;
+        }
+
+        public double getTarget_longitude() {
+            return target_longitude;
+        }
+
+        public void setTarget_longitude(double target_longitude) {
+            this.target_longitude = target_longitude;
+        }
+
+        public int getFocus_value() {
+            return focus_value;
+        }
+
+        public void setFocus_value(int focus_value) {
+            this.focus_value = focus_value;
+        }
+
+        public int getFocus_mode() {
+            return focus_mode;
+        }
+
+        public void setFocus_mode(int focus_mode) {
+            this.focus_mode = focus_mode;
+        }
+
+        public int getExposure_value() {
+            return exposure_value;
+        }
+
+        public void setExposure_value(int exposure_value) {
+            this.exposure_value = exposure_value;
+        }
+
+        public int getExposure_mode() {
+            return exposure_mode;
+        }
+
+        public void setExposure_mode(int exposure_mode) {
+            this.exposure_mode = exposure_mode;
+        }
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
 
         public int getZoom_factor() {
             return zoom_factor;
@@ -117,8 +292,6 @@ public class MessageDown {
             this.longitude = longitude;
         }
 
-
-
         public String getCamera_type() {
             return camera_type;
         }
@@ -142,7 +315,6 @@ public class MessageDown {
         public void setPayload_index(String payload_index) {
             this.payload_index = payload_index;
         }
-
 
         public String getH() {
             return h;
@@ -183,9 +355,6 @@ public class MessageDown {
         public void setY(String y) {
             this.y = y;
         }
-
-
-
 
         public int getCamera_mode() {
             return camera_mode;
@@ -233,7 +402,6 @@ public class MessageDown {
         public void setResult(int result) {
             this.result = result;
         }
-
 
         public String getVideo_type() {
             return video_type;

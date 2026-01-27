@@ -48,23 +48,33 @@ public class MessageEvent {
     }
 
     public static class Data {
-        private int result;
-        private String errorMsg;
 
-        public String getErrorMsg() {
-            return errorMsg;
+        private String flight_id;
+        private String msg;
+        private int level;
+
+        public String getFlight_id() {
+            return flight_id;
         }
 
-        public void setErrorMsg(String errorMsg) {
-            this.errorMsg = errorMsg;
+        public void setFlight_id(String flight_id) {
+            this.flight_id = flight_id;
         }
 
-        public int getResult() {
-            return result;
+        public String getMsg() {
+            return msg;
         }
 
-        public void setResult(int result) {
-            this.result = result;
+        public void setMsg(String msg) {
+            this.msg = msg;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
         }
     }
 }

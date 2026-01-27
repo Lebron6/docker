@@ -9,7 +9,6 @@ import android.os.Looper
 import android.text.TextUtils
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.aros.apron.R
 import com.aros.apron.app.ApronApp
 import com.aros.apron.base.BaseActivity
@@ -19,17 +18,13 @@ import com.aros.apron.models.MSDKInfoVm
 import com.aros.apron.models.MSDKManagerVM
 import com.aros.apron.models.globalViewModels
 import com.aros.apron.tools.LogUtil
-import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.sdk.keyvalue.key.CameraKey
-import dji.sdk.keyvalue.key.DJIKey
-import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
-import dji.sdk.keyvalue.value.camera.CameraType
 import dji.sdk.keyvalue.value.common.ComponentIndexType
 import dji.v5.manager.KeyManager
 import dji.v5.utils.common.StringUtils
@@ -78,19 +73,7 @@ open class ConnectionActivity : BaseActivity() {
         connectionBinding.config?.setOnClickListener {
             startActivity(Intent(this, ConfigActivity::class.java))
         }
-//        Utils.sHA1(this)
-        //默认自动启动辅助服务
-//        Settings.Secure.putString(
-//            contentResolver,
-//            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-//            "${packageName}/${BluetoothAccessibilityService::class.java.canonicalName}"
-//        )
-//        Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1);
-//        //开启蓝牙辅助服务
-//        Intent(this@ConnectionActivity, BluetoothAccessibilityService::class.java).also {
-//            LogUtil.log("ConnectionActivity", "start BluetoothAccessibilityService")
-//            startService(it)
-//        }
+
         initBugly()
         initConfig()
 
@@ -211,11 +194,7 @@ open class ConnectionActivity : BaseActivity() {
             if (resultPair.first) {
                 statusText = StringUtils.getResStr(this, R.string.registered)
                 msdkInfoVm.initListener()
-//                connectionBinding.defaultLayoutButton.isEnabled = true
-//                enableShowCaseButton(
-//                    connectionBinding.defaultLayoutButton,
-//                    MainActivity::class.java
-//                )
+
                 if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)
                     || TextUtils.isEmpty(PreferenceUtils.getInstance().mqttPassword)
@@ -223,17 +202,21 @@ open class ConnectionActivity : BaseActivity() {
                 ) {
                     ToastUtil.showToast("未配置MQTT参数")
                     LogUtil.log(TAG, "未配置MQTT参数")
-                } else if(TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl)||
-                    TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName)||
-                    TextUtils.isEmpty(PreferenceUtils.getInstance().objectKey)||
-                    TextUtils.isEmpty(PreferenceUtils.getInstance().accessKey)||
-                    TextUtils.isEmpty(PreferenceUtils.getInstance().secretKey)){
+                } else if (TextUtils.isEmpty(PreferenceUtils.getInstance().uploadUrl) ||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().bucketName) ||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().objectKey) ||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().accessKey) ||
+                    TextUtils.isEmpty(PreferenceUtils.getInstance().secretKey)
+                ) {
                     ToastUtil.showToast("minio参数配置有误")
                     LogUtil.log(TAG, "minio参数配置有误")
-                }else if (PreferenceUtils.getInstance().haveRTK &&PreferenceUtils.getInstance().rtkType!=1&&PreferenceUtils.getInstance().rtkType!=2 ){
+                } else if (PreferenceUtils.getInstance().customStreamType == 0) {
+                    ToastUtil.showToast("未配置推流方式")
+                    LogUtil.log(TAG, "未配置推流方式")
+                } else if (PreferenceUtils.getInstance().haveRTK && PreferenceUtils.getInstance().rtkType != 1 && PreferenceUtils.getInstance().rtkType != 2) {
                     LogUtil.log(TAG, "未配置RTK类型")
                     ToastUtil.showToast("未配置RTK类型")
-                }else if (PreferenceUtils.getInstance().haveRTK &&PreferenceUtils.getInstance().rtkType==1&& (TextUtils.isEmpty(
+                } else if (PreferenceUtils.getInstance().haveRTK && PreferenceUtils.getInstance().rtkType == 1 && (TextUtils.isEmpty(
                         PreferenceUtils.getInstance().ntrip
                     ) ||
                             TextUtils.isEmpty(PreferenceUtils.getInstance().ntrAccount) ||
@@ -267,8 +250,7 @@ open class ConnectionActivity : BaseActivity() {
                 }else if (TextUtils.isEmpty(PreferenceUtils.getInstance().alternatePointTimes) ) {
                     ToastUtil.showToast("未设置最大允许复降次数")
                     LogUtil.log(TAG, "未设置最大允许复降次数")
-                }
-                else {
+                } else {
                     LogUtil.log(TAG, "已加载AMS配置文件")
                     AMSConfig.getInstance().mqttServerUri =
                         PreferenceUtils.getInstance().mqttServerUri
