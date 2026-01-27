@@ -266,7 +266,7 @@ public class MissionManager extends BaseManager {
                                                 Movement.getInstance().setTaskFail(true);
                                                 ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                                                 DroneStorageManager.getInstance().sendDroneStorageMsg2Server( -1);
-                                                sendMissionExecuteEvents( "任务非正常结束");
+                                                sendMissionExecuteEvents("任务非正常结束");
                                             }else{
                                                 if (Movement.getInstance().getFlyingHeight()<15){
                                                     LogUtil.log(TAG, "10s内任务异常结束,拉高返航:"+Movement.getInstance().getFlyingHeight());

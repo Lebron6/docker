@@ -492,7 +492,6 @@ public class FlightManager extends BaseManager {
                     if (newValue != null) {
                         Movement.getInstance().setUltrasonicHeight(newValue);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -503,7 +502,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightDistance(t1.toString());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -514,7 +512,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightDuration(t1.toString());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -525,7 +522,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setAircraftTotalFlightTimes(t1.toString());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -535,7 +531,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setFailsafeAction(t1.value());
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -545,7 +540,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setHeightLimit(t1);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -555,7 +549,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setDistanceLimit(t1);
                         pushFlightAttitude();
-
                     }
                 }
             });
@@ -565,7 +558,6 @@ public class FlightManager extends BaseManager {
                     if (t1 != null) {
                         Movement.getInstance().setDistanceLimitEnabled(t1 ? 1 : 0);
                         pushFlightAttitude();
-
                     }
                 }
             });
