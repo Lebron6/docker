@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
 import android.text.TextUtils
 import android.view.View
 import android.view.Window
@@ -822,6 +821,8 @@ open class MainActivity : BaseActivity() {
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             startArucoType = 0
                             LogUtil.log(TAG, "自动降落调用成功")
+                            DroneHelper.getInstance().exitVirtualStickMode()
+
                         }
 
                         override fun onFailure(error: IDJIError) {

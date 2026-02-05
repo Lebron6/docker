@@ -182,10 +182,6 @@ public class RTKManager extends BaseManager {
         }else{
             LogUtil.log(TAG,"RTK类型设置有误");
         }
-
-
-
-
     }
 
 
