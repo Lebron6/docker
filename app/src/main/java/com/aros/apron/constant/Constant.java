@@ -278,4 +278,40 @@ public class Constant {
      */
     public static final String WIRELESS_LINK="wireless_link";
 
+    /**
+     *  喊话器-开始播放音频
+     */
+    public static final String SPEAKER_AUDIO_PLAY_START="speaker_audio_play_start";
+
+    /**
+     *  喊话器-开始播放TTS文本
+     */
+    public static final String SPEAKER_TTS_PLAY_START="speaker_tts_play_start";
+
+    /**
+     *  喊话器-重新播放
+     */
+    public static final String SPEAKER_REPLAY="speaker_replay";
+
+    /**
+     *  喊话器-停止播放
+     */
+    public static final String SPEAKER_PLAY_STOP="speaker_play_stop";
+
+    /**
+     *  喊话器-设置播放模式
+     */
+    public static final String SPEAKER_PLAY_MODE_SET="speaker_play_mode_set";
+
+    /**
+     *  喊话器-设置音量
+     */
+    public static final String SPEAKER_PLAY_VOLUME_SET="speaker_play_volume_set";
+
+    /**
+     *  喊话器—TTS喊话设置
+     */
+    public static final String DRC_SPEAKER_TTS_SET="drc_speaker_tts_set";
+
+
 }

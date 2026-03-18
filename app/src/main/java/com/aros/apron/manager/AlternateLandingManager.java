@@ -2,7 +2,6 @@ package com.aros.apron.manager;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
 import static com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO;
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
 import android.os.Environment;
 import android.os.Handler;
@@ -325,7 +324,6 @@ public class AlternateLandingManager extends BaseManager {
             } else {
                 LogUtil.log(TAG, "生成备降航线失败");
                 sendEvent2Server( "生成备降航线失败",2);
-                    sendEvent2Server( "生成备降航线失败",2);
 
             }
         }
@@ -344,7 +342,6 @@ public class AlternateLandingManager extends BaseManager {
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz");
         } catch (IOException e) {
             sendEvent2Server( "备降任务生成异常",2);
-
             throw new RuntimeException(e);
         }
 

@@ -4,6 +4,7 @@ package com.aros.apron.tools;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -118,6 +119,25 @@ return Double.parseDouble(latLonStr);        }
         }else{
             return idjiError.description();
         }
+    }
+
+    public static String getSDCardPath() {
+        String sdCardPathString = "";
+        if (checkSDCard()) {
+            sdCardPathString = Environment.getExternalStorageDirectory().getPath();
+        } else {
+            sdCardPathString = Environment.getExternalStorageDirectory()
+                    .getParentFile()
+                    .getPath();
+        }
+        return sdCardPathString;
+    }
+
+    public static boolean checkSDCard() {
+        return TextUtils.equals(
+                Environment.MEDIA_MOUNTED,
+                Environment.getExternalStorageState()
+        );
     }
 
 }

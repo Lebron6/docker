@@ -62,5 +62,7 @@ open class ApronApp : Application() {
         //打印崩溃日志
         CrashHandler.getInstance().init()
 
+
     }
+
 }

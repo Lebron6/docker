@@ -102,6 +102,110 @@ public class MessageDown {
         private String fly_to_id;
         private List<Points> points;
         private int reset_mode;
+        private int psdk_index;
+        private int play_mode;
+        private int play_volume;
+        private int volume;
+        private int type;
+        private int language;
+        private int speed;
+
+        public int getVolume() {
+            return volume;
+        }
+
+        public void setVolume(int volume) {
+            this.volume = volume;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
+        }
+
+        public int getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(int language) {
+            this.language = language;
+        }
+
+        public int getSpeed() {
+            return speed;
+        }
+
+        public void setSpeed(int speed) {
+            this.speed = speed;
+        }
+
+        public int getPlay_volume() {
+            return play_volume;
+        }
+
+        public void setPlay_volume(int play_volume) {
+            this.play_volume = play_volume;
+        }
+
+        public int getPlay_mode() {
+            return play_mode;
+        }
+
+        public void setPlay_mode(int play_mode) {
+            this.play_mode = play_mode;
+        }
+
+        private Tts tts;
+
+        public int getPsdk_index() {
+            return psdk_index;
+        }
+
+        public void setPsdk_index(int psdk_index) {
+            this.psdk_index = psdk_index;
+        }
+
+        public Tts getTts() {
+            return tts;
+        }
+
+        public void setTts(Tts tts) {
+            this.tts = tts;
+        }
+
+        public static class Tts {
+            private String md5;
+            private String name;
+            private String text;
+
+            public String getMd5() {
+                return md5;
+            }
+
+            public void setMd5(String md5) {
+                this.md5 = md5;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getText() {
+                return text;
+            }
+
+            public void setText(String text) {
+                this.text = text;
+            }
+        }
+
 
         public int getReset_mode() {
             return reset_mode;
@@ -415,6 +519,33 @@ public class MessageDown {
         public static class File {
             private String fingerprint;
             private String url;
+            private String format;
+            private String md5;
+            private String name;
+
+            public String getFormat() {
+                return format;
+            }
+
+            public void setFormat(String format) {
+                this.format = format;
+            }
+
+            public String getMd5() {
+                return md5;
+            }
+
+            public void setMd5(String md5) {
+                this.md5 = md5;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
 
             public String getFingerprint() {
                 return fingerprint;

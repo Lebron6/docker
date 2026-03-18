@@ -21,6 +21,8 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
+import com.iflytek.aikit.core.AiHelper
+import com.iflytek.aikit.core.BaseLibrary
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.sdk.keyvalue.key.CameraKey
@@ -73,23 +75,26 @@ open class ConnectionActivity : BaseActivity() {
         connectionBinding.config?.setOnClickListener {
             startActivity(Intent(this, ConfigActivity::class.java))
         }
+//配置应用信息
 
         initBugly()
         initConfig()
-
     }
-    private fun initConfig(){
-        if (TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)){
+
+
+    private fun initConfig() {
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().forcedBattery)) {
             PreferenceUtils.getInstance().forcedBattery =
                 "20"
         }
-        if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)){
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().minumumBattery)) {
             PreferenceUtils.getInstance().minumumBattery =
                 "35"
         }
-        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)){
+        if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)) {
             PreferenceUtils.getInstance().mqttServerUri =
-                "tcp://192.168.20.90:2883"
+                "tcp://223.108.157.174:50512"
+//                "tcp://192.168.20.90:2883"
         }
 
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttUserName)){
@@ -98,7 +103,7 @@ open class ConnectionActivity : BaseActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttPassword)){
             PreferenceUtils.getInstance().mqttPassword =
-                "Admin123"
+                "AROS2023"
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttSn)){
             PreferenceUtils.getInstance().mqttSn =

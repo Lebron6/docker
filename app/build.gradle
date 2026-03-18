@@ -109,7 +109,16 @@ android {
         ]
 
     }
+
     packagingOptions {
+        resources {
+            excludes += [
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE",
+                    "META-INF/NOTICE.md",
+                    "META-INF/NOTICE"
+            ]
+        }
         // 因为mrtc库内部使用了NDK的c++_shared的编译参数
         // 与其他库重复引用了，因此选其中一个即可
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
@@ -227,5 +236,7 @@ dependencies {
 
     implementation 'com.quickbirdstudios:opencv-contrib:3.4.5'
     implementation project(path: ':android-sdk-v5-uxsdk')
+
+    implementation files('libs/AIKit.aar')
 
 }

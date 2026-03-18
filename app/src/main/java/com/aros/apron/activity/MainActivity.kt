@@ -1,4 +1,5 @@
 package com.aros.apron.activity
+
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -6,11 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
@@ -35,6 +38,7 @@ import com.aros.apron.manager.LTEManager
 import com.aros.apron.manager.MediaManager
 import com.aros.apron.manager.MissionV3Manager
 import com.aros.apron.manager.OSDManager
+import com.aros.apron.manager.SpeakerManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
 import com.aros.apron.manager.WirelessLinkManager
@@ -44,8 +48,14 @@ import com.aros.apron.tools.DroneHelper
 import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.MqttManager
 import com.aros.apron.tools.PreferenceUtils
+import com.aros.apron.tools.Utils
 import com.dji.wpmzsdk.manager.WPMZManager
 import com.google.gson.Gson
+import com.iflytek.aikit.core.AiHelper
+import com.iflytek.aikit.core.BaseLibrary
+import com.iflytek.aikit.core.CoreListener
+import com.iflytek.aikit.core.ErrType
+import com.iflytek.aikit.core.LogLvl
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -445,10 +455,56 @@ open class MainActivity : BaseActivity() {
         initDJIManager()
         initCameraStream()
         initView()
+        initSDK()
+
+    }
+
+    private fun initSDK() {
+        AiHelper.getInst().setLogInfo(LogLvl.VERBOSE, 1, "/sdcard/iflytek/aikit/aeeLog.txt")
+        //设定初始化参数
+        val params = BaseLibrary.Params.builder()
+            .appId("fe7aba31") //您的应用ID，可从控制台查看
+            .apiKey("733ee07102f3822ec3270c1b9c5d6904") //您的APIKEY，可从控制台查看
+            .apiSecret("ZTFmMGNlYmE4Njg2YzE5NzkxNzMxYTMz") //您的APISECRET，可从控制台查看
+            .workDir(Utils.getSDCardPath() + "/DJIDemo/cache") //SDK的工作目录，需要确保有读写权限。一般用于存放离线能力资源，日志存放目录等使用。
+            .build()
+        //初始化SDK
+        Thread {
+            AiHelper.getInst().initEntry(this@MainActivity.applicationContext, params)
+        }.start()
+        AiHelper.getInst().registerListener(coreListener) // 注册SDK 初始化状态监听
+
+    }
+
+
+    //授权结果回调
+    private val coreListener = CoreListener { type, code ->
+        Log.i(TAG, "core listener code:$code")
+        runOnUiThread {
+            when (type) {
+                ErrType.AUTH -> {
+                    if (code == 0) {
+                        LogUtil.log(TAG, "SDK授权成功")
+                    } else {
+                        LogUtil.log(TAG, "SDK授权失败，授权码为:$code")
+                    }
+                }
+
+                ErrType.HTTP -> Toast.makeText(
+                    this@MainActivity, "SDK状态：HTTP认证结果$code",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                else -> Toast.makeText(
+                    this@MainActivity, "SDK状态：其他错误$code",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun initView() {
-        fpvParentView = findViewById( R.id.fpv_holder)
+        fpvParentView = findViewById(R.id.fpv_holder)
         mDrawerLayout = findViewById( R.id.root_view)
         topBarPanel = findViewById( R.id.panel_top_bar)
         settingWidget = topBarPanel?.settingWidget
@@ -584,7 +640,8 @@ open class MainActivity : BaseActivity() {
             LTEManager.getInstance().initLTEInfo()
             WirelessLinkManager.getInstance().initWirelessLink()
             CameraManager.getInstance().initCameraInfo()
-            LogUtil.log(TAG,"自定义推流方式:"+PreferenceUtils.getInstance().customStreamType)
+            SpeakerManager.getInstance().initMegaphoneInfo()
+            LogUtil.log(TAG, "自定义推流方式:" + PreferenceUtils.getInstance().customStreamType)
             Handler().postDelayed(Runnable {
                     if (PreferenceUtils.getInstance().customStreamType==1){
                         StreamManager.getInstance()

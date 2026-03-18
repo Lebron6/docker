@@ -3,9 +3,7 @@ package com.aros.apron.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import dji.sdk.wpmz.value.mission.WaylineExecuteWaypoint;
-import dji.sdk.wpmz.value.mission.WaylineWaypoint;
 
 public class CurrentWayline {
 

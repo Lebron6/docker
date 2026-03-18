@@ -1,15 +1,9 @@
 package com.aros.apron.manager;
 
-import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.Movement;
@@ -18,20 +12,13 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.v5.common.callback.CommonCallbacks;
-import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
-import dji.v5.manager.aircraft.waypoint3.WaypointMissionManager;
-import dji.v5.manager.aircraft.waypoint3.model.BreakPointInfo;
 
 public class OSDManager extends BaseManager {
 
@@ -96,7 +83,6 @@ public class OSDManager extends BaseManager {
 
     private void pushFlightAttitude() {
         try {
-
 
             if (batteries != null && batteries.size() > 0) {
                 batteries.clear();
