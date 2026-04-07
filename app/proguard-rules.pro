@@ -12,8 +12,8 @@
 
 # 避免混淆Annotation、内部类、泛型、匿名类
 -keepattributes *Annotation*,InnerClasses,Signature,EnclosingMethod
--keep class com.aros.apron.entity.** { *; }
--keep class com.aros.apron.callback.** { *; }
+-keep class com.jby.apron.entity.** { *; }
+-keep class com.jby.apron.callback.** { *; }
 # 保持Paho MQTT库的关键类不被混淆
 -keep class org.eclipse.paho.** { *; }
 -keepclassmembers class org.eclipse.paho.** { *; }

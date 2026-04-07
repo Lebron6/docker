@@ -34,7 +34,7 @@
         android:name="android.hardware.usb.accessory"
         android:required="true"/>
     <application
-        android:name="com.aros.apron.app.ApronApp"
+        android:name="com.jby.apron.app.ApronApp"
         android:largeHeap = "true"
         android:hardwareAccelerated = "false"
         android:allowBackup="true"
@@ -54,7 +54,7 @@
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="d237f2b4554af77800e894d2"/>
+            android:value="460e5caa3b789fba9729e0e5"/>
         <meta-data
             android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
             android:resource="@xml/accessory_filter" />
