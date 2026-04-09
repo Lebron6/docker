@@ -1,22 +1,35 @@
 package com.jby.apron.tools;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 
+import com.jby.apron.R;
 import com.jby.apron.app.ApronApp;
 import com.jby.apron.callback.MqttActionCallBack;
 import com.jby.apron.callback.MqttCallBack;
 import com.jby.apron.constant.AMSConfig;
-
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.Random;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 public class MqttManager {
 
@@ -35,22 +48,50 @@ public class MqttManager {
         return MqttHolder.INSTANCE;
     }
 
-    public void needConnect() {
-        initMqttClientParams();
+    public void needConnect(Context context) throws KeyStoreException, UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, IOException, KeyManagementException {
+        initMqttClientParams(context);
     }
 
-    private void initMqttClientParams() {
+    private void initMqttClientParams(Context context) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        InputStream ksInput = context.getResources().openRawResource(R.raw.client); // client.p12
+        keyStore.load(ksInput, "123456".toCharArray()); // p12 密码
+        ksInput.close();
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("X509");
+        kmf.init(keyStore, "123456".toCharArray());
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        InputStream caInput = context.getResources().openRawResource(R.raw.ca_cert);
+        Certificate ca = cf.generateCertificate(caInput);
+        caInput.close();
+
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(null, null);
+        trustStore.setCertificateEntry("ca", ca);
+
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(trustStore);
+
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+        SocketFactory socketFactory = sslContext.getSocketFactory();
+
+
         mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(),
-                AMSConfig.getInstance().getMqttServerUri(),
+                "ssl://117.140.203.9:8883",
                 generateRandomString(10));
         mMqttConnectOptions = new MqttConnectOptions();
+        mMqttConnectOptions.setSocketFactory(socketFactory);
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
         mMqttConnectOptions.setMaxInflight(1000);// 增加最大并发未确认消息数量
         mMqttConnectOptions.setCleanSession(true); //设置是否清除缓存
         mMqttConnectOptions.setConnectionTimeout(30); //设置超时时间，单位：秒 ltz denote
         mMqttConnectOptions.setKeepAliveInterval(20); //设置心跳包发送间隔，单位：秒 ltz denote
-        mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
-        mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
+        mMqttConnectOptions.setUserName("admin"); //设置用户名
+        mMqttConnectOptions.setPassword("J100y@ups.2025".toCharArray()); //设置密码
         mqttAndroidClient.setCallback(new MqttCallBack()); //设置监听订阅消息的回调
         doClientConnection();
     }
