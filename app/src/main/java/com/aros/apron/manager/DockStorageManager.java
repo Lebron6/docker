@@ -61,7 +61,6 @@ public class DockStorageManager extends BaseManager {
                 messageEvent.setTid(UUID.randomUUID().toString());
                 messageEvent.setTimestamp(System.currentTimeMillis());
                 messageEvent.setMethod(Constant.INBOUND);
-                MessageEvent.Data data=new MessageEvent.Data();
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes(StandardCharsets.UTF_8));
                 mqttMessage.setQos(1);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage, null, new IMqttActionListener() {

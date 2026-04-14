@@ -21,8 +21,6 @@ import com.aros.apron.tools.LogUtil
 import com.aros.apron.tools.PreferenceUtils
 import com.aros.apron.tools.RestartAPPTool.restartApp
 import com.aros.apron.tools.ToastUtil
-import com.iflytek.aikit.core.AiHelper
-import com.iflytek.aikit.core.BaseLibrary
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.sdk.keyvalue.key.CameraKey
@@ -279,7 +277,6 @@ open class ConnectionActivity : BaseActivity() {
 
         msdkManagerVM.lvProductChanges.observe(this) { productId ->
             ToastUtil.showToast("Product: $productId Changed")
-
         }
 
         msdkManagerVM.lvInitProcess.observe(this) { processPair ->

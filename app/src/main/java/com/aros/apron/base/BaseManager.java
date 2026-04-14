@@ -68,7 +68,7 @@ public abstract class BaseManager {
     final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     /**
-     * 响应replay+event
+     * 响应replay
      * @param entity
      * @param errorMsg
      */
@@ -138,7 +138,7 @@ public abstract class BaseManager {
                 messageEvent.setBid(UUID.randomUUID().toString());
                 messageEvent.setTid(UUID.randomUUID().toString());
                 messageEvent.setTimestamp(System.currentTimeMillis());
-                messageEvent.setMethod("run_log");
+                messageEvent.setMethod(Constant.RUN_LOG);
                 MessageEvent.Data data=new MessageEvent.Data();
                 data.setMsg(msg);
                 data.setLevel(level);

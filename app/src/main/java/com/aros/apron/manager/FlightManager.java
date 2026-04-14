@@ -81,6 +81,7 @@ public class FlightManager extends BaseManager {
     }
 
     public void initFlightInfo() {
+
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
             if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAlternatePointLon())

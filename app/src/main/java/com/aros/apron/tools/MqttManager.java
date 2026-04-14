@@ -40,7 +40,8 @@ public class MqttManager {
     }
 
     private void initMqttClientParams() {
-        mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(), AMSConfig.getInstance().getMqttServerUri(), generateRandomString(10));
+        mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(),
+                AMSConfig.getInstance().getMqttServerUri(),"ty-slave-3");
         mMqttConnectOptions = new MqttConnectOptions();
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
         mMqttConnectOptions.setMaxInflight(1000);// 增加最大并发未确认消息数量

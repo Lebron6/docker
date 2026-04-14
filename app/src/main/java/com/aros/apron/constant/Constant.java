@@ -313,5 +313,12 @@ public class Constant {
      */
     public static final String DRC_SPEAKER_TTS_SET="drc_speaker_tts_set";
 
+    /**
+     *  常规RunLog
+     */
+    public static final String RUN_LOG="run_log";
+
+
+
 
 }

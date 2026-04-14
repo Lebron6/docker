@@ -61,7 +61,6 @@ public class DockCloseManager extends BaseManager {
         messageEvent.setTid(UUID.randomUUID().toString());
         messageEvent.setTimestamp(System.currentTimeMillis());
         messageEvent.setMethod(Constant.CLOSE_DOOR);
-        MessageEvent.Data data=new MessageEvent.Data();
         MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes(StandardCharsets.UTF_8));
         mqttMessage.setQos(1);
         try {

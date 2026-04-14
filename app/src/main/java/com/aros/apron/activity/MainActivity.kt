@@ -26,6 +26,7 @@ import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
+import com.aros.apron.manager.ConnectionManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
@@ -617,6 +618,7 @@ open class MainActivity : BaseActivity() {
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
     private fun initDJIManager() {
+        ConnectionManager.getInstance().initConnection()
         val isFlightControllerConnect =
             KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
         if (isFlightControllerConnect == null || !isFlightControllerConnect) {
@@ -653,9 +655,8 @@ open class MainActivity : BaseActivity() {
                         StreamManager.getInstance()
                             .startLiveWithCustom()
                     }
-
                 }, 5000)
-LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
+        LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
         }
     }
 

@@ -50,6 +50,7 @@ public class MessageEvent {
     public static class Data {
 
         private String flight_id;
+        private String sn;
         private String msg;
         private int level;
 
@@ -75,6 +76,14 @@ public class MessageEvent {
 
         public void setLevel(int level) {
             this.level = level;
+        }
+
+        public String getSn() {
+            return sn;
+        }
+
+        public void setSn(String sn) {
+            this.sn = sn;
         }
     }
 }
