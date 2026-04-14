@@ -979,7 +979,6 @@ public class FlightManager extends BaseManager {
                 sendFailMsg2Server( message, "返航执行失败:飞控未连接");
             }
         }
-
     }
 
     //取消返航

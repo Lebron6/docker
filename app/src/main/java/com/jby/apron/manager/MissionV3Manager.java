@@ -11,6 +11,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.dji.wpmzsdk.common.data.KMZInfo;
+import com.dji.wpmzsdk.manager.WPMZManager;
+import com.google.gson.Gson;
 import com.jby.apron.app.ApronApp;
 import com.jby.apron.base.BaseManager;
 import com.jby.apron.constant.ErrorCode;
@@ -20,9 +23,6 @@ import com.jby.apron.entity.Movement;
 import com.jby.apron.tools.LogUtil;
 import com.jby.apron.tools.PreferenceUtils;
 import com.jby.apron.tools.RestartAPPTool;
-import com.dji.wpmzsdk.common.data.KMZInfo;
-import com.dji.wpmzsdk.manager.WPMZManager;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -253,32 +253,44 @@ public class MissionV3Manager extends BaseManager {
         }
     }
 
-    //收到航线
-    public void taskExecute(MessageDown message) {
-        PreferenceUtils.getInstance().setMissionType(0);
-        PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
-        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
-        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
-        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height() + "");
+    //航线下发
+    public void flightTaskPrepare(MessageDown message) {
 
-        Movement.getInstance().setTask_current_step(5);
+        //1.若当前处于虚拟摇杆状态，取消虚拟摇杆
+        if (Movement.getInstance().getIsVirtualStickEnable() == 1) {
+            StickManager.getInstance().disableVirtualStick(null);
+        }
+        //2.关闭避障
+        PerceptionManager.getInstance().setPerceptionEnable(false);
 
-
-        //1.检查图传是否连接
-        checkVtxWithDelay(() -> {
-            //避免重复执行
-            if (isReceiverMission == false) {
-                isReceiverMission = true;
+        //3.检查电池电量
+        if (message.getData().getTask_type() == 2) {
+            Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
+                    KeyBatteryPowerPercent, 0));
+            if (value != null && value < message.getData().getReady_conditions().getBattery_capacity()) {
+                sendFailMsg2Server(message, "任务执行失败,电量过低");
+                return;
             }
-            //2.回复收到指令
-            sendMsg2Server(message);
-            //3.检查飞机状态（不满足条件直接taskFail入库）
-            boolean statusOk = verifyAircraftStatus(message);
-            //4.信号收敛(等待GPS搜星)
-            if (statusOk) {
-                verifyGpsAndMissionState(message);
-            }
-        });
+        }
+        //4.返航或降落状态无法执行航线
+        if (Movement.getInstance().getGoHomeState() == 1 || Movement.getInstance().getGoHomeState() == 2) {
+            sendFailMsg2Server(message, "返航中,无法执行航线任务");
+            return;
+        }
+        //5.检查航线参数
+        if (message.getData().getFile() == null) {
+            sendFailMsg2Server(message,"航线参数异常");
+            return;
+        }
+        //6.检查遥控器档位
+        RemoteControllerFlightMode remoteControllerFlightMode =
+                KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
+        if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
+            sendFailMsg2Server(message,"任务执行失败,请将遥控器切换为P/N挡");
+            return;
+        }
+        //7.下载航线
+        downLoadKMZFile(message);
     }
 
 
@@ -376,7 +388,6 @@ public class MissionV3Manager extends BaseManager {
                             "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
                             Movement.getInstance().getPlaneMessage() +
                             "-GPS信号等级:" + Movement.getInstance().getQuality(), 2);
-
                     TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
                 }
             }
@@ -385,7 +396,6 @@ public class MissionV3Manager extends BaseManager {
 
     /**
      * 5.下载航线
-     *
      * @param message
      */
     public void downLoadKMZFile(MessageDown message) {
@@ -410,7 +420,7 @@ public class MissionV3Manager extends BaseManager {
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
-                    File file = new File(dir, "aros.kmz");
+                    File file = new File(dir, "jby.kmz");
                     try {
                         is = response.body().byteStream();
                         fos = new FileOutputStream(file);
