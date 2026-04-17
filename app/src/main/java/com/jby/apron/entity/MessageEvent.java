@@ -52,6 +52,15 @@ public class MessageEvent {
         private String flight_id;
         private String msg;
         private int level;
+        private String sn;
+
+        public String getSn() {
+            return sn;
+        }
+
+        public void setSn(String sn) {
+            this.sn = sn;
+        }
 
         public String getFlight_id() {
             return flight_id;

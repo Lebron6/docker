@@ -18,10 +18,18 @@ import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.dji.wpmzsdk.manager.WPMZManager
+import com.google.gson.Gson
+import com.iflytek.aikit.core.AiHelper
+import com.iflytek.aikit.core.BaseLibrary
+import com.iflytek.aikit.core.CoreListener
+import com.iflytek.aikit.core.ErrType
+import com.iflytek.aikit.core.LogLvl
 import com.jby.apron.BuildConfig
 import com.jby.apron.R
 import com.jby.apron.base.BaseActivity
 import com.jby.apron.callback.MqttCallBack
+import com.jby.apron.constant.Constant
 import com.jby.apron.entity.Movement
 import com.jby.apron.manager.AlternateLandingManager
 import com.jby.apron.manager.BatteryManager
@@ -49,13 +57,6 @@ import com.jby.apron.tools.LogUtil
 import com.jby.apron.tools.MqttManager
 import com.jby.apron.tools.PreferenceUtils
 import com.jby.apron.tools.Utils
-import com.dji.wpmzsdk.manager.WPMZManager
-import com.google.gson.Gson
-import com.iflytek.aikit.core.AiHelper
-import com.iflytek.aikit.core.BaseLibrary
-import com.iflytek.aikit.core.CoreListener
-import com.iflytek.aikit.core.ErrType
-import com.iflytek.aikit.core.LogLvl
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -602,6 +603,7 @@ open class MainActivity : BaseActivity() {
         isAppStarted = false
         try {
             if (MqttManager.getInstance().mqttAndroidClient != null && MqttManager.getInstance().mqttAndroidClient.isConnected) {
+                MqttManager.getInstance().publishStatus(Constant.REMOTE_OFFLINE)
                 MqttManager.getInstance().mqttAndroidClient.unregisterResources()
                 MqttManager.getInstance().mqttAndroidClient.disconnect() //断开连接
             }
@@ -613,6 +615,8 @@ open class MainActivity : BaseActivity() {
         )
         DJINetworkManager.getInstance().removeNetworkStatusListener(networkStatusListener)
     }
+
+
 
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0

@@ -21,8 +21,6 @@ import com.jby.apron.tools.LogUtil
 import com.jby.apron.tools.PreferenceUtils
 import com.jby.apron.tools.RestartAPPTool.restartApp
 import com.jby.apron.tools.ToastUtil
-import com.iflytek.aikit.core.AiHelper
-import com.iflytek.aikit.core.BaseLibrary
 import com.tencent.bugly.crashreport.CrashReport
 import com.yanzhenjie.permission.AndPermission
 import dji.sdk.keyvalue.key.CameraKey
@@ -166,7 +164,6 @@ open class ConnectionActivity : BaseActivity() {
                 }
             })
             CrashReport.setAllThreadStackEnable(ApronApp.context, true, true)
-//            CrashReport.initCrashReport(context, "5894201d87", true, this)
             CrashReport.initCrashReport(ApronApp.context, "67f68269b0", true, this)
         }
     }

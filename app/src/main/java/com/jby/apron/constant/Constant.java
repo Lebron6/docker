@@ -3,10 +3,23 @@ package com.jby.apron.constant;
 //接收云端下发的指令集合
 public class Constant {
 
+
+
     /**
      * 航线下发
      */
     public static final String FLIGHTTASK_PREPARE = "flighttask_prepare";
+
+    /**
+     * 注册
+     */
+    public static final String REMOTE_ONLINE = "remote_online";
+
+    /**
+     * 下线
+     */
+    public static final String REMOTE_OFFLINE = "remote_offline";
+
 
 //    /**
 //     * 航线下发

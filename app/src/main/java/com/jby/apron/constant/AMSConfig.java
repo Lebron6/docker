@@ -75,5 +75,10 @@ public class AMSConfig {
      */
     public static String DOWN_UAV_EVENT_REPLY = "nest/uav_event_reply";
 
+    /**
+     * 注册
+     */
+    public static final String REGISTER = "register";
+
 
 }

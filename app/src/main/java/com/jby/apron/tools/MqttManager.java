@@ -6,14 +6,20 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 
+import com.google.gson.Gson;
 import com.jby.apron.R;
 import com.jby.apron.app.ApronApp;
 import com.jby.apron.callback.MqttActionCallBack;
 import com.jby.apron.callback.MqttCallBack;
 import com.jby.apron.constant.AMSConfig;
+import com.jby.apron.constant.Constant;
+import com.jby.apron.entity.MessageEvent;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -25,11 +31,18 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+
+import dji.sdk.keyvalue.key.CameraKey;
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.RemoteControllerKey;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
+import dji.v5.manager.KeyManager;
 
 public class MqttManager {
 
@@ -153,5 +166,31 @@ public class MqttManager {
             builder.append(characters.charAt(index));
         }
         return builder.toString();
+    }
+
+    public void publishStatus(String method) {
+        String remoteSn = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.
+                KeySerialNumber));
+        try {
+            if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
+                MessageEvent messageEvent = new MessageEvent();
+                messageEvent.setBid(UUID.randomUUID().toString());
+                messageEvent.setTid(UUID.randomUUID().toString());
+                messageEvent.setTimestamp(System.currentTimeMillis());
+                messageEvent.setMethod(method);
+                MessageEvent.Data data = new MessageEvent.Data();
+                data.setSn(remoteSn);
+                messageEvent.setData(data);
+                MqttMessage mqttMessage =
+                        new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
+                mqttMessage.setQos(1);
+                mqttAndroidClient.publish(AMSConfig.REGISTER, mqttMessage);
+            } else {
+                LogUtil.log(TAG, method + "失败：MQtt未连接");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.log(TAG, method + "异常：" + e.toString());
+        }
     }
 }

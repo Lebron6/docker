@@ -150,7 +150,7 @@ public abstract class BaseManager {
                 messageEvent.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
-                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.REGISTER, mqttMessage);
             } else {
                 LogUtil.log(TAG, "发送run_log event失败：mqtt 未连接");
             }
@@ -171,7 +171,7 @@ public abstract class BaseManager {
                 mediaUpLoad.setBid(UUID.randomUUID().toString());
                 mediaUpLoad.setTid(UUID.randomUUID().toString());
                 mediaUpLoad.setTimestamp(System.currentTimeMillis());
-                mediaUpLoad.setMethod(Constant.FILE_UPLOAD_CALLBACK);
+//                mediaUpLoad.setMethod(Constant.FILE_UPLOAD_CALLBACK);
                 MediaUpLoad.Data data=new MediaUpLoad.Data();
                 data.setBucket_name(PreferenceUtils.getInstance().getBucketName());
                 data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
@@ -272,7 +272,7 @@ public abstract class BaseManager {
                 flightTaskProgress.setTid(UUID.randomUUID().toString());
                 flightTaskProgress.setBid(UUID.randomUUID().toString());
                 flightTaskProgress.setTimestamp(System.currentTimeMillis());
-                flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+//                flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
                 flightTaskProgress.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
@@ -339,7 +339,7 @@ public abstract class BaseManager {
                 wirelessLink.setTid(UUID.randomUUID().toString());
                 wirelessLink.setBid(UUID.randomUUID().toString());
                 wirelessLink.setTimestamp(System.currentTimeMillis());
-                wirelessLink.setMethod(Constant.WIRELESS_LINK);
+//                wirelessLink.setMethod(Constant.WIRELESS_LINK);
                 wirelessLink.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(wirelessLink).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
