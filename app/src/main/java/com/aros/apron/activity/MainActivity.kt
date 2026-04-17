@@ -618,7 +618,7 @@ open class MainActivity : BaseActivity() {
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
     private fun initDJIManager() {
-        ConnectionManager.getInstance().initConnection()
+//        ConnectionManager.getInstance().initConnection()
         val isFlightControllerConnect =
             KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
         if (isFlightControllerConnect == null || !isFlightControllerConnect) {
