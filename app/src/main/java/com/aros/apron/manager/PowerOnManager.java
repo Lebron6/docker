@@ -65,7 +65,7 @@ public class PowerOnManager extends BaseManager {
                 getBytes(StandardCharsets.UTF_8));
         mqttMessage.setQos(1);
         try {
-            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT,
+            MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_SERVICES_REPLY,
                     mqttMessage, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

@@ -51,7 +51,7 @@ public class MqttCallBack implements MqttCallbackExtended {
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {
         String jsonString = null;
-        Log.e(TAG, "入口打印:" + mqttMessage.toString());
+//        Log.e(TAG, "入口打印:" + mqttMessage.toString());
         try {
             jsonString = new String(mqttMessage.getPayload(), "UTF-8");
         } catch (Exception e) {

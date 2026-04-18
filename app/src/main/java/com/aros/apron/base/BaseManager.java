@@ -231,7 +231,7 @@ public abstract class BaseManager {
                                 FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint =
                                         new FlightTaskProgress.Data.Output.Ext.BreakPoint();
                                 if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAttitudeHead())){
-                                    breakPoint.setAttitude_head(Integer.parseInt(PreferenceUtils.getInstance().getAttitudeHead()));
+                                    breakPoint.setAttitude_head(Double.valueOf(PreferenceUtils.getInstance().getAttitudeHead()));
                                 }else{
                                     breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
                                 }

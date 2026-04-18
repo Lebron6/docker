@@ -57,9 +57,10 @@ public class OSDManager extends BaseManager {
             Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
             if (isConnect != null && isConnect  && !Movement.getInstance().isMissionFinish()) {
                 pushFlightAttitude();
-            }else{
-                LogUtil.log(TAG,"osd stop:flight controller is null");
             }
+//            else{
+//                LogUtil.log(TAG,"osd stop:flight controller is null");
+//            }
             // 始终基于“实际执行时间”来调度
             handler.postDelayed(this, INTERVAL);
         }

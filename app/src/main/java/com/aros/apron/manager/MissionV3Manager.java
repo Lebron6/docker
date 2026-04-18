@@ -257,19 +257,19 @@ public class MissionV3Manager extends BaseManager {
     public void taskExecute(MessageDown message) {
         PreferenceUtils.getInstance().setMissionType(0);
         PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
-        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
-        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
-        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height() + "");
+//        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
+//        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
+//        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height() + "");
 
         Movement.getInstance().setTask_current_step(5);
 
 
         //1.检查图传是否连接
-        checkVtxWithDelay(() -> {
-            //避免重复执行
-            if (isReceiverMission == false) {
-                isReceiverMission = true;
-            }
+//        checkVtxWithDelay(() -> {
+//            //避免重复执行
+//            if (isReceiverMission == false) {
+//                isReceiverMission = true;
+//            }
             //2.回复收到指令
             sendMsg2Server(message);
             //3.检查飞机状态（不满足条件直接taskFail入库）
@@ -278,7 +278,7 @@ public class MissionV3Manager extends BaseManager {
             if (statusOk) {
                 verifyGpsAndMissionState(message);
             }
-        });
+//        });
     }
 
 
@@ -302,11 +302,11 @@ public class MissionV3Manager extends BaseManager {
                 return false;
             }
             //5.检查航线备降点参数
-            if (message.getData().getAlternate_land_point() == null) {
-                sendEvent2Server("备降点参数异常", 2);
-                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
-                return false;
-            }
+//            if (message.getData().getAlternate_land_point() == null) {
+//                sendEvent2Server("备降点参数异常", 2);
+//                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+//                return false;
+//            }
             //6.检查航线参数
             if (message.getData().getFile() == null) {
                 sendEvent2Server("航线参数异常", 2);

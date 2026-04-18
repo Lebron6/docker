@@ -2,6 +2,7 @@ package com.aros.apron.manager;
 
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+import static dji.v5.inner.analytics.event.co_b.t1;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -46,7 +47,13 @@ public class SystemManager extends BaseManager {
     public void checkAircraftPowerStatus(MessageDown message) {
         Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
         if (isConnect != null && isConnect) {
-            sendMsg2Server( message);
+            String sn = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeySerialNumber));
+            if (sn!=null){
+                PowerOnManager.getInstance().sendPowerOnMsg2Server(sn);
+            }else{
+                LogUtil.log(TAG,"暂未获取到sn");
+            }
+//            sendMsg2Server(message);
         } else {
             sendFailMsg2Server( message, "无人机未连接");
         }
