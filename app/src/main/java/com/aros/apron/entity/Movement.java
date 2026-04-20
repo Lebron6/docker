@@ -107,6 +107,7 @@ public class Movement {
     private boolean pauseMissionStautus;//前端判断是否显示/隐藏暂停航线
     private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
     private boolean isVirtualStickQuitMission;//用户手动后退出航线
+    private String cameraSn;//
 
 
     //适配上云格式参数，拿到后再进行组装
@@ -268,6 +269,14 @@ public class Movement {
     private String gnd_quality_4g;
     private String sdr_freq_band;
     private String freq_band_4g;
+
+    public String getCameraSn() {
+        return cameraSn;
+    }
+
+    public void setCameraSn(String cameraSn) {
+        this.cameraSn = cameraSn;
+    }
 
     public String getDongle_number() {
         return dongle_number;

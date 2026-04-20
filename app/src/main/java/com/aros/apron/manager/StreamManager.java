@@ -1,6 +1,5 @@
 package com.aros.apron.manager;
 
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,14 +8,10 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
 
-import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
-import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.key.ProductKey;
-import dji.sdk.keyvalue.value.camera.CameraType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
@@ -29,7 +24,6 @@ import dji.v5.manager.datacenter.livestream.LiveStreamType;
 import dji.v5.manager.datacenter.livestream.LiveVideoBitrateMode;
 import dji.v5.manager.datacenter.livestream.StreamQuality;
 import dji.v5.manager.datacenter.livestream.settings.RtmpSettings;
-import dji.v5.manager.datacenter.livestream.settings.RtspSettings;
 import dji.v5.manager.interfaces.ILiveStreamManager;
 
 
@@ -92,173 +86,157 @@ sendMsg2Server(message);
         }
     }
 
-
-    private int startLiveFailTimes;
-    private boolean isLiveStreamAlreadyStart;
-
-    //知眸测试
-    public void startLiveWithCustom() {
+    public void startLiveWithRtmp(MessageDown message) {
 
         Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
         if (isAircraftConnected == null || !isAircraftConnected) {
             LogUtil.log(TAG, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            LogUtil.log(TAG, "自定义推流地址:" + PreferenceUtils.getInstance().getCustomStreamUrl());
+//            LogUtil.log(TAG, "自定义推流地址:" + PreferenceUtils.getInstance().getCustomStreamUrl());
             LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
             LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTMP)
-                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(PreferenceUtils.getInstance().getCustomStreamUrl()
+                    .setRtmpSettings(new RtmpSettings.Builder().setUrl(message.getData().getUrl()
                     ).build()).build();
             liveStreamManager.setLiveStreamSettings(streamSettings);
-            CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
-//            if (value != null && (value == CameraType.ZENMUSE_H20T ||
-//                    value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
-//                    || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
-                liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-//            } else {
-//                liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-//            }
-            liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
+//            CameraType value = KeyManager.getInstance().getValue(
+//                    KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
+            liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
+            if (message.getData().getVideo_quality() == 0 || message.getData().getVideo_quality() == 4) {
+                liveStreamManager.setLiveStreamQuality(StreamQuality.ORIGINAL);
+            } else {
+                liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getData().getVideo_quality()));
+            }
             liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-            if (!liveStreamManager.isStreaming()) {
-                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onSuccess() {
-                        LogUtil.log(TAG, "自定义推流启动成功");
-                        isLiveStreamAlreadyStart=true;
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull IDJIError error) {
-                        LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始推流失败:"+new Gson().toJson(error));
-                        if (!isLiveStreamAlreadyStart){
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (startLiveFailTimes < 10) {
-                                        startLiveFailTimes++;
-                                        startLiveWithCustom();
-                                    }
-                                }
-                            }, 3000);
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-
-    public void startLiveWithRTSP() {
-
-        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
-        if (isAircraftConnected == null || !isAircraftConnected) {
-            LogUtil.log(TAG, "飞行器未连接");
-
-        } else {
-            if (PreferenceUtils.getInstance().getRtspUserName()!=null&&
-                    PreferenceUtils.getInstance().getRtspPort()!=null&&
-            PreferenceUtils.getInstance().getRtspPassWord()!=null
-            ){
-                ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-                LogUtil.log(TAG, "自定义RTSP推流:" + PreferenceUtils.getInstance().getRtspUserName()
-                        +"--"+PreferenceUtils.getInstance().getRtspPort()+"--"+PreferenceUtils.getInstance().getRtspPassWord());
-                LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
-                LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTSP)
-                        .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).
-                                setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).
-                                setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
-
-                liveStreamManager.setLiveStreamSettings(streamSettings);
-                CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
-//                if (value != null && (value == CameraType.ZENMUSE_H20T ||
-//                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
-//                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
-                    liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
-//                } else {
-//                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
-//                }
-                liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
-                liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-                if (!liveStreamManager.isStreaming()) {
-                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
-                            isLiveStreamAlreadyStart=true;
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
-                            if (!isLiveStreamAlreadyStart){
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (startLiveFailTimes < 10) {
-                                            startLiveFailTimes++;
-                                            startLiveWithRTSP();
-                                        }
-                                    }
-                                }, 3000);
-                            }
-                        }
-                    });
-                }else{
-                    liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                                        @Override
-                                        public void onSuccess() {
-                                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
-                                            isLiveStreamAlreadyStart=true;
-                                        }
-
-                                        @Override
-                                        public void onFailure(@NonNull IDJIError error) {
-                                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
-                                            if (!isLiveStreamAlreadyStart){
-                                                new Handler().postDelayed(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (startLiveFailTimes < 10) {
-                                                            startLiveFailTimes++;
-                                                            startLiveWithRTSP();
-                                                        }
-                                                    }
-                                                }, 3000);
-                                            }
-                                        }
-                                    });
-                                }
-                            },2000);
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError error) {
-                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
-                            if (!isLiveStreamAlreadyStart){
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (startLiveFailTimes < 10) {
-                                            startLiveFailTimes++;
-                                            startLiveWithRTSP();
-                                        }
-                                    }
-                                }, 3000);
-                            }
-                        }
-                    });
+//            if (!liveStreamManager.isStreaming()) {
+            liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    sendMsg2Server(message);
+                    LogUtil.log(TAG, "推流启动成功");
                 }
-            }else{
-                LogUtil.log(TAG,"RTSP配置参数有误");
-            }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    sendFailMsg2Server(message, "推流失败:" + new Gson().toJson(error));
+                    LogUtil.log(TAG, "推流失败:" + new Gson().toJson(error));
+                }
+            });
+//            }
         }
     }
+
+
+//    public void startLiveWithRTSP() {
+//
+//        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
+//        if (isAircraftConnected == null || !isAircraftConnected) {
+//            LogUtil.log(TAG, "飞行器未连接");
+//
+//        } else {
+//            if (PreferenceUtils.getInstance().getRtspUserName()!=null&&
+//                    PreferenceUtils.getInstance().getRtspPort()!=null&&
+//            PreferenceUtils.getInstance().getRtspPassWord()!=null
+//            ){
+//                ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+//                LogUtil.log(TAG, "自定义RTSP推流:" + PreferenceUtils.getInstance().getRtspUserName()
+//                        +"--"+PreferenceUtils.getInstance().getRtspPort()+"--"+PreferenceUtils.getInstance().getRtspPassWord());
+//                LiveStreamSettings.Builder streamSettingBuilder = new LiveStreamSettings.Builder();
+//                LiveStreamSettings streamSettings = streamSettingBuilder.setLiveStreamType(LiveStreamType.RTSP)
+//                        .setRtspSettings(new RtspSettings.Builder().setPassWord(PreferenceUtils.getInstance().getRtspPassWord()).
+//                                setPort(Integer.parseInt(PreferenceUtils.getInstance().getRtspPort())).
+//                                setUserName(PreferenceUtils.getInstance().getRtspUserName()).build()).build();
+//
+//                liveStreamManager.setLiveStreamSettings(streamSettings);
+//                CameraType value = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyCameraType, ComponentIndexType.PORT_1));
+////                if (value != null && (value == CameraType.ZENMUSE_H20T ||
+////                        value == CameraType.ZENMUSE_H20N || value == CameraType.ZENMUSE_H20)
+////                        || value == CameraType.ZENMUSE_H30 || value == CameraType.ZENMUSE_H30T) {
+//                    liveStreamManager.setCameraIndex(ComponentIndexType.PORT_1);
+////                } else {
+////                    liveStreamManager.setCameraIndex(ComponentIndexType.FPV);
+////                }
+//                liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
+//                liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
+//                if (!liveStreamManager.isStreaming()) {
+//                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
+//                            isLiveStreamAlreadyStart=true;
+//                        }
+//
+//                        @Override
+//                        public void onFailure(@NonNull IDJIError error) {
+//                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
+//                            if (!isLiveStreamAlreadyStart){
+//                                new Handler().postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        if (startLiveFailTimes < 10) {
+//                                            startLiveFailTimes++;
+//                                            startLiveWithRTSP();
+//                                        }
+//                                    }
+//                                }, 3000);
+//                            }
+//                        }
+//                    });
+//                }else{
+//                    liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            new Handler().postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+//                                        @Override
+//                                        public void onSuccess() {
+//                                            LogUtil.log(TAG, "自定义RTSP推流启动成功");
+//                                            isLiveStreamAlreadyStart=true;
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(@NonNull IDJIError error) {
+//                                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
+//                                            if (!isLiveStreamAlreadyStart){
+//                                                new Handler().postDelayed(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        if (startLiveFailTimes < 10) {
+//                                                            startLiveFailTimes++;
+//                                                            startLiveWithRTSP();
+//                                                        }
+//                                                    }
+//                                                }, 3000);
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            },2000);
+//                        }
+//
+//                        @Override
+//                        public void onFailure(@NonNull IDJIError error) {
+//                            LogUtil.log(TAG, "第"+startLiveFailTimes+"次开始RTSP推流失败:"+new Gson().toJson(error));
+//                            if (!isLiveStreamAlreadyStart){
+//                                new Handler().postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        if (startLiveFailTimes < 10) {
+//                                            startLiveFailTimes++;
+//                                            startLiveWithRTSP();
+//                                        }
+//                                    }
+//                                }, 3000);
+//                            }
+//                        }
+//                    });
+//                }
+//            }else{
+//                LogUtil.log(TAG,"RTSP配置参数有误");
+//            }
+//        }
+//    }
 
 }

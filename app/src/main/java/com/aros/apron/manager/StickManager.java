@@ -51,7 +51,7 @@ public class StickManager extends BaseManager {
         }
     }
 
-    //取消虚拟摇杆控制权
+    //虚拟摇杆控制权
     public void enableVirtualStick(MessageDown message) {
         VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
         VirtualStickManager.getInstance().enableVirtualStick(new CommonCallbacks.CompletionCallback() {
@@ -95,7 +95,7 @@ public class StickManager extends BaseManager {
         });
     }
 
-    //飞行控制权抢夺
+    //进入指令飞行控制模式
     public void setVirtualStickModeEnabled(MessageDown message) {
         sendMsg2Server(message);
 //////        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyConnection));

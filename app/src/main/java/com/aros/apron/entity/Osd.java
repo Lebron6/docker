@@ -101,6 +101,8 @@ public class Osd {
         private double latitude;
         private double longitude;
         private MaintainStatus maintain_status;
+        private List<LiveStatus> liveStatuses;
+
         private int mode_code;
         private int night_lights_state;
         private ObstacleAvoidance obstacle_avoidance;
@@ -116,7 +118,23 @@ public class Osd {
         private double vertical_speed;
         private int wind_direction;
         private int wind_speed;
+        private int drc_state;
 
+        public List<LiveStatus> getLiveStatuses() {
+            return liveStatuses;
+        }
+
+        public void setLiveStatuses(List<LiveStatus> liveStatuses) {
+            this.liveStatuses = liveStatuses;
+        }
+
+        public int getDrc_state() {
+            return drc_state;
+        }
+
+        public void setDrc_state(int drc_state) {
+            this.drc_state = drc_state;
+        }
 
         public double getRtk_takeoff_altitude() {
             return rtk_takeoff_altitude;
@@ -816,6 +834,57 @@ public class Osd {
                 }
             }
         }
+
+        public static class LiveStatus {
+
+                private String video_id;
+                private String video_type;
+                private int video_quality;
+                private int status;
+                private int error_status;
+
+                public String getVideo_id() {
+                    return video_id;
+                }
+
+                public void setVideo_id(String video_id) {
+                    this.video_id = video_id;
+                }
+
+                public String getVideo_type() {
+                    return video_type;
+                }
+
+                public void setVideo_type(String video_type) {
+                    this.video_type = video_type;
+                }
+
+                public int getVideo_quality() {
+                    return video_quality;
+                }
+
+                public void setVideo_quality(int video_quality) {
+                    this.video_quality = video_quality;
+                }
+
+                public int getStatus() {
+                    return status;
+                }
+
+                public void setStatus(int status) {
+                    this.status = status;
+                }
+
+                public int getError_status() {
+                    return error_status;
+                }
+
+                public void setError_status(int error_status) {
+                    this.error_status = error_status;
+                }
+
+        }
+
 
         public static class ObstacleAvoidance {
             private int downside;

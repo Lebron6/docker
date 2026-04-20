@@ -643,20 +643,20 @@ open class MainActivity : BaseActivity() {
             WirelessLinkManager.getInstance().initWirelessLink()
             CameraManager.getInstance().initCameraInfo()
             SpeakerManager.getInstance().initMegaphoneInfo()
-            LogUtil.log(TAG, "自定义推流方式:" + PreferenceUtils.getInstance().customStreamType)
-            Handler().postDelayed(Runnable {
-                    if (PreferenceUtils.getInstance().customStreamType==1){
-                        StreamManager.getInstance()
-                            .startLiveWithRTSP()
-                    }else if (PreferenceUtils.getInstance().customStreamType==2){
-                        StreamManager.getInstance()
-                            .startLiveWithCustom()
-                    }else {
-                        StreamManager.getInstance()
-                            .startLiveWithCustom()
-                    }
-                }, 5000)
-        LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
+//            LogUtil.log(TAG, "自定义推流方式:" + PreferenceUtils.getInstance().customStreamType)
+//            Handler().postDelayed(Runnable {
+//                    if (PreferenceUtils.getInstance().customStreamType==1){
+//                        StreamManager.getInstance()
+//                            .startLiveWithRTSP()
+//                    }else if (PreferenceUtils.getInstance().customStreamType==2){
+//                        StreamManager.getInstance()
+//                            .startLiveWithCustom()
+//                    }else {
+//                        StreamManager.getInstance()
+//                            .startLiveWithCustom()
+//                    }
+//                }, 5000)
+//        LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
         }
     }
 

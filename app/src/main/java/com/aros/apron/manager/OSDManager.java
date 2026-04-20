@@ -17,8 +17,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
+import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.manager.KeyManager;
+import dji.v5.manager.datacenter.MediaDataCenter;
+import dji.v5.manager.datacenter.livestream.StreamQuality;
+import dji.v5.manager.interfaces.ILiveStreamManager;
 
 public class OSDManager extends BaseManager {
 
@@ -31,6 +39,10 @@ public class OSDManager extends BaseManager {
     List<Osd.Data.Battery.Batteries> batteries = new ArrayList<>();
     Osd.Data.Battery.Batteries batterieA = new Osd.Data.Battery.Batteries();
     Osd.Data.Battery.Batteries batterieB = new Osd.Data.Battery.Batteries();
+    Osd.Data.LiveStatus liveStatus = new Osd.Data.LiveStatus();
+    List<Osd.Data.LiveStatus> liveStatusArrays=new ArrayList<>();
+
+
     List<Osd.Data.Cameras> cameras = new ArrayList<>();
     Osd.Data.Cameras cameraA = new Osd.Data.Cameras();
     Osd.Data.Cameras.IrMeteringPoint irMeteringPoint = new Osd.Data.Cameras.IrMeteringPoint();
@@ -85,6 +97,9 @@ public class OSDManager extends BaseManager {
     private void pushFlightAttitude() {
         try {
 
+            if (liveStatusArrays != null && liveStatusArrays.size() > 0) {
+                liveStatusArrays.clear();
+            }
             if (batteries != null && batteries.size() > 0) {
                 batteries.clear();
             }
@@ -115,6 +130,37 @@ public class OSDManager extends BaseManager {
             data.setAttitude_head(Movement.getInstance().getAttitude_head());
             data.setAttitude_pitch(Movement.getInstance().getAttitude_pitch());
             data.setAttitude_roll(Movement.getInstance().getAttitude_roll());
+
+            liveStatus.setError_status(-1);
+            liveStatus.setStatus(Movement.getInstance().getLiveStatus());
+//            liveStatus.setVideo_id("{"+Movement.getInstance().getCameraSn()+"}"+"/"+"{53-0-0}"+"/"+"{0}");
+            liveStatus.setVideo_id("1581F8DBW25CG00B363D/81-0-0/normal-0");
+            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+            if (liveStreamManager!=null){
+                StreamQuality liveStreamQuality = liveStreamManager.getLiveStreamQuality();
+                liveStatus.setVideo_quality(liveStreamQuality.ordinal());
+            }
+            CameraVideoStreamSourceType cameraVideoStreamSourceType =
+                    KeyManager.getInstance().getValue(createKey(CameraKey.
+                    KeyCameraVideoStreamSource, ComponentIndexType.PORT_1));
+            if (cameraVideoStreamSourceType!=null){
+                switch (cameraVideoStreamSourceType.value()){
+                    case 3:
+                        liveStatus.setVideo_type("ir");
+                        break;
+                    case 0:
+                        liveStatus.setVideo_type("normal");
+                        break;
+                    case 1:
+                        liveStatus.setVideo_type("wide");
+                        break;
+                    case 2:
+                        liveStatus.setVideo_type("zoom");
+                        break;
+                }
+            }
+            liveStatusArrays.add(liveStatus);
+            data.setLiveStatuses(liveStatusArrays);
 
             batterieA.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
             batterieA.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());
@@ -243,6 +289,7 @@ public class OSDManager extends BaseManager {
             data.setVertical_speed(Movement.getInstance().getVertical_speed());
             data.setWind_direction(Movement.getInstance().getWind_direction());
             data.setWind_speed(Movement.getInstance().getWind_speed());
+            data.setDrc_state(Movement.getInstance().getIsVirtualStickEnable()==0?0:2);
             data.setHomepoint_latitude(Movement.getInstance().getHomepoint_latitude());
             data.setHomepoint_longitude(Movement.getInstance().getHomepoint_longitude());
             data.setRtk_takeoff_altitude(Movement.getInstance().getRtk_takeoff_altitude());

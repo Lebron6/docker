@@ -63,7 +63,15 @@ public class CameraManager extends BaseManager {
     public void initCameraInfo() {
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(CameraKey.KeyConnection, ComponentIndexType.PORT_1));
         if (isConnect != null && isConnect) {
-
+            //SN号码
+            KeyManager.getInstance().listen(createKey(CameraKey.KeySerialNumber, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1!=null){
+                        Movement.getInstance().setCameraSn(t1);
+                    }
+                }
+            });
             //全局画面中测量的最高温度
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyThermalGlobalMinTemperature,
                     ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_THERMAL), this, new CommonCallbacks.KeyListener<Double>() {
