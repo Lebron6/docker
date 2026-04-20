@@ -54,7 +54,6 @@ open class ConnectionActivity : BaseActivity() {
     )
 
     private val msdkInfoVm: MSDKInfoVm by viewModels()
-    private val TAG="ConnectionActivity"
     private val msdkManagerVM: MSDKManagerVM by globalViewModels()
     private lateinit var connectionBinding: ActivityConnectionBinding
     private val handler: Handler = Handler(Looper.getMainLooper())

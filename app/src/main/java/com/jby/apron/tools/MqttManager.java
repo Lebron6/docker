@@ -13,6 +13,7 @@ import com.jby.apron.callback.MqttActionCallBack;
 import com.jby.apron.callback.MqttCallBack;
 import com.jby.apron.constant.AMSConfig;
 import com.jby.apron.constant.Constant;
+import com.jby.apron.constant.MqttConfig;
 import com.jby.apron.entity.MessageEvent;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -169,8 +170,7 @@ public class MqttManager {
     }
 
     public void publishStatus(String method) {
-        String remoteSn = KeyManager.getInstance().getValue(KeyTools.createKey(RemoteControllerKey.
-                KeySerialNumber));
+
         try {
             if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
                 MessageEvent messageEvent = new MessageEvent();
@@ -179,7 +179,7 @@ public class MqttManager {
                 messageEvent.setTimestamp(System.currentTimeMillis());
                 messageEvent.setMethod(method);
                 MessageEvent.Data data = new MessageEvent.Data();
-                data.setSn(remoteSn);
+                data.setSn(MqttConfig.getInstance().getRemoteSn());
                 messageEvent.setData(data);
                 MqttMessage mqttMessage =
                         new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));

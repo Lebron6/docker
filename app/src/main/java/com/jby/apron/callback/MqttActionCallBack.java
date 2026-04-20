@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.jby.apron.constant.AMSConfig;
 import com.jby.apron.constant.Constant;
+import com.jby.apron.constant.MqttConfig;
 import com.jby.apron.entity.MessageEvent;
-import com.jby.apron.entity.Movement;
 import com.jby.apron.tools.LogUtil;
 import com.jby.apron.tools.MqttManager;
 import com.jby.apron.tools.ToastUtil;
@@ -24,7 +24,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.UUID;
 
-import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.RemoteControllerKey;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.manager.KeyManager;
@@ -44,11 +43,51 @@ public class MqttActionCallBack implements IMqttActionListener {
     public void onSuccess(IMqttToken asyncActionToken) {
         ToastUtil.showToast("MQTT连接成功");
         LogUtil.log(TAG, "MQTT连接成功：-------");
+
+        //遥控器sn
+        KeyManager.getInstance().listen(createKey(RemoteControllerKey.KeySerialNumber), this, new CommonCallbacks.KeyListener<String>() {
+            @Override
+            public void onValueChange(@Nullable String s, @Nullable String t1) {
+                if (t1 != null) {
+                    MqttConfig.getInstance().setRemoteSn(t1);
+                    MqttConfig.getInstance().setDownUavServiceTopic("uav/" + t1 + "/service");
+                    MqttConfig.getInstance().setUpUavServiceReplyTopic("uav/" + t1 + "/service_reply");
+                    MqttConfig.getInstance().setUpUavEventTopic("uav/" + t1 + "/event");
+                    MqttConfig.getInstance().setDownUavEventReplyTopic("uav/" + t1 + "/event_reply");
+                    try {
+                        MqttManager.getInstance().mqttAndroidClient.subscribe(MqttConfig.getInstance().getDownUavServiceTopic(), 1);//订阅主题:注册
+                        MqttManager.getInstance().mqttAndroidClient.subscribe(MqttConfig.getInstance().getDownUavEventReplyTopic(), 1);//订阅主题:注册
+                    } catch (MqttException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //飞机SN号
+                    MqttManager.getInstance().publishStatus(Constant.REMOTE_ONLINE);
+                }
+            }
+        });
+
+    }
+
+
+    @Override
+    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+        LogUtil.log(TAG, "MQtt连接失败:" + exception.toString());
         try {
-            //飞机SN号
-            MqttManager.getInstance().publishStatus(Constant.REMOTE_ONLINE);
-            mqttAndroidClient.subscribe(AMSConfig.DOWN_UAV_SERVICES, 1);//订阅主题:注册
-        } catch (MqttException e) {
+            if (!mqttAndroidClient.isConnected()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            mqttAndroidClient.connect(options, null, MqttActionCallBack.this); // 再次尝试连接
+                        } catch (MqttException e) {
+                            LogUtil.log(TAG,"mqtt重连异常:"+e.toString());
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, 1500);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -76,26 +115,4 @@ public class MqttActionCallBack implements IMqttActionListener {
         }
     }
 
-    @Override
-    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-        LogUtil.log(TAG, "MQtt连接失败:" + exception.toString());
-        try {
-            if (!mqttAndroidClient.isConnected()) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            mqttAndroidClient.connect(options, null, MqttActionCallBack.this); // 再次尝试连接
-                        } catch (MqttException e) {
-                            LogUtil.log(TAG,"mqtt重连异常:"+e.toString());
-                            e.printStackTrace();
-                        }
-
-                    }
-                },1500);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

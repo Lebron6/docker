@@ -1,5 +1,9 @@
 package com.jby.apron.constant;
 
+import dji.sdk.keyvalue.key.KeyTools;
+import dji.sdk.keyvalue.key.RemoteControllerKey;
+import dji.v5.manager.KeyManager;
+
 /**
  * MQTT参数配置
  */
@@ -19,6 +23,15 @@ public class AMSConfig {
     private String mqttServerUri;
     private String userName;
     private String password;
+    private String remoteSn;
+
+    public String getRemoteSn() {
+        return remoteSn;
+    }
+
+    public void setRemoteSn(String remoteSn) {
+        this.remoteSn = remoteSn;
+    }
 
     public String getMqttServerUri() {
         return mqttServerUri;
@@ -58,27 +71,32 @@ public class AMSConfig {
     /**
      * 服务端下发给msdk
      */
-    public static String DOWN_UAV_SERVICES = "nest/uav_services";
+    public static String DOWN_UAV_SERVICES = "uav/service";
 
     /**
      * 收到服务端命令后MSDK回复
      */
-    public static String UP_UAV_SERVICES_REPLY = "nest/uav_services_reply";
+    public static String UP_UAV_SERVICES_REPLY = "uav/service_reply";
 
     /**
      * MSDK上报事件给服务端
      */
-    public static String UP_UAV_EVENT = "nest/uav_event";
+    public static String UP_UAV_EVENT = "uav/event";
 
     /**
      * 服务端收到事件后回复给MSDK
      */
-    public static String DOWN_UAV_EVENT_REPLY = "nest/uav_event_reply";
+    public static String DOWN_UAV_EVENT_REPLY ="uav/event_reply";
 
     /**
-     * 注册
+     * 登录以及退出登录
      */
     public static final String REGISTER = "register";
+
+    /**
+     * 遥控器sn
+     */
+    public static String REMOTE_SN = "remote_sn";
 
 
 }

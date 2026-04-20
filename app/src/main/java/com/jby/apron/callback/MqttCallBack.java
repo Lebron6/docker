@@ -1,13 +1,17 @@
 package com.jby.apron.callback;
 
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.jby.apron.app.ApronApp;
-import com.jby.apron.constant.AMSConfig;
 import com.jby.apron.constant.Constant;
+import com.jby.apron.constant.MqttConfig;
 import com.jby.apron.entity.MessageDown;
 import com.jby.apron.entity.Movement;
 import com.jby.apron.manager.MissionV3Manager;
@@ -18,7 +22,12 @@ import com.jby.apron.tools.RestartAPPTool;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import dji.sdk.keyvalue.key.RemoteControllerKey;
+import dji.v5.common.callback.CommonCallbacks;
+import dji.v5.manager.KeyManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -53,6 +62,11 @@ public class MqttCallBack implements MqttCallbackExtended {
         switch (message.getMethod()) {
             case Constant.FLIGHTTASK_PREPARE:
                 MissionV3Manager.getInstance().flightTaskPrepare(message);
+                break;
+            case Constant.PRODUCT_PROPERTY_SET:
+                LogUtil.log(TAG, "收到：设备属性设置" + jsonString);
+
+//                MissionV3Manager.getInstance().flightTaskPrepare(message);
                 break;
 //            case Constant.PILOT_ON:
 //                LogUtil.log(TAG, "收到：遥控器是否开机" + jsonString);
@@ -285,9 +299,11 @@ public class MqttCallBack implements MqttCallbackExtended {
     public void deliveryComplete(IMqttDeliveryToken token) {
 
     }
-    String[] topics = new String[] {
-            AMSConfig.getInstance().DOWN_UAV_EVENT_REPLY,
-            AMSConfig.getInstance().DOWN_UAV_SERVICES,
+
+
+    String[] topics = new String[]{
+            MqttConfig.getInstance().getDownUavServiceTopic(),
+            MqttConfig.getInstance().getDownUavEventReplyTopic(),
     };
     int[] qos = new int[] {
             1, 1
@@ -295,8 +311,27 @@ public class MqttCallBack implements MqttCallbackExtended {
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
         try {
-                LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
-                MqttManager.getInstance().mqttAndroidClient.subscribe(topics, qos);//订阅主题:注册
+            LogUtil.log(TAG, "MQtt ConnectComplete:" + serverURI);
+            //遥控器sn
+            KeyManager.getInstance().listen(createKey(RemoteControllerKey.KeySerialNumber), this, new CommonCallbacks.KeyListener<String>() {
+                @Override
+                public void onValueChange(@Nullable String s, @Nullable String t1) {
+                    if (t1 != null) {
+                        MqttConfig.getInstance().setRemoteSn(t1);
+                        MqttConfig.getInstance().setDownUavServiceTopic("uav/" + t1 + "/service");
+                        MqttConfig.getInstance().setUpUavServiceReplyTopic("uav/" + t1 + "/service_reply");
+                        MqttConfig.getInstance().setUpUavEventTopic("uav/" + t1 + "/event");
+                        MqttConfig.getInstance().setDownUavEventReplyTopic("uav/" + t1 + "/event_reply");
+                        try {
+                            MqttManager.getInstance().mqttAndroidClient.subscribe(topics, qos);//订阅主题:注册
+                        } catch (MqttException e) {
+                            throw new RuntimeException(e);
+                        }
+                        //飞机SN号
+                        MqttManager.getInstance().publishStatus(Constant.REMOTE_ONLINE);
+                    }
+                }
+            });
         } catch (Exception e) {
             LogUtil.log(TAG, "MQtt ConnectException:" + e.toString());
         }

@@ -150,7 +150,7 @@ public abstract class BaseManager {
                 messageEvent.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
-                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.REGISTER, mqttMessage);
+                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
             } else {
                 LogUtil.log(TAG, "发送run_log event失败：mqtt 未连接");
             }
