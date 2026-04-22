@@ -50,8 +50,6 @@ import com.jby.apron.manager.SpeakerManager
 import com.jby.apron.manager.StickManager
 import com.jby.apron.manager.StreamManager
 import com.jby.apron.manager.WirelessLinkManager
-import com.jby.apron.tools.AlternateArucoDetect
-import com.jby.apron.tools.ApronArucoDetect
 import com.jby.apron.tools.DroneHelper
 import com.jby.apron.tools.LogUtil
 import com.jby.apron.tools.MqttManager
@@ -677,19 +675,19 @@ LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
             streamReceive=true
 //            if (shouldExecute) {
                 if (startArucoType == 1) {
-                    ApronArucoDetect.getInstance()?.detectArucoTags(
-                        height,
-                        width,
-                        frameData,
-                        dictionary
-                    )
+//                    ApronArucoDetect.getInstance()?.detectArucoTags(
+//                        height,
+//                        width,
+//                        frameData,
+//                        dictionary
+//                    )
                 } else if (startArucoType == 2) {
-                    AlternateArucoDetect.getInstance()?.detectArucoTags(
-                        height,
-                        width,
-                        frameData,
-                        dictionary
-                    )
+//                    AlternateArucoDetect.getInstance()?.detectArucoTags(
+//                        height,
+//                        width,
+//                        frameData,
+//                        dictionary
+//                    )
                 }
 //            }
 //            shouldExecute = !shouldExecute
@@ -700,7 +698,7 @@ LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
         override fun onManagerConnected(status: Int) {
             if (status == SUCCESS) {
                 LogUtil.log(TAG,"Version Name="+BuildConfig.VERSION_NAME)
-                ApronArucoDetect.getInstance().init()
+//                ApronArucoDetect.getInstance().init()
 
             } else {
                 super.onManagerConnected(status)
@@ -718,17 +716,17 @@ LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             LogUtil.log(TAG, "取消降落,识别机库二维码")
                             Handler().postDelayed(Runnable {
-                                if (!ApronArucoDetect.getInstance().isTriggerSuccess) {
-                                    LogUtil.log(TAG, "图传异常:飞往备降点")
-                                    //测试图传丢失
-                                    AlternateLandingManager.getInstance().startTaskProcess(null)
-                                }
+//                                if (!ApronArucoDetect.getInstance().isTriggerSuccess) {
+//                                    LogUtil.log(TAG, "图传异常:飞往备降点")
+//                                    //测试图传丢失
+//                                    AlternateLandingManager.getInstance().startTaskProcess(null)
+//                                }
                             }, 6000)
                             if (startArucoType == 1) {
                                 return
                             }
                             startArucoType = 1
-                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
+//                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
                             DroneHelper.getInstance().isVirtualStickEnable = false
@@ -741,7 +739,7 @@ LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
                             }
                             startArucoType = 1
                             LogUtil.log(TAG, "取消降落,识别机库二维码失败:" + Gson().toJson(error))
-                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
+//                            ApronArucoDetect.getInstance().setDetectedBigMarkers()
                             DroneHelper.getInstance().setGimbalPitchDegree()
                             //每次触发识别二维码时，为避免获取控制权失败,使多次获取控制权
                             DroneHelper.getInstance().isVirtualStickEnable=false
@@ -756,11 +754,11 @@ LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
                         override fun onSuccess(emptyMsg: EmptyMsg?) {
                             LogUtil.log(TAG, "取消降落,识别备降点二维码")
                             Handler().postDelayed(Runnable {
-                                if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
-                                    LogUtil.log(TAG, "图传异常:备降点直接降落")
-                                    //测试图传丢失
-                                    FlightManager.getInstance().startAutoLanding(null)
-                                }
+//                                if (!AlternateArucoDetect.getInstance().isTriggerSuccess) {
+//                                    LogUtil.log(TAG, "图传异常:备降点直接降落")
+//                                    //测试图传丢失
+//                                    FlightManager.getInstance().startAutoLanding(null)
+//                                }
                             }, 4000)
                             if (startArucoType == 2) {
                                 return

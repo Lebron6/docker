@@ -11,10 +11,8 @@ import androidx.annotation.Nullable;
 import com.jby.apron.base.BaseManager;
 import com.jby.apron.entity.MessageDown;
 import com.jby.apron.entity.Movement;
-import com.jby.apron.tools.ApronArucoDetect;
 import com.jby.apron.tools.LogUtil;
 import com.jby.apron.tools.PreferenceUtils;
-import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.GimbalKey;
@@ -27,7 +25,6 @@ import dji.sdk.keyvalue.value.flightcontroller.LookAtInfo;
 import dji.sdk.keyvalue.value.flightcontroller.LookAtMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
-import dji.sdk.keyvalue.value.gimbal.GimbalMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalResetType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;

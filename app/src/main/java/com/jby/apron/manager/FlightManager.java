@@ -11,8 +11,6 @@ import com.jby.apron.constant.AMSConfig;
 import com.jby.apron.entity.ApronExecutionStatus;
 import com.jby.apron.entity.MessageDown;
 import com.jby.apron.entity.Movement;
-import com.jby.apron.tools.AlternateArucoDetect;
-import com.jby.apron.tools.ApronArucoDetect;
 import com.jby.apron.tools.DroneHelper;
 import com.jby.apron.tools.LocationUtils;
 import com.jby.apron.tools.LogUtil;

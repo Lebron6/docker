@@ -314,11 +314,11 @@ public class MissionV3Manager extends BaseManager {
                 return false;
             }
             //5.检查航线备降点参数
-//            if (message.getData().getAlternate_land_point() == null) {
-//                sendEvent2Server("备降点参数异常", 2);
-//                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
-//                return false;
-//            }
+            if (message.getData().getAlternate_land_point() == null) {
+                sendEvent2Server("备降点参数异常", 2);
+                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                return false;
+            }
             //6.检查航线参数
             if (message.getData().getFile() == null) {
                 sendEvent2Server("航线参数异常", 2);
