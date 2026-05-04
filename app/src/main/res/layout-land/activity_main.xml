@@ -292,7 +292,7 @@
             app:layout_constraintWidth_percent="0.95"
             app:uxsdk_titleBarBackgroundColor="@color/uxsdk_black" />
         <LinearLayout
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="100dp"
@@ -306,6 +306,12 @@
             <Button
                 android:id="@+id/btn_test1"
                 android:text="停转"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                />
+            <Button
+                android:id="@+id/btn_up"
+                android:text="上传"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 />

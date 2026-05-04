@@ -9,7 +9,6 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.v5.manager.KeyManager;
 

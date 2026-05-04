@@ -262,16 +262,16 @@ class ConfigActivity : BaseActivity() {
         }
         var minimumBattery=configBinding.etMinimumBattery.text.toString()
         var forcedBattery=configBinding.etForcedBattery.text.toString()
-        if (minimumBattery.toInt()<35){
-            ToastUtil.showToast("允许起飞电量不得低于35%")
+        if (minimumBattery.toInt()<15){
+            ToastUtil.showToast("允许起飞电量不得低于15%")
             return
         }
         if (forcedBattery.toInt()>=minimumBattery.toInt()){
             ToastUtil.showToast("强制返航电量需小于允许起飞电量")
             return
         }
-        if ((minimumBattery.toInt()-forcedBattery.toInt())<10){
-            ToastUtil.showToast("强制返航电量需小于允许起飞电量最少10%")
+        if ((minimumBattery.toInt()-forcedBattery.toInt())<1){
+            ToastUtil.showToast("强制返航电量需小于允许起飞电量最少1%")
             return
         }
 

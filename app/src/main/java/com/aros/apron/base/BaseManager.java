@@ -151,6 +151,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(messageEvent).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+//                LogUtil.log(TAG,"打印常规事件:"+new Gson().toJson(messageEvent));
             } else {
                 LogUtil.log(TAG, "发送run_log event失败：mqtt 未连接");
             }
@@ -173,8 +174,12 @@ public abstract class BaseManager {
                 mediaUpLoad.setTimestamp(System.currentTimeMillis());
                 mediaUpLoad.setMethod(Constant.FILE_UPLOAD_CALLBACK);
                 MediaUpLoad.Data data=new MediaUpLoad.Data();
-                data.setBucket_name(PreferenceUtils.getInstance().getBucketName());
-                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
+//                data.setBucket_name(PreferenceUtils.getInstance().getBucketName());
+//                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
+//                data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
+                data.setBucket_name("honghu-uav");
+//                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
+                data.setObject_key("media");
                 data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
                 data.setFile_name(fileName);
                 data.setUploaded_file_count(uploaded_file_count);

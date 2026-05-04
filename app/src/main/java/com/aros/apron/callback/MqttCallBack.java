@@ -69,8 +69,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                 SystemManager.getInstance().checkAircraftPowerStatus(message);
                 break;
             case Constant.MEDIA_UPLOAD_COMPLETE:
-                LogUtil.log(TAG, "收到：文件上传是否结束" + jsonString);
-                SystemManager.getInstance().aircraftStoredReply(message);
+                LogUtil.log(TAG, "收到：服务端响应文件上传结束" + jsonString);
+                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
                 break;
             case Constant.OPEN_SLOW_PROPELLER_ROTATION:
                 LogUtil.log(TAG, "收到：开启低速转浆" + jsonString);
@@ -190,7 +190,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.CAMERA_SCREEN_DRAG:
                 LogUtil.log(TAG, "收到：负载控制—画面拖动控制" + jsonString);
-//GimbalManager.getInstance().
+                GimbalManager.getInstance().cameraScreenDrag(message);
                 break;
             case Constant.CAMERA_AIM:
                 LogUtil.log(TAG, "收到：负载控制—双击成为 AIM" + jsonString);

@@ -42,6 +42,7 @@ import com.aros.apron.manager.OSDManager
 import com.aros.apron.manager.SpeakerManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
+import com.aros.apron.manager.SystemManager
 import com.aros.apron.manager.WirelessLinkManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
@@ -152,6 +153,7 @@ open class MainActivity : BaseActivity() {
     private var gimbalAdjustDone: TextView? = null
     private var btn_test: Button? = null
     private var btn_test1: Button? = null
+    private var btn_up: Button? = null
 
     private var gimbalFineTuneWidget: GimbalFineTuneWidget? = null
     private var lastDevicePosition = ComponentIndexType.UNKNOWN
@@ -529,14 +531,16 @@ open class MainActivity : BaseActivity() {
         gimbalFineTuneWidget = findViewById( R.id.setting_menu_gimbal_fine_tune)
         btn_test = findViewById( R.id.btn_test)
         btn_test1 = findViewById( R.id.btn_test1)
+        btn_up = findViewById( R.id.btn_up)
         btn_test?.setOnClickListener {
-//            MissionManager.getInstance().test()
             FlightManager.getInstance().startPropellerRotation(null)
         }
         btn_test1?.setOnClickListener {
             FlightManager.getInstance().stopPropellerRotation(null)
         }
-
+        btn_up?.setOnClickListener {
+            SystemManager.getInstance().upLoadMedia()
+        }
         initClickListener()
         MediaDataCenter.getInstance().cameraStreamManager.addAvailableCameraUpdatedListener(
             availableCameraUpdatedListener

@@ -62,7 +62,6 @@ public class StickManager extends BaseManager {
                 }
                 LogUtil.log(TAG, "控制权获取成功");
                 VirtualStickManager.getInstance().setVirtualStickAdvancedModeEnabled(true);
-
             }
 
             @Override

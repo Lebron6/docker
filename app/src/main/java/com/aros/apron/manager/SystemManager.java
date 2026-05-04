@@ -53,7 +53,6 @@ public class SystemManager extends BaseManager {
             }else{
                 LogUtil.log(TAG,"暂未获取到sn");
             }
-//            sendMsg2Server(message);
         } else {
             sendFailMsg2Server( message, "无人机未连接");
         }
@@ -69,21 +68,21 @@ public class SystemManager extends BaseManager {
         }
     }
 
-    public void upLoadMedia(MqttAndroidClient mqttAndroidClient) {
+    public void upLoadMedia() {
 
-        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
-                && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
-                && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
-            Handler handler=new Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
+//        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getUploadUrl())
+//                && !TextUtils.isEmpty(PreferenceUtils.getInstance().getAccessKey())
+//                && !TextUtils.isEmpty(PreferenceUtils.getInstance().getSecretKey())) {
+//            Handler handler=new Handler(Looper.getMainLooper());
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
                     MediaManager.getInstance().enablePlayback();
-                }
-            },1000);
-        } else {
-            LogUtil.log(TAG, "minio上传参数有误,直接入库");
-            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-        }
+//                }
+//            },1000);
+//        } else {
+//            LogUtil.log(TAG, "minio上传参数有误,直接入库");
+//            ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+//        }
     }
 }

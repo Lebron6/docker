@@ -110,6 +110,27 @@ public class MessageDown {
         private int language;
         private int speed;
 
+
+        private double pitch_speed;
+        private double yaw_speed;
+
+
+        public double getPitch_speed() {
+            return pitch_speed;
+        }
+
+        public void setPitch_speed(double pitch_speed) {
+            this.pitch_speed = pitch_speed;
+        }
+
+        public double getYaw_speed() {
+            return yaw_speed;
+        }
+
+        public void setYaw_speed(double yaw_speed) {
+            this.yaw_speed = yaw_speed;
+        }
+
         public int getVolume() {
             return volume;
         }

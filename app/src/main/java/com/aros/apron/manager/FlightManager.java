@@ -912,6 +912,8 @@ public class FlightManager extends BaseManager {
         boolean isDebugMode = PreferenceUtils.getInstance().getIsDebugMode();
         // 检查无人机是否满足降落和入库的条件
         if (triggerLandOrGoHome && !isMotorsOn && !isFlying && Movement.getInstance().getElevation() <= 0.0) {
+            //降落完成设置为0
+            Movement.getInstance().setMode_code(0);
             // 重置降落或返航的触发标志
             triggerLandOrGoHome = false;
             // 禁用触发和检测标志
@@ -930,7 +932,7 @@ public class FlightManager extends BaseManager {
                     DockStorageManager.getInstance().sendDockStorageMsg2Server( );
                 }
                 // 上传媒体文件
-                SystemManager.getInstance().upLoadMedia(MqttManager.getInstance().mqttAndroidClient);
+                SystemManager.getInstance().upLoadMedia();
             }
             // 避免在下次起飞时触发视觉识别
             PreferenceUtils.getInstance().setNeedTriggerApronArucoLand(false);

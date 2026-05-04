@@ -73,16 +73,31 @@ sendMsg2Server(message);
             sendFailMsg2Server(message, "飞行器未连接");
         } else {
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            if (liveStreamManager.isStreaming()) {
-                if (message.getData().getVideo_quality()==0||message.getData().getVideo_quality()==4){
-                    liveStreamManager.setLiveStreamQuality(StreamQuality.ORIGINAL);
-                }else {
-                    liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getData().getVideo_quality()));
+//            if (liveStreamManager.isStreaming()) {
+                switch (message.getData().getVideo_quality()) {
+                    case 0://自适应
+                        liveStreamManager.setLiveStreamQuality(StreamQuality.ORIGINAL);
+                        sendMsg2Server(message);
+                        break;
+                    case 1://流畅
+                        sendFailMsg2Server(message, "设置失败:暂无此分辨率");
+                        break;
+                    case 2://标清
+                        liveStreamManager.setLiveStreamQuality(StreamQuality.SD);
+                        sendMsg2Server(message);
+                        break;
+                    case 3://高清
+                        liveStreamManager.setLiveStreamQuality(StreamQuality.HD);
+                        sendMsg2Server(message);
+                        break;
+                    case 4://超清
+                        liveStreamManager.setLiveStreamQuality(StreamQuality.FULL_HD);
+                        sendMsg2Server(message);
+                        break;
                 }
-                sendMsg2Server(message);
-            } else {
-                sendFailMsg2Server(message, "推流未开启");
-            }
+//            } else {
+//                sendFailMsg2Server(message, "推流未开启");
+//            }
         }
     }
 

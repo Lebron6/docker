@@ -29,6 +29,7 @@ import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalMode;
 import dji.sdk.keyvalue.value.gimbal.GimbalResetType;
+import dji.sdk.keyvalue.value.gimbal.GimbalSpeedRotation;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
@@ -62,6 +63,68 @@ public class GimbalManager extends BaseManager {
                     }
                 }
             });
+        }
+    }
+
+    //以速度模式操控云台
+    public void cameraScreenDrag(MessageDown message) {
+
+        Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(GimbalKey.
+                KeyConnection, ComponentIndexType.PORT_1));
+
+        if (isConnect != null && isConnect && getGimbalAndCameraEnabled()) {
+//            if (!message.getData().isLocked()) {
+                GimbalSpeedRotation gimbalSpeedRotation = new GimbalSpeedRotation();
+                gimbalSpeedRotation.setPitch(message.getData().getPitch_speed());
+                gimbalSpeedRotation.setYaw(message.getData().getYaw_speed());
+                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateBySpeed,
+                        ComponentIndexType.PORT_1), gimbalSpeedRotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+                    @Override
+                    public void onSuccess(EmptyMsg emptyMsg) {
+                        sendMsg2Server(message);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendFailMsg2Server(message, "云台拖动控制失败:" + error.description());
+                    }
+                });
+//            }
+//            else {
+//                //得动虚拟摇杆
+//                if (Movement.getInstance().isVirtualcontrollget() == false) {
+//                    StickManager.getInstance().enableVirtualStick1();
+//                }
+//                //飞机位移
+//
+//
+//                moveyaw(0, 0, message.getData().getYaw_speed(), 0);
+//
+//
+//                //云台位移
+//                GimbalSpeedRotation gimbalSpeedRotation = new GimbalSpeedRotation();
+//                gimbalSpeedRotation.setPitch(message.getData().getPitch_speed());
+//                gimbalSpeedRotation.setYaw(0.0);
+//
+//                KeyManager.getInstance().performAction(KeyTools.createKey(GimbalKey.KeyRotateBySpeed, ComponentIndexType.PORT_1), gimbalSpeedRotation, new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
+//                    @Override
+//                    public void onSuccess(EmptyMsg emptyMsg) {
+//                        sendMsg2Server(message);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NonNull IDJIError error) {
+//                        sendFailMsg2Server(message, "云台拖动控制失败:" + error.description());
+//                    }
+//                });
+//
+//                if (Movement.getInstance().isVirtualcontrollget() == false) {
+//                    StickManager.getInstance().disableVirtualStick1();
+//                }
+
+//            }
+        } else {
+            LogUtil.log(TAG, "云台未连接");
         }
     }
 

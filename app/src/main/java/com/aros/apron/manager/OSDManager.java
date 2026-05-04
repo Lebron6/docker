@@ -1,9 +1,11 @@
 package com.aros.apron.manager;
 
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.Movement;
@@ -12,7 +14,9 @@ import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +24,6 @@ import java.util.UUID;
 
 import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.manager.KeyManager;
@@ -31,7 +34,7 @@ import dji.v5.manager.interfaces.ILiveStreamManager;
 public class OSDManager extends BaseManager {
 
 
-    private static final long INTERVAL = 1000L;
+    private static final long INTERVAL = 2000L;
     private final Handler handler = new Handler(Looper.getMainLooper());
     Osd.Data._$5300 _5300 = new Osd.Data._$5300();
     Osd.Data data = new Osd.Data();
@@ -67,7 +70,9 @@ public class OSDManager extends BaseManager {
             }
             lastExecuteTime = now;
             Boolean isConnect = KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyConnection));
-            if (isConnect != null && isConnect  && !Movement.getInstance().isMissionFinish()) {
+            if (isConnect != null && isConnect
+//                    && !Movement.getInstance().isMissionFinish()
+            ) {
                 pushFlightAttitude();
             }
 //            else{
@@ -134,11 +139,28 @@ public class OSDManager extends BaseManager {
             liveStatus.setError_status(-1);
             liveStatus.setStatus(Movement.getInstance().getLiveStatus());
 //            liveStatus.setVideo_id("{"+Movement.getInstance().getCameraSn()+"}"+"/"+"{53-0-0}"+"/"+"{0}");
-            liveStatus.setVideo_id("1581F8DBW25CG00B363D/81-0-0/normal-0");
+            liveStatus.setVideo_id("1581F8DBW25CG00B363D/53-0-0/normal-0");
             ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
-            if (liveStreamManager!=null){
+            if (liveStreamManager!=null) {
                 StreamQuality liveStreamQuality = liveStreamManager.getLiveStreamQuality();
-                liveStatus.setVideo_quality(liveStreamQuality.ordinal());
+                switch (liveStreamQuality.co_a) {
+                    case 1:
+                        liveStatus.setVideo_quality(2);
+                        break;
+                    case 2:
+                        liveStatus.setVideo_quality(3);
+                        break;
+                    case 3:
+                        liveStatus.setVideo_quality(4);
+                        break;
+                    case 100:
+                        liveStatus.setVideo_quality(0);
+                        break;
+                    default:
+                        liveStatus.setVideo_quality(1);
+                        break;
+                }
+
             }
             CameraVideoStreamSourceType cameraVideoStreamSourceType =
                     KeyManager.getInstance().getValue(createKey(CameraKey.
@@ -160,7 +182,7 @@ public class OSDManager extends BaseManager {
                 }
             }
             liveStatusArrays.add(liveStatus);
-            data.setLiveStatuses(liveStatusArrays);
+            data.setLive_status(liveStatusArrays);
 
             batterieA.setCapacity_percent(Movement.getInstance().getBattery_a_capacity_percent());
             batterieA.setFirmware_version(Movement.getInstance().getBattery_a_battery_firmware_version());

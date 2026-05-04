@@ -101,7 +101,7 @@ public class Osd {
         private double latitude;
         private double longitude;
         private MaintainStatus maintain_status;
-        private List<LiveStatus> liveStatuses;
+        private List<LiveStatus> live_status;
 
         private int mode_code;
         private int night_lights_state;
@@ -120,12 +120,12 @@ public class Osd {
         private int wind_speed;
         private int drc_state;
 
-        public List<LiveStatus> getLiveStatuses() {
-            return liveStatuses;
+        public List<LiveStatus> getLive_status() {
+            return live_status;
         }
 
-        public void setLiveStatuses(List<LiveStatus> liveStatuses) {
-            this.liveStatuses = liveStatuses;
+        public void setLive_status(List<LiveStatus> live_status) {
+            this.live_status = live_status;
         }
 
         public int getDrc_state() {
