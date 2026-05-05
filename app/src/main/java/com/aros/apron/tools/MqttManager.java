@@ -40,16 +40,20 @@ public class MqttManager {
     }
 
     private void initMqttClientParams() {
-        mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(),
-                AMSConfig.getInstance().getMqttServerUri(),"ty-slave-3");
+//        mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(),
+//                AMSConfig.getInstance().getMqttServerUri(),"ty-slave-3");
+                mqttAndroidClient = new MqttAndroidClient(ApronApp.Companion.getApplication(),
+                "tcp://8.134.104.234:12002","state");
         mMqttConnectOptions = new MqttConnectOptions();
         mMqttConnectOptions.setAutomaticReconnect(true); //ltz add
         mMqttConnectOptions.setMaxInflight(1000);// 增加最大并发未确认消息数量
         mMqttConnectOptions.setCleanSession(true); //设置是否清除缓存
         mMqttConnectOptions.setConnectionTimeout(30); //设置超时时间，单位：秒 ltz denote
         mMqttConnectOptions.setKeepAliveInterval(20); //设置心跳包发送间隔，单位：秒 ltz denote
-        mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
-        mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
+//        mMqttConnectOptions.setUserName(AMSConfig.getInstance().getUserName()); //设置用户名
+//        mMqttConnectOptions.setPassword(AMSConfig.getInstance().getPassword().toCharArray()); //设置密码
+         mMqttConnectOptions.setUserName("uav_car"); //设置用户名
+        mMqttConnectOptions.setPassword("20260430@".toCharArray()); //设置密码
         mqttAndroidClient.setCallback(new MqttCallBack()); //设置监听订阅消息的回调
         doClientConnection();
     }

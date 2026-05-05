@@ -330,7 +330,7 @@ public class OSDManager extends BaseManager {
 
             publish(
                     MqttManager.getInstance().mqttAndroidClient,
-                    AMSConfig.UP_UAV_EVENT,
+                    AMSConfig.UP_UAV_OSD,
                     flightMessage
             );
 //            Log.e(TAG,"推送osd:"+gson.toJson(osd));

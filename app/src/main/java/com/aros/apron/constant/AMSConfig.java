@@ -71,6 +71,11 @@ public class AMSConfig {
     public static String UP_UAV_EVENT = "nest/uav_event";
 
     /**
+     * MSDK上报OSD
+     */
+    public static String UP_UAV_OSD = "thing/product/+/osd";
+
+    /**
      * 服务端收到事件后回复给MSDK
      */
     public static String DOWN_UAV_EVENT_REPLY = "nest/uav_event_reply";
