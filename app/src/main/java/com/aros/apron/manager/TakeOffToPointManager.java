@@ -117,13 +117,13 @@ public class TakeOffToPointManager extends BaseManager {
             //5.检查航线备降点参数
             if (message.getData().getAlternate_land_point() == null) {
                 sendEvent2Server("备降点参数异常",2);
-                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                DockStorageManager.getInstance().sendDockStorageMsg2Server();
                 return false;
             }
             //6.检查航线参数
             if (message.getData().getFile() == null) {
                 sendEvent2Server("航线参数异常",2);
-                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                DockStorageManager.getInstance().sendDockStorageMsg2Server();
                 return false;
             }
             //7.检查电池电量
@@ -138,7 +138,7 @@ public class TakeOffToPointManager extends BaseManager {
                     KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
             if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {
                 sendEvent2Server("任务执行失败,请将遥控器切换为P/N挡",2);
-                TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                DockStorageManager.getInstance().sendDockStorageMsg2Server();
                 return false;
             }
             return true;
@@ -189,7 +189,7 @@ public class TakeOffToPointManager extends BaseManager {
                             "-RTK:" + Movement.getInstance().getIs_fixed() + "-飞行器状态:" +
                             Movement.getInstance().getPlaneMessage() +
                             "-GPS信号等级:" + Movement.getInstance().getQuality(),2);
-                    TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                    DockStorageManager.getInstance().sendDockStorageMsg2Server();
                 }
             }
         }
@@ -360,7 +360,7 @@ public class TakeOffToPointManager extends BaseManager {
                             }
                         } else {
                             sendEvent2Server("航线第" + pushKMZFileTimes + "次上传失败,直接关机",2);
-                            TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                            DockStorageManager.getInstance().sendDockStorageMsg2Server();
                         }
                     } else {
                         sendEvent2Server("航线上传已经执行onSuccess回调:" + WaypointMissionExecuteState.find(Movement.getInstance().getMissionStateCode()).name(), 1);
@@ -419,7 +419,7 @@ public class TakeOffToPointManager extends BaseManager {
                             } else {
                                 if (!Movement.getInstance().isPlaneWing()) {
                                     sendEvent2Server("航线第" + startMissionFailTimes + "次开始失败,直接关机:" + "---" + new Gson().toJson(error) + "--" + Movement.getInstance().getQuality(),2);
-                                    TaskFailManager.getInstance().sendTaskFailMsg2Server(-1);
+                                    DockStorageManager.getInstance().sendDockStorageMsg2Server();
                                 }
                             }
                         } else {

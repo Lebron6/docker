@@ -862,7 +862,8 @@ public class FlightManager extends BaseManager {
     // 检查是否满足降落条件，并触发相应的降落逻辑
     public void checkLandingConditions() {
         //到达备降点触发了直接降落高度或备降点未识别到二维码
-        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand() && shouldStopVisionAndLanding()) {
+        if (PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()
+                && shouldStopVisionAndLanding()) {
             stopArucoDetectAndLanding(3);
             LogUtil.log(TAG, "备降点直接降落");
         } else {
@@ -887,7 +888,6 @@ public class FlightManager extends BaseManager {
 
     /**
      * 打印这里的条件，判断是否满足降落停浆
-     *
      * @return
      */
     private boolean shouldStopVisionAndLanding() {
@@ -929,7 +929,7 @@ public class FlightManager extends BaseManager {
                 if (!PreferenceUtils.getInstance().getNeedTriggerAlterArucoLand()) {
                     // 发送无人机入库消息到服务器********************待修改************************
                     ApronExecutionStatus.getInstance().setAircraftWaitShutDown(false);
-                    DockStorageManager.getInstance().sendDockStorageMsg2Server( );
+                    DockStorageManager.getInstance().sendDockStorageMsg2Server();
                 }
                 // 上传媒体文件
                 SystemManager.getInstance().upLoadMedia();

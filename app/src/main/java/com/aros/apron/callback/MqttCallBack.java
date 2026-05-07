@@ -69,8 +69,8 @@ public class MqttCallBack implements MqttCallbackExtended {
                 SystemManager.getInstance().checkAircraftPowerStatus(message);
                 break;
             case Constant.MEDIA_UPLOAD_COMPLETE:
-                LogUtil.log(TAG, "收到：服务端响应文件上传结束" + jsonString);
-                ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
+                LogUtil.log(TAG, "收到：文件上传是否结束" + jsonString);
+                SystemManager.getInstance().aircraftStoredReply(message);
                 break;
             case Constant.OPEN_SLOW_PROPELLER_ROTATION:
                 LogUtil.log(TAG, "收到：开启低速转浆" + jsonString);

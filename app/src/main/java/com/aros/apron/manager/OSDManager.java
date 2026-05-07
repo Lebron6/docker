@@ -5,6 +5,7 @@ import static dji.sdk.keyvalue.key.KeyTools.createKey;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;

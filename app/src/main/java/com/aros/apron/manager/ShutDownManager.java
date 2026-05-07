@@ -38,7 +38,8 @@ public class ShutDownManager extends BaseManager {
 
     public void sendShutDownMsg2Server() {
         if (sendShutDownSuccessTimes >= maxRetries) {
-            LogUtil.log(TAG, "达到最大重试次数或已发送关机"+isSendShutDownSuccess+sendShutDownSuccessTimes);
+            LogUtil.log(TAG, "达到最大重试次数或已发送关机"+
+                    isSendShutDownSuccess+sendShutDownSuccessTimes);
             return;
         }
         try {
