@@ -1,12 +1,8 @@
 package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
-
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MQMessage;
 import com.aros.apron.entity.Movement;
@@ -14,16 +10,9 @@ import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
-
-import dji.sdk.keyvalue.key.CameraKey;
 import dji.sdk.keyvalue.key.DJIKey;
-import dji.sdk.keyvalue.key.DJIKeyInfo;
 import dji.sdk.keyvalue.key.GimbalKey;
 import dji.sdk.keyvalue.key.KeyTools;
-import dji.sdk.keyvalue.value.camera.CameraType;
-import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.sdk.keyvalue.value.common.EmptyMsg;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotation;
 import dji.sdk.keyvalue.value.gimbal.GimbalAngleRotationMode;
@@ -49,8 +38,6 @@ public class GimbalManager extends BaseManager {
 
     public void initGimbalInfo() {
         ApronArucoDetect.getInstance().setDoublePayload(PreferenceUtils.getInstance().getCameraLocationType() == 2);
-
-
     }
 
 
@@ -135,7 +122,6 @@ public class GimbalManager extends BaseManager {
                         @Override
                         public void onFailure(@NonNull IDJIError error) {
                             LogUtil.log(TAG, "云台复位失败:" + error.description());
-
                         }
                     }
             );
