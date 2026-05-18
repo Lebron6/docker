@@ -257,9 +257,9 @@ public class MissionV3Manager extends BaseManager {
     public void taskExecute(MessageDown message) {
         PreferenceUtils.getInstance().setMissionType(0);
         PreferenceUtils.getInstance().setFlightId(message.getData().getFlight_id());
-//        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
-//        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
-//        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height() + "");
+        PreferenceUtils.getInstance().setAlternatePointLon(message.getData().getAlternate_land_point().getLongitude() + "");
+        PreferenceUtils.getInstance().setAlternatePointLat(message.getData().getAlternate_land_point().getLatitude() + "");
+        PreferenceUtils.getInstance().setAlternatePointSecurityHeight(message.getData().getAlternate_land_point().getSafe_land_height() + "");
 
         Movement.getInstance().setTask_current_step(5);
 
@@ -314,13 +314,13 @@ public class MissionV3Manager extends BaseManager {
                 return false;
             }
             //7.检查电池电量
-            Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
-                    KeyBatteryPowerPercent, 0));
-            if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())) {
-                sendEvent2Server("任务执行失败,电量过低", 2);
-                TaskFailManager.getInstance().sendTaskFailMsg2Server(ErrorCode.DEVICE_BATTERY_LEVEL_TOO_LOW);
-                return false;
-            }
+//            Integer value = KeyManager.getInstance().getValue(createKey(FlightControllerKey.
+//                    KeyBatteryPowerPercent, 0));
+//            if (value != null && value < Integer.parseInt(PreferenceUtils.getInstance().getMinumumBattery())) {
+//                sendEvent2Server("任务执行失败,电量过低", 2);
+//                TaskFailManager.getInstance().sendTaskFailMsg2Server(ErrorCode.DEVICE_BATTERY_LEVEL_TOO_LOW);
+//                return false;
+//            }
             RemoteControllerFlightMode remoteControllerFlightMode =
                     KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.KeyRemoteControllerFlightMode));
             if (remoteControllerFlightMode != null && remoteControllerFlightMode != RemoteControllerFlightMode.P) {

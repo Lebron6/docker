@@ -1,13 +1,16 @@
 package com.aros.apron.manager;
 
+import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
+
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import com.amazonaws.ClientConfiguration;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -20,11 +23,14 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.ApronExecutionStatus;
 import com.aros.apron.entity.Movement;
+import com.aros.apron.tools.DjiMetaData;
+import com.aros.apron.tools.DjiXmpParser;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
-import com.aros.apron.manager.StreamManager;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -43,7 +49,6 @@ import dji.sdk.keyvalue.value.camera.MediaFileType;
 import dji.sdk.keyvalue.value.common.ComponentIndexType;
 import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
-
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.datacenter.MediaDataCenter;
 import dji.v5.manager.datacenter.media.MediaFile;
@@ -452,33 +457,36 @@ public class MediaManager extends BaseManager {
     private AmazonS3 s3 = new AmazonS3Client(new AWSCredentials() {
         @Override
         public String getAWSAccessKeyId() {
-            return PreferenceUtils.getInstance().getAccessKey(); // minio的key
+//            return PreferenceUtils.getInstance().getAccessKey(); // minio的key
+            return "3RFFH8NUGKFG0ZBYGF7R"; // minio的key
         }
 
         @Override
         public String getAWSSecretKey() {
-            return PreferenceUtils.getInstance().getSecretKey(); // minio的密钥
+//            return PreferenceUtils.getInstance().getSecretKey(); // minio的密钥
+            return "pMMrVHQA4rN1J9xjTCpOtx+YSzK+TTRvaswaLwpX"; // minio的密钥
         }
-    }, Region.getRegion(Regions.US_EAST_1), new ClientConfiguration()
-            .withConnectionTimeout(30000)
-            .withSocketTimeout(300000)
-            .withMaxErrorRetry(3));
+    }, Region.getRegion(Regions.US_EAST_1));
 
     @RequiresApi(Build.VERSION_CODES.O)
     public void minIOUpLoad(final File file, final MediaFile mediaFile) {
+
         LogUtil.log(TAG, "文件路径=" + file.getAbsolutePath() + ", 文件大小=" + file.length());
         Observable.create(new ObservableOnSubscribe<String>() {
                     @Override
                     public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                         // 服务器地址
-                        s3.setEndpoint(PreferenceUtils.getInstance().getUploadUrl()); // http://ip:端口号
+//                        s3.setEndpoint(PreferenceUtils.getInstance().getUploadUrl()); // http://ip:端口号
+                        s3.setEndpoint("http://8.134.104.234:9000"); // http://ip:端口号
                         // Bucket只在首次上传时检查创建，后续上传不再重复请求
                         if (!bucketChecked) {
                             synchronized (this) {
                                 if (!bucketChecked) {
-                                    boolean bucketExists = s3.doesBucketExist(PreferenceUtils.getInstance().getBucketName());
+//                                    boolean bucketExists = s3.doesBucketExist(PreferenceUtils.getInstance().getBucketName());
+                                    boolean bucketExists = s3.doesBucketExist("honghu-uav");
                                     if (!bucketExists) {
-                                        s3.createBucket(PreferenceUtils.getInstance().getBucketName());
+//                                        s3.createBucket(PreferenceUtils.getInstance().getBucketName());
+                                        s3.createBucket("honghu-uav");
                                     }
                                     bucketChecked = true;
                                 }
@@ -488,8 +496,10 @@ public class MediaManager extends BaseManager {
                         // 上传文件到网关MINIO存储服务
                         s3.putObject(
                                 new PutObjectRequest(
-                                        PreferenceUtils.getInstance().getBucketName(),
-                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" + mediaFile.getFileName(),
+//                                        PreferenceUtils.getInstance().getBucketName(),
+                                        "honghu-uav",
+//                                        "/" + PreferenceUtils.getInstance().getObjectKey() + "/" + mediaFile.getFileName(),
+                                        "/" + "media" + "/" + mediaFile.getFileName(),
                                         file
 //                    new PutObjectRequest(
 //                                        PreferenceUtils.getInstance().getBucketName(),
@@ -525,8 +535,10 @@ public class MediaManager extends BaseManager {
 
                         // 获取文件上传后访问地址url
                         GeneratePresignedUrlRequest urlRequest = new GeneratePresignedUrlRequest(
-                                PreferenceUtils.getInstance().getBucketName(),
-                                "/" + PreferenceUtils.getInstance().getObjectKey() + "/"
+//                                PreferenceUtils.getInstance().getBucketName(),
+                                "honghu-uav",
+//                                "/" + PreferenceUtils.getInstance().getObjectKey() + "/"
+                                "/" + "media" + "/"
                                         + mediaFile.getFileName()
                         );
                         String url = s3.generatePresignedUrl(urlRequest).toString();
@@ -548,8 +560,28 @@ public class MediaManager extends BaseManager {
                     public void onNext(String url) {
                         // 上传成功，重置下载重试计数
                         downloadFailTimes = 0;
-                        //上传完成发送事件
-                        sendMediaUpload2Server(mediaFile.getFileName(),mediaFiles.size(),downLoadMediaFileIndex);
+                        mediaFile.pullXMPFileDataFromCamera(new CommonCallbacks.CompletionCallbackWithParam<String>() {
+                            @Override
+                            public void onSuccess(String s) {
+                                DjiMetaData metaData =
+                                        DjiXmpParser.parse(s);
+
+                                //上传完成发送事件
+                                sendMediaUpload2Server(metaData.getAbsoluteAltitude(),
+                                        metaData.getRelativeAltitude(),
+                                        metaData.getCreateDate(),
+                                        metaData.getGimbalYawDegree(),
+                                        metaData.getGpsLongitude(),
+                                        metaData.getGpsLatitude(),
+                                        mediaFile.getFileName(), mediaFiles.size(), downLoadMediaFileIndex);
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull IDJIError idjiError) {
+                                LogUtil.log(TAG, "获取xmp失败：" + getIDJIErrorMsg(idjiError));
+                            }
+                        });
+
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)

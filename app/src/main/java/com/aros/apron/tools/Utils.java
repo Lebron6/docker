@@ -12,11 +12,15 @@ import com.google.gson.Gson;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import dji.v5.common.error.IDJIError;
 
 public class Utils {
+
+
     public static void printJson(String tag, String json) {
         if (json == null || json.length() == 0) {
             Log.e(tag, "JSON is empty");

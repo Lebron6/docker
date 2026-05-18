@@ -669,7 +669,7 @@ public class FlightManager extends BaseManager {
         //返航时将云台归中,曝光ISO降低
         gimbalAndCameraReset();
         //开始视觉识别降落
-//        checkAndStartVisionLanding();
+        checkAndStartVisionLanding();
         //触发入库
         droneStorage();
     }

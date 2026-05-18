@@ -31,7 +31,6 @@ import dji.sdk.keyvalue.value.camera.CameraThermalPalette;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.LaserMeasureInformation;
 import dji.sdk.keyvalue.value.camera.PhotoState;
-import dji.sdk.keyvalue.value.camera.RecordingState;
 import dji.sdk.keyvalue.value.camera.TapZoomMode;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
 import dji.sdk.keyvalue.value.camera.ThermalGainMode;
@@ -245,14 +244,15 @@ public class CameraManager extends BaseManager {
 
             //视频录制状态
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
-                    KeyRecordingState, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<RecordingState>() {
-                @Override
-                public void onValueChange(@Nullable RecordingState recordingState, @Nullable RecordingState t1) {
-                    if (t1 != null) {
-                        Movement.getInstance().setRecording_state(t1.value()==0?0:1);
-                    }
-                }
-            });
+                            KeyIsRecording, ComponentIndexType.PORT_1), this,
+                    new CommonCallbacks.KeyListener<Boolean>() {
+                        @Override
+                        public void onValueChange(@Nullable Boolean aBoolean, @Nullable Boolean t1) {
+                            if (t1 != null) {
+                                Movement.getInstance().setRecording_state(t1?1:0);
+                            }
+                        }
+                    });
 
             //照片数
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.
@@ -302,7 +302,8 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().listen(KeyTools.createCameraKey(CameraKey.KeyExposureMode,
                     ComponentIndexType.PORT_1, CameraLensType.CAMERA_LENS_WIDE), this, new CommonCallbacks.KeyListener<CameraExposureMode>() {
                 @Override
-                public void onValueChange(@Nullable CameraExposureMode cameraExposureMode, @Nullable CameraExposureMode t1) {
+                public void onValueChange(@Nullable CameraExposureMode cameraExposureMode,
+                                          @Nullable CameraExposureMode t1) {
                     if (t1 != null) {
                         LogUtil.log(TAG, "监听曝光模式:" + t1.name());
                         Movement.getInstance().setWide_exposure_mode(t1.value());
@@ -490,7 +491,7 @@ public class CameraManager extends BaseManager {
             KeyManager.getInstance().listen(KeyTools.createKey(CameraKey.KeyCameraStorageInfos, ComponentIndexType.PORT_1), this, new CommonCallbacks.KeyListener<CameraStorageInfos>() {
                 @Override
                 public void onValueChange(@Nullable CameraStorageInfos cameraStorageInfos, @Nullable CameraStorageInfos t1) {
-                    if (t1!=null) {
+                    if (t1 != null) {
                         CameraStorageInfo cameraStorageInfoByLocation = t1.getCameraStorageInfoByLocation(CameraStorageLocation.SDCARD);
                         if (cameraStorageInfoByLocation != null) {
                             Movement.getInstance().setTotal(cameraStorageInfoByLocation.getStorageCapacity() * 1024);
@@ -500,6 +501,8 @@ public class CameraManager extends BaseManager {
                     }
                 }
             });
+        } else {
+            LogUtil.log(TAG, "初始化相机失败:相机未连接");
         }
     }
 
@@ -615,7 +618,7 @@ public void setCameraMode(MessageDown message) {
                     ComponentIndexType.PORT_1), new CommonCallbacks.CompletionCallbackWithParam<EmptyMsg>() {
                 @Override
                 public void onSuccess(EmptyMsg emptyMsg) {
-                    LogUtil.log(TAG, "停止录像成功");
+                    sendMsg2Server(message);
                 }
 
                 @Override

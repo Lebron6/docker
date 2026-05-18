@@ -2,6 +2,7 @@ package com.aros.apron.base;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -17,16 +18,18 @@ import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.MessageEvent;
 import com.aros.apron.entity.MessageReply;
 import com.aros.apron.entity.Movement;
-import com.aros.apron.entity.TaskFailEvent;
 import com.aros.apron.entity.WirelessLink;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.tools.TimeUtil;
 import com.google.gson.Gson;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import dji.v5.common.callback.CommonCallbacks;
@@ -164,8 +167,11 @@ public abstract class BaseManager {
     /**
      * 发送媒体文件上传事件
      */
-    public void sendMediaUpload2Server(String fileName,int uploaded_file_count,int expected_file_count) {
-        LogUtil.log(TAG,"发送媒体上传完成事件:"+fileName);
+    public void sendMediaUpload2Server(String absoluteAltitude, String relativeAltitude,
+                                       String createDate, String gimbalYawDegree,
+                                       String gpsLongitude, String gpsLatitude,
+                                       String fileName, int size, int downLoadMediaFileIndex) {
+        LogUtil.log(TAG, "发送媒体上传完成事件:" + fileName);
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 MediaUpLoad mediaUpLoad = new MediaUpLoad();
@@ -173,21 +179,37 @@ public abstract class BaseManager {
                 mediaUpLoad.setTid(UUID.randomUUID().toString());
                 mediaUpLoad.setTimestamp(System.currentTimeMillis());
                 mediaUpLoad.setMethod(Constant.FILE_UPLOAD_CALLBACK);
-                MediaUpLoad.Data data=new MediaUpLoad.Data();
+                MediaUpLoad.Data data = new MediaUpLoad.Data();
 //                data.setBucket_name(PreferenceUtils.getInstance().getBucketName());
 //                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
 //                data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
                 data.setBucket_name("honghu-uav");
 //                data.setObject_key(PreferenceUtils.getInstance().getObjectKey());
-                data.setObject_key("media");
+                data.setObject_key("/media/" + fileName);
                 data.setFlight_id(PreferenceUtils.getInstance().getFlightId());
                 data.setFile_name(fileName);
-                data.setUploaded_file_count(uploaded_file_count);
-                data.setExpected_file_count(expected_file_count);
+                MediaUpLoad.Data.Metadata metadata = new MediaUpLoad.Data.Metadata();
+                metadata.setGimbal_yaw_degree(gimbalYawDegree.replace("+", "").replace("-", ""));
+                metadata.setAbsolute_altitude(absoluteAltitude.replace("+", "").replace("-", ""));
+                metadata.setRelative_altitude(relativeAltitude.replace("+", "").replace("-", ""));
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    metadata.setCreate_time(TimeUtil.convertIsoToChineseFormat(createDate));
+                }
+                MediaUpLoad.Data.Metadata.ShootPosition shootPosition =
+                        new MediaUpLoad.Data.Metadata.ShootPosition();
+                shootPosition.setLat(gpsLatitude.replace("+", "").replace("-", ""));
+                shootPosition.setLng(gpsLongitude.replace("+", "").replace("-", ""));
+                metadata.setShoot_position(shootPosition);
+                data.setMetadata(metadata);
+
+                data.setUploaded_file_count(size);
+                data.setExpected_file_count(downLoadMediaFileIndex);
                 mediaUpLoad.setData(data);
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(mediaUpLoad).getBytes("UTF-8"));
                 mqttMessage.setQos(2);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                LogUtil.log(TAG,"打印看看："+new Gson().toJson(mediaUpLoad));
             } else {
                 LogUtil.log(TAG, "发送媒体event失败：mqtt 未连接");
             }
@@ -196,7 +218,6 @@ public abstract class BaseManager {
             LogUtil.log(TAG, "回复event异常：" + e.toString());
         }
     }
-
 
 
     /**
@@ -226,46 +247,92 @@ public abstract class BaseManager {
                 }
                 progress.setCurrent_step(Movement.getInstance().getTask_current_step());
 
-                if (Movement.getInstance().isMissionFinish()){
-                    WaypointMissionManager.getInstance().queryBreakPointInfoFromAircraft(
-                            "aros", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
-                        @Override
-                        public void onSuccess(BreakPointInfo breakPointInfo) {
-                            if (breakPointInfo != null) {
-                                LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
-                                FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint =
-                                        new FlightTaskProgress.Data.Output.Ext.BreakPoint();
-                                if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAttitudeHead())){
-                                    breakPoint.setAttitude_head(Double.valueOf(PreferenceUtils.getInstance().getAttitudeHead()));
-                                }else{
-                                    breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
-                                }
-                                breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
-                                breakPoint.setHeight(breakPointInfo.getLocation().getAltitude());
-                                if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getWaypointIndex())){
-                                    breakPoint.setIndex(Integer.parseInt(PreferenceUtils.getInstance().getWaypointIndex()));
-                                }else{
-                                    breakPoint.setIndex(0);
-                                }
-                                breakPoint.setLatitude(breakPointInfo.getLocation().getLatitude());
-                                breakPoint.setLongitude(breakPointInfo.getLocation().getLongitude());
-                                breakPoint.setProgress(Movement.getInstance().getTask_progress());
-                                breakPoint.setState(Movement.getInstance().getState());
-                                breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
-                                ext.setBreak_point(breakPoint);
-                                output.setStatus("partially_done");
+                if (Movement.getInstance().isMissionFinish()) {
+//                    WaypointMissionManager.getInstance().queryBreakPointInfoFromAircraft(
+//                            "aros", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
+//                                @Override
+//                                public void onSuccess(BreakPointInfo breakPointInfo) {
+//                                    if (breakPointInfo != null) {
+//                                        LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+//                                        FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint =
+//                                                new FlightTaskProgress.Data.Output.Ext.BreakPoint();
+//                                        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAttitudeHead())) {
+//                                            breakPoint.setAttitude_head(Double.parseDouble(PreferenceUtils.getInstance().getAttitudeHead()));
+//                                        } else {
+//                                            breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
+//                                        }
+//                                        breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
+//                                        breakPoint.setHeight(breakPointInfo.getLocation().getAltitude());
+//                                        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getWaypointIndex())) {
+//                                            breakPoint.setIndex(Integer.parseInt(PreferenceUtils.getInstance().getWaypointIndex()));
+//                                        } else {
+//                                            breakPoint.setIndex(0);
+//                                        }
+//                                        breakPoint.setLatitude(breakPointInfo.getLocation().getLatitude());
+//                                        breakPoint.setLongitude(breakPointInfo.getLocation().getLongitude());
+//                                        breakPoint.setProgress(Movement.getInstance().getTask_progress());
+//                                        breakPoint.setState(Movement.getInstance().getState());
+//                                        breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
+//                                        ext.setBreak_point(breakPoint);
+//                                        output.setStatus("partially_done");
+//
+//                                    } else {
+//                                        output.setStatus("ok");
+//                                        LogUtil.log(TAG, "未查询到断点信息");
+//
+//                                    }
+//                                    output.setExt(ext);
+//                                    output.setProgress(progress);
+//                                    data.setResult(0);
+//                                    data.setOutput(output);
+//                                    FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
+//                                    flightTaskProgress.setTid(UUID.randomUUID().toString());
+//                                    flightTaskProgress.setBid(UUID.randomUUID().toString());
+//                                    flightTaskProgress.setTimestamp(System.currentTimeMillis());
+//                                    flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+//                                    flightTaskProgress.setData(data);
+//                                    MqttMessage mqttMessage = null;
+//                                    try {
+//                                        mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+//                                        mqttMessage.setQos(0);
+//                                        MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+//                                        LogUtil.log(TAG, "发送任务进度事件:" + new Gson().toJson(flightTaskProgress));
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                        LogUtil.log(TAG, "发送任务进度event异常：" + e.toString());
+//                                    }
+//                                    return;
+//                                }
+//
+//                                @Override
+//                                public void onFailure(@NonNull IDJIError idjiError) {
+//                                    output.setStatus("ok");
+//                                    LogUtil.log(TAG, "查询断点失败:" + getIDJIErrorMsg(idjiError));
+//                                    output.setExt(ext);
+//                                    output.setProgress(progress);
+//                                    data.setResult(0);
+//                                    data.setOutput(output);
+//                                    FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
+//                                    flightTaskProgress.setTid(UUID.randomUUID().toString());
+//                                    flightTaskProgress.setBid(UUID.randomUUID().toString());
+//                                    flightTaskProgress.setTimestamp(System.currentTimeMillis());
+//                                    flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+//                                    flightTaskProgress.setData(data);
+//                                    MqttMessage mqttMessage = null;
+//                                    try {
+//                                        mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+//                                        mqttMessage.setQos(0);
+//                                        MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+//                                        LogUtil.log(TAG, "发送任务进度事件:" + new Gson().toJson(flightTaskProgress));
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                        LogUtil.log(TAG, "发送任务进度event异常：" + e.toString());
+//                                    }
+//                                    return;
+//                                }
+//                            });
+                    output.setStatus("ok");
 
-                            } else {
-                                output.setStatus("ok");
-                                LogUtil.log(TAG, "未查询到断点信息");
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull IDJIError idjiError) {
-                            output.setStatus("ok");
-                        }
-                    });
                 }else{
                     output.setStatus(Movement.getInstance().getTask_status());
                 }
@@ -282,7 +349,7 @@ public abstract class BaseManager {
                 MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
                 mqttMessage.setQos(0);
                 MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-                LogUtil.log(TAG,"发送任务进度事件:"+new Gson().toJson(flightTaskProgress));
+                LogUtil.log(TAG, "发送任务进度事件:" + new Gson().toJson(flightTaskProgress));
 
             } else {
                 LogUtil.log(TAG, "发送任务进度event失败：mqtt 未连接");
@@ -292,6 +359,7 @@ public abstract class BaseManager {
             LogUtil.log(TAG, "发送任务进度event异常：" + e.toString());
         }
     }
+
 
     //计划在航线状态为finish时，查询断点并上报
     public void queryBreakPoint() {

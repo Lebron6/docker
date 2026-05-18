@@ -1,5 +1,7 @@
 package com.aros.apron.entity;
 
+import com.google.gson.annotations.SerializedName;
+
 public class MediaUpLoad {
 
 
@@ -57,6 +59,84 @@ public class MediaUpLoad {
         private String file_name;
         private int uploaded_file_count;
         private int expected_file_count;
+        private Metadata metadata;
+
+        public Metadata getMetadata() {
+            return metadata;
+        }
+
+        public void setMetadata(Metadata metadata) {
+            this.metadata = metadata;
+        }
+
+        public static class Metadata {
+            private String absolute_altitude;
+            private String create_time;
+            private String gimbal_yaw_degree;
+            private String relative_altitude;
+            private Metadata.ShootPosition shoot_position;
+
+            public String getAbsolute_altitude() {
+                return absolute_altitude;
+            }
+
+            public void setAbsolute_altitude(String absolute_altitude) {
+                this.absolute_altitude = absolute_altitude;
+            }
+
+            public String getCreate_time() {
+                return create_time;
+            }
+
+            public void setCreate_time(String create_time) {
+                this.create_time = create_time;
+            }
+
+            public String getGimbal_yaw_degree() {
+                return gimbal_yaw_degree;
+            }
+
+            public void setGimbal_yaw_degree(String gimbal_yaw_degree) {
+                this.gimbal_yaw_degree = gimbal_yaw_degree;
+            }
+
+            public String getRelative_altitude() {
+                return relative_altitude;
+            }
+
+            public void setRelative_altitude(String relative_altitude) {
+                this.relative_altitude = relative_altitude;
+            }
+
+            public Metadata.ShootPosition getShoot_position() {
+                return shoot_position;
+            }
+
+            public void setShoot_position(Metadata.ShootPosition shoot_position) {
+                this.shoot_position = shoot_position;
+            }
+
+            public static class ShootPosition {
+                private String lat;
+                private String lng;
+
+                public String getLat() {
+                    return lat;
+                }
+
+                public void setLat(String lat) {
+                    this.lat = lat;
+                }
+
+                public String getLng() {
+                    return lng;
+                }
+
+                public void setLng(String lng) {
+                    this.lng = lng;
+                }
+            }
+        }
 
         public String getBucket_name() {
             return bucket_name;
