@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.base.BaseManager;
-import com.aros.apron.constant.ErrorCode;
 import com.aros.apron.entity.CurrentWayline;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
@@ -76,7 +75,6 @@ public class MissionV3Manager extends BaseManager {
     private long finishWayLineTime;
 
     public void initMissionManager() {
-
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -620,7 +618,6 @@ public class MissionV3Manager extends BaseManager {
      * @param message
      */
     public void pauseMission(MessageDown message) {
-
         Boolean isConnect = KeyManager.getInstance().getValue(KeyTools.createKey(FlightControllerKey.
                 KeyConnection));
         if (isConnect != null && isConnect) {
@@ -666,17 +663,18 @@ public class MissionV3Manager extends BaseManager {
                     }
                 });
             } else {
-                missionManager.queryBreakPointInfoFromAircraft("aros", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
-                    @Override
-                    public void onSuccess(BreakPointInfo breakPointInfo) {
-                        if (breakPointInfo != null) {
-                            LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
-                            mainHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    WaypointMissionManager.getInstance().startMission("aros", breakPointInfo,
-                                            new CommonCallbacks.CompletionCallback() {
-                                                @Override
+                missionManager.queryBreakPointInfoFromAircraft("aros",
+                        new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
+                            @Override
+                            public void onSuccess(BreakPointInfo breakPointInfo) {
+                                if (breakPointInfo != null) {
+                                    LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+                                    mainHandler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            WaypointMissionManager.getInstance().startMission("aros", breakPointInfo,
+                                                    new CommonCallbacks.CompletionCallback() {
+                                                        @Override
                                                 public void onSuccess() {
                                                     sendMsg2Server(message);
                                                     PreferenceUtils.getInstance().setIsNewRoute(false);
@@ -688,7 +686,21 @@ public class MissionV3Manager extends BaseManager {
                                                 @Override
                                                 public void onFailure(@NonNull IDJIError idjiError) {
                                                     LogUtil.log(TAG, "恢复断点航线失败:" + getIDJIErrorMsg(idjiError));
-                                                    sendFailMsg2Server(message, "恢复断点航线失败:" + getIDJIErrorMsg(idjiError));
+                                                    missionManager.resumeMission(new CommonCallbacks.CompletionCallback() {
+                                                        @Override
+                                                        public void onSuccess() {
+                                                            sendMsg2Server(message);
+                                                            Movement.getInstance().setTask_status("in_progress");
+                                                            sendFlightTaskProgress2Server();
+                                                            LogUtil.log(TAG,"航线恢复断点失败后调用继续成功");
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(@NonNull IDJIError error) {
+                                                            LogUtil.log(TAG,"航线恢复断点失败后调用继续失败:" + getIDJIErrorMsg(error));
+                                                            sendFailMsg2Server(message, "航线恢复断点失败后调用继续失败:" + getIDJIErrorMsg(error));
+                                                        }
+                                                    });
                                                 }
                                             });
                                 }

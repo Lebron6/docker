@@ -284,7 +284,7 @@ open class MainActivity : BaseActivity() {
         }
 
         //大于两路数据
-        val primarySource = getSuitableSource(cameraList, ComponentIndexType.LEFT_OR_MAIN)
+        val primarySource = getSuitableSource(cameraList, ComponentIndexType.PORT_1)
         primaryFpvWidget!!.updateVideoSource(primarySource!!)
         cameraList.remove(primarySource)
 
@@ -301,7 +301,7 @@ open class MainActivity : BaseActivity() {
         defaultSource: ComponentIndexType
     ): ComponentIndexType? {
         if (cameraList.contains(ComponentIndexType.LEFT_OR_MAIN)) {
-            return ComponentIndexType.LEFT_OR_MAIN
+            return ComponentIndexType.PORT_1
         } else if (cameraList.contains(ComponentIndexType.RIGHT)) {
             return ComponentIndexType.RIGHT
         } else if (cameraList.contains(ComponentIndexType.UP)) {
@@ -562,7 +562,6 @@ open class MainActivity : BaseActivity() {
 
 
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-
         //实现RTK监测网络，并自动重连机制
         DJINetworkManager.getInstance().addNetworkStatusListener(networkStatusListener)
 
@@ -622,7 +621,6 @@ open class MainActivity : BaseActivity() {
     private val handler: Handler = Handler(Looper.getMainLooper())
     private var initTimes=0
     private fun initDJIManager() {
-//        ConnectionManager.getInstance().initConnection()
         val isFlightControllerConnect =
             KeyManager.getInstance().getValue(DJIKey.create(FlightControllerKey.KeyConnection))
         if (isFlightControllerConnect == null || !isFlightControllerConnect) {
@@ -647,20 +645,7 @@ open class MainActivity : BaseActivity() {
             WirelessLinkManager.getInstance().initWirelessLink()
             CameraManager.getInstance().initCameraInfo()
             SpeakerManager.getInstance().initMegaphoneInfo()
-//            LogUtil.log(TAG, "自定义推流方式:" + PreferenceUtils.getInstance().customStreamType)
-//            Handler().postDelayed(Runnable {
-//                    if (PreferenceUtils.getInstance().customStreamType==1){
-//                        StreamManager.getInstance()
-//                            .startLiveWithRTSP()
-//                    }else if (PreferenceUtils.getInstance().customStreamType==2){
-//                        StreamManager.getInstance()
-//                            .startLiveWithCustom()
-//                    }else {
-//                        StreamManager.getInstance()
-//                            .startLiveWithCustom()
-//                    }
-//                }, 5000)
-//        LogUtil.log(TAG,"推流类型:"+PreferenceUtils.getInstance().customStreamType)
+
         }
     }
 

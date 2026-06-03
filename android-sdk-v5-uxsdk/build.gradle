@@ -66,7 +66,7 @@ dependencies {
     api 'com.google.android.gms:play-services-location:16.0.0'
     api 'com.google.android.gms:play-services-base:16.0.0'
 
-    compileOnly "com.dji:dji-sdk-v5-aircraft-provided:5.15.0"
-    compileOnly "com.dji:dji-sdk-v5-aircraft:5.15.0"
+    compileOnly "com.dji:dji-sdk-v5-aircraft-provided:5.16.0"
+    compileOnly "com.dji:dji-sdk-v5-aircraft:5.16.0"
 
 }

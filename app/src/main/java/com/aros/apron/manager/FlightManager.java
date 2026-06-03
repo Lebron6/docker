@@ -669,7 +669,7 @@ public class FlightManager extends BaseManager {
         //返航时将云台归中,曝光ISO降低
         gimbalAndCameraReset();
         //开始视觉识别降落
-        checkAndStartVisionLanding();
+//        checkAndStartVisionLanding();
         //触发入库
         droneStorage();
     }
@@ -745,9 +745,7 @@ public class FlightManager extends BaseManager {
             LogUtil.log(TAG, "返航距离:" + distance + "---当前高度:" + flyingHeight);
             sendOpenCabinDoorMsg = true;
             DockOpenManager.getInstance().sendDockOpenMsg2Server();
-
         }
-
     }
 
     //降落时将云台朝下

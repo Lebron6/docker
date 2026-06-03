@@ -130,7 +130,8 @@ public class FlyToPointManager extends BaseManager {
 
         try {
             ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz",
-                    getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "FlyTo.kmz");
+                    getExternalStoragePublicDirectory("KMZ").getAbsolutePath()
+                            + File.separator + "FlyTo.kmz");
         } catch (IOException e) {
             sendEvent2Server("指点飞行任务生成异常", 2);
             throw new RuntimeException(e);

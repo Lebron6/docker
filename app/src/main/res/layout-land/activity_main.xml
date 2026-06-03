@@ -292,6 +292,8 @@
             app:layout_constraintWidth_percent="0.95"
             app:uxsdk_titleBarBackgroundColor="@color/uxsdk_black" />
         <LinearLayout
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="right"
             android:visibility="visible"
             android:orientation="horizontal"
             android:layout_width="match_parent"

@@ -71,7 +71,7 @@ public class MediaUpLoad {
 
         public static class Metadata {
             private String absolute_altitude;
-            private String create_time;
+            private String created_time;
             private String gimbal_yaw_degree;
             private String relative_altitude;
             private Metadata.ShootPosition shoot_position;
@@ -84,12 +84,12 @@ public class MediaUpLoad {
                 this.absolute_altitude = absolute_altitude;
             }
 
-            public String getCreate_time() {
-                return create_time;
+            public String getCreated_time() {
+                return created_time;
             }
 
-            public void setCreate_time(String create_time) {
-                this.create_time = create_time;
+            public void setCreated_time(String created_time) {
+                this.created_time = created_time;
             }
 
             public String getGimbal_yaw_degree() {

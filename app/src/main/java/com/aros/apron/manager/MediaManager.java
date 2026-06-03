@@ -27,10 +27,9 @@ import com.aros.apron.tools.DjiMetaData;
 import com.aros.apron.tools.DjiXmpParser;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.PreferenceUtils;
+import com.aros.apron.tools.TimeUtil;
 import com.autonavi.base.amap.mapcore.FileUtil;
 import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -194,17 +193,19 @@ public class MediaManager extends BaseManager {
         if (mState == MediaFileListState.IDLE) {
             // 状态为IDLE，开始拉取文件列表
             LogUtil.log(TAG, "状态为IDLE，开始拉取文件列表");
-            MediaDataCenter.getInstance().getMediaManager().pullMediaFileListFromCamera(new PullMediaFileListParam.Builder().count(-1).build(), new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    LogUtil.log(TAG, "拉取文件列表成功");
-                    // 重置pullqwq标志，下次调用重新从IDLE拉取
-                    pullqwq = false;
-                    // 拉取成功后，等待状态变为UP_TO_DATE
-                    new Handler().postDelayed(MediaManager.this::pullMediaFileListFromCamera, 1000);
-                }
+            MediaDataCenter.getInstance().getMediaManager()
+                    .pullMediaFileListFromCamera(new PullMediaFileListParam.Builder().count(-1).build(),
+                            new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    LogUtil.log(TAG, "拉取文件列表成功");
+                                    // 重置pullqwq标志，下次调用重新从IDLE拉取
+                                    pullqwq = false;
+                                    // 拉取成功后，等待状态变为UP_TO_DATE
+                                    new Handler().postDelayed(MediaManager.this::pullMediaFileListFromCamera, 1000);
+                                }
 
-                @Override
+                                @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
                     LogUtil.log(TAG, "拉取媒体文件失败: " + new Gson().toJson(idjiError));
                     // 失败后重试，最多重试3次
@@ -260,9 +261,9 @@ public class MediaManager extends BaseManager {
                 // 修复：在过滤后设置任务媒体计数
                 Movement.getInstance().setTask_media_count(mediaFiles.size());
                 LogUtil.log(TAG, "过滤后文件数量: " + mediaFiles.size());
-                if(PreferenceUtils.getInstance().getMissionType()==0){
-                    sendFlightTaskProgress2Server();
-                }
+//                if(PreferenceUtils.getInstance().getMissionType()==0){
+//                    sendFlightTaskProgress2Server();
+//                }
 
                 if (mediaFiles.isEmpty()) {
                     LogUtil.log(TAG, "所有文件均已上传，直接清理");
@@ -306,15 +307,16 @@ public class MediaManager extends BaseManager {
                 return;
             } else {
                 if (pullqwq == false) {
-                    MediaDataCenter.getInstance().getMediaManager().pullMediaFileListFromCamera(new PullMediaFileListParam.Builder().count(-1).build(), new CommonCallbacks.CompletionCallback() {
+                    MediaDataCenter.getInstance().getMediaManager().pullMediaFileListFromCamera(new
+                            PullMediaFileListParam.Builder().count(-1).build(), new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onSuccess() {
-                            LogUtil.log(TAG,"拉取成功");
+                            LogUtil.log(TAG, "拉取成功");
                         }
 
                         @Override
                         public void onFailure(@NonNull IDJIError idjiError) {
-                            LogUtil.log(TAG,"拉取失败");
+                            LogUtil.log(TAG, "拉取失败");
                         }
                     });
                     pullqwq = true;
@@ -331,9 +333,7 @@ public class MediaManager extends BaseManager {
 
         if ((!PreferenceUtils.getInstance().getNeedUpLoadVideo() && mediaFile.getFileType() == MediaFileType.MP4)
                 || !mediaFile.getFileName().contains(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))) {
-
             downLoadMediaFileIndex++;
-
             if (downLoadMediaFileIndex == mediaFiles.size()) {
                 // This refers to when all files have been downloaded or failed. Clear SD card, cache, exit media mode, and shut down the drone
                 downLoadMediaFileIndex = 0;
@@ -378,7 +378,8 @@ public class MediaManager extends BaseManager {
                 @Override
                 public void onProgress(long total, long current) {
                     int tmpProgress = (int) ((1.0 * current / total) * 100);
-                    Log.e(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " Download Progress: " + tmpProgress + "%");
+                    Log.e(TAG, "File " + downLoadMediaFileIndex + ": " +
+                            mediaFile.getFileName() + " Download Progress: " + tmpProgress + "%");
                 }
 
                 @Override
@@ -393,7 +394,8 @@ public class MediaManager extends BaseManager {
 
                 @Override
                 public void onFinish() {
-                    LogUtil.log(TAG, "File:" + downLoadMediaFileIndex + "fileName:" + mediaFile.getFileName() + " downloaded successfully.");
+                    LogUtil.log(TAG, "File:" + downLoadMediaFileIndex + "fileName:" +
+                            mediaFile.getFileName() + " downloaded successfully.");
                     minIOUpLoad(file, mediaFile);
                     try {
                         if (finalBos != null) finalBos.close();
@@ -401,7 +403,7 @@ public class MediaManager extends BaseManager {
                     } catch (IOException error) {
                         LogUtil.log(TAG, "File " + downLoadMediaFileIndex + " error: " + error.getMessage());
                         ApronExecutionStatus.getInstance().setAircraftWaitShutDown(true);
-                        sendEvent2Server("文件流关闭失败",2);
+                        sendEvent2Server("文件流关闭失败", 2);
                         disablePlayback();
                         LogUtil.log(TAG, "发送关闭无人机");
                     }
@@ -409,7 +411,8 @@ public class MediaManager extends BaseManager {
 
                 @Override
                 public void onFailure(IDJIError error) {
-                    LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " + mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
+                    LogUtil.log(TAG, "File " + downLoadMediaFileIndex + ": " +
+                            mediaFile.getFileName() + " download failed: " + new Gson().toJson(error));
                     // 清理临时文件
                     if (file.exists()) {
                         file.delete();
@@ -458,13 +461,15 @@ public class MediaManager extends BaseManager {
         @Override
         public String getAWSAccessKeyId() {
 //            return PreferenceUtils.getInstance().getAccessKey(); // minio的key
-            return "3RFFH8NUGKFG0ZBYGF7R"; // minio的key
+//            return "3RFFH8NUGKFG0ZBYGF7R"; // minio的key
+            return "admin"; // minio的key
         }
 
         @Override
         public String getAWSSecretKey() {
 //            return PreferenceUtils.getInstance().getSecretKey(); // minio的密钥
-            return "pMMrVHQA4rN1J9xjTCpOtx+YSzK+TTRvaswaLwpX"; // minio的密钥
+//            return "pMMrVHQA4rN1J9xjTCpOtx+YSzK+TTRvaswaLwpX"; // minio的密钥
+            return "m9v8OCjt9b522ju"; // minio的密钥
         }
     }, Region.getRegion(Regions.US_EAST_1));
 
@@ -477,7 +482,8 @@ public class MediaManager extends BaseManager {
                     public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                         // 服务器地址
 //                        s3.setEndpoint(PreferenceUtils.getInstance().getUploadUrl()); // http://ip:端口号
-                        s3.setEndpoint("http://8.134.104.234:9000"); // http://ip:端口号
+//                        s3.setEndpoint("http://8.134.104.234:9000"); // http://ip:端口号
+                        s3.setEndpoint("http://192.168.19.10:9000"); // http://ip:端口号
                         // Bucket只在首次上传时检查创建，后续上传不再重复请求
                         if (!bucketChecked) {
                             synchronized (this) {
@@ -542,7 +548,6 @@ public class MediaManager extends BaseManager {
                                         + mediaFile.getFileName()
                         );
                         String url = s3.generatePresignedUrl(urlRequest).toString();
-
                         // 文件上传后访问地址url
                         emitter.onNext(url);
                         emitter.onComplete();
@@ -569,7 +574,7 @@ public class MediaManager extends BaseManager {
                                 //上传完成发送事件
                                 sendMediaUpload2Server(metaData.getAbsoluteAltitude(),
                                         metaData.getRelativeAltitude(),
-                                        metaData.getCreateDate(),
+                                        TimeUtil.convertIsoToChineseFormat(metaData.getCreateDate()),
                                         metaData.getGimbalYawDegree(),
                                         metaData.getGpsLongitude(),
                                         metaData.getGpsLatitude(),
@@ -579,9 +584,21 @@ public class MediaManager extends BaseManager {
                             @Override
                             public void onFailure(@NonNull IDJIError idjiError) {
                                 LogUtil.log(TAG, "获取xmp失败：" + getIDJIErrorMsg(idjiError));
+                                //上传完成发送事件
+                                sendMediaUpload2Server("0",
+                                        "0",
+                                        mediaFile.getDate().getYear()+"-"
+                                                +mediaFile.getDate().getMonth()+"-"
+                                                +mediaFile.getDate().getDay()+" "+
+                                                mediaFile.getDate().getHour()+":"+
+                                                mediaFile.getDate().getMinute()+":"+
+                                                +mediaFile.getDate().getSecond(),
+                                        "0",
+                                        "0",
+                                        "0",
+                                        mediaFile.getFileName(), mediaFiles.size(), downLoadMediaFileIndex);
                             }
                         });
-
                     }
 
                     @RequiresApi(Build.VERSION_CODES.O)

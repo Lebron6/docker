@@ -12,6 +12,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.CameraKey;
@@ -30,6 +31,7 @@ import dji.sdk.keyvalue.value.camera.CameraStorageLocation;
 import dji.sdk.keyvalue.value.camera.CameraThermalPalette;
 import dji.sdk.keyvalue.value.camera.CameraVideoStreamSourceType;
 import dji.sdk.keyvalue.value.camera.LaserMeasureInformation;
+import dji.sdk.keyvalue.value.camera.PhotoFileFormat;
 import dji.sdk.keyvalue.value.camera.PhotoState;
 import dji.sdk.keyvalue.value.camera.TapZoomMode;
 import dji.sdk.keyvalue.value.camera.ThermalDisplayMode;
@@ -69,6 +71,19 @@ public class CameraManager extends BaseManager {
                     if (t1!=null){
                         Movement.getInstance().setCameraSn(t1);
                     }
+                }
+            });
+
+            KeyManager.getInstance().setValue(KeyTools.createKey(CameraKey.KeyPhotoFileFormat,
+                    ComponentIndexType.PORT_1), PhotoFileFormat.JPEG, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    LogUtil.log(TAG, "设置图片默认.jpeg");
+                }
+
+                @Override
+                public void onFailure(@NonNull IDJIError error) {
+                    LogUtil.log(TAG, "设置图片默认.jpeg失败：" + Utils.getIDJIErrorMsg(error));
                 }
             });
             //全局画面中测量的最高温度
@@ -562,7 +577,6 @@ public void setCameraMode(MessageDown message) {
             sendFailMsg2Server(message, "当前状态相机禁止操作");
         }
     }
-
 
     //结束拍照
     public void stopShootPhoto(MessageDown message) {

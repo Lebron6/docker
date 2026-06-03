@@ -91,7 +91,8 @@ open class ConnectionActivity : BaseActivity() {
         }
         if (TextUtils.isEmpty(PreferenceUtils.getInstance().mqttServerUri)) {
             PreferenceUtils.getInstance().mqttServerUri =
-                "tcp://223.108.157.174:50512"
+                "tcp://192.168.19.10:50512"
+//                "tcp://223.108.157.174:50512"
 //                "tcp://192.168.20.90:2883"
         }
 
