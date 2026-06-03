@@ -786,7 +786,7 @@ public void setCameraFocusMode(MQMessage message) {
         }
 
     }
-//
+
 
     //设置曝光模式
     public void setExposureMode(MQMessage message) {
