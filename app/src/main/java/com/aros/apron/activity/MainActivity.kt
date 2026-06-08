@@ -22,17 +22,18 @@ import com.aros.apron.BuildConfig
 import com.aros.apron.R
 import com.aros.apron.base.BaseActivity
 import com.aros.apron.callback.MqttCallBack
+import com.aros.apron.entity.MessageDown
 import com.aros.apron.entity.Movement
 import com.aros.apron.manager.AlternateLandingManager
 import com.aros.apron.manager.BatteryManager
 import com.aros.apron.manager.CameraManager
-import com.aros.apron.manager.ConnectionManager
 import com.aros.apron.manager.FlightManager
 import com.aros.apron.manager.FlightManager.FLAG_DOWN_LAND
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_ALTERNATE
 import com.aros.apron.manager.FlightManager.FLAG_START_DETECT_ARUCO_APRON
 import com.aros.apron.manager.FlightManager.FLAG_STOP_ARUCO
 import com.aros.apron.manager.FlightTaskProgressManager
+import com.aros.apron.manager.FlyToPointManager
 import com.aros.apron.manager.GimbalManager
 import com.aros.apron.manager.LEDsSettingsManager
 import com.aros.apron.manager.LTEManager
@@ -42,7 +43,6 @@ import com.aros.apron.manager.OSDManager
 import com.aros.apron.manager.SpeakerManager
 import com.aros.apron.manager.StickManager
 import com.aros.apron.manager.StreamManager
-import com.aros.apron.manager.SystemManager
 import com.aros.apron.manager.WirelessLinkManager
 import com.aros.apron.tools.AlternateArucoDetect
 import com.aros.apron.tools.ApronArucoDetect
@@ -539,7 +539,32 @@ open class MainActivity : BaseActivity() {
             FlightManager.getInstance().stopPropellerRotation(null)
         }
         btn_up?.setOnClickListener {
-            SystemManager.getInstance().upLoadMedia()
+//            SystemManager.getInstance().upLoadMedia()
+            // 使用三引号可以完美保留 JSON 的缩进和换行，无需手动拼接 \n
+            val flytojson = """
+    {
+        "bid": "d12daa4b-9d4e-4e2d-81c2-976d69939ec8",
+        "data": {
+            "fly_to_id": "2f59985e-06d9-4d96-9ef7-7cd206e66a02",
+            "max_speed": 15,
+            "points": [
+                {
+                    "latitude": 22.769009,
+                    "longitude": 108.23807,
+                    "height": 120.0
+                }
+            ]
+        },
+        "method": "fly_to_point",
+        "tid": "7ae01ac3-7638-4ee0-ab5d-2fcb879abe39",
+        "timestamp": 1780901087931
+    }
+""".trimIndent() // trimIndent() 会自动去除多余的缩进空格
+
+// 执行任务
+            FlyToPointManager.getInstance()
+                .taskExecute(Gson().fromJson(flytojson, MessageDown::class.java))
+
         }
         initClickListener()
         MediaDataCenter.getInstance().cameraStreamManager.addAvailableCameraUpdatedListener(

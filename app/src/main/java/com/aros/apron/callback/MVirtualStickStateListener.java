@@ -25,7 +25,9 @@ public class MVirtualStickStateListener extends BaseManager implements dji.v5.ma
 
     @Override
     public void onChangeReasonUpdate(@NonNull FlightControlAuthorityChangeReason reason) {
-        LogUtil.log(TAG,"控制权变更原因:"+reason.name());
+        if(reason.name().equals(FlightControlAuthorityChangeReason.BATTERY_LOW_GO_HOME)){
+            Movement.getInstance().setResult(321773);
+        }
 
     }
 }

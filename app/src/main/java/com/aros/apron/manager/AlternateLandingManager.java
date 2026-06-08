@@ -327,26 +327,31 @@ public class AlternateLandingManager extends BaseManager {
 
             }
         }
-        DomParserKML domParserKML = new DomParserKML(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz",
+        DomParserKML domParserKML = new DomParserKML(
+                getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz",
                 "/template.kml");
         domParserKML.createKml(flightMission);
 
-        DomParserWPML domParserWPML = new DomParserWPML(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz",
+        DomParserWPML domParserWPML = new DomParserWPML(
+                getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "wpmz",
                 "/waylines.wpml");
         domParserWPML.createWpml(flightMission);
 
-        File kmzFile = new File(getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "alternate.kmz");
+        File kmzFile = new File(
+                getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "alternate.kmz");
         kmzFile.getParentFile().mkdirs();
 
         try {
-            ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz", getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz");
+            ZipUtil.zip(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + "/wpmz",
+                    getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz");
         } catch (IOException e) {
             sendEvent2Server( "备降任务生成异常",2);
             throw new RuntimeException(e);
         }
 
         IWaypointMissionManager missionManager = WaypointMissionManager.getInstance();
-        missionManager.pushKMZFileToAircraft(getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
+        missionManager.pushKMZFileToAircraft(
+                getExternalStoragePublicDirectory("KMZ").getAbsolutePath() + File.separator + "alternate.kmz", new CommonCallbacks.CompletionCallbackWithProgress<Double>() {
             @Override
             public void onProgressUpdate(Double aDouble) {
                 LogUtil.log(TAG, "备降点航线上传进度:" + aDouble + "%");
@@ -374,6 +379,8 @@ public class AlternateLandingManager extends BaseManager {
                                 //设置为未开始识别二维码状态
                                 FlightManager.getInstance().setSendDetect(false);
                                 EventBus.getDefault().post(FLAG_STOP_ARUCO);
+                                Movement.getInstance().setResult(316052);
+
                             }
 
                             @Override

@@ -70,7 +70,17 @@ public class PreferenceUtils extends BasePreference {
     private String RESTART_AMS_TIMES = "restart_ams_times";//每次收到航线可能图传不会过来，需要重启app，记录重启次数，最大重启5次
     private String ATTITUDE_HEAD = "attitude_head";//航线断点保存机头角度
     private String WAYPOINT_INDEX = "waypoint_index";//航线断点保存当前航点index
+    private String FIRST_MISSION_RECEIVED = "first_mission_received";//是否第一次收到航线指令
 
+    private String waylinename; //航线名字
+
+    public String getWaylinename() {
+        return waylinename;
+    }
+
+    public void setWaylinename(String waylinename) {
+        this.waylinename = waylinename;
+    }
 
 
     public void setFlightId(String flightId) {
@@ -143,7 +153,13 @@ public class PreferenceUtils extends BasePreference {
     public void setRtkType(int rtkType) {
         setInt(RTK_TYPE, rtkType);
     }
+    public void setFirstMissionReceived(boolean firstMissionReceived) {
+        setBoolean(FIRST_MISSION_RECEIVED, firstMissionReceived);
+    }
 
+    public boolean isFirstMissionReceived() {
+        return getBoolean(FIRST_MISSION_RECEIVED);
+    }
     public void setNeedTriggerApronArucoLand(boolean needTrigger) {
         setBoolean(NEED_TRIGGER_APRON_ARUCO_LAND, needTrigger);
     }

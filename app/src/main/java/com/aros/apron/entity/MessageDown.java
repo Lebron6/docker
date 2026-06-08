@@ -92,7 +92,7 @@ public class MessageDown {
 
         private int commander_flight_height;
         private int commander_mode_lost_action;
-        private String max_speed;
+        private int max_speed;
         private int rc_lost_action;
         private int rth_altitude;
         private String security_takeoff_height;
@@ -113,6 +113,8 @@ public class MessageDown {
 
         private double pitch_speed;
         private double yaw_speed;
+
+
 
 
         public double getPitch_speed() {
@@ -297,11 +299,11 @@ public class MessageDown {
             this.commander_mode_lost_action = commander_mode_lost_action;
         }
 
-        public String getMax_speed() {
+        public int getMax_speed() {
             return max_speed;
         }
 
-        public void setMax_speed(String max_speed) {
+        public void setMax_speed(int max_speed) {
             this.max_speed = max_speed;
         }
 

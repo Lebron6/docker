@@ -32,7 +32,10 @@ public class Movement {
     private String planeMode;//飞机模式字符串
     private int missionStateCode;//航线任务状态
     private boolean isMissionFinish;//用来标识航线in_progress还是ok
-
+    private boolean isMissionFinish1;//用来标识航线in_progress还是ok 这个用来控制最后的状态发送 区别于上面一个 上面一个关系到osd的发送已经被我换了位置了
+    //航线上报状态
+    private int result=0;
+    private int GPSSatelliteCount; //卫星个数
     private int cameraMode;//相机模式(拍照/录像) 0拍照 1录像
     private int isShootingPhoto;//是否正在拍照 1正在拍照 0未在拍照
     private int isRecording;//是否正在录像 1正在录像 0未录像
@@ -108,6 +111,9 @@ public class Movement {
     private boolean resumeMissionStatus;//前端判断是否显示/隐藏继续航线
     private boolean isVirtualStickQuitMission;//用户手动后退出航线
     private String cameraSn;//
+    private double speed;  //全局速度
+    private String waylinename; //航线名字
+
 
 
     //适配上云格式参数，拿到后再进行组装
@@ -269,6 +275,84 @@ public class Movement {
     private String gnd_quality_4g;
     private String sdr_freq_band;
     private String freq_band_4g;
+
+
+    private double takeofftargetlatitude;
+    private double takeofftargetlongitude;
+    private double takeofftargetheight;
+    private boolean istakeoffex = false;
+
+    public String getWaylinename() {
+        return waylinename;
+    }
+
+    public void setWaylinename(String waylinename) {
+        this.waylinename = waylinename;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public boolean isIstakeoffex() {
+        return istakeoffex;
+    }
+
+    public void setIstakeoffex(boolean istakeoffex) {
+        this.istakeoffex = istakeoffex;
+    }
+
+    public double getTakeofftargetlatitude() {
+        return takeofftargetlatitude;
+    }
+
+    public void setTakeofftargetlatitude(double takeofftargetlatitude) {
+        this.takeofftargetlatitude = takeofftargetlatitude;
+    }
+
+    public double getTakeofftargetlongitude() {
+        return takeofftargetlongitude;
+    }
+
+    public void setTakeofftargetlongitude(double takeofftargetlongitude) {
+        this.takeofftargetlongitude = takeofftargetlongitude;
+    }
+
+    public double getTakeofftargetheight() {
+        return takeofftargetheight;
+    }
+
+    public void setTakeofftargetheight(double takeofftargetheight) {
+        this.takeofftargetheight = takeofftargetheight;
+    }
+
+    public int getGPSSatelliteCount() {
+        return GPSSatelliteCount;
+    }
+
+    public void setGPSSatelliteCount(int GPSSatelliteCount) {
+        this.GPSSatelliteCount = GPSSatelliteCount;
+    }
+
+    public int getResult() {
+        return result;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
+
+    public boolean isMissionFinish1() {
+        return isMissionFinish1;
+    }
+
+    public void setMissionFinish1(boolean missionFinish1) {
+        isMissionFinish1 = missionFinish1;
+    }
 
     public String getCameraSn() {
         return cameraSn;
@@ -2152,4 +2236,106 @@ public class Movement {
     }
 
 
+    //用来判断是什么起飞type
+    private volatile int flightmode = 0; //0代表没有操作  1代表航线飞行 2一键代表指令飞行  3flyto（一键和flyto）
+    private boolean takeofftopoint;
+    private boolean opendrc = false; //true 是开启 false 是关闭
+    private String fly_to_id;          // 飞向目标点任务ID
+
+    // flyto 飞向目标点进度
+    private double flyto_target_latitude;   // 目标点纬度
+    private double flyto_target_longitude;  // 目标点经度
+    private float flyto_target_height;      // 目标点高度
+    private float flyto_remaining_distance; // 剩余距离(米)
+    private float flyto_remaining_time;     // 剩余时间(秒)
+    private int flyto_max_speed = 10;       // 最大速度(m/s)
+    private String fly_to_point_progress;
+
+    public int getFlightmode() {
+        return flightmode;
+    }
+
+    public void setFlightmode(int flightmode) {
+        this.flightmode = flightmode;
+    }
+
+    public boolean isTakeofftopoint() {
+        return takeofftopoint;
+    }
+
+    public void setTakeofftopoint(boolean takeofftopoint) {
+        this.takeofftopoint = takeofftopoint;
+    }
+
+    public boolean isOpendrc() {
+        return opendrc;
+    }
+
+    public void setOpendrc(boolean opendrc) {
+        this.opendrc = opendrc;
+    }
+
+    public String getFly_to_id() {
+        return fly_to_id;
+    }
+
+    public void setFly_to_id(String fly_to_id) {
+        this.fly_to_id = fly_to_id;
+    }
+
+    public double getFlyto_target_latitude() {
+        return flyto_target_latitude;
+    }
+
+    public void setFlyto_target_latitude(double flyto_target_latitude) {
+        this.flyto_target_latitude = flyto_target_latitude;
+    }
+
+    public double getFlyto_target_longitude() {
+        return flyto_target_longitude;
+    }
+
+    public void setFlyto_target_longitude(double flyto_target_longitude) {
+        this.flyto_target_longitude = flyto_target_longitude;
+    }
+
+    public float getFlyto_target_height() {
+        return flyto_target_height;
+    }
+
+    public void setFlyto_target_height(float flyto_target_height) {
+        this.flyto_target_height = flyto_target_height;
+    }
+
+    public float getFlyto_remaining_distance() {
+        return flyto_remaining_distance;
+    }
+
+    public void setFlyto_remaining_distance(float flyto_remaining_distance) {
+        this.flyto_remaining_distance = flyto_remaining_distance;
+    }
+
+    public float getFlyto_remaining_time() {
+        return flyto_remaining_time;
+    }
+
+    public void setFlyto_remaining_time(float flyto_remaining_time) {
+        this.flyto_remaining_time = flyto_remaining_time;
+    }
+
+    public int getFlyto_max_speed() {
+        return flyto_max_speed;
+    }
+
+    public void setFlyto_max_speed(int flyto_max_speed) {
+        this.flyto_max_speed = flyto_max_speed;
+    }
+
+    public String getFly_to_point_progress() {
+        return fly_to_point_progress;
+    }
+
+    public void setFly_to_point_progress(String fly_to_point_progress) {
+        this.fly_to_point_progress = fly_to_point_progress;
+    }
 }

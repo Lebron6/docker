@@ -214,49 +214,170 @@ public abstract class BaseManager {
      * 上报航线任务进度
      */
     public void sendFlightTaskProgress2Server() {
+
+        if( Movement.getInstance().getTask_media_count()!=0){
+            LogUtil.log(TAG ,"getTask_media_count"+Movement.getInstance().getTask_media_count());
+        }
         try {
             if (MqttManager.getInstance().mqttAndroidClient.isConnected()) {
-                FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
-                FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
-
-                FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
-                FlightTaskProgress.Data data = new FlightTaskProgress.Data();
-
+                final FlightTaskProgress.Data.Output.Ext ext = new FlightTaskProgress.Data.Output.Ext();
                 ext.setCurrent_waypoint_index(Movement.getInstance().getTask_current_waypoint_index());
                 ext.setFlight_id(PreferenceUtils.getInstance().getFlightId());
+                //媒体文件数量
                 ext.setMedia_count(Movement.getInstance().getTask_media_count());
                 ext.setTrack_id(Movement.getInstance().getTrack_id());
                 ext.setWayline_id(Movement.getInstance().getTask_wayline_id());
                 ext.setWayline_mission_state(Movement.getInstance().getTask_wayline_mission_state());
 
-                if (CurrentWayline.getInstance().getWaypoints()!=null
-                        &&CurrentWayline.getInstance().getWaypoints().size()>0
-                        &&Movement.getInstance().getTask_wayline_mission_state()==6){
-                    progress.setPercent((100 * (Movement.getInstance().getCurrentWaypointIndex()+ 1)
+                final FlightTaskProgress.Data.Output.Progress progress = new FlightTaskProgress.Data.Output.Progress();
+
+                if (CurrentWayline.getInstance().getWaypoints() != null
+                        && CurrentWayline.getInstance().getWaypoints().size() > 0
+                ) {
+                    //这个没执行到
+                    progress.setPercent((100 * (Movement.getInstance().getTask_current_waypoint_index() + 1)
                             / CurrentWayline.getInstance().getWaypoints().size()));
                 }
+
                 progress.setCurrent_step(Movement.getInstance().getTask_current_step());
 
-                if (Movement.getInstance().isMissionFinish()) {
-                    output.setStatus("ok");
-                }else{
-                    output.setStatus(Movement.getInstance().getTask_status());
-                }
-                output.setExt(ext);
-                output.setProgress(progress);
-                data.setResult(0);
-                data.setOutput(output);
-                FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
-                flightTaskProgress.setTid(UUID.randomUUID().toString());
-                flightTaskProgress.setBid(UUID.randomUUID().toString());
-                flightTaskProgress.setTimestamp(System.currentTimeMillis());
-                flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
-                flightTaskProgress.setData(data);
-                MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
-                mqttMessage.setQos(0);
-                MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
-                LogUtil.log(TAG, "发送任务进度事件:" + new Gson().toJson(flightTaskProgress));
+                if (Movement.getInstance().isMissionFinish1()) {
+                    // 是结束状态 → 查完断点再发
+                    WaypointMissionManager.getInstance().queryBreakPointInfoFromAircraft(
+                            "jby", new CommonCallbacks.CompletionCallbackWithParam<BreakPointInfo>() {
 
+                                @Override
+                                public void onSuccess(BreakPointInfo breakPointInfo) {
+                                    // 在回调里 new output，确保 status 不被覆盖
+                                    FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
+                                    if (breakPointInfo != null) {
+                                        LogUtil.log(TAG, "查询断点成功:" + new Gson().toJson(breakPointInfo));
+                                        FlightTaskProgress.Data.Output.Ext.BreakPoint breakPoint =
+                                                new FlightTaskProgress.Data.Output.Ext.BreakPoint();
+
+                                        // 【修复】Attitude_head 可能是 99.2 这种浮点字符串
+                                        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getAttitudeHead())) {
+                                            try {
+                                                float headFloat = Float.parseFloat(PreferenceUtils.getInstance().getAttitudeHead());
+                                                breakPoint.setAttitude_head((int) headFloat);
+                                            } catch (NumberFormatException e) {
+                                                breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
+                                                LogUtil.log(TAG, "AttitudeHead 格式错误:" + PreferenceUtils.getInstance().getAttitudeHead() + "，使用当前姿态");
+                                            }
+                                        } else {
+                                            breakPoint.setAttitude_head(Movement.getInstance().getAttitude_head());
+                                        }
+
+                                        breakPoint.setBreak_reason(Movement.getInstance().getTask_break_reason());
+                                        breakPoint.setHeight(breakPointInfo.getLocation().getAltitude());
+
+                                        // 【修复】WaypointIndex 也可能是浮点字符串（如 "5.0"）
+                                        if (!TextUtils.isEmpty(PreferenceUtils.getInstance().getWaypointIndex())) {
+                                            try {
+                                                float indexFloat = Float.parseFloat(PreferenceUtils.getInstance().getWaypointIndex());
+                                                breakPoint.setIndex((int) indexFloat);
+                                            } catch (NumberFormatException e) {
+                                                breakPoint.setIndex(0);
+                                                LogUtil.log(TAG, "WaypointIndex 格式错误:" + PreferenceUtils.getInstance().getWaypointIndex() + "，默认0");
+                                            }
+                                        } else {
+                                            breakPoint.setIndex(0);
+                                        }
+
+                                        breakPoint.setLatitude(breakPointInfo.getLocation().getLatitude());
+                                        breakPoint.setLongitude(breakPointInfo.getLocation().getLongitude());
+
+                                        breakPoint.setProgress(Movement.getInstance().getTask_progress());
+                                        breakPoint.setState(Movement.getInstance().getState());
+                                        breakPoint.setWayline_id(Movement.getInstance().getTask_wayline_id());
+
+                                        ext.setBreak_point(breakPoint);
+                                        output.setStatus("partially_done");
+                                    } else {
+                                        output.setStatus("ok");
+                                        LogUtil.log(TAG, "未查询到断点信息");
+                                    }
+
+                                    // 发送逻辑放在这里
+                                    output.setExt(ext);
+                                    output.setProgress(progress);
+
+                                    FlightTaskProgress.Data data = new FlightTaskProgress.Data();
+                                    data.setResult(Movement.getInstance().getResult());
+                                    data.setOutput(output);
+
+                                    FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
+                                    flightTaskProgress.setTid(UUID.randomUUID().toString());
+                                    flightTaskProgress.setBid(UUID.randomUUID().toString());
+                                    flightTaskProgress.setTimestamp(System.currentTimeMillis());
+                                    flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+                                    flightTaskProgress.setData(data);
+
+                                    try {
+                                        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+                                        mqttMessage.setQos(0);
+                                        MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                                        LogUtil.log(TAG, "发送任务进度事件(断点回调):" + new Gson().toJson(flightTaskProgress));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        LogUtil.log(TAG, "发送任务进度event异常（回调内）：" + e.toString());
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull IDJIError idjiError) {
+                                    // 查询失败也要发，status=ok
+                                    FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
+                                    output.setStatus("ok");
+                                    output.setExt(ext);
+                                    output.setProgress(progress);
+
+                                    FlightTaskProgress.Data data = new FlightTaskProgress.Data();
+                                    data.setResult(Movement.getInstance().getResult());
+                                    data.setOutput(output);
+
+                                    FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
+                                    flightTaskProgress.setTid(UUID.randomUUID().toString());
+                                    flightTaskProgress.setBid(UUID.randomUUID().toString());
+                                    flightTaskProgress.setTimestamp(System.currentTimeMillis());
+                                    flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+                                    flightTaskProgress.setData(data);
+
+                                    try {
+                                        MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+                                        mqttMessage.setQos(0);
+                                        MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                                        LogUtil.log(TAG, "发送任务进度事件(断点查询失败):" + new Gson().toJson(flightTaskProgress));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        LogUtil.log(TAG, "发送任务进度event异常（onFailure）：" + e.toString());
+                                    }
+                                }
+                            });
+
+                } else {
+                    // 不是结束状态 → 立即发
+                    FlightTaskProgress.Data.Output output = new FlightTaskProgress.Data.Output();
+                    output.setStatus(Movement.getInstance().getTask_status());
+                    output.setExt(ext);
+                    output.setProgress(progress);
+
+                    FlightTaskProgress.Data data = new FlightTaskProgress.Data();
+                    data.setResult(0);
+                    data.setOutput(output);
+
+                    FlightTaskProgress flightTaskProgress = new FlightTaskProgress();
+                    flightTaskProgress.setTid(UUID.randomUUID().toString());
+                    flightTaskProgress.setBid(UUID.randomUUID().toString());
+                    flightTaskProgress.setTimestamp(System.currentTimeMillis());
+                    flightTaskProgress.setMethod(Constant.FLIGHT_TASK_PROGRESS);
+                    flightTaskProgress.setData(data);
+
+                    MqttMessage mqttMessage = new MqttMessage(new Gson().toJson(flightTaskProgress).getBytes("UTF-8"));
+                    mqttMessage.setQos(0);
+                    MqttManager.getInstance().mqttAndroidClient.publish(AMSConfig.UP_UAV_EVENT, mqttMessage);
+                    LogUtil.log(TAG, "发送任务进度事件(正常状态):" + new Gson().toJson(flightTaskProgress));
+                }
             } else {
                 LogUtil.log(TAG, "发送任务进度event失败：mqtt 未连接");
             }

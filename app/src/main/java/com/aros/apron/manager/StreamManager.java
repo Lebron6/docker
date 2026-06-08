@@ -8,6 +8,7 @@ import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
+import com.aros.apron.tools.Utils;
 import com.google.gson.Gson;
 
 import dji.sdk.keyvalue.key.DJIKey;
@@ -100,6 +101,27 @@ sendMsg2Server(message);
 //            }
         }
     }
+
+    public void stopLive(MessageDown message) {
+
+        Boolean isAircraftConnected = KeyManager.getInstance().getValue(DJIKey.create(ProductKey.KeyConnection));
+        if (isAircraftConnected == null || !isAircraftConnected) {
+            LogUtil.log(TAG, "飞行器未连接");
+        } else {
+            ILiveStreamManager liveStreamManager = MediaDataCenter.getInstance().getLiveStreamManager();
+            liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onSuccess() {
+                    sendMsg2Server(message);
+                }
+                @Override
+                public void onFailure(@NonNull IDJIError idjiError) {
+                    sendFailMsg2Server(message, Utils.getIDJIErrorMsg(idjiError));
+                }
+            });
+        }
+    }
+
 
     public void startLiveWithRtmp(MessageDown message) {
 

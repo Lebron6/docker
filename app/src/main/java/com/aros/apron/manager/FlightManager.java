@@ -939,6 +939,12 @@ public class FlightManager extends BaseManager {
             Movement.getInstance().setMissionFinish(true);
             Movement.getInstance().setTask_current_step(25);
             sendOpenCabinDoorMsg=false;
+
+            if(PreferenceUtils.getInstance().getMissionType()==0){
+                Movement.getInstance().setMissionFinish1(true);
+            }
+
+
         }
     }
 
@@ -969,7 +975,6 @@ public class FlightManager extends BaseManager {
                 sendFailMsg2Server( message, "返航执行失败:飞控未连接");
             }
         }
-
     }
 
     //取消返航

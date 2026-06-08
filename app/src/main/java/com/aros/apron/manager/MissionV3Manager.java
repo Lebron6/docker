@@ -567,6 +567,8 @@ public class MissionV3Manager extends BaseManager {
                     Movement.getInstance().setTask_current_step(23);
                     sendFlightTaskProgress2Server();
 //                    Movement.getInstance().setMode_code(5);
+                    Movement.getInstance().setMissionFinish1(false);
+
                 }
 
                 @Override
