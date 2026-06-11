@@ -2,10 +2,13 @@ package com.aros.apron.manager;
 
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.ApronExecutionStatus;
@@ -14,13 +17,17 @@ import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.AlternateArucoDetect;
 import com.aros.apron.tools.ApronArucoDetect;
 import com.aros.apron.tools.DroneHelper;
+import com.aros.apron.tools.FlyToPointProgressScheduler;
+import com.aros.apron.tools.Gpsdistance;
 import com.aros.apron.tools.LocationUtils;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.google.gson.Gson;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
+
 import dji.sdk.keyvalue.key.AirLinkKey;
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
@@ -241,6 +248,30 @@ public class FlightManager extends BaseManager {
                         Movement.getInstance().setLatitude(newValue.getLatitude());
                         Movement.getInstance().setLongitude(newValue.getLongitude());
                         pushFlightAttitude();
+
+                        // ========== 判断是否到达FlyTo目标点 ==========
+                        double targetLat = Movement.getInstance().getFlyto_target_latitude();
+                        double targetLon = Movement.getInstance().getFlyto_target_longitude();
+                        if (targetLat != 0 && targetLon != 0) {
+                            // 计算到目标点的距离
+                            double targetDistance = Gpsdistance.calculateDistance(
+                                    newValue.getLatitude(), newValue.getLongitude(),
+                                    targetLat, targetLon);
+
+                            double horizontalSpeed = Movement.getInstance().getHorizontal_speed();
+
+                            // 距离目标点 < 3米 且 速度 < 0.2m/s 悬停 → 判定到达
+                            if (targetDistance < 3 && horizontalSpeed < 0.2) {
+                                LogUtil.log(TAG, "【FlyTo到达目标点】距离=" + String.format("%.1f", targetDistance)
+                                        + "m 速度=" + String.format("%.2f", horizontalSpeed) + "m/s → 停止上报");
+
+                                FlyToPointProgressScheduler.getInstance().markSuccess();
+
+                                // 清除目标点，避免重复触发
+                                Movement.getInstance().setFlyto_target_latitude(0);
+                                Movement.getInstance().setFlyto_target_longitude(0);
+                            }
+                        }
                     }
                 }
             });

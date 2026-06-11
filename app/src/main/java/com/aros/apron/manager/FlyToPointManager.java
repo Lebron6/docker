@@ -1,17 +1,20 @@
 package com.aros.apron.manager;
 
+import static dji.sdk.keyvalue.key.KeyTools.createKey;
+
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.entity.MessageDown;
 import com.aros.apron.entity.Movement;
 import com.aros.apron.entity.Synchronizedstatus;
 import com.aros.apron.tools.FlyToPointProgressScheduler;
 import com.aros.apron.tools.LogUtil;
-import com.aros.apron.tools.PreferenceUtils;
 
 import java.util.List;
+
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
@@ -20,7 +23,6 @@ import dji.v5.common.callback.CommonCallbacks;
 import dji.v5.common.error.IDJIError;
 import dji.v5.manager.KeyManager;
 import dji.v5.manager.intelligent.IntelligentFlightManager;
-import dji.v5.manager.intelligent.flyto.FlyToMissionManager;
 import dji.v5.manager.intelligent.flyto.FlyToParam;
 import dji.v5.manager.intelligent.flyto.FlyToTarget;
 import dji.v5.manager.intelligent.flyto.IFlyToMissionManager;
@@ -64,7 +66,6 @@ public class FlyToPointManager extends BaseManager {
      * 收到飞往目标点指令 (fly_to_point)
      */
     public void taskExecute(MessageDown message) {
-
         // 参数校验
         if (message.getData() == null || message.getData().getPoints() == null
                 || message.getData().getPoints().isEmpty()) {
@@ -217,7 +218,6 @@ public class FlyToPointManager extends BaseManager {
             public void onSuccess() {
                 LogUtil.log(TAG, "飞向目标点任务终止成功");
                 sendMsg2Server(message);
-
                 FlyToPointProgressScheduler.getInstance().markCancel();
             }
 
@@ -244,7 +244,9 @@ public class FlyToPointManager extends BaseManager {
             sendFailMsg2Server(message, "设备未连接");
             return;
         }
-
+        if (!KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyIsFlying))) {
+            sendFailMsg2Server(message, "飞机没起飞不允许指点");
+        }
         try {
 //            MessageDown.Data data = message.getData();
 //            if (data == null || data.getPoints() == null || data.getPoints().isEmpty()) {

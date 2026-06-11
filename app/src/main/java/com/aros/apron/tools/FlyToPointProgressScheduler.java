@@ -2,18 +2,14 @@ package com.aros.apron.tools;
 
 import android.os.Handler;
 import android.os.Looper;
-
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.entity.FlyToPointProgress;
 import com.aros.apron.entity.Movement;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import dji.sdk.keyvalue.key.FlightControllerKey;
 import dji.sdk.keyvalue.key.KeyTools;
 import dji.sdk.keyvalue.value.common.LocationCoordinate3D;
@@ -67,7 +63,6 @@ public class FlyToPointProgressScheduler {
             LogUtil.log(TAG, "定时上报已在运行中");
             return;
         }
-
         isRunning = true;
         currentStatus = "wayline_progress";
         currentResult = 0;
@@ -79,14 +74,11 @@ public class FlyToPointProgressScheduler {
             @Override
             public void run() {
                 if (!isRunning) return;
-
                 try {
                     // 1. 采样飞机位置
                     new Thread(() -> sampleCurrentLocation()).start();
-
                     // 2. 发送上报
                     sendProgressReport();
-
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.log(TAG, "定时任务异常：" + e.getMessage());
@@ -107,15 +99,11 @@ public class FlyToPointProgressScheduler {
      */
     public void stopReporting() {
         if (!isRunning) return;
-
         isRunning = false;
-
         // 最后发送一次
         sendProgressReport();
-
         reportHandler.removeCallbacks(reportRunnable);
         pathPoints.clear();
-
         LogUtil.log(TAG, "停止飞向目标点进度定时上报");
     }
 
@@ -197,9 +185,7 @@ public class FlyToPointProgressScheduler {
             targetPoint.setLatitude(Movement.getInstance().getFlyto_target_latitude());
             targetPoint.setLongitude(Movement.getInstance().getFlyto_target_longitude());
 
-
             targetPoint.setHeight((float) Movement.getInstance().getFlyto_target_height());
-
 
             pathPoints.add(targetPoint);
 
@@ -212,13 +198,11 @@ public class FlyToPointProgressScheduler {
      * 发送进度上报
      */
     public void sendProgressReport() {
-
         try {
             if (!MqttManager.getInstance().mqttAndroidClient.isConnected()) {
                 LogUtil.log(TAG, "MQTT未连接，跳过上报");
                 return;
             }
-
             FlyToPointProgress.Data data = new FlyToPointProgress.Data();
             data.setFly_to_id(Movement.getInstance().getFly_to_id());
             data.setStatus(currentStatus);
