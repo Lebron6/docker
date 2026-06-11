@@ -230,8 +230,6 @@ public class FlyToPointManager extends BaseManager {
         });
     }
 
-    // ==================== 更新目标点 ====================
-
     /**
      * 更新飞向目标点 (fly_to_point_update)
      * 可在「一键起飞」或「flyto 飞向目标点」执行过程中调用
