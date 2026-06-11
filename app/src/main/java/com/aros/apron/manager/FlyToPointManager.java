@@ -244,6 +244,7 @@ public class FlyToPointManager extends BaseManager {
         }
         if (!KeyManager.getInstance().getValue(createKey(FlightControllerKey.KeyIsFlying))) {
             sendFailMsg2Server(message, "飞机没起飞不允许指点");
+            return;
         }
         try {
 //            MessageDown.Data data = message.getData();
