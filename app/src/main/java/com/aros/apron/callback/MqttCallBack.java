@@ -89,7 +89,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 LogUtil.log(TAG, "收到：开始直播" + jsonString);
                 StreamManager.getInstance().startLiveWithRtmp(message);
                 break;
-            case Constant.LIVE_STOP_PUSH:_PUSH:
+            case Constant.LIVE_STOP_PUSH:
                 LogUtil.log(TAG, "收到：停止直播" + jsonString);
                 StreamManager.getInstance().stopLive(message);
                 break;

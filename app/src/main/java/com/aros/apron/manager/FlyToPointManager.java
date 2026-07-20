@@ -306,7 +306,6 @@ public class FlyToPointManager extends BaseManager {
                     sendMsg2Server(message);
                     sendEvent2Server("目标点已更新", 1);
 
-
                     new Handler().postDelayed(()->{
                         startMissionupdate(message);
                     },1000);
@@ -315,16 +314,11 @@ public class FlyToPointManager extends BaseManager {
 
                 @Override
                 public void onFailure(@NonNull IDJIError idjiError) {
-
                     String errorMsg = "目标点更新失败: " + idjiError;
                     LogUtil.log(TAG, errorMsg);
                     sendFailMsg2Server(message, errorMsg);
-
                 }
             });
-
-
-
         } catch (Exception e) {
             sendFailMsg2Server(message, "更新目标点参数异常: " + e.getMessage());
         }

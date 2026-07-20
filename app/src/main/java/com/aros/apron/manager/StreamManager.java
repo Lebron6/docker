@@ -1,5 +1,6 @@
 package com.aros.apron.manager;
 
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -145,21 +146,54 @@ sendMsg2Server(message);
                 liveStreamManager.setLiveStreamQuality(StreamQuality.find(message.getData().getVideo_quality()));
             }
             liveStreamManager.setLiveVideoBitrateMode(LiveVideoBitrateMode.AUTO);
-//            if (!liveStreamManager.isStreaming()) {
-            liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onSuccess() {
-                    sendMsg2Server(message);
-                    LogUtil.log(TAG, "推流启动成功");
-                }
+            if (liveStreamManager.isStreaming()) {
+                liveStreamManager.stopStream(new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        LogUtil.log(TAG,"先终止推流");
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        sendMsg2Server(message);
+                                        LogUtil.log(TAG, "推流启动成功");
+                                    }
 
-                @Override
-                public void onFailure(@NonNull IDJIError error) {
-                    sendFailMsg2Server(message, "推流失败:" + new Gson().toJson(error));
-                    LogUtil.log(TAG, "推流失败:" + new Gson().toJson(error));
-                }
-            });
-//            }
+                                    @Override
+                                    public void onFailure(@NonNull IDJIError error) {
+                                        sendFailMsg2Server(message, "推流失败:" + new Gson().toJson(error));
+                                        LogUtil.log(TAG, "推流失败:" + new Gson().toJson(error));
+                                    }
+                                });
+                            }
+                        },1000);
+
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError idjiError) {
+                        LogUtil.log(TAG,"终止推流失败:"+Utils.getIDJIErrorMsg(idjiError));
+
+                    }
+                });
+
+            }else{
+                liveStreamManager.startStream(new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onSuccess() {
+                        sendMsg2Server(message);
+                        LogUtil.log(TAG, "推流启动成功");
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        sendFailMsg2Server(message, "推流失败:" + new Gson().toJson(error));
+                        LogUtil.log(TAG, "推流失败:" + new Gson().toJson(error));
+                    }
+                });
+            }
         }
     }
 

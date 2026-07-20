@@ -3,6 +3,7 @@ package com.aros.apron.manager;
 import static com.aros.apron.tools.Utils.getIDJIErrorMsg;
 import static dji.sdk.keyvalue.key.KeyTools.createKey;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -700,7 +701,7 @@ public class FlightManager extends BaseManager {
         //返航时将云台归中,曝光ISO降低
         gimbalAndCameraReset();
         //开始视觉识别降落
-//        checkAndStartVisionLanding();
+        checkAndStartVisionLanding();
         //触发入库
         droneStorage();
     }
@@ -1043,22 +1044,28 @@ public class FlightManager extends BaseManager {
 
     //开启低速转浆
     public void startPropellerRotation(MessageDown message) {
-        KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation), PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
-                sendMsg2Server(message);
-                if (propellerRotationCommandResult.getStatus() == PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION) {
-                    Movement.getInstance().setPropellerRotation(true);
-                }
-                LogUtil.log(TAG, "开始低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
-            }
+            public void run() {
+                KeyManager.getInstance().performAction(createKey(FlightControllerKey.KeyPropellerRotation), PropellerRotationCommand.LOW_SPEED_ROTATION, new CommonCallbacks.CompletionCallbackWithParam<PropellerRotationCommandResult>() {
+                    @Override
+                    public void onSuccess(PropellerRotationCommandResult propellerRotationCommandResult) {
+                        sendMsg2Server(message);
+                        if (propellerRotationCommandResult.getStatus() == PropellerRotationStatus.ALL_MOTOR_IN_LOW_SPEED_ROTATION) {
+                            Movement.getInstance().setPropellerRotation(true);
+                        }
+                        LogUtil.log(TAG, "开始低速转浆结果:" + new Gson().toJson(propellerRotationCommandResult));
+                    }
 
-            @Override
-            public void onFailure(@NonNull IDJIError error) {
-                LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
-                sendFailMsg2Server(message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                    @Override
+                    public void onFailure(@NonNull IDJIError error) {
+                        LogUtil.log(TAG, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                        sendFailMsg2Server(message, "开始低速转浆失败:" + getIDJIErrorMsg(error));
+                    }
+                });
             }
-        });
+        },2000);
+
     }
 
     //停止低速转浆
