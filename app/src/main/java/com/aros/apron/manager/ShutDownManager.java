@@ -2,7 +2,6 @@ package com.aros.apron.manager;
 
 import android.os.Handler;
 import android.os.Looper;
-
 import com.aros.apron.base.BaseManager;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
@@ -12,11 +11,9 @@ import com.aros.apron.entity.Movement;
 import com.aros.apron.tools.LogUtil;
 import com.aros.apron.tools.MqttManager;
 import com.google.gson.Gson;
-
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 

@@ -1,11 +1,9 @@
 package com.aros.apron.callback;
 
 
-import static dji.sdk.keyvalue.key.KeyTools.createKey;
-
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+
 import com.aros.apron.app.ApronApp;
 import com.aros.apron.constant.AMSConfig;
 import com.aros.apron.constant.Constant;
@@ -27,12 +25,10 @@ import com.aros.apron.tools.MqttManager;
 import com.aros.apron.tools.PreferenceUtils;
 import com.aros.apron.tools.RestartAPPTool;
 import com.google.gson.Gson;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-import dji.sdk.keyvalue.key.FlightControllerKey;
-import dji.v5.manager.KeyManager;
 
 public class MqttCallBack implements MqttCallbackExtended {
 
@@ -151,8 +147,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
             case Constant.FLY_TO_POINT_STOP_UPDATE:
                 LogUtil.log(TAG, "收到：更新 flyto 目标点" + jsonString);
-                    FlyToPointManager.getInstance().updateTarget(message);
-
+                FlyToPointManager.getInstance().updateTarget(message);
                 break;
             case Constant.FLIGHT_AUTHORITY_GRAB:
                 LogUtil.log(TAG, "收到：飞行控制权抢夺" + jsonString);
@@ -289,7 +284,7 @@ public class MqttCallBack implements MqttCallbackExtended {
                 break;
                 case Constant.DRC_SPEAKER_TTS_SET:
                 LogUtil.log(TAG, "收到：喊话器-TTS喊话设置" + jsonString);
-                    SpeakerManager.getInstance().speakerTTSPlayStart(message,1);
+                SpeakerManager.getInstance().speakerTTSPlayStart(message,1);
                 break;
 
         }

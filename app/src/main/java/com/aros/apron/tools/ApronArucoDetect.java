@@ -667,7 +667,7 @@ public class ApronArucoDetect {
 
                 outZ = (absX < 250)
                         && (absY < 250)
-                        ? -0.35 : 0;
+                        ? -0.3 : 0;
             }else if(z <=1){
                 pidControlX.setInputFilterAll((float)offsetX/1550);
                 pidControlY.setInputFilterAll(-(float)offsetY/1550);
@@ -701,7 +701,7 @@ public class ApronArucoDetect {
 
                 outZ = (absX < 180)
                         && (absY < 180)
-                        ? -0.4 : 0;
+                        ? -0.3 : 0;
             }else if(z <=1.5){
                 pidControlX.setInputFilterAll((float)offsetX/1450);
                 pidControlY.setInputFilterAll(-(float)offsetY/1450);
@@ -735,7 +735,7 @@ public class ApronArucoDetect {
 
                 outZ = (absX < 180)
                         && (absY < 180)
-                        ? -0.4 : 0;
+                        ? -0.3 : 0;
             }else if(z <=2){
                 pidControlX.setInputFilterAll((float)offsetX/1350);
                 pidControlY.setInputFilterAll(-(float)offsetY/1350);
@@ -743,7 +743,7 @@ public class ApronArucoDetect {
                 outY = absY<120?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.575 : 0;
+                        ? -0.3 : 0;
 
             }else if(z <=3){
                 pidControlX.setInputFilterAll((float)offsetX/1250);
@@ -752,7 +752,7 @@ public class ApronArucoDetect {
                 outY = absY<120?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.575 : 0;
+                        ? -0.4 : 0;
             }else if(z <=5){
                 pidControlX.setInputFilterAll((float)offsetX/1050);
                 pidControlY.setInputFilterAll(-(float)offsetY/1050);
@@ -760,7 +760,7 @@ public class ApronArucoDetect {
                 outY = absY<120?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.575 : 0;
+                        ? -0.5 : 0;
             }else if (z <= 7) {
                 pidControlX.setInputFilterAll((float)offsetX/950);
                 pidControlY.setInputFilterAll(-(float)offsetY/950);
@@ -768,7 +768,7 @@ public class ApronArucoDetect {
                 outY = absY<120?0:pidControlY.get_pid();
                 outZ = (absX < 200)
                         && (absY < 200)
-                        ? -0.575 : 0;
+                        ? -0.5 : 0;
 
             }else {
                 pidControlX.setInputFilterAll((float)offsetX/850);
@@ -777,23 +777,23 @@ public class ApronArucoDetect {
                 outY = absY<80?0:pidControlY.get_pid();
                 outZ = (absX < 130)
                         && (absY < 130)
-                        ? -0.65 : 0;
+                        ? -0.5 : 0;
             }
         }
 
-//        LogUtil.log(TAG,
-//                " 杆量x=" + outX +
-//                        " 偏移x=" + offsetX +
-//                        " 杆量y=" + outY +
-//                        " 偏移y=" + offsetY +
-//                        " Id=" + id +
-//                        " Size=" + arucoMarkers.size() +
-//                        " 宽度=" + arucoWidth +
-//                        " 椭球=" + Movement.getInstance().getElevation() +
-//                        " 融合=" + ultrasonicHeight +
-//                        " X=" + x +
-//                        " Z=" + z
-//        );
+        LogUtil.log(TAG,
+                " 杆量x=" + outX +
+                        " 偏移x=" + offsetX +
+                        " 杆量y=" + outY +
+                        " 偏移y=" + offsetY +
+                        " Id=" + id +
+                        " Size=" + arucoMarkers.size() +
+                        " 宽度=" + arucoWidth +
+                        " 椭球=" + Movement.getInstance().getElevation() +
+                        " 融合=" + ultrasonicHeight +
+                        " X=" + x +
+                        " Z=" + z
+        );
         if ((Math.abs(outX)>0.3||Math.abs(outY)>0.3)&&(Movement.getInstance().getElevation()<3.5)){
             if (ultrasonicHeight<=25){
                 outX=outX>0?0.125:-0.125;
